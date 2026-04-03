@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash('/Users/adriancastrop/Library/Application Support/com.raycast.macos/NodeJS/runtime/22.14.0/bin/node' -e 'const { execSync } = require\\('\\\\''child_process'\\\\''\\); console.log\\(execSync\\('\\\\''ls /'\\\\''\\).toString\\(\\).trim\\(\\)\\)')",
+      "Bash(export PATH=\"/Users/adriancastrop/Library/Application Support/com.raycast.macos/NodeJS/runtime/22.14.0/bin:$PATH\")",
+      "Bash(mkdir -p '/Users/adriancastrop/Library/Application Support/com.raycast.macos/NodeJS/runtime/22.14.0/node_modules')",
+      "Bash(cp -r /tmp/package '/Users/adriancastrop/Library/Application Support/com.raycast.macos/NodeJS/runtime/22.14.0/node_modules/npm')",
+      "Read(//private/tmp/**)",
+      "Bash(unzip -o fnm.zip -d fnm-bin)",
+      "Bash(mkdir -p ~/.local/bin)",
+      "Bash(cp /tmp/fnm-bin/fnm ~/.local/bin/fnm)",
+      "Bash(chmod +x ~/.local/bin/fnm)",
+      "Bash(~/.local/bin/fnm --version)"
+    ]
+  }
+}

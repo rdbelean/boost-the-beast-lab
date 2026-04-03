@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+/* ─── DESIGN TOKENS ─────────────────────────────────────────── */
+:root {
+  --bg-base:          #0D0D0F;
+  --bg-alt:           #161618;
+  --surface:          #1E1E22;
+  --surface-elevated: #26262C;
+  --accent:           #E63222;
+  --accent-hover:     #FF3D2E;
+  --text-primary:     #F2F2F4;
+  --text-secondary:   #A0A0AA;
+  --text-muted:       #606068;
+  --border:           #2E2E36;
+  --success:          #22C55E;
+  --gradient-accent:  linear-gradient(135deg, #E63222, #FF6B5A);
+
+  /* legacy aliases */
+  --bg-section-alt:   var(--bg-alt);
+  --surface-card:     var(--surface);
+  --border-light:     #3A3A44;
+  --accent-red:       var(--accent);
+}
+
+/* ─── RESET ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ─── SCROLLBAR ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-alt); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ─── SHARED UTILITIES (used by other pages) ────────────────── */
+.font-headline { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+.font-mono-data { font-family: 'JetBrains Mono', monospace; }
+.gradient-red-text {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── GLOBAL KEYFRAMES ──────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230,50,34,0.5); }
+  50%       { box-shadow: 0 0 0 8px rgba(230,50,34,0); }
+}
+@keyframes bounceY {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(8px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes pulse-bar {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* ─── LEGACY BUTTONS (used by assessment/results pages) ─────── */
+.btn-primary {
+  background: var(--gradient-accent);
+  color: #fff;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 15px 36px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 2px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(230,50,34,0.45);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 14px 32px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 2px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: rgba(230,50,34,0.06);
+}
+
+/* ─── ASSESSMENT / RESULTS (other pages) ───────────────────── */
+.question-option {
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--surface);
+  border-radius: 4px;
+}
+.question-option:hover { border-color: var(--accent); background: rgba(230,50,34,0.07); }
+.question-option.selected { border-color: var(--accent); background: rgba(230,50,34,0.14); }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--border);
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(230,50,34,0.3);
+}
+.progress-bar { height: 3px; background: var(--border); overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--gradient-accent); transition: width 0.4s ease; }
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, var(--surface-elevated) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}

@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOOST THE BEAST LAB – Performance Intelligence System</title>
+  <meta name="description" content="Performance Diagnostik auf wissenschaftlichem Niveau. Analysiere Metabolismus, Recovery, Aktivität und Stress – ohne Labor, ohne Wartezeit." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── CSS VARIABLES ─────────────────────────────────────────── */
+    :root {
+      --bg-base:          #1C1C20;
+      --bg-section-alt:   #222228;
+      --surface-card:     #2A2A32;
+      --surface-elevated: #32323C;
+      --surface-input:    #30303A;
+      --accent-red:       #E63222;
+      --accent-red-hover: #FF3D2E;
+      --gradient-red:     linear-gradient(135deg, #E63222, #FF6B5A);
+      --text-primary:     #F2F2F4;
+      --text-secondary:   #C4C4CC;
+      --text-muted:       #8A8A96;
+      --border:           #3E3E4A;
+      --border-light:     #4A4A58;
+      --success:          #22C55E;
+      --warning:          #F59E0B;
+      --ease-snappy:      cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ─── BASE ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; cursor: none; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      cursor: none;
+    }
+
+    /* ─── CUSTOM CURSOR ─────────────────────────────────────────── */
+    .cursor-dot {
+      position: fixed;
+      top: 0; left: 0;
+      width: 10px; height: 10px;
+      background: #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: width 0.25s var(--ease-snappy), height 0.25s var(--ease-snappy), background 0.25s, margin 0.25s var(--ease-snappy);
+      margin-left: -5px;
+      margin-top: -5px;
+      mix-blend-mode: difference;
+    }
+    .cursor-dot.expanded {
+      width: 40px; height: 40px;
+      background: transparent;
+      border: 2px solid var(--accent-red);
+      margin-left: -20px;
+      margin-top: -20px;
+      mix-blend-mode: normal;
+    }
+    @media (max-width: 768px) {
+      html, body { cursor: auto; }
+      .cursor-dot { display: none; }
+    }
+
+    /* ─── SCROLLBAR ─────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg-section-alt); }
+    ::-webkit-scrollbar-thumb { background: var(--accent-red); border-radius: 2px; }
+    ::selection { background: var(--accent-red); color: #fff; }
+
+    /* ─── TYPOGRAPHY ────────────────────────────────────────────── */
+    .font-headline {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ─── SCROLL REVEAL ─────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s var(--ease-snappy), transform 0.6s var(--ease-snappy);
+    }
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* ─── ANIMATIONS ────────────────────────────────────────────── */
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(230,50,34,0.4); }
+      50%       { box-shadow: 0 0 0 12px rgba(230,50,34,0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes bounce-y {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(7px); }
+    }
+    @keyframes heroLineIn {
+      from { opacity: 0; transform: translateY(30px); filter: blur(8px); }
+      to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    @keyframes typing {
+      from { width: 0; }
+      to   { width: 100%; }
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: var(--accent-red); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes clipReveal {
+      from { clip-path: inset(0 100% 0 0); }
+      to   { clip-path: inset(0 0% 0 0); }
+    }
+    @keyframes pulseBar {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .animate-pulse-red { animation: pulse-red 2s ease-in-out infinite; }
+    .animate-fade-in-up { animation: fadeInUp 0.6s var(--ease-snappy) forwards; }
+
+    /* ─── BUTTONS ───────────────────────────────────────────────── */
+    .btn-primary {
+      background: var(--gradient-red);
+      color: #fff;
+      font-family: 'Oswald', sans-serif;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 15px 36px;
+      border: none;
+      cursor: none;
+      transition: transform 0.25s var(--ease-snappy), box-shadow 0.25s var(--ease-snappy);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 2px;
+      text-decoration: none;
+      font-size: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(230,50,34,0.45);
+    }
+    .btn-primary.shimmer {
+      background: linear-gradient(110deg, #E63222 0%, #E63222 40%, #FF6B5A 50%, #E63222 60%, #E63222 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.5s ease-in-out infinite;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 14px 32px;
+      border: 1px solid var(--border-light);
+      cursor: none;
+      transition: border-color 0.25s var(--ease-snappy), color 0.25s, background 0.25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 2px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent-red);
+      color: var(--text-primary);
+      background: rgba(230,50,34,0.06);
+    }
+    a, button { cursor: none; }
+
+    /* ─── GRADIENT TEXT ─────────────────────────────────────────── */
+    .gradient-red-text {
+      background: var(--gradient-red);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ─── HEADER ────────────────────────────────────────────────── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      background: rgba(28,28,32,0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      animation: fadeIn 0.5s ease;
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo-text { font-family: 'Oswald', sans-serif; color: #fff; font-weight: 700; letter-spacing: 0.15em; font-size: 13px; text-transform: uppercase; }
+    .logo-sub  { display: block; font-family: 'Oswald', sans-serif; font-size: 9px; letter-spacing: 0.35em; color: var(--accent-red); text-transform: uppercase; }
+    nav { display: flex; align-items: center; gap: 40px; }
+    nav a {
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 4px;
+      transition: color 0.2s;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 2px;
+      background: var(--accent-red);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s var(--ease-snappy);
+    }
+    nav a:hover::after,
+    nav a.active::after {
+      transform: scaleX(1);
+    }
+    nav a:hover { color: #fff; }
+    nav a.active { color: #fff; }
+    .header-cta { padding: 10px 22px !important; font-size: 12px !important; }
+
+    /* ─── HERO ──────────────────────────────────────────────────── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 40%, #3D0A06 0%, #1a0805 35%, #0D0D0F 70%);
+    }
+    /* Noise overlay */
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+      pointer-events: none;
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 80px 80px;
+    }
+    .hero-glow {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(80px);
+      background: radial-gradient(ellipse, rgba(230,50,34,0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 3;
+    }
+    /* Ghost text */
+    .hero-ghost {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Oswald', sans-serif;
+      font-weight: 700;
+      font-size: 30vw;
+      text-transform: uppercase;
+      color: #fff;
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 4;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 112px 32px 64px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      padding: 10px 20px;
+      border: 1px solid var(--border-light);
+      background: rgba(230,50,34,0.1);
+      border-radius: 2px;
+      animation: fadeInUp 0.5s var(--ease-snappy) forwards;
+    }
+    .eyebrow-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      animation: pulse-red 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    .eyebrow-text {
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.35em;
+      color: var(--accent-red);
+      text-transform: uppercase;
+    }
+    .hero-h1 {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 32px;
+      font-size: clamp(2.2rem, 5vw, 4.5rem);
+      text-transform: uppercase;
+    }
+    .hero-h1 span {
+      display: block;
+      opacity: 0;
+      animation: heroLineIn 0.7s var(--ease-snappy) forwards;
+    }
+    .hero-h1 span:nth-child(1) { animation-delay: 0.1s; color: var(--text-primary); }
+    .hero-h1 span:nth-child(2) { animation-delay: 0.3s; color: var(--text-primary); }
+    .hero-h1 span:nth-child(3) { animation-delay: 0.5s; }
+    .hero-sub-wrapper {
+      margin-bottom: 48px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeIn 0.6s ease 0.9s both;
+    }
+    .hero-sub {
+      font-size: 20px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid var(--accent-red);
+      width: 0;
+      animation: typing 2.5s steps(60, end) 1s forwards, blink-caret 0.75s step-end infinite;
+    }
+    @media (max-width: 768px) {
+      .hero-sub {
+        white-space: normal;
+        width: auto;
+        border-right: none;
+        animation: fadeIn 0.6s ease 1s both;
+      }
+    }
+    .hero-ctas {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 80px;
+      animation: fadeInUp 0.6s var(--ease-snappy) 0.7s both;
+    }
+    .hero-stats {
+      display: inline-flex;
+      border: 1px solid var(--border-light);
+      background: var(--surface-card);
+      border-radius: 4px;
+      overflow: hidden;
+      animation: fadeIn 0.8s ease 0.9s both;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 20px 32px;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent-red);
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-family: 'Oswald', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .scroll-indicator {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+      animation: fadeIn 0.8s ease 1.3s both;
+    }
+    .scroll-text {
+      font-family: 'Oswald', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 2px;
+      height: 32px;
+      background: var(--accent-red);
+      border-radius: 1px;
+      animation: pulseBar 1.6s ease-in-out infinite;
+    }
+
+    /* ─── HOW IT WORKS ──────────────────────────────────────────── */
+    #how-it-works {
+      background: var(--bg-section-alt);
+      border-top: 3px solid var(--accent-red);
+    }
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 128px 32px;
+    }
+    .section-header { margin-bottom: 80px; }
+    .section-eyebrow {
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.45em;
+      color: var(--accent-red);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+    }
+    .steps { display: flex; flex-direction: column; position: relative; }
+    /* Vertical progress line */
+    .steps-progress-track {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 44px; /* center of step-number area */
+      width: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .steps-progress-fill {
+      position: absolute;
+      top: 0; left: 44px;
+      width: 2px;
+      height: 0;
+      background: var(--accent-red);
+      z-index: 1;
+      transition: height 0.4s var(--ease-snappy);
+      box-shadow: 0 0 8px rgba(230,50,34,0.4);
+    }
+    .step-divider { height: 1px; background: var(--border); margin-bottom: 48px; }
+    .step {
+      display: flex;
+      gap: 48px;
+      align-items: flex-start;
+      padding-bottom: 48px;
+      position: relative;
+      z-index: 2;
+    }
+    .step-number {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 700;
+      font-size: 72px;
+      line-height: 1;
+      color: var(--accent-red);
+      opacity: 0.9;
+      flex-shrink: 0;
+      width: 90px;
+    }
+    .step-number.clip-reveal {
+      animation: clipReveal 0.8s var(--ease-snappy) forwards;
+    }
+    .step-content { flex: 1; padding-top: 8px; }
+    .step-label {
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.35em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .step-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .step-desc {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      max-width: 480px;
+    }
+
+    /* ─── PRODUCTS ──────────────────────────────────────────────── */
+    #products { background: var(--bg-base); }
+    .products-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 128px 32px;
+    }
+    .product-cards { display: flex; flex-direction: column; gap: 24px; }
+    .product-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent-red);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s var(--ease-snappy), box-shadow 0.35s var(--ease-snappy);
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(230,50,34,0.12);
+    }
+    .product-card.highlight {
+      background: var(--surface-elevated);
+      border-color: var(--accent-red);
+      border-left: 4px solid var(--accent-red);
+      box-shadow: 0 0 0 1px #E63222, 0 0 40px rgba(230,50,34,0.15);
+    }
+    .product-card.highlight:hover {
+      box-shadow: 0 0 0 1px #E63222, 0 0 60px rgba(230,50,34,0.25), 0 20px 60px rgba(230,50,34,0.15);
+    }
+    /* Ribbon badge for bestseller */
+    .ribbon {
+      position: absolute;
+      top: 20px; right: -35px;
+      background: var(--gradient-red);
+      color: #fff;
+      font-family: 'Oswald', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 6px 40px;
+      transform: rotate(45deg);
+      z-index: 5;
+      box-shadow: 0 2px 8px rgba(230,50,34,0.4);
+    }
+    .card-top-stripe {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gradient-red);
+    }
+    .card-layout {
+      display: flex;
+      flex-direction: row;
+    }
+    .card-left { flex: 1; padding: 40px; }
+    .card-tag {
+      display: inline-block;
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+    }
+    .card-tag.highlight-tag { background: var(--gradient-red); color: #fff; }
+    .card-tag.normal-tag    { background: rgba(255,255,255,0.07); color: var(--text-muted); }
+    .card-name {
+      font-family: 'Oswald', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .card-question {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .feature-item svg { flex-shrink: 0; }
+    .card-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      gap: 24px;
+      min-width: 220px;
+      border-left: 1px solid var(--border);
+      background: rgba(0,0,0,0.1);
+    }
+    .card-right.highlight-right { background: rgba(230,50,34,0.05); }
+    .price-wrap { text-align: center; }
+    .price {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 48px;
+      line-height: 1;
+    }
+    .price.accent { color: var(--accent-red); }
+    .price.normal { color: var(--text-primary); }
+    .price-note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .trust-points { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .trust-point {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ─── TRUST SECTION ─────────────────────────────────────────── */
+    #trust {
+      background: var(--bg-section-alt);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .trust-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 96px 32px;
+    }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+    }
+    .trust-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.35s var(--ease-snappy), box-shadow 0.35s var(--ease-snappy);
+    }
+    .trust-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 48px rgba(230,50,34,0.12);
+    }
+    .trust-icon {
+      margin-bottom: 20px;
+      transition: filter 0.35s var(--ease-snappy);
+    }
+    .trust-card:hover .trust-icon {
+      filter: drop-shadow(0 0 8px rgba(230,50,34,0.5));
+    }
+    .trust-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .trust-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* ─── FOOTER ────────────────────────────────────────────────── */
+    .footer-claim-area {
+      position: relative;
+      background: var(--bg-base);
+      padding: 0;
+      overflow: hidden;
+    }
+    .footer-claim-line {
+      display: block;
+      height: 2px;
+      background: var(--accent-red);
+      box-shadow: 0 0 12px rgba(230,50,34,0.4);
+    }
+    .footer-claim-ghost {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: clamp(40px, 8vw, 100px);
+      text-align: center;
+      color: #fff;
+      opacity: 0.04;
+      line-height: 1.2;
+      padding: 40px 20px;
+      user-select: none;
+      pointer-events: none;
+    }
+    footer {
+      background: var(--bg-section-alt);
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 64px 32px;
+    }
+    .footer-top {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+    .footer-brand { max-width: 280px; }
+    .footer-brand-name {
+      font-family: 'Oswald', sans-serif;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .footer-brand-sub {
+      font-family: 'Oswald', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.35em;
+      color: var(--accent-red);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .footer-brand-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .footer-links { display: flex; gap: 64px; }
+    .footer-col-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 12px; }
+    .footer-col a {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ─── RESPONSIVE ────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .hero-ctas { flex-direction: column; }
+      .hero-stats { flex-direction: column; }
+      .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat-item:last-child { border-bottom: none; }
+      .step { flex-direction: column; gap: 16px; }
+      .step-number { font-size: 48px; width: auto; }
+      .steps-progress-track, .steps-progress-fill { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .card-layout { flex-direction: column; }
+      .card-right { border-left: none; border-top: 1px solid var(--border); min-width: unset; }
+      .trust-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-top { flex-direction: column; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+      .ribbon { top: 14px; right: -38px; font-size: 10px; padding: 5px 40px; }
+      .hero-ghost { font-size: 50vw; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── CUSTOM CURSOR ─────────────────────────────────────────── -->
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- ─── HEADER ─────────────────────────────────────────────────── -->
+  <header>
+    <div class="header-inner">
+      <a href="#" class="logo-link">
+        <!-- Hexagon badge logo -->
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+          <path d="M17 1L31.5 9.5V24.5L17 33L2.5 24.5V9.5L17 1Z" fill="#3D0A06" stroke="#E63222" stroke-width="1.5"/>
+          <path d="M11 20L17 10L23 20H18.5V25H15.5V20H11Z" fill="#E63222"/>
+        </svg>
+        <div>
+          <span class="logo-text">BOOST THE BEAST</span>
+          <span class="logo-sub">PERFORMANCE LAB</span>
+        </div>
+      </a>
+
+      <nav>
+        <a href="#how-it-works" data-section="how-it-works">Wie es funktioniert</a>
+        <a href="#products" data-section="products">Reports</a>
+      </nav>
+
+      <a href="#products" class="btn-primary header-cta">Analyse starten →</a>
+    </div>
+  </header>
+
+  <!-- ─── HERO ────────────────────────────────────────────────────── -->
+  <section id="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-ghost">BEAST</div>
+
+    <div class="hero-content">
+      <!-- Eyebrow -->
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        <span class="eyebrow-text">PERFORMANCE INTELLIGENCE SYSTEM</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="hero-h1">
+        <span>DEIN KÖRPER.</span>
+        <span>DEINE DATEN.</span>
+        <span class="gradient-red-text">DEIN LEVEL.</span>
+      </h1>
+
+      <!-- Subheadline with typewriter -->
+      <div class="hero-sub-wrapper">
+        <p class="hero-sub">
+          Performance Diagnostik auf wissenschaftlichem Niveau – ohne Labor, ohne Wartezeit.
+        </p>
+      </div>
+
+      <!-- CTAs -->
+      <div class="hero-ctas">
+        <a href="#products" class="btn-primary" style="font-size:15px;padding:16px 40px;">
+          STARTE DEINE ANALYSE
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a href="#how-it-works" class="btn-secondary" style="font-size:14px;padding:15px 32px;">
+          Wie es funktioniert
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-value" data-count="15">0</div>
+          <div class="stat-label">Fragen</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" data-count="4">0</div>
+          <div class="stat-label">Scores</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" data-count="5" data-prefix="< " data-suffix=" Min">0</div>
+          <div class="stat-label">Ergebnis</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" data-count="100" data-suffix="%">0</div>
+          <div class="stat-label">Automatisiert</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+      <div class="scroll-text">SCROLL</div>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ─── HOW IT WORKS ────────────────────────────────────────────── -->
+  <section id="how-it-works">
+    <div class="section-inner">
+      <div class="section-header reveal">
+        <div class="section-eyebrow">DER PROZESS</div>
+        <h2 class="section-title">SO FUNKTIONIERT'S</h2>
+      </div>
+
+      <div class="steps" id="stepsContainer">
+        <div class="steps-progress-track"></div>
+        <div class="steps-progress-fill" id="stepsProgressFill"></div>
+
+        <!-- Step 01 -->
+        <div class="step-divider"></div>
+        <div class="step reveal">
+          <div class="step-number" data-reveal-clip>01</div>
+          <div class="step-content">
+            <div class="step-label">ANALYSE</div>
+            <h3 class="step-title">15 wissenschaftliche Fragen</h3>
+            <p class="step-desc">Beantworte präzise Fragen zu Schlaf, Training, Ernährung, Stress und Körperdaten – kalibriert nach WHO & ACSM Richtlinien.</p>
+          </div>
+        </div>
+
+        <!-- Step 02 -->
+        <div class="step-divider"></div>
+        <div class="step reveal reveal-delay-1">
+          <div class="step-number" data-reveal-clip>02</div>
+          <div class="step-content">
+            <div class="step-label">ENGINE</div>
+            <h3 class="step-title">KI berechnet deine Scores</h3>
+            <p class="step-desc">Unser Scoring-Algorithmus analysiert 4 Performance-Dimensionen: Metabolismus, Recovery, Aktivität und Stress & Lifestyle.</p>
+          </div>
+        </div>
+
+        <!-- Step 03 -->
+        <div class="step-divider"></div>
+        <div class="step reveal reveal-delay-2">
+          <div class="step-number" data-reveal-clip>03</div>
+          <div class="step-content">
+            <div class="step-label">REPORT</div>
+            <h3 class="step-title">Dein personalisierter Report</h3>
+            <p class="step-desc">Claude AI generiert einen maßgeschneiderten Report mit konkreten Handlungsempfehlungen – sofort als Premium PDF verfügbar.</p>
+          </div>
+        </div>
+
+        <div class="step-divider"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PRODUCTS ────────────────────────────────────────────────── -->
+  <section id="products">
+    <div class="products-inner">
+      <div class="section-header reveal">
+        <div class="section-eyebrow">DEINE REPORTS</div>
+        <h2 class="section-title">WÄHLE DEINEN REPORT</h2>
+      </div>
+
+      <div class="product-cards">
+
+        <!-- Card 1: Metabolic -->
+        <div class="product-card reveal">
+          <div class="card-top-stripe"></div>
+          <div class="card-layout">
+            <div class="card-left">
+              <span class="card-tag normal-tag">EINZELREPORT</span>
+              <h3 class="card-name">METABOLIC PERFORMANCE SCORE</h3>
+              <p class="card-question">Wie effizient arbeitet dein Stoffwechsel?</p>
+              <div class="features-grid">
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  BMI & Körperkompositions-Analyse
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Ernährungs- & Hydrations-Score
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Sitzzeit & Lifestyle-Bewertung
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  AI-generierte Empfehlungen
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Premium PDF Report
+                </div>
+              </div>
+            </div>
+            <div class="card-right">
+              <div class="price-wrap">
+                <div class="price normal" data-price="29">€0</div>
+                <div class="price-note">einmalig</div>
+              </div>
+              <a href="#" class="btn-secondary" style="text-align:center;justify-content:center;font-size:13px;width:100%;">STARTEN →</a>
+              <div class="trust-points">
+                <div class="trust-point">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Sofortiger Download
+                </div>
+                <div class="trust-point">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Einmalig, kein Abo
+                </div>
+                <div class="trust-point">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  PDF inklusive
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Recovery -->
+        <div class="product-card reveal reveal-delay-1">
+          <div class="card-top-stripe"></div>
+          <div class="card-layout">
+            <div class="card-left">
+              <span class="card-tag normal-tag">EINZELREPORT</span>
+              <h3 class="card-name">RECOVERY & REGENERATION SCORE</h3>
+              <p class="card-question">Wie gut erholt sich dein Körper?</p>
+              <div class="features-grid">
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Schlafqualität & -dauer Analyse
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Regenerations-Effizienz-Score
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Stressbelastungs-Index
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  AI-generierte Empfehlungen
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Premium PDF Report
+                </div>
+              </div>
+            </div>
+            <div class="card-right">
+              <div class="price-wrap">
+                <div class="price normal" data-price="29">€0</div>
+                <div class="price-note">einmalig</div>
+              </div>
+              <a href="#" class="btn-secondary" style="text-align:center;justify-content:center;font-size:13px;width:100%;">STARTEN →</a>
+              <div class="trust-points">
+                <div class="trust-point">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Sofortiger Download
+                </div>
+                <div class="trust-point">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Einmalig, kein Abo
+                </div>
+                <div class="trust-point">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  PDF inklusive
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Complete (Highlight) -->
+        <div class="product-card highlight reveal reveal-delay-2">
+          <div class="ribbon">BESTSELLER</div>
+          <div class="card-top-stripe"></div>
+          <div class="card-layout">
+            <div class="card-left">
+              <span class="card-tag highlight-tag">BUNDLE – BESTSELLER</span>
+              <h3 class="card-name">COMPLETE PERFORMANCE ANALYSIS</h3>
+              <p class="card-question">Alle Scores. Ein vollständiger Report.</p>
+              <div class="features-grid">
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Metabolic Performance Score
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Recovery & Regeneration Score
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Activity Performance Score
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Stress & Lifestyle Score
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Overall Performance Index
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Detaillierter AI-Report
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  30-Tage Prognose
+                </div>
+                <div class="feature-item">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#E63222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Premium PDF Report
+                </div>
+              </div>
+            </div>
+            <div class="card-right highlight-right">
+              <div class="price-wrap">
+                <div class="price accent" data-price="79">€0</div>
+                <div class="price-note">einmalig</div>
+              </div>
+              <a href="#" class="btn-primary shimmer" style="text-align:center;justify-content:center;font-size:13px;width:100%;">STARTEN →</a>
+              <div class="trust-points">
+                <div class="trust-point">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Sofortiger Download
+                </div>
+                <div class="trust-point">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Einmalig, kein Abo
+                </div>
+                <div class="trust-point">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  PDF inklusive
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TRUST ────────────────────────────────────────────────────── -->
+  <section id="trust">
+    <div class="trust-inner">
+      <div class="trust-grid">
+
+        <div class="trust-card reveal">
+          <div class="trust-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d="M16 3L5 9v9c0 6.075 4.925 11 11 11s11-4.925 11-11V9L16 3z" fill="rgba(230,50,34,0.15)" stroke="#E63222" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M11 16l4 4 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="trust-title">EVIDENZBASIERT</div>
+          <p class="trust-desc">Basierend auf WHO & ACSM Richtlinien. Wissenschaftlich kalibriert.</p>
+        </div>
+
+        <div class="trust-card reveal reveal-delay-1">
+          <div class="trust-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="16" r="12" fill="rgba(230,50,34,0.15)" stroke="#E63222" stroke-width="2"/>
+              <path d="M16 9v7l4.5 2.25" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="trust-title">UNTER 5 MINUTEN</div>
+          <p class="trust-desc">KI-generiertes Ergebnis in unter 5 Minuten. Sofort verfügbar.</p>
+        </div>
+
+        <div class="trust-card reveal reveal-delay-2">
+          <div class="trust-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d="M8 4h12l8 8v16H8V4z" fill="rgba(230,50,34,0.15)" stroke="#E63222" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M20 4v8h8" stroke="#E63222" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M12 16h8M12 21h8M12 26h5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="trust-title">PREMIUM PDF</div>
+          <p class="trust-desc">Lab-Quality Report. Personalisiert, professionell, druckfertig.</p>
+        </div>
+
+        <div class="trust-card reveal reveal-delay-3">
+          <div class="trust-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d="M16 3l3.09 6.26L26 10.27l-5 4.87 1.18 6.88L16 18.77l-6.18 3.25L11 15.14 6 10.27l6.91-1.01L16 3z" fill="rgba(230,50,34,0.15)" stroke="#E63222" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="trust-title">KEIN ARZTTERMIN</div>
+          <p class="trust-desc">Kein Labor, kein Wartezimmer. Performance Insights – sofort.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER CLAIM ─────────────────────────────────────────────── -->
+  <div class="footer-claim-area">
+    <div class="footer-claim-line"></div>
+    <div class="footer-claim-ghost">MADE FOR ATHLETES. NOT FOR AVERAGE.</div>
+  </div>
+
+  <!-- ─── FOOTER ──────────────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-brand-name">BOOST THE BEAST</div>
+          <div class="footer-brand-sub">PERFORMANCE LAB</div>
+          <p class="footer-brand-desc">Performance Insights auf wissenschaftlichem Niveau – kalibriert nach WHO & ACSM.</p>
+        </div>
+
+        <div class="footer-links">
+          <div class="footer-col">
+            <div class="footer-col-title">LEGAL</div>
+            <ul>
+              <li><a href="#">Impressum</a></li>
+              <li><a href="#">Datenschutz</a></li>
+              <li><a href="#">AGB</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <div class="footer-col-title">KONTAKT</div>
+            <ul>
+              <li><a href="mailto:lab@boostthebeast.com">lab@boostthebeast.com</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 Boost The Beast Lab. Alle Rechte vorbehalten.</p>
+        <p class="footer-copy">Keine medizinische Diagnose. Performance Insights only.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ─── SCRIPTS ──────────────────────────────────────────────────── -->
+  <script>
+    (function() {
+      'use strict';
+
+      // ── Custom Cursor ──────────────────────────────────────────
+      const cursor = document.getElementById('cursorDot');
+      if (cursor && window.matchMedia('(pointer: fine)').matches) {
+        let cx = -100, cy = -100, tx = -100, ty = -100;
+
+        document.addEventListener('mousemove', function(e) {
+          tx = e.clientX;
+          ty = e.clientY;
+        });
+
+        function updateCursor() {
+          cx += (tx - cx) * 0.15;
+          cy += (ty - cy) * 0.15;
+          cursor.style.transform = 'translate(' + cx + 'px,' + cy + 'px)';
+          requestAnimationFrame(updateCursor);
+        }
+        updateCursor();
+
+        // Expand on interactive elements
+        var interactives = document.querySelectorAll('a, button, .btn-primary, .btn-secondary');
+        interactives.forEach(function(el) {
+          el.addEventListener('mouseenter', function() { cursor.classList.add('expanded'); });
+          el.addEventListener('mouseleave', function() { cursor.classList.remove('expanded'); });
+        });
+      } else if (cursor) {
+        cursor.style.display = 'none';
+      }
+
+      // ── CountUp for hero stats ─────────────────────────────────
+      function countUp(el, target, duration, prefix, suffix) {
+        var start = 0;
+        var startTime = null;
+        prefix = prefix || '';
+        suffix = suffix || '';
+
+        function step(timestamp) {
+          if (!startTime) startTime = timestamp;
+          var progress = Math.min((timestamp - startTime) / duration, 1);
+          var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+          var current = Math.round(eased * target);
+          el.textContent = prefix + current + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      // Trigger hero stats on load
+      var statsTriggered = false;
+      function triggerHeroStats() {
+        if (statsTriggered) return;
+        statsTriggered = true;
+        document.querySelectorAll('.stat-value[data-count]').forEach(function(el) {
+          var target = parseInt(el.getAttribute('data-count'));
+          var prefix = el.getAttribute('data-prefix') || '';
+          var suffix = el.getAttribute('data-suffix') || '';
+          countUp(el, target, 1800, prefix, suffix);
+        });
+      }
+      // Fire after page is mostly visible
+      setTimeout(triggerHeroStats, 1200);
+
+      // ── CountUp for price cards ────────────────────────────────
+      var pricesTriggered = new Set();
+      function triggerPriceCount(el) {
+        if (pricesTriggered.has(el)) return;
+        pricesTriggered.add(el);
+        var target = parseInt(el.getAttribute('data-price'));
+        var start = 0;
+        var startTime = null;
+        function step(timestamp) {
+          if (!startTime) startTime = timestamp;
+          var progress = Math.min((timestamp - startTime) / 1200, 1);
+          var eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = '€' + Math.round(eased * target);
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      // ── Scroll Reveal (IntersectionObserver) ───────────────────
+      var revealElements = document.querySelectorAll('.reveal');
+      var revealObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+
+            // Trigger clip-reveal on step numbers inside
+            var clipEls = entry.target.querySelectorAll('[data-reveal-clip]');
+            clipEls.forEach(function(el) {
+              el.classList.add('clip-reveal');
+            });
+
+            // Trigger price countup if visible
+            var priceEl = entry.target.querySelector('[data-price]');
+            if (priceEl) triggerPriceCount(priceEl);
+
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      revealElements.forEach(function(el) {
+        revealObserver.observe(el);
+      });
+
+      // ── Steps vertical progress line ───────────────────────────
+      var stepsContainer = document.getElementById('stepsContainer');
+      var progressFill = document.getElementById('stepsProgressFill');
+
+      if (stepsContainer && progressFill) {
+        var stepsObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              var rect = stepsContainer.getBoundingClientRect();
+              var containerTop = rect.top;
+              var containerHeight = rect.height;
+              var viewportHeight = window.innerHeight;
+              var scrolledInto = viewportHeight - containerTop;
+              var pct = Math.max(0, Math.min(1, scrolledInto / containerHeight));
+              progressFill.style.height = (pct * containerHeight) + 'px';
+            }
+          });
+        }, { threshold: Array.from({length: 20}, function(_, i) { return i / 19; }) });
+
+        stepsObserver.observe(stepsContainer);
+
+        // Also update on scroll for smooth progress
+        window.addEventListener('scroll', function() {
+          var rect = stepsContainer.getBoundingClientRect();
+          var containerHeight = rect.height;
+          var viewportHeight = window.innerHeight;
+          var scrolledInto = viewportHeight - rect.top;
+          var pct = Math.max(0, Math.min(1, scrolledInto / containerHeight));
+          progressFill.style.height = (pct * containerHeight) + 'px';
+        }, { passive: true });
+      }
+
+      // ── Active nav section tracking ────────────────────────────
+      var navLinks = document.querySelectorAll('nav a[data-section]');
+      var sections = [];
+      navLinks.forEach(function(link) {
+        var id = link.getAttribute('data-section');
+        var section = document.getElementById(id);
+        if (section) sections.push({ el: section, link: link });
+      });
+
+      if (sections.length) {
+        var navObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            var match = sections.find(function(s) { return s.el === entry.target; });
+            if (match) {
+              if (entry.isIntersecting) {
+                navLinks.forEach(function(l) { l.classList.remove('active'); });
+                match.link.classList.add('active');
+              }
+            }
+          });
+        }, { threshold: 0.3 });
+
+        sections.forEach(function(s) { navObserver.observe(s.el); });
+      }
+
+    })();
+  </script>
+
+</body>
+</html>
