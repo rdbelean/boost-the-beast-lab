@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-  apiVersion: "2026-03-25.dahlia",
-});
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key || key.startsWith("sk_test_your")) {
+    return null;
+  }
+  return new Stripe(key, { apiVersion: "2026-03-25.dahlia" });
+}
 
 const PRODUCTS: Record<string, { name: string; price: number; description: string }> = {
   metabolic: {
@@ -30,6 +34,12 @@ export async function POST(req: NextRequest) {
 
     if (!product) {
       return NextResponse.json({ error: "Produkt nicht gefunden" }, { status: 400 });
+    }
+
+    const stripe = getStripe();
+    if (!stripe) {
+      // Stripe not configured — return null so frontend falls back to direct assessment
+      return NextResponse.json({ url: null });
     }
 
     const origin = req.headers.get("origin") ?? "https://boost-the-beast-lab.vercel.app";

@@ -2,7 +2,13 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { AssessmentData } from "./scoring";
 import type { ScoreResult } from "./scoring";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+let _client: Anthropic | null = null;
+function getClient() {
+  if (!_client) {
+    _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
+  }
+  return _client;
+}
 
 const SYSTEM_PROMPT = `Du bist die BOOST THE BEAST LAB AI Engine – ein Performance Intelligence System.
 
@@ -82,7 +88,7 @@ Ernährung: ${data.waterIntake}L Wasser/Tag, ${data.mealsPerDay} Mahlzeiten/Tag
 Lifestyle: Stresslevel ${data.stressLevel}/10, Sitzzeit ${data.sittingHours}h/Tag
 `;
 
-  const message = await client.messages.create({
+  const message = await getClient().messages.create({
     model: "claude-opus-4-6",
     max_tokens: 1200,
     system: SYSTEM_PROMPT,
