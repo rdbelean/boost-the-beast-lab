@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Suspense, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import type { AssessmentData } from "@/lib/scoring";
+import styles from "./assessment.module.css";
 
 /* ─── Question definitions ─────────────────────────────────── */
-type QuestionType = "choice" | "slider" | "number";
+type QuestionType = "choice" | "slider";
 
 interface Question {
   id: keyof AssessmentData;
@@ -146,43 +147,38 @@ function SliderQuestion({
   value: number;
   onChange: (v: number) => void;
 }) {
+  const trackRef = useRef<HTMLInputElement>(null);
+  const pct = ((value - (q.min ?? 0)) / ((q.max ?? 100) - (q.min ?? 0))) * 100;
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(parseFloat(e.target.value));
+    },
+    [onChange]
+  );
+
   return (
-    <div className="space-y-8">
-      <div
-        className="text-center py-6 px-8"
-        style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}
-      >
-        <span
-          className="font-mono-data text-6xl font-bold"
-          style={{ color: "var(--accent-red)" }}
-        >
-          {value}
-        </span>
-        <span className="text-2xl ml-2" style={{ color: "var(--text-secondary)" }}>
-          {q.unit}
-        </span>
+    <div>
+      <div className={styles.sliderDisplay}>
+        <span className={styles.sliderDisplayValue}>{value}</span>
+        <span className={styles.sliderDisplayUnit}>{q.unit}</span>
       </div>
-      <div className="px-2">
+      <div className={styles.sliderTrack}>
         <input
+          ref={trackRef}
           type="range"
           min={q.min}
           max={q.max}
           step={q.step}
           value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value))}
-          className="w-full"
-          style={{
-            background: `linear-gradient(to right, var(--accent-red) 0%, var(--accent-red) ${
-              (((value as number) - (q.min ?? 0)) / ((q.max ?? 100) - (q.min ?? 0))) * 100
-            }%, var(--border) ${
-              (((value as number) - (q.min ?? 0)) / ((q.max ?? 100) - (q.min ?? 0))) * 100
-            }%, var(--border) 100%)`,
-          }}
+          onChange={handleChange}
+          className={styles.sliderInput}
+          style={{ "--pct": `${pct}%` } as React.CSSProperties}
         />
-        <div className="flex justify-between mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
-          <span>{q.min} {q.unit}</span>
-          <span>{q.max} {q.unit}</span>
-        </div>
+      </div>
+      <div className={styles.sliderMinMax}>
+        <span>{q.min} {q.unit}</span>
+        <span>{q.max} {q.unit}</span>
       </div>
     </div>
   );
@@ -199,29 +195,18 @@ function ChoiceQuestion({
   onChange: (v: string | number) => void;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-3">
+    <div className={styles.choices}>
       {q.choices?.map((c) => (
         <button
           key={String(c.value)}
+          type="button"
           onClick={() => onChange(c.value)}
-          className={`question-option text-left text-base transition-all ${value === c.value ? "selected" : ""}`}
+          className={`${styles.choiceBtn} ${value === c.value ? styles.choiceBtnActive : ""}`}
         >
-          <div className="flex items-center gap-4">
-            <div
-              className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
-              style={{
-                borderColor: value === c.value ? "var(--accent-red)" : "var(--border)",
-                background: value === c.value ? "var(--accent-red)" : "transparent",
-              }}
-            >
-              {value === c.value && (
-                <div className="w-2 h-2 rounded-full bg-white" />
-              )}
-            </div>
-            <span style={{ color: value === c.value ? "var(--text-primary)" : "var(--text-secondary)" }}>
-              {c.label}
-            </span>
+          <div className={styles.choiceRadio}>
+            <div className={styles.choiceRadioDot} />
           </div>
+          {c.label}
         </button>
       ))}
     </div>
@@ -230,15 +215,23 @@ function ChoiceQuestion({
 
 /* ─── Main Assessment Page ──────────────────────────────────── */
 export default function AssessmentPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "var(--bg-base)" }} />}>
+      <AssessmentContent />
+    </Suspense>
+  );
+}
+
+function AssessmentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const productId = searchParams.get("product") ?? "complete-analysis";
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<Partial<AssessmentData>>({});
+  const [animKey, setAnimKey] = useState(0);
 
   const q = questions[current];
-  const progress = ((current) / total) * 100;
+  const progress = (current / total) * 100;
 
   const currentValue =
     answers[q.id] !== undefined
@@ -255,10 +248,9 @@ export default function AssessmentPage() {
 
   function goNext() {
     if (current < total - 1) {
-      setDirection(1);
       setCurrent((c) => c + 1);
+      setAnimKey((k) => k + 1);
     } else {
-      // Done — store and go to results
       const finalAnswers: AssessmentData = {
         gender: (answers.gender as AssessmentData["gender"]) ?? "male",
         age: (answers.age as number) ?? 30,
@@ -278,133 +270,100 @@ export default function AssessmentPage() {
       };
       sessionStorage.setItem("btb_assessment", JSON.stringify(finalAnswers));
       sessionStorage.setItem("btb_product", productId);
-      router.push(`/checkout/${productId}`);
+      router.push("/results");
     }
   }
 
   function goBack() {
     if (current > 0) {
-      setDirection(-1);
       setCurrent((c) => c - 1);
+      setAnimKey((k) => k + 1);
     }
   }
 
-  const canProceed =
-    q.type === "choice" ? answers[q.id] !== undefined : true;
-
-  const variants = {
-    enter: (d: number) => ({ opacity: 0, x: d > 0 ? 60 : -60 }),
-    center: { opacity: 1, x: 0 },
-    exit:  (d: number) => ({ opacity: 0, x: d > 0 ? -60 : 60 }),
-  };
+  const canProceed = q.type === "choice" ? answers[q.id] !== undefined : true;
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: "var(--bg-base)" }}
-    >
-      {/* Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <div className="progress-bar">
-          <motion.div
-            className="progress-bar-fill"
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-          />
+    <div className={styles.page}>
+      {/* Top Bar */}
+      <div className={styles.topBar}>
+        <div className={styles.progressTrack}>
+          <div className={styles.progressFill} style={{ width: `${progress}%` }} />
         </div>
-        <div
-          className="flex items-center justify-between px-8 h-14"
-          style={{ background: "rgba(28,28,32,0.96)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)" }}
-        >
-          <div className="font-headline text-xs tracking-widest" style={{ color: "var(--text-muted)" }}>
-            BOOST THE BEAST LAB
+        <div className={styles.headerBar}>
+          <div className={styles.headerLogo}>BOOST THE BEAST LAB</div>
+          <div className={styles.headerCounter}>
+            <span className={styles.headerCounterCurrent}>{current + 1}</span>
+            <span> / {total}</span>
           </div>
-          <div className="font-mono-data text-xs" style={{ color: "var(--text-secondary)" }}>
-            <span style={{ color: "var(--accent-red)" }}>{current + 1}</span>
-            <span style={{ color: "var(--text-muted)" }}> / {total}</span>
-          </div>
-          <div className="font-mono-data text-xs" style={{ color: "var(--text-muted)" }}>
-            {Math.round(progress)}%
-          </div>
+          <Link href="/" className={styles.headerClose} aria-label="Schließen">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </Link>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex items-center justify-center px-8 pt-24 pb-16">
-        <div className="w-full max-w-lg">
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={current}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-              {/* Step label */}
-              <div
-                className="font-headline text-xs tracking-[0.35em] mb-4"
-                style={{ color: "var(--accent-red)" }}
-              >
-                FRAGE {current + 1} VON {total}
-              </div>
+      {/* Main Content */}
+      <div className={styles.main}>
+        <div className={styles.cardWrap}>
+          <div key={animKey} className={styles.questionCard}>
+            {/* Step label */}
+            <div className={styles.stepLabel}>
+              <span className={styles.stepDot} />
+              FRAGE {current + 1} VON {total}
+            </div>
 
-              {/* Question */}
-              <h2 className="font-headline text-3xl md:text-4xl font-bold mb-2 leading-tight" style={{ color: "var(--text-primary)" }}>
-                {q.label}
-              </h2>
-              {q.subtitle && (
-                <p className="text-sm mb-8" style={{ color: "var(--text-muted)" }}>
-                  {q.subtitle}
-                </p>
-              )}
-              {!q.subtitle && <div className="mb-8" />}
+            {/* Question title */}
+            <h2 className={styles.questionTitle}>{q.label}</h2>
+            {q.subtitle ? (
+              <p className={styles.questionSub}>{q.subtitle}</p>
+            ) : (
+              <div className={styles.noSub} />
+            )}
 
-              {/* Input */}
-              {q.type === "slider" && (
-                <SliderQuestion
-                  q={q}
-                  value={currentValue as number}
-                  onChange={(v) => setAnswer(v as AssessmentData[keyof AssessmentData])}
-                />
-              )}
-              {q.type === "choice" && (
-                <ChoiceQuestion
-                  q={q}
-                  value={currentValue as string | number}
-                  onChange={(v) => setAnswer(v as AssessmentData[keyof AssessmentData])}
-                />
-              )}
+            {/* Input */}
+            {q.type === "slider" && (
+              <SliderQuestion
+                q={q}
+                value={currentValue as number}
+                onChange={(v) => setAnswer(v as AssessmentData[keyof AssessmentData])}
+              />
+            )}
+            {q.type === "choice" && (
+              <ChoiceQuestion
+                q={q}
+                value={currentValue as string | number}
+                onChange={(v) => setAnswer(v as AssessmentData[keyof AssessmentData])}
+              />
+            )}
 
-              {/* Navigation — mittig unter der Frage */}
-              <div className="flex items-center justify-center gap-4 mt-10 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
-                {current > 0 && (
-                  <button onClick={goBack} className="btn-secondary py-3 px-6 text-sm">
-                    ← Zurück
-                  </button>
-                )}
-                <button
-                  onClick={goNext}
-                  disabled={!canProceed}
-                  className="btn-primary py-4 px-12 text-sm justify-center"
-                  style={{ opacity: canProceed ? 1 : 0.4, cursor: canProceed ? "pointer" : "not-allowed" }}
-                >
-                  {current === total - 1 ? (
-                    <>
-                      ANALYSE STARTEN
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </>
-                  ) : (
-                    "WEITER →"
-                  )}
+            {/* Navigation */}
+            <div className={styles.nav}>
+              {current > 0 && (
+                <button onClick={goBack} className={styles.navBtnSecondary} type="button">
+                  ← ZURÜCK
                 </button>
-              </div>
-
-            </motion.div>
-          </AnimatePresence>
+              )}
+              <button
+                onClick={goNext}
+                disabled={!canProceed}
+                className={styles.navBtnPrimary}
+                type="button"
+              >
+                {current === total - 1 ? (
+                  <>
+                    ANALYSE STARTEN
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </>
+                ) : (
+                  "WEITER →"
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

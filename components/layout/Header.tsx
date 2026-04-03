@@ -1,61 +1,66 @@
 "use client";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import styles from "@/app/landing.module.css";
 
 export default function Header() {
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    const ids = ["how-it-works", "products"];
+    const observers: IntersectionObserver[] = [];
+
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
+        { threshold: 0.3 }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, []);
+
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50"
-      style={{
-        background: "rgba(28,28,32,0.94)",
-        backdropFilter: "blur(16px)",
-        borderBottom: "1px solid var(--border)",
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-8 h-18 flex items-center justify-between" style={{ height: "68px" }}>
-        <Link href="/" className="flex items-center gap-3">
-          <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-            <circle cx="15" cy="15" r="14" fill="var(--accent-red)" opacity="0.12"/>
-            <path d="M9 11c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v4c0 3.314-2.686 6-6 6s-6-2.686-6-6v-4z" fill="var(--accent-red)" opacity="0.85"/>
-            <path d="M12 14a1 1 0 100 2 1 1 0 000-2zM17 14a1 1 0 100 2 1 1 0 000-2z" fill="white"/>
-            <path d="M7 9l2 4M23 9l-2 4" stroke="var(--accent-red)" strokeWidth="1.5" strokeLinecap="round"/>
+    <header className={styles.header}>
+      <div className={`${styles.container} ${styles.headerInner}`}>
+        {/* Logo */}
+        <Link href="/" className={styles.logo}>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M16 1L29.5 8.5V23.5L16 31L2.5 23.5V8.5L16 1Z"
+              fill="#2D0A06" stroke="#E63222" strokeWidth="1.5"/>
+            <path d="M13 22l3-12 3 12h-2.5v4h-1v-4H13z" fill="#E63222"/>
           </svg>
           <div>
-            <span className="font-headline text-white font-bold tracking-widest" style={{ fontSize: "13px" }}>
-              BOOST THE BEAST
-            </span>
-            <span
-              className="block text-xs tracking-[0.35em]"
-              style={{ color: "var(--accent-red)", fontFamily: "'Oswald', sans-serif", fontSize: "9px" }}
-            >
-              PERFORMANCE LAB
-            </span>
+            <span className={styles.logoText}>BOOST THE BEAST</span>
+            <span className={styles.logoSub}>PERFORMANCE LAB</span>
           </div>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-10">
+        {/* Nav */}
+        <nav className={styles.nav}>
           {[
-            { href: "/#how-it-works", label: "Wie es funktioniert" },
-            { href: "/#products", label: "Reports" },
-          ].map(({ href, label }) => (
+            { href: "/#how-it-works", label: "WIE ES FUNKTIONIERT", id: "how-it-works" },
+            { href: "/#products",     label: "REPORTS",              id: "products" },
+          ].map(({ href, label, id }) => (
             <Link
-              key={href}
+              key={id}
               href={href}
-              className="text-xs tracking-widest transition-colors duration-200 hover:text-white"
-              style={{ color: "var(--text-secondary)", fontFamily: "'Oswald', sans-serif", textTransform: "uppercase" }}
+              className={`${styles.navLink} ${activeSection === id ? styles.navLinkActive : ""}`}
             >
               {label}
             </Link>
           ))}
         </nav>
 
-        <Link href="/assessment?product=complete-analysis" className="btn-primary" style={{ padding: "10px 22px", fontSize: "12px" }}>
-          Analyse starten →
+        {/* CTA */}
+        <Link href="/assessment?product=complete-analysis" className={styles.headerCta}>
+          ANALYSE STARTEN →
         </Link>
       </div>
-    </motion.header>
+    </header>
   );
 }

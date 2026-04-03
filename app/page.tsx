@@ -4,7 +4,6 @@ import Hero from "@/components/landing/Hero";
 import HowItWorks from "@/components/landing/HowItWorks";
 import Products from "@/components/landing/Products";
 import TrustSection from "@/components/landing/TrustSection";
-
 export default function HomePage() {
   return (
     <>

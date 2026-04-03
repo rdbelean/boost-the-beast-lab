@@ -1,209 +1,204 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence, animate } from "framer-motion";
 import Link from "next/link";
 import type { AssessmentData } from "@/lib/scoring";
 import type { ScoreResult } from "@/lib/scoring";
+import { calculateAllScores } from "@/lib/scoring";
+import styles from "./results.module.css";
 
-/* ─── Animated number ───────────────────────────────────────── */
-function AnimatedNumber({ target, duration = 1.5 }: { target: number; duration?: number }) {
+/* ─── Animated Counter ──────────────────────────────────────── */
+function useCountUp(target: number, duration = 1600) {
   const [value, setValue] = useState(0);
+  const started = useRef(false);
   useEffect(() => {
-    const controls = animate(0, target, {
-      duration,
-      ease: "easeOut",
-      onUpdate: (v) => setValue(Math.round(v)),
-    });
-    return () => controls.stop();
+    if (started.current) return;
+    started.current = true;
+    const start = performance.now();
+    const step = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setValue(Math.round(eased * target));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }, [target, duration]);
-  return <>{value}</>;
+  return value;
 }
 
-/* ─── Score Ring ────────────────────────────────────────────── */
-function ScoreRing({ score, size = 180 }: { score: number; size?: number }) {
-  const r = (size / 2) - 10;
-  const circumference = 2 * Math.PI * r;
-  const color = score >= 70 ? "#22C55E" : score >= 40 ? "#F59E0B" : "#E63222";
-
-  return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--border)" strokeWidth="8"/>
-        <motion.circle
-          cx={size/2} cy={size/2} r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset: circumference - (score / 100) * circumference }}
-          transition={{ duration: 1.8, ease: "easeOut", delay: 0.3 }}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="font-mono-data font-bold" style={{ fontSize: size * 0.28, color, lineHeight: 1 }}>
-          <AnimatedNumber target={score} duration={1.8} />
-        </div>
-        <div style={{ color: "var(--text-muted)", fontSize: 11, fontFamily: "'JetBrains Mono',monospace" }}>/100</div>
-      </div>
-    </div>
-  );
+function AnimNum({ target }: { target: number }) {
+  return <>{useCountUp(target)}</>;
 }
 
-/* ─── Score Bar Card ────────────────────────────────────────── */
-function ScoreCard({
-  label, score, description, delay = 0
-}: {
-  label: string; score: number; description: string; delay?: number;
-}) {
-  const color = score >= 70 ? "var(--success)" : score >= 40 ? "var(--warning)" : "var(--accent-red)";
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
-      className="p-6"
-      style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}
-    >
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <div className="font-headline text-xs tracking-widest mb-1" style={{ color: "var(--text-muted)" }}>
-            {label}
-          </div>
-          <div className="font-mono-data text-3xl font-bold" style={{ color }}>
-            <AnimatedNumber target={score} duration={1.6} />
-            <span style={{ fontSize: 14, color: "var(--text-muted)" }}>/100</span>
-          </div>
-        </div>
-        <div
-          className="text-xs px-2 py-1 font-headline"
-          style={{
-            background: score >= 70 ? "rgba(34,197,94,0.12)" : score >= 40 ? "rgba(245,158,11,0.12)" : "rgba(230,50,34,0.12)",
-            color,
-          }}
-        >
-          {score >= 70 ? "GUT" : score >= 40 ? "MITTEL" : "NIEDRIG"}
-        </div>
-      </div>
-      <div className="progress-bar mb-3">
-        <motion.div
-          className="progress-bar-fill"
-          initial={{ width: 0 }}
-          animate={{ width: `${score}%` }}
-          transition={{ duration: 1.6, ease: "easeOut", delay: delay + 0.2 }}
-          style={{ background: color }}
-        />
-      </div>
-      <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{description}</p>
-    </motion.div>
-  );
+/* ─── Color helpers ─────────────────────────────────────────── */
+function scoreColor(score: number): string {
+  if (score >= 70) return "#22C55E";
+  if (score >= 40) return "#F59E0B";
+  return "#E63222";
 }
 
-/* ─── Processing Screen ─────────────────────────────────────── */
-function ProcessingScreen({ step }: { step: number }) {
-  const steps = [
-    "Daten werden verarbeitet...",
-    "Scores werden berechnet...",
-    "AI generiert deinen Report...",
-    "Report wird finalisiert...",
+function scoreBadge(score: number): string {
+  if (score >= 70) return "GUT";
+  if (score >= 40) return "MITTEL";
+  return "NIEDRIG";
+}
+
+/* ─── Radar Chart (SVG) ─────────────────────────────────────── */
+function RadarChart({ scores }: { scores: ScoreResult }) {
+  const categories = [
+    { label: "Metabolic", value: scores.metabolic },
+    { label: "Recovery", value: scores.recovery },
+    { label: "Activity", value: scores.activity },
+    { label: "Stress", value: scores.stress },
   ];
+  const cx = 190, cy = 190, maxR = 140;
+  const n = categories.length;
+
+  function polarToCart(angle: number, r: number) {
+    const rad = (angle - 90) * (Math.PI / 180);
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  // Grid rings
+  const rings = [25, 50, 75, 100];
+  const gridPaths = rings.map((pct) => {
+    const r = (pct / 100) * maxR;
+    const pts = Array.from({ length: n }, (_, i) => {
+      const angle = (360 / n) * i;
+      return polarToCart(angle, r);
+    });
+    return pts.map((p) => `${p.x},${p.y}`).join(" ");
+  });
+
+  // Axes
+  const axes = Array.from({ length: n }, (_, i) => {
+    const angle = (360 / n) * i;
+    return polarToCart(angle, maxR);
+  });
+
+  // Data polygon
+  const dataPts = categories.map((cat, i) => {
+    const angle = (360 / n) * i;
+    const r = (cat.value / 100) * maxR;
+    return polarToCart(angle, r);
+  });
+  const dataPath = dataPts.map((p) => `${p.x},${p.y}`).join(" ");
+
+  // Labels
+  const labelPts = categories.map((cat, i) => {
+    const angle = (360 / n) * i;
+    const p = polarToCart(angle, maxR + 24);
+    return { ...p, label: cat.label, value: cat.value };
+  });
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: "var(--primary-black)" }}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="text-center max-w-sm px-6"
-      >
-        {/* Animated ring */}
-        <div className="relative w-24 h-24 mx-auto mb-10">
-          <svg className="animate-spin" width="96" height="96" viewBox="0 0 96 96" style={{ animationDuration: "1.5s" }}>
-            <circle cx="48" cy="48" r="38" fill="none" stroke="var(--border)" strokeWidth="4"/>
-            <circle cx="48" cy="48" r="38" fill="none" stroke="var(--accent-red)" strokeWidth="4"
-              strokeDasharray="60 180" strokeLinecap="round" transform="rotate(-90 48 48)"/>
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-3 h-3 rounded-full animate-pulse-red" style={{ background: "var(--accent-red)" }}/>
-          </div>
-        </div>
-
-        <div className="font-headline text-xl font-bold text-white mb-8">
-          DEINE DATEN WERDEN ANALYSIERT
-        </div>
-
-        <div className="space-y-3">
-          {steps.map((s, i) => (
-            <motion.div
-              key={s}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: i <= step ? 1 : 0.3, x: 0 }}
-              transition={{ delay: i * 0.15 }}
-              className="flex items-center gap-3 text-sm"
-              style={{ color: i <= step ? "var(--text-primary)" : "var(--text-muted)" }}
-            >
-              <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
-                {i < step ? (
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M2 7l4 4 6-7" stroke="var(--success)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                ) : i === step ? (
-                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--accent-red)" }}/>
-                ) : (
-                  <div className="w-2 h-2 rounded-full" style={{ background: "var(--border)" }}/>
-                )}
-              </div>
-              {s}
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </div>
+    <svg viewBox="0 0 380 380" className={styles.radarSvg}>
+      {/* Grid */}
+      {gridPaths.map((pts, i) => (
+        <polygon key={i} points={pts} fill="none" stroke="var(--border)" strokeWidth="1" opacity="0.5" />
+      ))}
+      {/* Axes */}
+      {axes.map((p, i) => (
+        <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="var(--border)" strokeWidth="1" opacity="0.3" />
+      ))}
+      {/* Data fill */}
+      <polygon points={dataPath} fill="rgba(230,50,34,0.15)" stroke="#E63222" strokeWidth="2" />
+      {/* Data dots */}
+      {dataPts.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="5" fill="#E63222" stroke="#fff" strokeWidth="2" />
+      ))}
+      {/* Labels */}
+      {labelPts.map((p, i) => (
+        <text
+          key={i}
+          x={p.x}
+          y={p.y}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="var(--text-secondary)"
+          fontFamily="'Oswald', sans-serif"
+          fontSize="11"
+          letterSpacing="0.08em"
+        >
+          {p.label.toUpperCase()}
+        </text>
+      ))}
+    </svg>
   );
 }
 
-/* ─── Report Renderer ───────────────────────────────────────── */
+/* ─── Report Text Renderer ──────────────────────────────────── */
 function ReportText({ text }: { text: string }) {
   const sections = text.split(/^## /m).filter(Boolean);
-
   return (
-    <div className="space-y-8">
+    <div className={styles.reportCards}>
       {sections.map((section, i) => {
         const lines = section.split("\n");
-        const title = lines[0].trim();
+        const title = lines[0].trim().replace(/^##\s*/, "");
         const body = lines.slice(1).join("\n").trim();
-
         return (
-          <motion.div
+          <div
             key={i}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="p-6"
-            style={{ background: i % 2 === 0 ? "var(--surface-card)" : "var(--surface-elevated)", border: "1px solid var(--border)" }}
+            className={`${styles.reportCard} ${i % 2 === 0 ? styles.reportCardEven : styles.reportCardOdd}`}
+            style={{ animationDelay: `${i * 0.08}s` }}
           >
+            <div className={styles.reportCardTitle}>{title}</div>
             <div
-              className="font-headline text-xs tracking-widest mb-4 pb-3"
-              style={{ color: "var(--accent-red)", borderBottom: "1px solid var(--border)" }}
-            >
-              {title.replace(/^##\s*/, "")}
-            </div>
-            <div
-              className="text-sm leading-relaxed whitespace-pre-wrap"
-              style={{ color: "var(--text-secondary)" }}
+              className={styles.reportCardBody}
               dangerouslySetInnerHTML={{
                 __html: body
-                  .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text-primary)">$1</strong>')
-                  .replace(/^(\d+\. )/gm, '<span style="color:var(--accent-red);font-weight:600">$1</span>'),
+                  .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+                  .replace(/^(\d+\. )/gm, '<span style="color:var(--accent);font-weight:600">$1</span>'),
               }}
             />
-          </motion.div>
+          </div>
         );
       })}
     </div>
   );
 }
 
-/* ─── Main Results Page ─────────────────────────────────────── */
+/* ─── Processing Screen ─────────────────────────────────────── */
+const STEPS = [
+  "Daten werden verarbeitet...",
+  "Scores werden berechnet...",
+  "AI generiert deinen Report...",
+  "Report wird finalisiert...",
+];
+
+function ProcessingScreen({ step }: { step: number }) {
+  return (
+    <div className={styles.processingScreen}>
+      <div className={styles.processingInner}>
+        <div className={styles.processingRing}>
+          <svg className={styles.processingRingSvg} width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" strokeWidth="4" />
+            <circle cx="40" cy="40" r="32" fill="none" stroke="var(--accent)" strokeWidth="4"
+              strokeDasharray="50 150" strokeLinecap="round" transform="rotate(-90 40 40)" />
+          </svg>
+          <div className={styles.processingRingDot}>
+            <div className={styles.processingRingDotInner} />
+          </div>
+        </div>
+        <div className={styles.processingTitle}>DEINE DATEN WERDEN ANALYSIERT</div>
+        <div className={styles.processingSteps}>
+          {STEPS.map((s, i) => (
+            <div
+              key={i}
+              className={`${styles.processingStep} ${i < step ? styles.stepDone : i === step ? styles.stepActive : ""}`}
+            >
+              <span className={styles.stepIcon}>
+                {i < step ? "✓" : i + 1}
+              </span>
+              {s}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Main Results Dashboard ────────────────────────────────── */
 export default function ResultsPage() {
   const [processingStep, setProcessingStep] = useState(0);
   const [scores, setScores] = useState<ScoreResult | null>(null);
@@ -226,41 +221,44 @@ export default function ResultsPage() {
     const data: AssessmentData = JSON.parse(raw);
     setAssessmentData(data);
 
-    async function run() {
-      // Step 0: processing
-      setProcessingStep(0);
-      await new Promise((r) => setTimeout(r, 600));
-      setProcessingStep(1);
-      await new Promise((r) => setTimeout(r, 600));
+    // Calculate scores locally (instant)
+    const localScores = calculateAllScores(data);
 
+    async function run() {
+      setProcessingStep(0);
+      await new Promise((r) => setTimeout(r, 500));
+      setProcessingStep(1);
+
+      // Set scores immediately from local calc
+      await new Promise((r) => setTimeout(r, 500));
+      setProcessingStep(2);
+
+      // Try API for report text
       try {
-        // Step 2: call API
-        setProcessingStep(2);
         const res = await fetch("/api/generate-report", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
 
-        if (!res.ok) throw new Error("API error");
-        const result = await res.json();
-
-        setProcessingStep(3);
-        await new Promise((r) => setTimeout(r, 800));
-
-        setScores(result.scores);
-        setReport(result.report);
-      } catch (e) {
-        console.error(e);
-        setError("Report-Generierung fehlgeschlagen. Bitte prüfe deinen API-Key in .env.local");
+        if (res.ok) {
+          const result = await res.json();
+          setReport(result.report);
+        }
+      } catch {
+        // Report is optional — dashboard still works
       }
+
+      setProcessingStep(3);
+      await new Promise((r) => setTimeout(r, 600));
+      setScores(localScores);
     }
 
     run();
   }, []);
 
   async function downloadPdf() {
-    if (!scores || !report || !assessmentData) return;
+    if (!scores || !assessmentData) return;
     setPdfLoading(true);
     try {
       const res = await fetch("/api/generate-pdf", {
@@ -268,12 +266,11 @@ export default function ResultsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scores, report, data: assessmentData }),
       });
-      const html = await res.text();
-      const blob = new Blob([html], { type: "text/html" });
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `BTB-Performance-Report-${Date.now()}.html`;
+      a.download = `BTB-Performance-Report-${Date.now()}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -281,135 +278,307 @@ export default function ResultsPage() {
     }
   }
 
+  // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "var(--primary-black)" }}>
-        <div className="max-w-md text-center">
-          <div className="font-headline text-xl text-white mb-4">FEHLER</div>
-          <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>{error}</p>
-          <Link href="/assessment" className="btn-primary">NEU STARTEN</Link>
+      <div className={styles.errorScreen}>
+        <div className={styles.errorInner}>
+          <div className={styles.errorTitle}>FEHLER</div>
+          <p className={styles.errorText}>{error}</p>
+          <Link href="/assessment" className={styles.errorBtn}>NEU STARTEN</Link>
         </div>
       </div>
     );
   }
 
+  // Processing state
   if (!scores) return <ProcessingScreen step={processingStep} />;
 
-  const labelColor =
-    scores.label === "ELITE" ? "var(--success)" :
-    scores.label === "ÜBERDURCHSCHNITTLICH" ? "var(--warning)" :
-    scores.label === "DURCHSCHNITTLICH" ? "var(--warning)" : "var(--accent-red)";
+  const labelColor = scoreColor(scores.overall);
 
   const scoreDescriptions = {
-    metabolic: `BMI: ${scores.bmi} · Dein metabolischer Status basiert auf Körperzusammensetzung, Hydration, Mahlzeitenfrequenz und Sitzzeit.`,
+    metabolic: `BMI: ${scores.bmi} · VO2max: ~${scores.vo2maxEstimate} ml/kg/min · Körperzusammensetzung, Hydration und Mahlzeitenfrequenz.`,
     recovery: "Schlafdauer, -qualität und nächtliche Unterbrechungen bestimmen deine Regenerationskapazität.",
-    activity: "Gesamtaktivität, Trainingsfrequenz, -dauer und -art nach ACSM-Richtlinien bewertet.",
+    activity: `NEAT: ~${scores.neatEstimate} kcal/Tag · Gesamtaktivität, Training und Alltagsbewegung nach ACSM.`,
     stress: "Stresslevel, sedentäres Verhalten und Schlafqualität als Lifestyle-Indikatoren kombiniert.",
   };
 
+  const scoreEntries = [
+    { key: "metabolic" as const, label: "METABOLIC PERFORMANCE", color: "#E63222" },
+    { key: "recovery" as const, label: "RECOVERY & REGENERATION", color: "#3B82F6" },
+    { key: "activity" as const, label: "ACTIVITY PERFORMANCE", color: "#F59E0B" },
+    { key: "stress" as const, label: "STRESS & LIFESTYLE", color: "#8B5CF6" },
+  ];
+
+  // Benchmark averages (illustrative population averages)
+  const benchmarks: Record<string, number> = {
+    metabolic: 55, recovery: 50, activity: 45, stress: 48,
+  };
+
+  // Ring geometry
+  const ringSize = 220;
+  const ringR = (ringSize / 2) - 12;
+  const circumference = 2 * Math.PI * ringR;
+  const offset = circumference - (scores.overall / 100) * circumference;
+
   return (
-    <div style={{ background: "var(--primary-black)", minHeight: "100vh" }}>
+    <div className={styles.page}>
       {/* Header */}
-      <div
-        className="sticky top-0 z-40 px-6 h-14 flex items-center justify-between"
-        style={{ background: "rgba(10,10,10,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--border)" }}
-      >
-        <div className="font-headline text-xs tracking-widest" style={{ color: "var(--text-muted)" }}>
-          BOOST THE BEAST LAB · PERFORMANCE REPORT
-        </div>
-        <div className="flex items-center gap-3">
-          <Link href="/assessment" className="btn-secondary text-xs py-2 px-4">
-            Neue Analyse
-          </Link>
-          <button onClick={downloadPdf} disabled={pdfLoading} className="btn-primary text-xs py-2 px-4">
+      <div className={styles.header}>
+        <div className={styles.headerTitle}>BOOST THE BEAST LAB · PERFORMANCE REPORT</div>
+        <div className={styles.headerActions}>
+          <Link href="/assessment" className={styles.headerBtnSecondary}>Neue Analyse</Link>
+          <button onClick={downloadPdf} disabled={pdfLoading} className={styles.headerBtnPrimary}>
             {pdfLoading ? "..." : "PDF DOWNLOAD"}
           </button>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-16">
-        {/* Overall Score Hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
-        >
-          <div className="font-headline text-xs tracking-[0.4em] mb-6" style={{ color: "var(--accent-red)" }}>
-            DEIN ERGEBNIS
-          </div>
-          <h1 className="font-headline text-4xl md:text-5xl font-bold text-white mb-10">
-            OVERALL PERFORMANCE SCORE
-          </h1>
+      <div className={styles.container}>
 
-          <div className="flex justify-center mb-6">
-            <ScoreRing score={scores.overall} size={200} />
+        {/* ─── HERO: Overall Score ──────────────────────── */}
+        <section className={styles.heroSection}>
+          <div className={styles.heroLabel}>DEIN ERGEBNIS</div>
+          <h1 className={styles.heroTitle}>OVERALL PERFORMANCE SCORE</h1>
+
+          <div className={styles.ringWrap}>
+            <svg
+              className={styles.ringBg}
+              width={ringSize}
+              height={ringSize}
+              viewBox={`0 0 ${ringSize} ${ringSize}`}
+            >
+              <circle cx={ringSize / 2} cy={ringSize / 2} r={ringR} />
+            </svg>
+            <svg
+              className={styles.ringFg}
+              width={ringSize}
+              height={ringSize}
+              viewBox={`0 0 ${ringSize} ${ringSize}`}
+              style={{
+                transform: "rotate(-90deg)",
+                "--circumference": circumference,
+                "--offset": offset,
+              } as React.CSSProperties}
+            >
+              <circle
+                cx={ringSize / 2}
+                cy={ringSize / 2}
+                r={ringR}
+                stroke={labelColor}
+                strokeDasharray={circumference}
+                strokeDashoffset={circumference}
+                style={{
+                  animation: `ringDraw 1.8s cubic-bezier(0.16,1,0.3,1) forwards`,
+                  "--circumference": circumference,
+                  "--offset": offset,
+                } as React.CSSProperties}
+              />
+            </svg>
+            <div className={styles.ringCenter}>
+              <span className={styles.ringValue} style={{ color: labelColor }}>
+                <AnimNum target={scores.overall} />
+              </span>
+              <span className={styles.ringSuffix}>/100</span>
+            </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1, duration: 0.4 }}
-            className="inline-block font-headline text-2xl font-bold px-6 py-2"
-            style={{ color: labelColor, border: `1px solid ${labelColor}`, background: `${labelColor}18` }}
+          <div
+            className={styles.labelBadge}
+            style={{ color: labelColor, borderColor: labelColor, background: `${labelColor}18` }}
           >
             {scores.label}
-          </motion.div>
-        </motion.div>
-
-        {/* Score Cards */}
-        <div className="mb-6">
-          <div className="font-headline text-xs tracking-[0.4em] mb-6" style={{ color: "var(--text-muted)" }}>
-            SUBSCORES IM DETAIL
           </div>
-        </div>
-        <div className="grid md:grid-cols-2 gap-4 mb-20">
-          <ScoreCard label="METABOLIC PERFORMANCE" score={scores.metabolic} description={scoreDescriptions.metabolic} delay={0} />
-          <ScoreCard label="RECOVERY & REGENERATION" score={scores.recovery} description={scoreDescriptions.recovery} delay={0.1} />
-          <ScoreCard label="ACTIVITY PERFORMANCE" score={scores.activity} description={scoreDescriptions.activity} delay={0.2} />
-          <ScoreCard label="STRESS & LIFESTYLE" score={scores.stress} description={scoreDescriptions.stress} delay={0.3} />
-        </div>
+        </section>
 
-        {/* AI Report */}
-        {report && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="font-headline text-xs tracking-[0.4em]" style={{ color: "var(--text-muted)" }}>
-                AI-GENERIERTER PERFORMANCE REPORT
+        {/* ─── SCORE CARDS ─────────────────────────────── */}
+        <section className={styles.scoresSection}>
+          <div className={styles.sectionLabel}>SUBSCORES IM DETAIL</div>
+          <div className={styles.scoresGrid}>
+            {scoreEntries.map((entry, i) => {
+              const s = scores[entry.key];
+              const c = scoreColor(s);
+              return (
+                <div
+                  key={entry.key}
+                  className={styles.scoreCard}
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                >
+                  <div className={styles.scoreCardTop}>
+                    <div>
+                      <div className={styles.scoreCardLabel}>{entry.label}</div>
+                      <div className={styles.scoreCardValue} style={{ color: c }}>
+                        <AnimNum target={s} />
+                        <span className={styles.scoreCardMax}>/100</span>
+                      </div>
+                    </div>
+                    <div
+                      className={styles.scoreCardBadge}
+                      style={{ background: `${c}18`, color: c }}
+                    >
+                      {scoreBadge(s)}
+                    </div>
+                  </div>
+                  <div className={styles.scoreCardBar}>
+                    <div
+                      className={styles.scoreCardBarFill}
+                      style={{ width: `${s}%`, background: c, animationDelay: `${0.2 + i * 0.1}s` }}
+                    />
+                  </div>
+                  <div className={styles.scoreCardDesc}>
+                    {scoreDescriptions[entry.key]}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ─── DERIVED METRICS ──────────────────────────── */}
+        <section className={styles.scoresSection}>
+          <div className={styles.sectionLabel}>DERIVED METRICS</div>
+          <div className={styles.scoresGrid}>
+            <div className={styles.scoreCard} style={{ animationDelay: "0.1s" }}>
+              <div className={styles.scoreCardTop}>
+                <div>
+                  <div className={styles.scoreCardLabel}>VO2MAX SCHÄTZUNG</div>
+                  <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.vo2maxEstimate > 40 ? 70 : scores.vo2maxEstimate > 30 ? 50 : 20) }}>
+                    {scores.vo2maxEstimate}
+                    <span className={styles.scoreCardMax}> ml/kg/min</span>
+                  </div>
+                </div>
+                <div
+                  className={styles.scoreCardBadge}
+                  style={{
+                    background: scores.vo2maxEstimate >= 45 ? "rgba(34,197,94,0.12)" : scores.vo2maxEstimate >= 35 ? "rgba(245,158,11,0.12)" : "rgba(230,50,34,0.12)",
+                    color: scores.vo2maxEstimate >= 45 ? "#22C55E" : scores.vo2maxEstimate >= 35 ? "#F59E0B" : "#E63222",
+                  }}
+                >
+                  {scores.vo2maxEstimate >= 45 ? "GUT" : scores.vo2maxEstimate >= 35 ? "MITTEL" : "NIEDRIG"}
+                </div>
               </div>
-              <div
-                className="text-xs px-2 py-0.5 font-headline"
-                style={{ background: "rgba(230,50,34,0.12)", color: "var(--accent-red)" }}
-              >
-                CLAUDE OPUS
+              <div className={styles.scoreCardDesc}>
+                Geschätzte maximale Sauerstoffaufnahme basierend auf Alter, BMI, Trainingsfrequenz und Aktivitätslevel. Referenz: Jackson et al. (1990).
               </div>
             </div>
+
+            <div className={styles.scoreCard} style={{ animationDelay: "0.15s" }}>
+              <div className={styles.scoreCardTop}>
+                <div>
+                  <div className={styles.scoreCardLabel}>NEAT — ALLTAGSAKTIVITÄT</div>
+                  <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.neatEstimate > 500 ? 70 : scores.neatEstimate > 300 ? 50 : 20) }}>
+                    {scores.neatEstimate}
+                    <span className={styles.scoreCardMax}> kcal/Tag</span>
+                  </div>
+                </div>
+                <div
+                  className={styles.scoreCardBadge}
+                  style={{
+                    background: scores.neatEstimate >= 500 ? "rgba(34,197,94,0.12)" : scores.neatEstimate >= 300 ? "rgba(245,158,11,0.12)" : "rgba(230,50,34,0.12)",
+                    color: scores.neatEstimate >= 500 ? "#22C55E" : scores.neatEstimate >= 300 ? "#F59E0B" : "#E63222",
+                  }}
+                >
+                  {scores.neatEstimate >= 500 ? "AKTIV" : scores.neatEstimate >= 300 ? "MODERAT" : "GERING"}
+                </div>
+              </div>
+              <div className={styles.scoreCardDesc}>
+                Non-Exercise Activity Thermogenesis — Kalorienverbrauch durch Alltagsbewegung (ohne Sport). Basierend auf Schrittzahl, Sitzzeit und Gewicht.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── RADAR CHART ─────────────────────────────── */}
+        <section className={styles.radarSection}>
+          <div className={styles.sectionLabel}>PERFORMANCE PROFIL</div>
+          <div className={styles.radarGrid}>
+            <RadarChart scores={scores} />
+            <div className={styles.radarMeta}>
+              {scoreEntries.map((entry, i) => (
+                <div
+                  key={entry.key}
+                  className={styles.radarItem}
+                  style={{ animationDelay: `${0.4 + i * 0.08}s` }}
+                >
+                  <div className={styles.radarDot} style={{ background: entry.color }} />
+                  <div className={styles.radarItemLabel}>{entry.label}</div>
+                  <div className={styles.radarItemValue} style={{ color: scoreColor(scores[entry.key]) }}>
+                    {scores[entry.key]}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─── BENCHMARK COMPARISON ────────────────────── */}
+        <section className={styles.benchmarkSection}>
+          <div className={styles.sectionLabel}>VERGLEICH — DEIN SCORE VS. DURCHSCHNITT</div>
+          {scoreEntries.map((entry, i) => {
+            const s = scores[entry.key];
+            return (
+              <div
+                key={entry.key}
+                className={styles.benchmarkRow}
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div className={styles.benchmarkLabel}>{entry.label}</div>
+                <div className={styles.benchmarkBars}>
+                  <div className={styles.benchmarkBarWrap}>
+                    <div
+                      className={styles.benchmarkBarFill}
+                      style={{ width: `${s}%`, background: entry.color, animationDelay: `${0.3 + i * 0.1}s` }}
+                    />
+                    <span className={styles.benchmarkBarLabel}>{s}</span>
+                  </div>
+                  <div className={styles.benchmarkBarRef}>
+                    <div
+                      className={styles.benchmarkBarRefFill}
+                      style={{ width: `${benchmarks[entry.key]}%` }}
+                    />
+                    <span className={styles.benchmarkBarRefLabel}>⌀ {benchmarks[entry.key]}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          <div className={styles.benchmarkLegend}>
+            <div className={styles.legendItem}>
+              <div className={styles.legendDot} style={{ background: "var(--accent)" }} />
+              DEIN SCORE
+            </div>
+            <div className={styles.legendItem}>
+              <div className={styles.legendDot} style={{ background: "rgba(255,255,255,0.15)" }} />
+              DURCHSCHNITT
+            </div>
+          </div>
+        </section>
+
+        {/* ─── AI REPORT ───────────────────────────────── */}
+        {report && (
+          <section className={styles.reportSection}>
+            <div className={styles.reportHeader}>
+              <div className={styles.sectionLabel} style={{ margin: 0 }}>AI-GENERIERTER PERFORMANCE REPORT</div>
+              <div className={styles.reportBadge}>CLAUDE AI</div>
+            </div>
             <ReportText text={report} />
-          </motion.div>
+          </section>
         )}
 
-        {/* CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-16 flex flex-col sm:flex-row gap-4 justify-center"
-        >
-          <button onClick={downloadPdf} disabled={pdfLoading} className="btn-primary py-4 px-10">
-            {pdfLoading ? "WIRD ERSTELLT..." : "REPORT ALS PDF HERUNTERLADEN"}
-          </button>
-          <Link href="/assessment" className="btn-secondary py-4 px-8 text-center">
-            NEUE ANALYSE STARTEN
-          </Link>
-        </motion.div>
-
-        <p className="text-center text-xs mt-8" style={{ color: "var(--text-muted)" }}>
-          Dieser Report ersetzt keine medizinische Beratung. · BOOST THE BEAST LAB
-        </p>
+        {/* ─── BOTTOM CTA ──────────────────────────────── */}
+        <section className={styles.ctaSection}>
+          <div className={styles.ctaBtns}>
+            <button onClick={downloadPdf} disabled={pdfLoading} className={styles.ctaBtnPrimary}>
+              {pdfLoading ? "WIRD ERSTELLT..." : "REPORT ALS PDF HERUNTERLADEN"}
+            </button>
+            <Link href="/assessment" className={styles.ctaBtnSecondary}>
+              NEUE ANALYSE STARTEN
+            </Link>
+          </div>
+          <p className={styles.ctaDisclaimer}>
+            Dieser Report ersetzt keine medizinische Beratung. · BOOST THE BEAST LAB
+          </p>
+        </section>
       </div>
     </div>
   );

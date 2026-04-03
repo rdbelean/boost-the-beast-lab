@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { ScoreResult } from "@/lib/scoring";
-import type { AssessmentData } from "@/lib/scoring";
+import type { ScoreResult, AssessmentData } from "@/lib/scoring";
+import { jsPDF } from "jspdf";
 
-function scoreColor(score: number): string {
+function scoreColor(score: number): [number, number, number] {
+  if (score >= 70) return [34, 197, 94];   // green
+  if (score >= 40) return [245, 158, 11];  // amber
+  return [230, 50, 34];                     // red
+}
+
+function scoreHex(score: number): string {
   if (score >= 70) return "#22C55E";
   if (score >= 40) return "#F59E0B";
   return "#E63222";
@@ -18,139 +24,272 @@ export async function POST(req: NextRequest) {
       day: "2-digit", month: "long", year: "numeric",
     });
 
-    const labelColor =
-      scores.label === "ELITE" ? "#22C55E" :
-      scores.label === "ÜBERDURCHSCHNITTLICH" ? "#F59E0B" :
-      scores.label === "DURCHSCHNITTLICH" ? "#F59E0B" : "#E63222";
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const w = 210;
+    const margin = 20;
+    const contentW = w - margin * 2;
 
-    // Generate HTML for PDF
-    const html = `<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8"/>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap');
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:#0A0A0A;color:#fff;font-family:'Inter',sans-serif;font-size:11px;line-height:1.6;}
-  .page{width:794px;min-height:1123px;padding:60px;background:#0A0A0A;position:relative;}
-  .page+.page{margin-top:0;border-top:2px solid #E63222;}
-  h1,h2,h3,.mono{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:0.05em;}
-  .mono-data{font-family:'JetBrains Mono',monospace;}
-  .red{color:#E63222;}
-  .muted{color:#666;}
-  .secondary{color:#A0A0A0;}
-  .card{background:#1E1E1E;border:1px solid #2A2A2A;padding:20px;}
-  .score-bar-bg{background:#2A2A2A;height:4px;border-radius:2px;overflow:hidden;}
-  .score-bar-fill{height:4px;border-radius:2px;}
-  .divider{border:none;border-top:1px solid #2A2A2A;margin:24px 0;}
-  .footer-bar{position:absolute;bottom:32px;left:60px;right:60px;display:flex;justify-content:space-between;border-top:1px solid #2A2A2A;padding-top:12px;}
-  strong{font-weight:600;}
-  p{margin-bottom:8px;}
-  ul,ol{padding-left:20px;}
-  li{margin-bottom:6px;}
-  h2{font-size:14px;margin-bottom:12px;color:#fff;}
-  h3{font-size:12px;margin-bottom:6px;}
-</style>
-</head>
-<body>
+    // Colors
+    const bgColor: [number, number, number] = [10, 10, 12];
+    const surfaceColor: [number, number, number] = [30, 30, 34];
+    const borderColor: [number, number, number] = [46, 46, 54];
+    const accentColor: [number, number, number] = [230, 50, 34];
+    const white: [number, number, number] = [242, 242, 244];
+    const muted: [number, number, number] = [96, 96, 104];
+    const secondary: [number, number, number] = [160, 160, 170];
 
-<!-- PAGE 1: COVER -->
-<div class="page">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:80px;">
-    <div>
-      <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.15em;color:#fff;text-transform:uppercase;">BOOST THE BEAST</div>
-      <div style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.4em;color:#E63222;text-transform:uppercase;">PERFORMANCE LAB</div>
-    </div>
-    <div style="text-align:right;" class="muted mono-data" style="font-size:10px;">
-      <div>REPORT ID: <span style="color:#E63222;">${reportId}</span></div>
-      <div>${date}</div>
-    </div>
-  </div>
+    // ─── PAGE 1: COVER ──────────────────────────────
+    doc.setFillColor(...bgColor);
+    doc.rect(0, 0, w, 297, "F");
 
-  <div style="margin-bottom:60px;">
-    <div style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.35em;color:#E63222;text-transform:uppercase;margin-bottom:16px;">PERFORMANCE INTELLIGENCE REPORT</div>
-    <h1 style="font-size:52px;font-weight:700;line-height:1;color:#fff;margin-bottom:8px;">COMPLETE<br/>PERFORMANCE<br/>ANALYSIS</h1>
-  </div>
+    // Header
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...white);
+    doc.text("BOOST THE BEAST", margin, 25);
 
-  <div style="display:flex;align-items:center;gap:40px;margin-bottom:60px;">
-    <div style="position:relative;width:160px;height:160px;flex-shrink:0;">
-      <svg width="160" height="160" viewBox="0 0 160 160">
-        <circle cx="80" cy="80" r="64" fill="none" stroke="#2A2A2A" stroke-width="8"/>
-        <circle cx="80" cy="80" r="64" fill="none" stroke="${scoreColor(scores.overall)}" stroke-width="8"
-          stroke-dasharray="${(scores.overall / 100) * 402} 402"
-          stroke-linecap="round"
-          transform="rotate(-90 80 80)"/>
-      </svg>
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-        <div class="mono-data" style="font-size:36px;font-weight:600;color:${scoreColor(scores.overall)};">${scores.overall}</div>
-        <div style="font-size:9px;letter-spacing:0.2em;color:#666;font-family:'Oswald',sans-serif;">/100</div>
-      </div>
-    </div>
-    <div>
-      <div style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.3em;color:#666;text-transform:uppercase;margin-bottom:6px;">OVERALL PERFORMANCE SCORE</div>
-      <div style="font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;color:${labelColor};">${scores.label}</div>
-      <div style="margin-top:12px;font-size:10px;color:#A0A0A0;">
-        Geschlecht: ${data.gender === "male" ? "Männlich" : data.gender === "female" ? "Weiblich" : "Divers"} &nbsp;·&nbsp;
-        Alter: ${data.age} Jahre &nbsp;·&nbsp;
-        BMI: ${scores.bmi}
-      </div>
-    </div>
-  </div>
+    doc.setFontSize(8);
+    doc.setTextColor(...accentColor);
+    doc.text("PERFORMANCE LAB", margin, 30);
 
-  <hr class="divider"/>
+    doc.setFontSize(8);
+    doc.setTextColor(...muted);
+    doc.text(`REPORT ID: ${reportId}`, w - margin, 25, { align: "right" });
+    doc.text(date, w - margin, 30, { align: "right" });
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    ${[
-      { label: "Metabolic Score", value: scores.metabolic },
-      { label: "Recovery Score", value: scores.recovery },
-      { label: "Activity Score", value: scores.activity },
-      { label: "Stress & Lifestyle", value: scores.stress },
-    ].map(s => `
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.15em;color:#A0A0A0;text-transform:uppercase;">${s.label}</div>
-        <div class="mono-data" style="font-size:18px;font-weight:600;color:${scoreColor(s.value)};">${s.value}</div>
-      </div>
-      <div class="score-bar-bg">
-        <div class="score-bar-fill" style="width:${s.value}%;background:${scoreColor(s.value)};"></div>
-      </div>
-    </div>`).join("")}
-  </div>
+    // Accent line
+    doc.setDrawColor(...accentColor);
+    doc.setLineWidth(0.5);
+    doc.line(margin, 36, w - margin, 36);
 
-  <div class="footer-bar">
-    <span class="muted">BOOST THE BEAST LAB – Performance Intelligence System</span>
-    <span class="muted">boostthebeast.com/lab</span>
-  </div>
-</div>
+    // Title
+    doc.setFontSize(9);
+    doc.setTextColor(...accentColor);
+    doc.text("PERFORMANCE INTELLIGENCE REPORT", margin, 48);
 
-<!-- PAGE 2: AI REPORT -->
-<div class="page">
-  <div style="margin-bottom:32px;">
-    <div style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.35em;color:#E63222;text-transform:uppercase;margin-bottom:8px;">AI-GENERIERTE ANALYSE</div>
-    <h2 style="font-size:24px;margin-bottom:0;">DETAILLIERTER PERFORMANCE REPORT</h2>
-  </div>
+    doc.setFontSize(32);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...white);
+    doc.text("COMPLETE", margin, 62);
+    doc.text("PERFORMANCE", margin, 73);
+    doc.text("ANALYSIS", margin, 84);
 
-  <div style="color:#A0A0A0;line-height:1.8;white-space:pre-wrap;font-size:11px;">
-${report
-  .replace(/## /g, '<h2 style="font-family:Oswald,sans-serif;font-size:14px;color:#E63222;letter-spacing:0.1em;margin:24px 0 10px;text-transform:uppercase;">')
-  .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#fff;">$1</strong>')
-  .replace(/\n\n/g, '</p><p>')
-  .replace(/^/, '<p>')
-  .replace(/$/, '</p>')}
-  </div>
+    // Overall Score Ring (simplified as box)
+    const ringX = margin;
+    const ringY = 95;
 
-  <div class="footer-bar">
-    <span class="muted">Report ID: ${reportId} &nbsp;·&nbsp; ${date}</span>
-    <span class="muted">Keine medizinische Diagnose</span>
-  </div>
-</div>
+    doc.setFillColor(...surfaceColor);
+    doc.roundedRect(ringX, ringY, contentW, 40, 2, 2, "F");
+    doc.setDrawColor(...borderColor);
+    doc.roundedRect(ringX, ringY, contentW, 40, 2, 2, "S");
 
-</body>
-</html>`;
+    doc.setFontSize(9);
+    doc.setTextColor(...muted);
+    doc.text("OVERALL PERFORMANCE SCORE", ringX + 8, ringY + 10);
 
-    return new NextResponse(html, {
+    const overallColor = scoreColor(scores.overall);
+    doc.setFontSize(40);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...overallColor);
+    doc.text(`${scores.overall}`, ringX + 8, ringY + 32);
+
+    doc.setFontSize(14);
+    doc.setTextColor(...muted);
+    doc.text("/100", ringX + 38, ringY + 32);
+
+    // Label badge
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...overallColor);
+    doc.text(scores.label, ringX + 80, ringY + 28);
+
+    // Profile info
+    doc.setFontSize(8);
+    doc.setTextColor(...secondary);
+    const gender = data.gender === "male" ? "Männlich" : data.gender === "female" ? "Weiblich" : "Divers";
+    doc.text(`${gender}  ·  ${data.age} Jahre  ·  BMI: ${scores.bmi}  ·  VO2max: ~${scores.vo2maxEstimate} ml/kg/min  ·  NEAT: ~${scores.neatEstimate} kcal/Tag`, ringX + 80, ringY + 34);
+
+    // Score cards
+    const scoreData = [
+      { label: "METABOLIC PERFORMANCE", value: scores.metabolic },
+      { label: "RECOVERY & REGENERATION", value: scores.recovery },
+      { label: "ACTIVITY PERFORMANCE", value: scores.activity },
+      { label: "STRESS & LIFESTYLE", value: scores.stress },
+    ];
+
+    let cardY = 145;
+    const cardH = 22;
+    const cardGap = 3;
+    const halfW = (contentW - cardGap) / 2;
+
+    scoreData.forEach((s, i) => {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const x = margin + col * (halfW + cardGap);
+      const y = cardY + row * (cardH + cardGap);
+      const color = scoreColor(s.value);
+
+      doc.setFillColor(...surfaceColor);
+      doc.roundedRect(x, y, halfW, cardH, 1, 1, "F");
+      doc.setDrawColor(...borderColor);
+      doc.roundedRect(x, y, halfW, cardH, 1, 1, "S");
+
+      doc.setFontSize(7);
+      doc.setTextColor(...muted);
+      doc.text(s.label, x + 4, y + 7);
+
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...color);
+      doc.text(`${s.value}`, x + 4, y + 18);
+
+      doc.setFontSize(8);
+      doc.setTextColor(...muted);
+      doc.text("/100", x + 20, y + 18);
+
+      // Progress bar
+      const barX = x + 40;
+      const barY2 = y + 14;
+      const barW = halfW - 48;
+      doc.setFillColor(...borderColor);
+      doc.roundedRect(barX, barY2, barW, 3, 1, 1, "F");
+      doc.setFillColor(...color);
+      doc.roundedRect(barX, barY2, barW * (s.value / 100), 3, 1, 1, "F");
+    });
+
+    // Derived Metrics section
+    let metricsY = cardY + 2 * (cardH + cardGap) + 10;
+    doc.setDrawColor(...borderColor);
+    doc.line(margin, metricsY, w - margin, metricsY);
+    metricsY += 8;
+
+    doc.setFontSize(8);
+    doc.setTextColor(...accentColor);
+    doc.text("DERIVED METRICS", margin, metricsY);
+    metricsY += 8;
+
+    // VO2max card
+    doc.setFillColor(...surfaceColor);
+    doc.roundedRect(margin, metricsY, halfW, 20, 1, 1, "F");
+    doc.setDrawColor(...borderColor);
+    doc.roundedRect(margin, metricsY, halfW, 20, 1, 1, "S");
+    doc.setFontSize(7);
+    doc.setTextColor(...muted);
+    doc.text("VO2MAX SCHÄTZUNG", margin + 4, metricsY + 7);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...white);
+    doc.text(`${scores.vo2maxEstimate}`, margin + 4, metricsY + 16);
+    doc.setFontSize(8);
+    doc.setTextColor(...muted);
+    doc.text("ml/kg/min", margin + 28, metricsY + 16);
+
+    // NEAT card
+    doc.setFillColor(...surfaceColor);
+    doc.roundedRect(margin + halfW + cardGap, metricsY, halfW, 20, 1, 1, "F");
+    doc.setDrawColor(...borderColor);
+    doc.roundedRect(margin + halfW + cardGap, metricsY, halfW, 20, 1, 1, "S");
+    doc.setFontSize(7);
+    doc.setTextColor(...muted);
+    doc.text("NEAT (ALLTAGSAKTIVITÄT)", margin + halfW + cardGap + 4, metricsY + 7);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...white);
+    doc.text(`${scores.neatEstimate}`, margin + halfW + cardGap + 4, metricsY + 16);
+    doc.setFontSize(8);
+    doc.setTextColor(...muted);
+    doc.text("kcal/Tag", margin + halfW + cardGap + 28, metricsY + 16);
+
+    // Footer
+    doc.setFontSize(7);
+    doc.setTextColor(...muted);
+    doc.text("BOOST THE BEAST LAB – Performance Intelligence System", margin, 285);
+    doc.text("boostthebeast.com", w - margin, 285, { align: "right" });
+
+    // ─── PAGE 2: AI REPORT ──────────────────────────
+    doc.addPage();
+    doc.setFillColor(...bgColor);
+    doc.rect(0, 0, w, 297, "F");
+
+    doc.setFontSize(9);
+    doc.setTextColor(...accentColor);
+    doc.text("AI-GENERIERTE ANALYSE", margin, 20);
+
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...white);
+    doc.text("DETAILLIERTER PERFORMANCE REPORT", margin, 30);
+
+    doc.setDrawColor(...accentColor);
+    doc.setLineWidth(0.5);
+    doc.line(margin, 34, w - margin, 34);
+
+    // Render report text
+    if (report) {
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...secondary);
+
+      const lines = report.split("\n");
+      let yPos = 44;
+
+      for (const line of lines) {
+        if (yPos > 275) {
+          doc.addPage();
+          doc.setFillColor(...bgColor);
+          doc.rect(0, 0, w, 297, "F");
+          yPos = 20;
+        }
+
+        const trimmed = line.trim();
+        if (!trimmed) {
+          yPos += 4;
+          continue;
+        }
+
+        if (trimmed.startsWith("## ")) {
+          yPos += 6;
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(...accentColor);
+          doc.text(trimmed.replace("## ", ""), margin, yPos);
+          yPos += 3;
+          doc.setDrawColor(...borderColor);
+          doc.line(margin, yPos, w - margin, yPos);
+          yPos += 6;
+          doc.setFontSize(9);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(...secondary);
+        } else {
+          const clean = trimmed.replace(/\*\*/g, "");
+          const wrapped = doc.splitTextToSize(clean, contentW);
+          for (const wLine of wrapped) {
+            if (yPos > 275) {
+              doc.addPage();
+              doc.setFillColor(...bgColor);
+              doc.rect(0, 0, w, 297, "F");
+              yPos = 20;
+            }
+            doc.text(wLine, margin, yPos);
+            yPos += 5;
+          }
+        }
+      }
+    }
+
+    // Footer on last page
+    doc.setFontSize(7);
+    doc.setTextColor(...muted);
+    doc.text(`Report ID: ${reportId}  ·  ${date}`, margin, 285);
+    doc.text("Keine medizinische Diagnose. Performance Insights only.", w - margin, 285, { align: "right" });
+
+    // Generate PDF buffer
+    const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
+
+    return new NextResponse(pdfBuffer, {
       headers: {
-        "Content-Type": "text/html; charset=utf-8",
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="BTB-Performance-Report-${reportId}.pdf"`,
         "X-Report-Id": reportId,
       },
     });
