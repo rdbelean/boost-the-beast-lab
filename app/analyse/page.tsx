@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import styles from "./analyse.module.css";
 import SliderInput from "@/components/analyse/SliderInput";
@@ -69,6 +69,14 @@ const LOADING_STEPS = [
 
 /* ── Component ─────────────────────────────────────────── */
 export default function AnalysePage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "var(--bg-base)" }} />}>
+      <AnalyseContent />
+    </Suspense>
+  );
+}
+
+function AnalyseContent() {
   const searchParams = useSearchParams();
   const preselectedProduct = searchParams.get("product") ?? "complete-analysis";
 

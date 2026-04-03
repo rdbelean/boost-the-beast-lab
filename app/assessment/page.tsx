@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useCallback } from "react";
+import { Suspense, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { AssessmentData } from "@/lib/scoring";
@@ -215,6 +215,14 @@ function ChoiceQuestion({
 
 /* ─── Main Assessment Page ──────────────────────────────────── */
 export default function AssessmentPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "var(--bg-base)" }} />}>
+      <AssessmentContent />
+    </Suspense>
+  );
+}
+
+function AssessmentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const productId = searchParams.get("product") ?? "complete-analysis";
