@@ -791,3 +791,82 @@
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(230,50,34,0.4);
 }
+
+/* ─── RESPONSIVE — MOBILE (375px–480px) ────────────────────── */
+@media (max-width: 480px) {
+  .container { padding: 0 12px; }
+  .headerInner { padding: 0 12px; }
+
+  /* Header */
+  .header { height: 56px; }
+  .logoText { font-size: 11px; }
+  .logoSub { font-size: 8px; }
+  .stepIndicator { font-size: 10px; }
+  .closeBtn { width: 40px; height: 40px; }
+
+  /* Progress */
+  .progressBar { top: 56px; }
+  .page { padding-top: 60px; }
+
+  /* Hero intro */
+  .heroSection { padding: 36px 0 32px; }
+  .heroTitle { font-size: clamp(24px, 7vw, 32px); }
+  .heroSubtitle { font-size: 14px; margin-bottom: 20px; }
+  .heroStats { gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .heroStatItem { font-size: 9px; }
+
+  /* Form */
+  .form { padding: 32px 0 60px; }
+
+  /* Category */
+  .category { margin-bottom: 40px; }
+  .categoryHeader { margin-bottom: 20px; padding-bottom: 14px; gap: 14px; }
+  .categoryNum { font-size: clamp(36px, 10vw, 52px); }
+  .categoryLabel { font-size: 9px; }
+  .categoryTitle { font-size: 17px; }
+
+  /* Question cards */
+  .questionCard { padding: 18px 16px; }
+  .questionLabel { font-size: 10px; margin-bottom: 10px; }
+  .questionGrid2 { grid-template-columns: 1fr; gap: 14px; }
+  .questionGrid3 { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Inputs */
+  .numberInput { padding: 12px 14px; font-size: 16px; }
+  .radioBtn { padding: 12px 14px; font-size: 12px; white-space: normal; min-height: 44px; }
+  .selectEl { padding: 12px 36px 12px 14px; font-size: 14px; min-height: 44px; }
+
+  /* Slider */
+  .sliderValue { font-size: 16px; }
+  .sliderInput::-webkit-slider-thumb { width: 24px; height: 24px; }
+  .sliderInput::-moz-range-thumb { width: 24px; height: 24px; }
+
+  /* Report selector */
+  .reportSection { padding: 32px 0; }
+  .reportTitle { font-size: 20px; }
+  .reportSubtitle { font-size: 13px; margin-bottom: 20px; }
+  .reportCard { padding: 16px; gap: 16px; flex-wrap: wrap; }
+  .reportCardName { font-size: 14px; }
+  .reportCardQ { font-size: 12px; }
+  .reportCardPrice { font-size: 20px; }
+
+  /* Email */
+  .emailSection { padding: 28px 0; }
+  .emailLabel { font-size: 17px; }
+  .emailInput { padding: 14px 14px; font-size: 15px; min-height: 48px; }
+
+  /* Submit */
+  .submitSection { padding: 28px 0 60px; }
+  .submitBtn { padding: 18px 16px; font-size: 14px; min-height: 52px; }
+
+  /* Loading */
+  .loadingOverlay { padding: 24px; }
+  .loadingTitle { font-size: clamp(22px, 6vw, 36px); }
+  .loadingStep { font-size: 14px; }
+
+  /* Success */
+  .successOverlay { padding: 24px; }
+  .successTitle { font-size: clamp(24px, 6vw, 36px); }
+  .successText { font-size: 14px; max-width: 100%; }
+  .successHomeBtn { padding: 14px 28px; min-height: 48px; }
+}

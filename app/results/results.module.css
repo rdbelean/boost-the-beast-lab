@@ -674,11 +674,76 @@
   margin-top: 16px;
 }
 
-/* ─── RESPONSIVE ────────────────────────────────────────────── */
+/* ─── RESPONSIVE — TABLET ───────────────────────────────────── */
 @media (max-width: 640px) {
   .container { padding: 0 20px; }
   .header { padding: 0 16px; }
   .benchmarkLabel { width: 80px; font-size: 9px; }
   .ctaBtns { flex-direction: column; }
   .ctaBtnPrimary, .ctaBtnSecondary { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 700px) {
+  .scoresGrid { grid-template-columns: 1fr; }
+  .radarGrid { grid-template-columns: 1fr; }
+}
+
+/* ─── RESPONSIVE — MOBILE (375px–480px) ────────────────────── */
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+  .header { padding: 0 12px; height: 48px; }
+  .headerTitle { font-size: 9px; letter-spacing: 0.1em; }
+  .headerBtnSecondary { font-size: 10px; padding: 7px 12px; }
+  .headerBtnPrimary { font-size: 10px; padding: 7px 12px; }
+
+  /* Hero */
+  .heroSection { padding: 40px 0 32px; }
+  .heroLabel { font-size: 9px; margin-bottom: 12px; }
+  .heroTitle { font-size: clamp(22px, 6vw, 32px); margin-bottom: 28px; }
+  .ringWrap { width: 160px; height: 160px; }
+  .ringValue { font-size: 40px; }
+  .ringSuffix { font-size: 12px; }
+  .labelBadge { font-size: 16px; padding: 6px 18px; }
+
+  /* Score Cards */
+  .scoresSection { padding: 0 0 32px; }
+  .sectionLabel { font-size: 9px; margin-bottom: 14px; }
+  .scoreCard { padding: 20px; }
+  .scoreCardValue { font-size: 26px; }
+  .scoreCardLabel { font-size: 10px; }
+  .scoreCardDesc { font-size: 12px; }
+
+  /* Radar */
+  .radarSection { padding: 32px 0; }
+  .radarSvg { max-width: 280px; }
+  .radarItem { padding: 12px 14px; gap: 12px; }
+  .radarItemLabel { font-size: 10px; }
+  .radarItemValue { font-size: 16px; }
+
+  /* Benchmark */
+  .benchmarkSection { padding: 32px 0; }
+  .benchmarkRow { gap: 10px; margin-bottom: 14px; }
+  .benchmarkLabel { width: 56px; font-size: 8px; letter-spacing: 0.04em; }
+  .benchmarkBarWrap { height: 20px; }
+  .benchmarkBarRef { height: 12px; }
+
+  /* Report */
+  .reportSection { padding: 32px 0; }
+  .reportCard { padding: 18px; }
+  .reportCardTitle { font-size: 10px; }
+  .reportCardBody { font-size: 13px; }
+
+  /* Processing */
+  .processingScreen { padding: 24px; }
+  .processingTitle { font-size: 18px; }
+  .processingStep { font-size: 13px; }
+
+  /* Error */
+  .errorScreen { padding: 24px; }
+  .errorTitle { font-size: 20px; }
+
+  /* CTA */
+  .ctaSection { padding: 32px 0 60px; }
+  .ctaBtnPrimary { font-size: 13px; padding: 16px 24px; min-height: 52px; }
+  .ctaBtnSecondary { font-size: 12px; padding: 14px 20px; min-height: 48px; }
 }

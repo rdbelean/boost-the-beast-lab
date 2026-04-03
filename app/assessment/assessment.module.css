@@ -324,11 +324,41 @@
   color: var(--text-primary);
 }
 
-/* ─── RESPONSIVE ────────────────────────────────────────────── */
+/* ─── RESPONSIVE — TABLET ───────────────────────────────────── */
 @media (max-width: 640px) {
   .headerBar { padding: 0 16px; }
-  .main { padding: 100px 20px 60px; }
+  .main { padding: 88px 20px 60px; }
   .sliderDisplayValue { font-size: 42px; }
   .nav { flex-direction: column; gap: 10px; }
   .navBtnPrimary, .navBtnSecondary { width: 100%; justify-content: center; }
+}
+
+/* ─── RESPONSIVE — MOBILE (375px–480px) ────────────────────── */
+@media (max-width: 480px) {
+  .topBar { /* already full-width */ }
+  .headerBar { padding: 0 12px; height: 48px; }
+  .headerLogo { font-size: 10px; letter-spacing: 0.1em; }
+  .headerCounter { font-size: 11px; }
+  .headerClose { width: 40px; height: 40px; }
+
+  .main { padding: 76px 16px 40px; }
+  .cardWrap { max-width: 100%; }
+
+  .stepLabel { font-size: 9px; margin-bottom: 12px; }
+  .questionTitle { font-size: clamp(22px, 6vw, 28px); }
+  .questionSub { font-size: 13px; margin-bottom: 28px; }
+  .noSub { margin-bottom: 28px; }
+
+  .choiceBtn { padding: 16px 16px; font-size: 14px; min-height: 48px; }
+  .choiceRadio { width: 18px; height: 18px; }
+
+  .sliderDisplay { padding: 16px; margin-bottom: 24px; }
+  .sliderDisplayValue { font-size: 36px; }
+  .sliderDisplayUnit { font-size: 16px; }
+  .sliderInput::-webkit-slider-thumb { width: 28px; height: 28px; }
+  .sliderInput::-moz-range-thumb { width: 28px; height: 28px; }
+
+  .nav { margin-top: 36px; padding-top: 20px; gap: 8px; }
+  .navBtnPrimary { padding: 16px 20px; font-size: 13px; min-height: 52px; }
+  .navBtnSecondary { padding: 14px 20px; font-size: 12px; min-height: 48px; }
 }
