@@ -25,24 +25,7 @@ const steps = [
 
 export default function HowItWorks() {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const fillRef = useRef<HTMLDivElement>(null);
   const numsRef = useRef<HTMLSpanElement[]>([]);
-
-  useEffect(() => {
-    // Progress line driven by scroll
-    const onScroll = () => {
-      const wrap = wrapRef.current;
-      const fill = fillRef.current;
-      if (!wrap || !fill) return;
-      const rect = wrap.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const pct = Math.max(0, Math.min(1, (vh - rect.top) / (rect.height + vh * 0.3)));
-      fill.style.height = `${pct * 100}%`;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     // Clip-path reveal on step numbers
@@ -77,11 +60,6 @@ export default function HowItWorks() {
         </div>
 
         <div className={styles.stepsWrap} ref={wrapRef}>
-          {/* Vertical progress line */}
-          <div className={styles.stepLine}>
-            <div className={styles.stepLineFill} ref={fillRef} />
-          </div>
-
           {steps.map((step, i) => (
             <div key={step.num} className={styles.step}>
               <span

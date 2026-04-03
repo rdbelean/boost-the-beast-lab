@@ -185,6 +185,15 @@
   padding-top: 96px;
   padding-bottom: 80px;
 }
+
+/* Ensure content is visible even if animations fail (iOS Reduce Motion) */
+@media (prefers-reduced-motion: reduce) {
+  .headlineLine, .eyebrow, .subtitle, .ctaRow, .statsBar, .scrollIndicator {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -388,45 +397,28 @@
 .stepsWrap {
   position: relative;
 }
-.stepLine {
-  position: absolute;
-  left: 28px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--border);
-}
-.stepLineFill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 0;
-  background: var(--accent);
-  box-shadow: 0 0 8px rgba(230, 50, 34, 0.4);
-  transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
+.stepLine { display: none; }
+.stepLineFill { display: none; }
 .step {
   position: relative;
   display: flex;
   align-items: flex-start;
-  padding: 48px 0 48px 80px;
+  gap: 24px;
+  padding: 40px 0;
   border-bottom: 1px solid var(--border);
 }
 .step:first-child { border-top: 1px solid var(--border); }
 .stepNum {
-  position: absolute;
-  left: 0;
-  top: 48px;
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
-  font-size: clamp(48px, 6vw, 72px);
+  font-size: clamp(40px, 6vw, 64px);
   color: var(--accent);
   line-height: 1;
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  opacity: 0.15;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.stepNum.visible { clip-path: inset(0 0% 0 0); }
+.stepNum.visible { opacity: 1; }
 .stepContent { max-width: 560px; }
 .stepTag {
   font-family: 'Oswald', sans-serif;
@@ -451,9 +443,10 @@
   color: var(--text-secondary);
 }
 @media (max-width: 768px) {
-  .step { padding-left: 60px; }
+  .step { gap: 20px; }
   .stepNum { font-size: 40px; }
-  .stepLine { left: 20px; }
+  .heroInner { padding-top: 80px; padding-bottom: 48px; }
+  .headlineLine { font-size: clamp(36px, 10vw, 56px); }
 }
 
 /* ─── PRODUCTS / PRICING ────────────────────────────────────── */
@@ -665,12 +658,14 @@
 .footerClaimText {
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
-  font-size: clamp(32px, 5vw, 72px);
+  font-size: clamp(20px, 5vw, 72px);
   text-transform: uppercase;
   color: #fff;
   opacity: 0.04;
   user-select: none;
   line-height: 1.1;
+  padding: 0 16px;
+  word-break: break-word;
 }
 .footer {
   background: var(--bg-alt);
@@ -764,30 +759,30 @@
   .headerCta { padding: 10px 14px; font-size: 10px; }
 
   /* Hero */
-  .heroInner { padding-top: 56px; padding-bottom: 40px; }
-  .eyebrow { margin-bottom: 24px; }
+  .hero { min-height: auto; align-items: flex-start; }
+  .heroInner { padding-top: 80px; padding-bottom: 40px; }
+  .eyebrow { margin-bottom: 20px; }
   .eyebrowText { font-size: 9px; letter-spacing: 0.15em; }
-  .headlineLine { font-size: clamp(32px, 10vw, 48px); }
-  .subtitle { font-size: 15px; max-width: 100%; }
-  .ctaRow { margin-top: 28px; gap: 10px; flex-direction: column; width: 100%; }
-  .btnPrimary { width: 100%; justify-content: center; padding: 16px 24px; font-size: 13px; }
-  .btnSecondary { width: 100%; justify-content: center; padding: 14px 24px; font-size: 13px; }
+  .headlineLine { font-size: clamp(28px, 9vw, 42px); }
+  .subtitle { font-size: 14px; max-width: 100%; }
+  .ctaRow { margin-top: 24px; gap: 10px; flex-direction: column; width: 100%; }
+  .btnPrimary { width: 100%; justify-content: center; padding: 16px 24px; font-size: 13px; white-space: normal; }
+  .btnSecondary { width: 100%; justify-content: center; padding: 14px 24px; font-size: 13px; white-space: normal; }
   .statsBar { margin-top: 28px; gap: 0; }
-  .statItem { padding: 12px 16px; }
-  .statValue { font-size: 18px; }
-  .statLabel { font-size: 8px; letter-spacing: 0.15em; }
-  .scrollIndicator { bottom: 20px; }
-  .heroGhost { font-size: clamp(60px, 18vw, 120px); }
+  .statItem { padding: 10px 12px; }
+  .statValue { font-size: 16px; }
+  .statLabel { font-size: 7px; letter-spacing: 0.12em; }
+  .scrollIndicator { display: none; }
+  .heroGhost { display: none; }
 
   /* How it works */
-  .howSection { padding: 64px 0; }
-  .howHeader { margin-bottom: 40px; }
-  .sectionTitle { font-size: clamp(24px, 7vw, 36px); }
-  .step { padding: 28px 0 28px 56px; }
-  .stepNum { font-size: 36px; }
-  .stepLine { left: 16px; }
-  .stepHeading { font-size: 18px; }
-  .stepText { font-size: 14px; }
+  .howSection { padding: 56px 0; }
+  .howHeader { margin-bottom: 32px; }
+  .sectionTitle { font-size: clamp(22px, 7vw, 32px); }
+  .step { padding: 28px 0; gap: 16px; }
+  .stepNum { font-size: 32px; }
+  .stepHeading { font-size: 16px; }
+  .stepText { font-size: 13px; }
 
   /* Products */
   .productsSection { padding: 64px 0; }

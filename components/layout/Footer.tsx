@@ -1,90 +1,44 @@
 "use client";
+import styles from "@/app/landing.module.css";
+
 export default function Footer() {
   return (
     <>
-      {/* Claim area above footer */}
-      <div style={{ background: "var(--bg-base)", overflow: "hidden" }}>
-        <div
-          style={{
-            height: "2px",
-            background: "var(--accent-red)",
-            boxShadow: "0 0 12px rgba(230,50,34,0.4)",
-          }}
-        />
-        <div
-          className="font-headline"
-          style={{
-            fontWeight: 700,
-            textAlign: "center",
-            userSelect: "none",
-            pointerEvents: "none",
-            fontSize: "clamp(40px, 8vw, 100px)",
-            color: "#fff",
-            opacity: 0.04,
-            lineHeight: 1.2,
-            padding: "40px 20px",
-            textTransform: "uppercase",
-          }}
-        >
+      {/* Claim */}
+      <div className={styles.footerClaim}>
+        <div className={styles.footerClaimText}>
           MADE FOR ATHLETES. NOT FOR AVERAGE.
         </div>
       </div>
 
-      <footer style={{ background: "var(--bg-section-alt)", borderTop: "1px solid var(--border)" }}>
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "64px 32px" }}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              gap: "48px",
-              paddingBottom: "48px",
-              borderBottom: "1px solid var(--border)",
-              marginBottom: "32px",
-            }}
-          >
-            <div style={{ maxWidth: "280px" }}>
-              <div className="font-headline" style={{ color: "#fff", fontSize: "20px", fontWeight: 700, letterSpacing: "0.15em", marginBottom: "4px" }}>
-                BOOST THE BEAST
-              </div>
-              <div
-                className="font-headline"
-                style={{ fontSize: "9px", letterSpacing: "0.35em", color: "var(--accent-red)", marginBottom: "24px" }}
-              >
-                PERFORMANCE LAB
-              </div>
-              <p style={{ fontSize: "14px", lineHeight: 1.6, color: "var(--text-secondary)" }}>
-                Performance Insights auf wissenschaftlichem Niveau – kalibriert nach WHO & ACSM.
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <div className={styles.container}>
+          <div className={styles.footerContent}>
+            <div className={styles.footerBrand}>
+              <span className={styles.footerBrandName}>BOOST THE BEAST</span>
+              <span className={styles.footerBrandSub}>PERFORMANCE LAB</span>
+              <p className={styles.footerBrandDesc}>
+                Performance Insights auf wissenschaftlichem Niveau – kalibriert nach WHO &amp; ACSM.
               </p>
             </div>
 
-            <div style={{ display: "flex", gap: "64px" }}>
+            <div className={styles.footerLinks}>
               <div>
-                <div className="font-headline" style={{ fontSize: "12px", letterSpacing: "0.15em", color: "var(--text-muted)", marginBottom: "24px" }}>
-                  LEGAL
-                </div>
-                <ul style={{ listStyle: "none" }}>
+                <span className={styles.footerColTitle}>LEGAL</span>
+                <ul className={styles.footerColList}>
                   {["Impressum", "Datenschutz", "AGB"].map((item) => (
-                    <li key={item} style={{ marginBottom: "12px" }}>
-                      <a href="#" style={{ fontSize: "14px", color: "var(--text-secondary)", textDecoration: "none", transition: "color 0.2s" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
-                      >{item}</a>
+                    <li key={item}>
+                      <a href="#" className={styles.footerLink}>{item}</a>
                     </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <div className="font-headline" style={{ fontSize: "12px", letterSpacing: "0.15em", color: "var(--text-muted)", marginBottom: "24px" }}>
-                  KONTAKT
-                </div>
-                <ul style={{ listStyle: "none" }}>
+                <span className={styles.footerColTitle}>KONTAKT</span>
+                <ul className={styles.footerColList}>
                   <li>
-                    <a href="mailto:lab@boostthebeast.com"
-                      style={{ fontSize: "14px", color: "var(--text-secondary)", textDecoration: "none", transition: "color 0.2s" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
-                    >
+                    <a href="mailto:lab@boostthebeast.com" className={styles.footerLink}>
                       lab@boostthebeast.com
                     </a>
                   </li>
@@ -93,11 +47,11 @@ export default function Footer() {
             </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px" }}>
-            <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+          <div className={styles.footerBottom}>
+            <p className={styles.footerCopy}>
               © {new Date().getFullYear()} Boost The Beast Lab. Alle Rechte vorbehalten.
             </p>
-            <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+            <p className={styles.footerCopy}>
               Keine medizinische Diagnose. Performance Insights only.
             </p>
           </div>
