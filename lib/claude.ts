@@ -71,6 +71,10 @@ SCORES:
 - Activity Score: ${scores.activity}/100
 - Stress & Lifestyle Score: ${scores.stress}/100
 
+DERIVED METRICS:
+- VO2max Schätzung: ${scores.vo2maxEstimate} ml/kg/min
+- NEAT (Non-Exercise Activity Thermogenesis): ${scores.neatEstimate} kcal/Tag
+
 ROHDATEN:
 Schlaf: ${data.sleepHours}h/Nacht, Qualität ${data.sleepQuality}/10, Aufwachen: ${data.nightWakeUps}
 Aktivität: ${data.dailySteps} Schritte/Tag, Training: ${data.trainingFrequency}×/Woche (${data.trainingType}), ${data.trainingDuration} min/Session

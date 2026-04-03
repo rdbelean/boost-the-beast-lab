@@ -1,6 +1,6 @@
 "use client";
-import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "@/app/landing.module.css";
 
 const CheckIcon = ({ color = "#22C55E" }: { color?: string }) => (
@@ -62,6 +62,30 @@ const products = [
 
 export default function Products() {
   const refs = useRef<HTMLDivElement[]>([]);
+  const router = useRouter();
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  async function handleBuy(productId: string) {
+    setLoadingId(productId);
+    try {
+      const res = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        // Fallback: go directly to assessment (Stripe not configured)
+        router.push(`/assessment?product=${productId}`);
+      }
+    } catch {
+      router.push(`/assessment?product=${productId}`);
+    } finally {
+      setLoadingId(null);
+    }
+  }
 
   useEffect(() => {
     refs.current.forEach((el, i) => {
@@ -131,12 +155,13 @@ export default function Products() {
                 </div>
                 <div className={styles.priceSub}>einmalig</div>
 
-                <Link
-                  href={`/assessment?product=${p.id}`}
+                <button
+                  onClick={() => handleBuy(p.id)}
+                  disabled={loadingId === p.id}
                   className={`${styles.cardBtn} ${p.highlight ? styles.cardBtnPrimary : styles.cardBtnSecondary}`}
                 >
-                  STARTEN →
-                </Link>
+                  {loadingId === p.id ? "..." : "STARTEN →"}
+                </button>
 
                 <div className={styles.trustPoints}>
                   {["Sofortiger Download", "Einmalig, kein Abo", "PDF inklusive"].map((t) => (

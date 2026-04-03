@@ -27,6 +27,8 @@ export interface ScoreResult {
   stress: number;
   overall: number;
   bmi: number;
+  vo2maxEstimate: number;
+  neatEstimate: number;
   label: "UNTERDURCHSCHNITTLICH" | "DURCHSCHNITTLICH" | "ÜBERDURCHSCHNITTLICH" | "ELITE";
 }
 
@@ -107,6 +109,53 @@ function getLabel(overall: number): ScoreResult["label"] {
   return "ELITE";
 }
 
+/**
+ * VO2max estimation using non-exercise model
+ * Based on Jackson et al. (1990) non-exercise VO2max prediction
+ * Adjusted for activity level and age
+ */
+function estimateVO2max(data: AssessmentData): number {
+  const bmi = data.weight / Math.pow(data.height / 100, 2);
+  // Activity code: 0 = sedentary, 1 = low, 3 = moderate, 5 = active, 7 = very active
+  let activityCode = 0;
+  if (data.trainingFrequency >= 5) activityCode = 7;
+  else if (data.trainingFrequency >= 3) activityCode = 5;
+  else if (data.trainingFrequency >= 1) activityCode = 3;
+  else if (data.dailySteps >= 7500) activityCode = 1;
+
+  // Simplified Jackson non-exercise model
+  let vo2max = 56.363 + (1.921 * activityCode) - (0.381 * data.age) - (0.754 * bmi);
+  if (data.gender === "female") vo2max *= 0.85; // Female adjustment
+
+  // Training type bonus
+  if (data.trainingType === "ausdauer" || data.trainingType === "hybrid") vo2max += 2;
+
+  return Math.max(15, Math.min(75, Math.round(vo2max * 10) / 10));
+}
+
+/**
+ * NEAT (Non-Exercise Activity Thermogenesis) estimation in kcal/day
+ * Based on daily steps, sitting hours, and training type
+ * Reference: Levine et al. (2005) — NEAT can vary by ~2000 kcal/day
+ */
+function estimateNEAT(data: AssessmentData): number {
+  // Base NEAT from steps (approx 0.04 kcal per step for average person)
+  const stepNEAT = data.dailySteps * 0.04;
+
+  // Sitting penalty: more sitting = less fidgeting, standing, walking
+  // Average person sits ~7h; each hour above reduces NEAT
+  const sittingPenalty = Math.max(0, (data.sittingHours - 6) * 30);
+
+  // Weight factor (heavier = more energy per movement)
+  const weightFactor = data.weight / 75;
+
+  // Base occupational/domestic NEAT (cooking, cleaning, commuting)
+  const baseNEAT = 300;
+
+  const neat = Math.round((baseNEAT + stepNEAT * weightFactor) - sittingPenalty);
+  return Math.max(100, Math.min(1200, neat));
+}
+
 export function calculateAllScores(data: AssessmentData): ScoreResult {
   const metabolic = calculateMetabolicScore(data);
   const recovery = calculateRecoveryScore(data);
@@ -114,6 +163,8 @@ export function calculateAllScores(data: AssessmentData): ScoreResult {
   const stress = calculateStressScore(data);
   const overall = Math.round(metabolic * 0.25 + recovery * 0.25 + activity * 0.30 + stress * 0.20);
   const bmi = Math.round((data.weight / Math.pow(data.height / 100, 2)) * 10) / 10;
+  const vo2maxEstimate = estimateVO2max(data);
+  const neatEstimate = estimateNEAT(data);
 
-  return { metabolic, recovery, activity, stress, overall, bmi, label: getLabel(overall) };
+  return { metabolic, recovery, activity, stress, overall, bmi, vo2maxEstimate, neatEstimate, label: getLabel(overall) };
 }

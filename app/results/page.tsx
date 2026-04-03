@@ -266,12 +266,11 @@ export default function ResultsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scores, report, data: assessmentData }),
       });
-      const html = await res.text();
-      const blob = new Blob([html], { type: "text/html" });
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `BTB-Performance-Report-${Date.now()}.html`;
+      a.download = `BTB-Performance-Report-${Date.now()}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -298,9 +297,9 @@ export default function ResultsPage() {
   const labelColor = scoreColor(scores.overall);
 
   const scoreDescriptions = {
-    metabolic: `BMI: ${scores.bmi} · Dein metabolischer Status basiert auf Körperzusammensetzung, Hydration, Mahlzeitenfrequenz und Sitzzeit.`,
+    metabolic: `BMI: ${scores.bmi} · VO2max: ~${scores.vo2maxEstimate} ml/kg/min · Körperzusammensetzung, Hydration und Mahlzeitenfrequenz.`,
     recovery: "Schlafdauer, -qualität und nächtliche Unterbrechungen bestimmen deine Regenerationskapazität.",
-    activity: "Gesamtaktivität, Trainingsfrequenz, -dauer und -art nach ACSM-Richtlinien bewertet.",
+    activity: `NEAT: ~${scores.neatEstimate} kcal/Tag · Gesamtaktivität, Training und Alltagsbewegung nach ACSM.`,
     stress: "Stresslevel, sedentäres Verhalten und Schlafqualität als Lifestyle-Indikatoren kombiniert.",
   };
 
@@ -432,6 +431,60 @@ export default function ResultsPage() {
                 </div>
               );
             })}
+          </div>
+        </section>
+
+        {/* ─── DERIVED METRICS ──────────────────────────── */}
+        <section className={styles.scoresSection}>
+          <div className={styles.sectionLabel}>DERIVED METRICS</div>
+          <div className={styles.scoresGrid}>
+            <div className={styles.scoreCard} style={{ animationDelay: "0.1s" }}>
+              <div className={styles.scoreCardTop}>
+                <div>
+                  <div className={styles.scoreCardLabel}>VO2MAX SCHÄTZUNG</div>
+                  <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.vo2maxEstimate > 40 ? 70 : scores.vo2maxEstimate > 30 ? 50 : 20) }}>
+                    {scores.vo2maxEstimate}
+                    <span className={styles.scoreCardMax}> ml/kg/min</span>
+                  </div>
+                </div>
+                <div
+                  className={styles.scoreCardBadge}
+                  style={{
+                    background: scores.vo2maxEstimate >= 45 ? "rgba(34,197,94,0.12)" : scores.vo2maxEstimate >= 35 ? "rgba(245,158,11,0.12)" : "rgba(230,50,34,0.12)",
+                    color: scores.vo2maxEstimate >= 45 ? "#22C55E" : scores.vo2maxEstimate >= 35 ? "#F59E0B" : "#E63222",
+                  }}
+                >
+                  {scores.vo2maxEstimate >= 45 ? "GUT" : scores.vo2maxEstimate >= 35 ? "MITTEL" : "NIEDRIG"}
+                </div>
+              </div>
+              <div className={styles.scoreCardDesc}>
+                Geschätzte maximale Sauerstoffaufnahme basierend auf Alter, BMI, Trainingsfrequenz und Aktivitätslevel. Referenz: Jackson et al. (1990).
+              </div>
+            </div>
+
+            <div className={styles.scoreCard} style={{ animationDelay: "0.15s" }}>
+              <div className={styles.scoreCardTop}>
+                <div>
+                  <div className={styles.scoreCardLabel}>NEAT — ALLTAGSAKTIVITÄT</div>
+                  <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.neatEstimate > 500 ? 70 : scores.neatEstimate > 300 ? 50 : 20) }}>
+                    {scores.neatEstimate}
+                    <span className={styles.scoreCardMax}> kcal/Tag</span>
+                  </div>
+                </div>
+                <div
+                  className={styles.scoreCardBadge}
+                  style={{
+                    background: scores.neatEstimate >= 500 ? "rgba(34,197,94,0.12)" : scores.neatEstimate >= 300 ? "rgba(245,158,11,0.12)" : "rgba(230,50,34,0.12)",
+                    color: scores.neatEstimate >= 500 ? "#22C55E" : scores.neatEstimate >= 300 ? "#F59E0B" : "#E63222",
+                  }}
+                >
+                  {scores.neatEstimate >= 500 ? "AKTIV" : scores.neatEstimate >= 300 ? "MODERAT" : "GERING"}
+                </div>
+              </div>
+              <div className={styles.scoreCardDesc}>
+                Non-Exercise Activity Thermogenesis — Kalorienverbrauch durch Alltagsbewegung (ohne Sport). Basierend auf Schrittzahl, Sitzzeit und Gewicht.
+              </div>
+            </div>
           </div>
         </section>
 
