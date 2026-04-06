@@ -47,12 +47,23 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* Legal Disclaimer */}
+          <div className={styles.footerDisclaimer}>
+            <p className={styles.footerDisclaimerText}>
+              Hinweis: Die Inhalte und Ergebnisse von Boost The Beast Lab dienen ausschließlich der allgemeinen Information
+              und stellen keine medizinische Beratung, Diagnose oder Therapieempfehlung dar. Sie ersetzen in keinem Fall
+              den Besuch bei einem Arzt, Heilpraktiker oder sonstigen medizinischen Fachpersonal. Bei gesundheitlichen
+              Beschwerden oder Fragen zu Ihrer Gesundheit konsultieren Sie bitte immer einen Arzt. Die Nutzung der
+              bereitgestellten Informationen erfolgt auf eigene Verantwortung.
+            </p>
+          </div>
+
           <div className={styles.footerBottom}>
             <p className={styles.footerCopy}>
               © {new Date().getFullYear()} Boost The Beast Lab. Alle Rechte vorbehalten.
             </p>
             <p className={styles.footerCopy}>
-              Keine medizinische Diagnose. Performance Insights only.
+              Kein Medizinprodukt · Keine Heilkunde i.S.d. HeilprG
             </p>
           </div>
         </div>

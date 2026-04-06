@@ -52,7 +52,7 @@ OUTPUT FORMAT (exakt einhalten):
 [2-3 Sätze: realistisch, motivierend, was passiert bei konsequenter Umsetzung]
 
 ---
-Dieser Report ersetzt keine medizinische Beratung.
+Hinweis: Dieser Report dient ausschließlich der allgemeinen Information und stellt keine medizinische Beratung, Diagnose oder Therapieempfehlung dar. Er ersetzt in keinem Fall den Besuch bei einem Arzt oder medizinischen Fachpersonal. Bei gesundheitlichen Beschwerden konsultieren Sie bitte einen Arzt. Kein Medizinprodukt i.S.d. MDR.
 
 Sprache: Deutsch
 Ton: Wissenschaftlich, direkt, premium

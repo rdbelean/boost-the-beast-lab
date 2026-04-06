@@ -280,8 +280,10 @@ export async function POST(req: NextRequest) {
     // Footer on last page
     doc.setFontSize(7);
     doc.setTextColor(...muted);
-    doc.text(`Report ID: ${reportId}  ·  ${date}`, margin, 285);
-    doc.text("Keine medizinische Diagnose. Performance Insights only.", w - margin, 285, { align: "right" });
+    doc.text(`Report ID: ${reportId}  ·  ${date}`, margin, 280);
+    doc.setFontSize(6);
+    const disclaimer = "Hinweis: Dieser Report dient ausschließlich der allgemeinen Information und ersetzt keinen Arztbesuch oder medizinische Diagnose. Kein Medizinprodukt i.S.d. MDR.";
+    doc.text(doc.splitTextToSize(disclaimer, contentW), margin, 285);
 
     // Generate PDF buffer
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));

@@ -576,7 +576,9 @@ export default function ResultsPage() {
             </Link>
           </div>
           <p className={styles.ctaDisclaimer}>
-            Dieser Report ersetzt keine medizinische Beratung. · BOOST THE BEAST LAB
+            Hinweis: Dieser Report dient ausschließlich der allgemeinen Information und ersetzt keinen
+            Arztbesuch, keine medizinische Diagnose oder Therapieempfehlung. Bei gesundheitlichen
+            Beschwerden konsultieren Sie bitte einen Arzt. Kein Medizinprodukt i.S.d. MDR.
           </p>
         </section>
       </div>
