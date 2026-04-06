@@ -550,6 +550,169 @@
   border-radius: 2px;
 }
 
+/* ─── INSIGHTS / UPSELL ─────────────────────────────────────── */
+.insightsSection {
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+}
+.insightCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.insightCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+.insightCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.insightCardHeader:hover {
+  background: rgba(255,255,255,0.02);
+}
+.insightCardLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.insightCardIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.insightCardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.insightCardLabel {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.insightCardTitle {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  text-transform: uppercase;
+  color: #fff;
+}
+.insightCardScore {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.insightCardScoreSuffix {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.insightCardChevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.insightCardChevronOpen {
+  transform: rotate(180deg);
+}
+.insightCardBody {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.insightCardBodyOpen {
+  max-height: 600px;
+}
+.insightCardContent {
+  padding: 0 24px 24px;
+  border-top: 1px solid var(--border);
+}
+.insightTips {
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.insightTip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.insightTipIcon {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.insightCta {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.insightCtaText {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.insightCtaTextBold {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.insightCtaBtn {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(135deg, #E63222, #FF6B5A);
+  border: none;
+  border-radius: 2px;
+  padding: 12px 24px;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.insightCtaBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(230,50,34,0.4);
+}
+
+@media (max-width: 480px) {
+  .insightCardHeader { padding: 16px; }
+  .insightCardContent { padding: 0 16px 20px; }
+  .insightCardTitle { font-size: 13px; }
+  .insightCta { flex-direction: column; align-items: stretch; }
+  .insightCtaBtn { justify-content: center; }
+}
+
 /* ─── AI REPORT ─────────────────────────────────────────────── */
 .reportSection {
   padding: 48px 0;

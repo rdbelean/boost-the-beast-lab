@@ -198,6 +198,128 @@ function ProcessingScreen({ step }: { step: number }) {
   );
 }
 
+/* ─── Insight data for weak scores ──────────────────────────── */
+const INSIGHT_DATA: Record<string, {
+  icon: string;
+  weakLabel: string;
+  tips: string[];
+  ctaText: string;
+  ctaButton: string;
+  ctaLink: string;
+}> = {
+  metabolic: {
+    icon: "⚡",
+    weakLabel: "VERBESSERUNGSPOTENZIAL ERKANNT",
+    tips: [
+      "Erhöhe deine Wasseraufnahme auf 2–3 Liter pro Tag — Dehydration senkt den Stoffwechsel um bis zu 3%.",
+      "Verteile deine Mahlzeiten auf 3–5 über den Tag — konstante Energiezufuhr hält den Metabolismus aktiv.",
+      "Reduziere Sitzzeit: alle 45 Minuten aufstehen und 2–3 Minuten bewegen steigert NEAT signifikant.",
+      "Mehr Protein in jeder Mahlzeit (1.6–2.2g/kg Körpergewicht) erhöht den thermischen Effekt der Nahrung.",
+    ],
+    ctaText: "Dein Stoffwechsel arbeitet unter seinem Potenzial. Ein detaillierter Metabolic Report zeigt dir exakt, wo die Engpässe liegen.",
+    ctaButton: "DETAILLIERTE ANALYSE →",
+    ctaLink: "https://boost-the-beast-lab.vercel.app",
+  },
+  recovery: {
+    icon: "🌙",
+    weakLabel: "REGENERATION UNTER DURCHSCHNITT",
+    tips: [
+      "Ziel: 7–9 Stunden Schlaf pro Nacht — jede Stunde unter 7h reduziert die Recovery um ~15%.",
+      "Bildschirmzeit 60 Minuten vor dem Schlafen reduzieren — Blaulicht unterdrückt Melatonin um bis zu 50%.",
+      "Schlafzimmer auf 16–18°C kühlen — optimale Temperatur für Tiefschlafphasen.",
+      "Feste Schlafenszeit einhalten (auch am Wochenende) — stabilisiert den zirkadianen Rhythmus innerhalb von 2 Wochen.",
+    ],
+    ctaText: "Schlechte Recovery ist der #1 Performance-Killer. Ein Recovery Deep-Dive zeigt dir deine individuellen Schlaf-Optimierungen.",
+    ctaButton: "RECOVERY REPORT →",
+    ctaLink: "https://boost-the-beast-lab.vercel.app",
+  },
+  activity: {
+    icon: "🏃",
+    weakLabel: "AKTIVITÄTSLEVEL ZU NIEDRIG",
+    tips: [
+      "WHO-Empfehlung: mindestens 150 Minuten moderate Aktivität pro Woche — du liegst darunter.",
+      "Steigere schrittweise auf 8.000–10.000 Schritte/Tag — jeder zusätzliche 1.000 Schritte senken das Mortalitätsrisiko um 6%.",
+      "Kombiniere Kraft- und Ausdauertraining (Hybrid) — bringt die höchste Verbesserung im Activity Score.",
+      "Kurze Bewegungseinheiten (10–15 Min) über den Tag verteilen wenn längere Sessions nicht möglich sind.",
+    ],
+    ctaText: "Dein Körper bewegt sich zu wenig. Ein Activity Performance Report gibt dir einen personalisierten Trainingsplan.",
+    ctaButton: "ACTIVITY ANALYSE →",
+    ctaLink: "https://boost-the-beast-lab.vercel.app",
+  },
+  stress: {
+    icon: "🧠",
+    weakLabel: "STRESSBELASTUNG ERHÖHT",
+    tips: [
+      "5–10 Minuten tägliche Atemübungen (Box Breathing: 4-4-4-4) senken Cortisol nachweislich um bis zu 25%.",
+      "Bewegung ist der effektivste Stress-Puffer — selbst 20 Minuten Gehen senkt Stresshormone signifikant.",
+      "Sitzzeit unter 8 Stunden halten — prolongiertes Sitzen erhöht Cortisol und inflammatorische Marker.",
+      "Schlafqualität verbessern hat den stärksten Einzeleffekt auf Stress-Resilienz.",
+    ],
+    ctaText: "Chronischer Stress zerstört Performance. Ein Lifestyle Report analysiert deine Stressoren und gibt dir einen konkreten Aktionsplan.",
+    ctaButton: "LIFESTYLE REPORT →",
+    ctaLink: "https://boost-the-beast-lab.vercel.app",
+  },
+};
+
+/* ─── Insight Card Component ───────────────────────────────── */
+function InsightCard({ scoreKey, score, label, color }: {
+  scoreKey: string; score: number; label: string; color: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const data = INSIGHT_DATA[scoreKey];
+  if (!data || score >= 60) return null;
+
+  return (
+    <div className={styles.insightCard}>
+      <div className={styles.insightCardHeader} onClick={() => setOpen(!open)}>
+        <div className={styles.insightCardLeft}>
+          <div
+            className={styles.insightCardIcon}
+            style={{ background: `${color}15`, border: `1px solid ${color}30` }}
+          >
+            <span style={{ fontSize: 18 }}>{data.icon}</span>
+          </div>
+          <div className={styles.insightCardMeta}>
+            <span className={styles.insightCardLabel}>{data.weakLabel}</span>
+            <span className={styles.insightCardTitle}>{label}</span>
+          </div>
+        </div>
+        <div className={styles.insightCardScore} style={{ color }}>
+          {score}<span className={styles.insightCardScoreSuffix}>/100</span>
+        </div>
+        <svg
+          width="16" height="16" viewBox="0 0 16 16" fill="none"
+          className={`${styles.insightCardChevron} ${open ? styles.insightCardChevronOpen : ""}`}
+        >
+          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+      <div className={`${styles.insightCardBody} ${open ? styles.insightCardBodyOpen : ""}`}>
+        <div className={styles.insightCardContent}>
+          <div className={styles.insightTips}>
+            {data.tips.map((tip, i) => (
+              <div key={i} className={styles.insightTip}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className={styles.insightTipIcon}>
+                  <path d="M2 8l5 5 7-8" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {tip}
+              </div>
+            ))}
+          </div>
+          <div className={styles.insightCta}>
+            <div className={styles.insightCtaText}>
+              <span className={styles.insightCtaTextBold}>{data.ctaText}</span>
+            </div>
+            <a href={data.ctaLink} className={styles.insightCtaBtn}>
+              {data.ctaButton}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Results Dashboard ────────────────────────────────── */
 export default function ResultsPage() {
   const [processingStep, setProcessingStep] = useState(0);
@@ -553,6 +675,24 @@ export default function ResultsPage() {
             </div>
           </div>
         </section>
+
+        {/* ─── INSIGHTS / UPSELL ─────────────────────────── */}
+        {scoreEntries.some((e) => scores[e.key] < 60) && (
+          <section className={styles.insightsSection}>
+            <div className={styles.sectionLabel}>DEINE SCHWACHSTELLEN — SO VERBESSERST DU DICH</div>
+            <div className={styles.insightCards}>
+              {scoreEntries.map((entry) => (
+                <InsightCard
+                  key={entry.key}
+                  scoreKey={entry.key}
+                  score={scores[entry.key]}
+                  label={entry.label}
+                  color={entry.color}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ─── AI REPORT ───────────────────────────────── */}
         {report && (
