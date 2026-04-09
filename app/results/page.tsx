@@ -253,7 +253,7 @@ function tierLabel(score: number): { label: string; color: string } {
 function UpsellCard({ scoreKey, score, label, color }: {
   scoreKey: string; score: number; label: string; color: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const router = useRouter();
   const plan = PLAN_DATA[scoreKey];
   if (!plan) return null;
@@ -267,88 +267,154 @@ function UpsellCard({ scoreKey, score, label, color }: {
   }
 
   return (
-    <div className={styles.insightCard}>
-      {/* Header */}
+    <div className={styles.insightCard} style={{ borderTop: `3px solid ${tierColor}` }}>
+      {/* ── Header (always visible) ── */}
       <div className={styles.insightCardHeader} onClick={() => setOpen(!open)}>
         <div className={styles.insightCardLeft}>
           <div
             className={styles.insightCardIcon}
-            style={{ background: `${color}15`, border: `1px solid ${color}30` }}
+            style={{ background: `${tierColor}20`, border: `1px solid ${tierColor}50` }}
           >
             <span style={{ fontSize: 18 }}>{plan.icon}</span>
           </div>
           <div className={styles.insightCardMeta}>
-            <span className={styles.insightCardLabel} style={{ color: tierColor }}>
+            {/* Prominent tier badge */}
+            <span style={{
+              display: "inline-block",
+              background: `${tierColor}22`,
+              border: `1px solid ${tierColor}55`,
+              color: tierColor,
+              fontFamily: "Oswald, sans-serif",
+              fontWeight: 700,
+              fontSize: 9,
+              letterSpacing: "0.18em",
+              padding: "2px 7px",
+              borderRadius: 2,
+              marginBottom: 4,
+            }}>
               {tierLbl}
             </span>
             <span className={styles.insightCardTitle}>{label}</span>
           </div>
         </div>
-        <div className={styles.insightCardScore} style={{ color }}>
-          {score}<span className={styles.insightCardScoreSuffix}>/100</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ textAlign: "right" }}>
+            <div className={styles.insightCardScore} style={{ color }}>
+              {score}<span className={styles.insightCardScoreSuffix}>/100</span>
+            </div>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "Inter, sans-serif" }}>
+              {score < 40 ? "Handlungsbedarf" : score < 70 ? "Ausbaufähig" : score < 85 ? "Gut, nicht Elite" : "Fast perfekt"}
+            </div>
+          </div>
+          <svg
+            width="16" height="16" viewBox="0 0 16 16" fill="none"
+            className={`${styles.insightCardChevron} ${open ? styles.insightCardChevronOpen : ""}`}
+          >
+            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </div>
-        <svg
-          width="16" height="16" viewBox="0 0 16 16" fill="none"
-          className={`${styles.insightCardChevron} ${open ? styles.insightCardChevronOpen : ""}`}
-        >
-          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
       </div>
 
-      {/* Body */}
+      {/* ── Body ── */}
       <div className={`${styles.insightCardBody} ${open ? styles.insightCardBodyOpen : ""}`}>
         <div className={styles.insightCardContent}>
 
-          {/* Deficit bullets */}
-          <div className={styles.insightTips} style={{ paddingTop: 16 }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 8, fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>
-              Was noch fehlt:
+          {/* ── PROBLEM block ── */}
+          <div style={{
+            marginTop: 16,
+            padding: "14px 16px",
+            background: `${tierColor}0D`,
+            border: `1px solid ${tierColor}30`,
+            borderRadius: 4,
+          }}>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 7, marginBottom: 10,
+            }}>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1L13 12H1L7 1Z" stroke={tierColor} strokeWidth="1.3" strokeLinejoin="round"/>
+                <line x1="7" y1="5.5" x2="7" y2="8.5" stroke={tierColor} strokeWidth="1.3" strokeLinecap="round"/>
+                <circle cx="7" cy="10.2" r="0.7" fill={tierColor}/>
+              </svg>
+              <span style={{
+                fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: 10,
+                letterSpacing: "0.2em", color: tierColor, textTransform: "uppercase",
+              }}>
+                Erkannte Schwächen & Defizite
+              </span>
             </div>
             {deficits.map((d, i) => (
-              <div key={i} className={styles.insightTip}>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={styles.insightTipIcon} style={{ flexShrink: 0, marginTop: 2 }}>
-                  <circle cx="7" cy="7" r="5.5" stroke={tierColor} strokeWidth="1.2"/>
-                  <line x1="7" y1="4.5" x2="7" y2="7.5" stroke={tierColor} strokeWidth="1.3" strokeLinecap="round"/>
-                  <circle cx="7" cy="9.2" r="0.7" fill={tierColor}/>
-                </svg>
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: i < deficits.length - 1 ? 8 : 0 }}>
+                <div style={{
+                  width: 18, height: 18, borderRadius: "50%", background: `${tierColor}20`,
+                  border: `1px solid ${tierColor}50`, display: "flex", alignItems: "center",
+                  justifyContent: "center", flexShrink: 0, marginTop: 1,
+                  fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: tierColor, fontWeight: 700,
+                }}>
+                  {i + 1}
+                </div>
                 <span style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{d}</span>
               </div>
             ))}
           </div>
 
-          {/* Plan purchase card */}
+          {/* ── Arrow connector ── */}
           <div style={{
-            marginTop: 20,
+            display: "flex", alignItems: "center", gap: 8,
+            margin: "12px 0", padding: "0 4px",
+          }}>
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+            <div style={{
+              display: "flex", alignItems: "center", gap: 5,
+              background: "var(--surface-elevated)", border: "1px solid var(--border)",
+              borderRadius: 2, padding: "4px 10px",
+            }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M5 1v6M2 5l3 3 3-3" stroke="#22C55E" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontFamily: "Oswald, sans-serif", fontSize: 9, letterSpacing: "0.2em", color: "#22C55E", fontWeight: 700 }}>
+                DIE LÖSUNG
+              </span>
+            </div>
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+          </div>
+
+          {/* ── SOLUTION / Plan card ── */}
+          <div style={{
             padding: "18px 20px",
             background: "var(--bg-base)",
-            border: "1px solid var(--border-light)",
+            border: `1px solid ${color}40`,
             borderRadius: 4,
             borderLeft: `3px solid ${color}`,
+            marginBottom: 4,
           }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
               <div>
-                <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: 13, color: "#fff", letterSpacing: "0.08em" }}>
+                <div style={{
+                  fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: 14,
+                  color: "#fff", letterSpacing: "0.08em", marginBottom: 3,
+                }}>
                   {plan.planName}
                 </div>
-                <div style={{ fontFamily: "Inter, sans-serif", fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                <div style={{ fontFamily: "Inter, sans-serif", fontSize: 12, color: "var(--text-secondary)" }}>
                   {plan.tagline}
                 </div>
               </div>
-              <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 12 }}>
-                <div style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: 20, color }}>
+              <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 16 }}>
+                <div style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: 22, color, lineHeight: 1 }}>
                   19,99 €
                 </div>
-                <div style={{ fontSize: 10, color: "var(--text-muted)" }}>einmalig</div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>einmalig</div>
               </div>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 16 }}>
               {plan.includes.map((item, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
-                    <path d="M2 6l3 3 5-5" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
+                    <circle cx="6.5" cy="6.5" r="5.5" fill={`${color}20`} stroke={color} strokeWidth="0.8"/>
+                    <path d="M4 6.5l2 2 3.5-3.5" stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <span style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.4 }}>{item}</span>
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>{item}</span>
                 </div>
               ))}
             </div>
@@ -357,23 +423,24 @@ function UpsellCard({ scoreKey, score, label, color }: {
               onClick={handleBuy}
               style={{
                 width: "100%",
-                padding: "12px 20px",
-                background: `linear-gradient(135deg, ${color}, ${color}CC)`,
+                padding: "13px 20px",
+                background: `linear-gradient(135deg, ${color}, ${color}BB)`,
                 border: "none",
                 borderRadius: 2,
                 fontFamily: "Oswald, sans-serif",
                 fontWeight: 700,
-                fontSize: 12,
-                letterSpacing: "0.12em",
+                fontSize: 13,
+                letterSpacing: "0.14em",
                 color: "#fff",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 8,
+                boxShadow: `0 4px 16px ${color}40`,
               }}
             >
-              JETZT FÜR 19,99 € KAUFEN
+              JETZT PROBLEM LÖSEN — 19,99 €
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -920,7 +987,14 @@ export default function ResultsPage() {
 
         {/* ─── DEVELOPMENT POTENTIAL / UPSELL ─────────────── */}
         <section className={styles.insightsSection}>
-          <div className={styles.sectionLabel}>DEIN ENTWICKLUNGSPOTENZIAL — DEINE NÄCHSTEN SCHRITTE</div>
+          <div style={{ marginBottom: 20 }}>
+            <div className={styles.sectionLabel} style={{ marginBottom: 8 }}>
+              DEINE SCHWÄCHEN & DEFIZITE — HIER VERLIERST DU PERFORMANCE
+            </div>
+            <p style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, maxWidth: 600 }}>
+              Selbst bei starken Scores gibt es immer Bereiche, die dich zurückhalten. Jede erkannte Schwäche ist eine konkrete Chance — und für jede gibt es einen gezielten Plan.
+            </p>
+          </div>
           <div className={styles.insightCards}>
             {[...scoreEntries]
               .sort((a, b) => scores[a.key] - scores[b.key])
