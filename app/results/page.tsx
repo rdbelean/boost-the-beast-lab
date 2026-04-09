@@ -352,8 +352,7 @@ function UpsellCard({ scoreKey, score, label, color }: {
       )}
 
       {/* ── Body ── */}
-      <div className={`${styles.insightCardBody} ${open ? styles.insightCardBodyOpen : ""}`}>
-        <div className={styles.insightCardContent}>
+      {open && <div className={styles.insightCardContent}>
 
           {/* ── PROBLEM block ── */}
           <div style={{
@@ -483,8 +482,7 @@ function UpsellCard({ scoreKey, score, label, color }: {
             </button>
           </div>
 
-        </div>
-      </div>
+        </div>}
     </div>
   );
 }
@@ -661,6 +659,7 @@ function InsightCard({ scoreKey, score, label, color }: {
 
 /* ─── Main Results Dashboard ────────────────────────────────── */
 export default function ResultsPage() {
+  const router = useRouter();
   const [processingStep, setProcessingStep] = useState(0);
   const [scores, setScores] = useState<ScoreResult | null>(null);
   const [report, setReport] = useState<string>("");
