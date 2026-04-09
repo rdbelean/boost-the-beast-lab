@@ -315,39 +315,19 @@ function UpsellCard({ scoreKey, score, label, color }: {
         </div>
       </div>
 
-      {/* ── Plan teaser (always visible when closed) ── */}
+      {/* ── Closed teaser ── */}
       {!open && (
         <div
-          onClick={handleBuy}
+          onClick={() => setOpen(true)}
           style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "10px 20px",
+            padding: "10px 20px 14px",
             borderTop: "1px solid var(--border)",
-            background: `${color}08`,
             cursor: "pointer",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <circle cx="6" cy="6" r="5" stroke={color} strokeWidth="1"/>
-              <path d="M4 6l2 2 3.5-3.5" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span style={{ fontFamily: "Oswald, sans-serif", fontSize: 11, letterSpacing: "0.08em", color: "var(--text-secondary)" }}>
-              {plan.planName}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: 13, color }}>
-              24,99 €
-            </span>
-            <span style={{
-              fontFamily: "Oswald, sans-serif", fontSize: 10, letterSpacing: "0.1em",
-              background: `linear-gradient(135deg, ${color}, ${color}AA)`,
-              color: "#fff", padding: "4px 10px", borderRadius: 2,
-            }}>
-              KAUFEN →
-            </span>
-          </div>
+          <span style={{ fontFamily: "Inter, sans-serif", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+            {deficits.length} Schwachstellen identifiziert — tippe um Details &amp; Optimierungsplan zu sehen.
+          </span>
         </div>
       )}
 
