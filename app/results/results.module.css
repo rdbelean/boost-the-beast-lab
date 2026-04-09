@@ -38,6 +38,7 @@
 .page {
   min-height: 100vh;
   background: var(--bg-base);
+  overflow-x: hidden;
 }
 
 /* ─── PROCESSING SCREEN ────────────────────────────────────── */
@@ -855,7 +856,7 @@
 @media (max-width: 480px) {
   .container { padding: 0 16px; }
   .header { padding: 0 12px; height: 48px; }
-  .headerTitle { font-size: 9px; letter-spacing: 0.1em; }
+  .headerTitle { display: none; }
   .headerBtnSecondary { font-size: 10px; padding: 7px 12px; }
   .headerBtnPrimary { font-size: 10px; padding: 7px 12px; }
 
@@ -866,7 +867,7 @@
   .ringWrap { width: 160px; height: 160px; }
   .ringValue { font-size: 40px; }
   .ringSuffix { font-size: 12px; }
-  .labelBadge { font-size: 16px; padding: 6px 18px; }
+  .labelBadge { font-size: 14px; padding: 6px 14px; max-width: 100%; word-break: break-word; text-align: center; }
 
   /* Score Cards */
   .scoresSection { padding: 0 0 32px; }
