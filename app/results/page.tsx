@@ -159,10 +159,17 @@ function ReportText({ text }: { text: string }) {
 
 /* ─── Processing Screen ─────────────────────────────────────── */
 const STEPS = [
-  "Daten werden verarbeitet...",
-  "Scores werden berechnet...",
-  "AI generiert deinen Report...",
-  "Report wird finalisiert...",
+  "Anthropometrische Rohdaten werden eingelesen & validiert...",
+  "BMI-Kalkulation · Körperzusammensetzung wird analysiert...",
+  "VO2max-Schätzung via Jackson & Pollock Protokoll läuft...",
+  "NEAT-Kalkulation · Non-Exercise Thermogenesis wird ermittelt...",
+  "Metabolic Performance Score wird multi-variabel gewichtet...",
+  "Recovery-Algorithmus korreliert Schlaf- & Regenerationsdaten...",
+  "Aktivitätslevel wird gegen WHO & ACSM-Richtlinien abgeglichen...",
+  "Stress-Indikatoren & Lifestyle-Marker werden korreliert...",
+  "KI-Modell generiert personalisierten Performance-Report...",
+  "Benchmark-Datenbank & Referenzwerte werden integriert...",
+  "Gesamtanalyse wird finalisiert & Qualität geprüft...",
 ];
 
 function ProcessingScreen({ step }: { step: number }) {
@@ -347,32 +354,36 @@ export default function ResultsPage() {
     const localScores = calculateAllScores(data);
 
     async function run() {
-      setProcessingStep(0);
-      await new Promise((r) => setTimeout(r, 500));
-      setProcessingStep(1);
+      // Fire AI request immediately in background
+      const reportPromise = fetch("/api/generate-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
 
-      // Set scores immediately from local calc
-      await new Promise((r) => setTimeout(r, 500));
-      setProcessingStep(2);
-
-      // Try API for report text
-      try {
-        const res = await fetch("/api/generate-report", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-
-        if (res.ok) {
-          const result = await res.json();
-          setReport(result.report);
-        }
-      } catch {
-        // Report is optional — dashboard still works
+      // Steps 0–7: fake deep-analysis phase (~7 s)
+      const preAiDurations = [600, 900, 1100, 850, 800, 1000, 950, 900];
+      for (let i = 0; i < preAiDurations.length; i++) {
+        setProcessingStep(i);
+        await new Promise((r) => setTimeout(r, preAiDurations[i]));
       }
 
-      setProcessingStep(3);
-      await new Promise((r) => setTimeout(r, 600));
+      // Step 8: wait for AI + minimum display time (3 s)
+      setProcessingStep(8);
+      const [aiResult] = await Promise.all([
+        reportPromise,
+        new Promise((r) => setTimeout(r, 3000)),
+      ]);
+      if (aiResult?.report) setReport(aiResult.report);
+
+      // Steps 9–10: finalization phase (~1.5 s)
+      setProcessingStep(9);
+      await new Promise((r) => setTimeout(r, 800));
+      setProcessingStep(10);
+      await new Promise((r) => setTimeout(r, 700));
+
       setScores(localScores);
     }
 
