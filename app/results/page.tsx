@@ -383,41 +383,18 @@ export default function ResultsPage() {
     if (!scores || !assessmentData) return;
     setPdfLoading(true);
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
-
-      const el = document.getElementById("pdf-content");
-      if (!el) throw new Error("pdf-content not found");
-
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#0A0A0C",
-        logging: false,
-        width: el.scrollWidth,
-        height: el.scrollHeight,
-        windowWidth: el.scrollWidth,
-        windowHeight: el.scrollHeight,
+      const res = await fetch("/api/generate-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scores, report, data: assessmentData }),
       });
-
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pageW = 210;
-      const pageH = 297;
-      const imgW = pageW;
-      const imgH = (canvas.height / canvas.width) * imgW;
-
-      let yOffset = 0;
-      let first = true;
-      while (yOffset < imgH) {
-        if (!first) pdf.addPage();
-        first = false;
-        pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, -yOffset, imgW, imgH);
-        yOffset += pageH;
-      }
-
-      pdf.save(`BTB-Performance-Report-${Date.now()}.pdf`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `BTB-Performance-Report-${Date.now()}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch (err) {
       console.error("PDF error:", err);
     } finally {
