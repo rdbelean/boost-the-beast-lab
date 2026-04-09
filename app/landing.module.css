@@ -678,7 +678,7 @@
   gap: 48px;
   padding-bottom: 48px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 32px;
+  margin-bottom: 0;
 }
 .footerBrand { max-width: 280px; }
 .footerBrandName {
@@ -733,7 +733,7 @@
 }
 .footerLink:hover { color: #fff; }
 .footerDisclaimer {
-  padding: 0 0 20px 0;
+  padding: 20px 0;
   border-bottom: 1px solid var(--border);
   margin-bottom: 20px;
 }
