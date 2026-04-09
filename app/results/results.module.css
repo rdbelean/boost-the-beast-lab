@@ -283,6 +283,8 @@
 .ringBg, .ringFg {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
 }
 .ringBg circle { fill: none; stroke: var(--border); stroke-width: 8; }
 .ringFg circle {
