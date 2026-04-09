@@ -813,7 +813,7 @@
 
   /* Footer */
   .footer { padding: 40px 0 24px; }
-  .footerContent { padding-bottom: 32px; margin-bottom: 24px; }
+  .footerContent { padding-bottom: 32px; margin-bottom: 0; }
   .footerLinks { flex-direction: column; gap: 24px; }
   .footerBrandDesc { font-size: 12px; }
 }
