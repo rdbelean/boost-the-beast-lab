@@ -12,7 +12,7 @@ function getStripe() {
 const PRODUCTS: Record<string, { name: string; price: number; description: string }> = {
   metabolic: {
     name: "Metabolic Performance Score",
-    price: 2900, // cents
+    price: 2900,
     description: "BMI, Ernährungs- & Hydrations-Score, AI-Report, Premium PDF",
   },
   recovery: {
@@ -24,6 +24,26 @@ const PRODUCTS: Record<string, { name: string; price: number; description: strin
     name: "Complete Performance Analysis",
     price: 7900,
     description: "Alle 4 Scores + Overall Index, AI-Report, 30-Tage Prognose, Premium PDF",
+  },
+  "plan-metabolic": {
+    name: "Metabolic Boost Plan",
+    price: 1999,
+    description: "30-Tage individueller Ernährungs- & Stoffwechsel-Optimierungsplan",
+  },
+  "plan-recovery": {
+    name: "Recovery Protocol",
+    price: 1999,
+    description: "Persönliches Schlaf- & Regenerationsprotokoll für maximale Erholung",
+  },
+  "plan-activity": {
+    name: "Performance Training Plan",
+    price: 1999,
+    description: "12-Wochen individueller Kraft- & Konditionstrainingsplan",
+  },
+  "plan-stress": {
+    name: "Stress Reset Program",
+    price: 1999,
+    description: "30-Tage Anti-Stress & Lifestyle-Optimierungsprogramm",
   },
 };
 

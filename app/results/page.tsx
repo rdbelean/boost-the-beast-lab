@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { AssessmentData } from "@/lib/scoring";
 import type { ScoreResult } from "@/lib/scoring";
 import { calculateAllScores } from "@/lib/scoring";
@@ -153,6 +154,234 @@ function ReportText({ text }: { text: string }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/* ─── Upsell Plan Data ──────────────────────────────────────── */
+const PLAN_DATA: Record<string, {
+  icon: string;
+  planName: string;
+  tagline: string;
+  includes: string[];
+  productId: string;
+  deficits: Record<"low"|"mid"|"high", string[]>;
+}> = {
+  metabolic: {
+    icon: "⚡",
+    planName: "METABOLIC BOOST PLAN",
+    tagline: "Individueller Ernährungs- & Stoffwechselplan",
+    includes: [
+      "30-Tage personalisierter Ernährungsplan",
+      "Tägliche Makro-Targets & Hydrations-Protokoll",
+      "Meal-Timing-Strategie & NEAT-Optimierung",
+      "Wöchentliche Check-in Templates",
+    ],
+    productId: "plan-metabolic",
+    deficits: {
+      low:  ["BMI außerhalb des optimalen Bereichs", "VO2max deutlich unter Durchschnitt", "Mahlzeitenfrequenz zu gering für aktiven Stoffwechsel"],
+      mid:  ["Hydration und Meal-Timing optimierbar", "VO2max hat signifikantes Steigerungspotenzial", "Makro-Verteilung nicht auf Performance ausgerichtet"],
+      high: ["Feintuning der Makro-Verteilung für Elite-Level", "VO2max-Steigerung durch gezieltes Training erreichbar", "Periodisierung der Ernährung noch nicht optimiert"],
+    },
+  },
+  recovery: {
+    icon: "🌙",
+    planName: "RECOVERY PROTOCOL",
+    tagline: "Persönliches Schlaf- & Regenerationsprotokoll",
+    includes: [
+      "Individuelles Schlaf-Optimierungsprotokoll",
+      "Abend-Routine & Recovery-Stack Empfehlungen",
+      "Stressreduktions-Techniken (wissenschaftlich fundiert)",
+      "Schlafumgebungs-Checkliste & Tracking-Templates",
+    ],
+    productId: "plan-recovery",
+    deficits: {
+      low:  ["Schlafdauer kritisch zu gering (< 6h)", "Schlafqualität stark beeinträchtigt", "Regeneration limitiert deine gesamte Performance"],
+      mid:  ["Schlafdauer ausreichend aber nicht optimal", "Schlafqualität hat deutliches Steigerungspotenzial", "Tiefschlafphasen könnten gezielt verlängert werden"],
+      high: ["Schlafqualität gut — Tiefschlaf-Optimierung möglich", "Recovery-Stack könnte Regeneration weiter steigern", "Chronobiologie-Anpassung für maximale Erholung"],
+    },
+  },
+  activity: {
+    icon: "🏋️",
+    planName: "PERFORMANCE TRAINING PLAN",
+    tagline: "Individueller Kraft- & Konditionstrainingsplan",
+    includes: [
+      "12-Wochen-Trainingsplan (3–5 Einheiten/Woche)",
+      "Progressive Overload Struktur & Übungsguides",
+      "Cardio & NEAT-Optimierungsprotokoll",
+      "Wöchentlicher Progression-Tracker",
+    ],
+    productId: "plan-activity",
+    deficits: {
+      low:  ["Aktivitätslevel unter WHO-Mindestempfehlung", "NEAT deutlich zu gering für optimale Performance", "Keine strukturierte Trainingskonsistenz erkennbar"],
+      mid:  ["Training regelmäßig aber ohne klare Progression", "NEAT-Optimierung würde Score signifikant heben", "Kraft-Ausdauer-Balance nicht optimal"],
+      high: ["Training stark — Progressive Overload weiter ausbaufähig", "Periodisierung für nächste Performance-Stufe möglich", "VO2max-spezifisches Training noch nicht integriert"],
+    },
+  },
+  stress: {
+    icon: "🧠",
+    planName: "STRESS RESET PROGRAM",
+    tagline: "Anti-Stress & Lifestyle-Optimierungsprogramm",
+    includes: [
+      "Tägliche Mindfulness & Breathing-Routinen (5–10 Min.)",
+      "Cortisol-Management & Work-Life-Balance-Plan",
+      "Anti-Stress Ernährungsleitfaden",
+      "Wöchentliche Fortschrittsmessungen & Anpassungen",
+    ],
+    productId: "plan-stress",
+    deficits: {
+      low:  ["Chronischer Stress belastet alle Performance-Bereiche", "Cortisol-Belastung erhöht Entzündungsmarker", "Lifestyle-Balance kritisch gestört"],
+      mid:  ["Stresslevel erhöht und spürbar auf Performance wirkend", "Lifestyle-Balance hat Verbesserungspotenzial", "Stressresilienz und Erholungsfähigkeit ausbaufähig"],
+      high: ["Stressmanagement gut — Mindfulness weiter optimierbar", "Work-Life-Balance könnte weiter verfeinert werden", "Cortisol-Rhythmus für Top-Performance feinjustierbar"],
+    },
+  },
+};
+
+function tierKey(score: number): "low"|"mid"|"high" {
+  if (score < 40) return "low";
+  if (score < 70) return "mid";
+  return "high";
+}
+function tierLabel(score: number): { label: string; color: string } {
+  if (score < 40) return { label: "KRITISCHER BEREICH", color: "#E63222" };
+  if (score < 70) return { label: "VERBESSERUNGSBEDARF", color: "#F59E0B" };
+  if (score < 85) return { label: "OPTIMIERUNGSPOTENZIAL", color: "#3B82F6" };
+  return { label: "FEINTUNING MÖGLICH", color: "#22C55E" };
+}
+
+/* ─── Upsell Card ───────────────────────────────────────────── */
+function UpsellCard({ scoreKey, score, label, color }: {
+  scoreKey: string; score: number; label: string; color: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const plan = PLAN_DATA[scoreKey];
+  if (!plan) return null;
+
+  const tier = tierKey(score);
+  const { label: tierLbl, color: tierColor } = tierLabel(score);
+  const deficits = plan.deficits[tier];
+
+  async function handleBuy() {
+    router.push(`/checkout/${plan.productId}`);
+  }
+
+  return (
+    <div className={styles.insightCard}>
+      {/* Header */}
+      <div className={styles.insightCardHeader} onClick={() => setOpen(!open)}>
+        <div className={styles.insightCardLeft}>
+          <div
+            className={styles.insightCardIcon}
+            style={{ background: `${color}15`, border: `1px solid ${color}30` }}
+          >
+            <span style={{ fontSize: 18 }}>{plan.icon}</span>
+          </div>
+          <div className={styles.insightCardMeta}>
+            <span className={styles.insightCardLabel} style={{ color: tierColor }}>
+              {tierLbl}
+            </span>
+            <span className={styles.insightCardTitle}>{label}</span>
+          </div>
+        </div>
+        <div className={styles.insightCardScore} style={{ color }}>
+          {score}<span className={styles.insightCardScoreSuffix}>/100</span>
+        </div>
+        <svg
+          width="16" height="16" viewBox="0 0 16 16" fill="none"
+          className={`${styles.insightCardChevron} ${open ? styles.insightCardChevronOpen : ""}`}
+        >
+          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+
+      {/* Body */}
+      <div className={`${styles.insightCardBody} ${open ? styles.insightCardBodyOpen : ""}`}>
+        <div className={styles.insightCardContent}>
+
+          {/* Deficit bullets */}
+          <div className={styles.insightTips} style={{ paddingTop: 16 }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 8, fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>
+              Was noch fehlt:
+            </div>
+            {deficits.map((d, i) => (
+              <div key={i} className={styles.insightTip}>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={styles.insightTipIcon} style={{ flexShrink: 0, marginTop: 2 }}>
+                  <circle cx="7" cy="7" r="5.5" stroke={tierColor} strokeWidth="1.2"/>
+                  <line x1="7" y1="4.5" x2="7" y2="7.5" stroke={tierColor} strokeWidth="1.3" strokeLinecap="round"/>
+                  <circle cx="7" cy="9.2" r="0.7" fill={tierColor}/>
+                </svg>
+                <span style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{d}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Plan purchase card */}
+          <div style={{
+            marginTop: 20,
+            padding: "18px 20px",
+            background: "var(--bg-base)",
+            border: "1px solid var(--border-light)",
+            borderRadius: 4,
+            borderLeft: `3px solid ${color}`,
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: 13, color: "#fff", letterSpacing: "0.08em" }}>
+                  {plan.planName}
+                </div>
+                <div style={{ fontFamily: "Inter, sans-serif", fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                  {plan.tagline}
+                </div>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 12 }}>
+                <div style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: 20, color }}>
+                  19,99 €
+                </div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)" }}>einmalig</div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
+              {plan.includes.map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
+                    <path d="M2 6l3 3 5-5" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.4 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={handleBuy}
+              style={{
+                width: "100%",
+                padding: "12px 20px",
+                background: `linear-gradient(135deg, ${color}, ${color}CC)`,
+                border: "none",
+                borderRadius: 2,
+                fontFamily: "Oswald, sans-serif",
+                fontWeight: 700,
+                fontSize: 12,
+                letterSpacing: "0.12em",
+                color: "#fff",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
+            >
+              JETZT FÜR 19,99 € KAUFEN
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }
@@ -689,13 +918,14 @@ export default function ResultsPage() {
           </div>
         </section>
 
-        {/* ─── INSIGHTS / UPSELL ─────────────────────────── */}
-        {scoreEntries.some((e) => scores[e.key] < 60) && (
-          <section className={styles.insightsSection}>
-            <div className={styles.sectionLabel}>DEINE SCHWACHSTELLEN — SO VERBESSERST DU DICH</div>
-            <div className={styles.insightCards}>
-              {scoreEntries.map((entry) => (
-                <InsightCard
+        {/* ─── DEVELOPMENT POTENTIAL / UPSELL ─────────────── */}
+        <section className={styles.insightsSection}>
+          <div className={styles.sectionLabel}>DEIN ENTWICKLUNGSPOTENZIAL — DEINE NÄCHSTEN SCHRITTE</div>
+          <div className={styles.insightCards}>
+            {[...scoreEntries]
+              .sort((a, b) => scores[a.key] - scores[b.key])
+              .map((entry) => (
+                <UpsellCard
                   key={entry.key}
                   scoreKey={entry.key}
                   score={scores[entry.key]}
@@ -703,9 +933,8 @@ export default function ResultsPage() {
                   color={entry.color}
                 />
               ))}
-            </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* ─── AI REPORT ───────────────────────────────── */}
         {report && (
