@@ -440,7 +440,7 @@ function UpsellCard({ scoreKey, score, label, color }: {
                 boxShadow: `0 4px 16px ${color}40`,
               }}
             >
-              JETZT PROBLEM LÖSEN — 19,99 €
+              INDIVIDUELLEN PLAN KAUFEN — 19,99 €
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -989,10 +989,10 @@ export default function ResultsPage() {
         <section className={styles.insightsSection}>
           <div style={{ marginBottom: 20 }}>
             <div className={styles.sectionLabel} style={{ marginBottom: 8 }}>
-              DEINE SCHWÄCHEN & DEFIZITE — HIER VERLIERST DU PERFORMANCE
+              VERBESSERUNGSPOTENZIAL — DEINE SCHWÄCHSTEN BEREICHE
             </div>
             <p style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, maxWidth: 600 }}>
-              Selbst bei starken Scores gibt es immer Bereiche, die dich zurückhalten. Jede erkannte Schwäche ist eine konkrete Chance — und für jede gibt es einen gezielten Plan.
+              Jeder Score zeigt, wo noch Potenzial liegt. Für jeden Bereich bieten wir einen individuellen Optimierungsplan — kein Muss, aber eine gezielte Option wenn du mehr willst.
             </p>
           </div>
           <div className={styles.insightCards}>
