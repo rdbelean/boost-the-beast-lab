@@ -42,8 +42,28 @@ const PRODUCTS: Record<string, { name: string; price: number; description: strin
   },
   "plan-stress": {
     name: "Stress Reset Program",
-    price: 1999,
+    price: 2499,
     description: "30-Tage Anti-Stress & Lifestyle-Optimierungsprogramm",
+  },
+  "plan-metabolic": {
+    name: "Metabolic Boost Plan",
+    price: 2499,
+    description: "30-Tage individueller Ernährungs- & Stoffwechsel-Optimierungsplan",
+  },
+  "plan-recovery": {
+    name: "Recovery Protocol",
+    price: 2499,
+    description: "Persönliches Schlaf- & Regenerationsprotokoll",
+  },
+  "plan-activity": {
+    name: "Performance Training Plan",
+    price: 2499,
+    description: "12-Wochen individueller Kraft- & Konditionstrainingsplan",
+  },
+  "bundle-all": {
+    name: "Alle 4 Optimierungspläne — Bundle",
+    price: 4999,
+    description: "Metabolic + Recovery + Activity + Stress — vollständige Performance-Optimierung",
   },
 };
 

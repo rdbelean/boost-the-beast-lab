@@ -253,7 +253,7 @@ function tierLabel(score: number): { label: string; color: string } {
 function UpsellCard({ scoreKey, score, label, color }: {
   scoreKey: string; score: number; label: string; color: string;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const router = useRouter();
   const plan = PLAN_DATA[scoreKey];
   if (!plan) return null;
@@ -314,6 +314,42 @@ function UpsellCard({ scoreKey, score, label, color }: {
           </svg>
         </div>
       </div>
+
+      {/* ── Plan teaser (always visible when closed) ── */}
+      {!open && (
+        <div
+          onClick={handleBuy}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "10px 20px",
+            borderTop: "1px solid var(--border)",
+            background: `${color}08`,
+            cursor: "pointer",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="5" stroke={color} strokeWidth="1"/>
+              <path d="M4 6l2 2 3.5-3.5" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span style={{ fontFamily: "Oswald, sans-serif", fontSize: 11, letterSpacing: "0.08em", color: "var(--text-secondary)" }}>
+              {plan.planName}
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: 13, color }}>
+              24,99 €
+            </span>
+            <span style={{
+              fontFamily: "Oswald, sans-serif", fontSize: 10, letterSpacing: "0.1em",
+              background: `linear-gradient(135deg, ${color}, ${color}AA)`,
+              color: "#fff", padding: "4px 10px", borderRadius: 2,
+            }}>
+              KAUFEN →
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ── Body ── */}
       <div className={`${styles.insightCardBody} ${open ? styles.insightCardBodyOpen : ""}`}>
@@ -401,7 +437,7 @@ function UpsellCard({ scoreKey, score, label, color }: {
               </div>
               <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 16 }}>
                 <div style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: 22, color, lineHeight: 1 }}>
-                  19,99 €
+                  24,99 €
                 </div>
                 <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>einmalig</div>
               </div>
@@ -440,7 +476,7 @@ function UpsellCard({ scoreKey, score, label, color }: {
                 boxShadow: `0 4px 16px ${color}40`,
               }}
             >
-              INDIVIDUELLEN PLAN KAUFEN — 19,99 €
+              INDIVIDUELLEN PLAN KAUFEN — 24,99 €
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -988,11 +1024,18 @@ export default function ResultsPage() {
         {/* ─── DEVELOPMENT POTENTIAL / UPSELL ─────────────── */}
         <section className={styles.insightsSection}>
           <div style={{ marginBottom: 20 }}>
-            <div className={styles.sectionLabel} style={{ marginBottom: 8 }}>
-              VERBESSERUNGSPOTENZIAL — DEINE SCHWÄCHSTEN BEREICHE
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                <path d="M8 1L15 13H1L8 1Z" stroke="#E63222" strokeWidth="1.4" strokeLinejoin="round"/>
+                <line x1="8" y1="6" x2="8" y2="9.5" stroke="#E63222" strokeWidth="1.4" strokeLinecap="round"/>
+                <circle cx="8" cy="11.5" r="0.8" fill="#E63222"/>
+              </svg>
+              <div className={styles.sectionLabel} style={{ margin: 0 }}>
+                DEINE SCHWACHSTELLEN — HIER LIEGT DEIN VERBESSERUNGSPOTENZIAL
+              </div>
             </div>
-            <p style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, maxWidth: 600 }}>
-              Jeder Score zeigt, wo noch Potenzial liegt. Für jeden Bereich bieten wir einen individuellen Optimierungsplan — kein Muss, aber eine gezielte Option wenn du mehr willst.
+            <p style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, maxWidth: 640 }}>
+              Die Analyse hat für jeden Bereich konkrete Schwächen identifiziert. Klappe einen Bereich auf um die Details zu sehen — oder kaufe direkt einen individuellen Optimierungsplan.
             </p>
           </div>
           <div className={styles.insightCards}>
@@ -1007,6 +1050,64 @@ export default function ResultsPage() {
                   color={entry.color}
                 />
               ))}
+
+            {/* Bundle offer */}
+            <div style={{
+              marginTop: 8,
+              padding: "20px 24px",
+              background: "linear-gradient(135deg, rgba(230,50,34,0.08), rgba(255,107,90,0.05))",
+              border: "1px solid rgba(230,50,34,0.3)",
+              borderRadius: 4,
+              borderTop: "3px solid #E63222",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <span style={{
+                      fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: 10,
+                      letterSpacing: "0.2em", background: "#E63222", color: "#fff",
+                      padding: "2px 8px", borderRadius: 2,
+                    }}>BUNDLE — BESTE WAHL</span>
+                  </div>
+                  <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: 17, color: "#fff", letterSpacing: "0.06em", marginBottom: 4 }}>
+                    ALLE 4 OPTIMIERUNGSPLÄNE
+                  </div>
+                  <div style={{ fontFamily: "Inter, sans-serif", fontSize: 12, color: "var(--text-secondary)" }}>
+                    Metabolic · Recovery · Activity · Stress — vollständige Optimierung
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ fontFamily: "Inter, sans-serif", fontSize: 11, color: "var(--text-muted)", textDecoration: "line-through", marginBottom: 2 }}>
+                    4 × 24,99 € = 99,96 €
+                  </div>
+                  <div style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: 26, color: "#E63222", lineHeight: 1 }}>
+                    49,99 €
+                  </div>
+                  <div style={{ fontFamily: "Oswald, sans-serif", fontSize: 10, color: "#22C55E", letterSpacing: "0.12em", marginTop: 2 }}>
+                    DU SPARST 49,97 €
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => router.push("/checkout/bundle-all")}
+                style={{
+                  marginTop: 16, width: "100%",
+                  padding: "14px 20px",
+                  background: "linear-gradient(135deg, #E63222, #FF6B5A)",
+                  border: "none", borderRadius: 2,
+                  fontFamily: "Oswald, sans-serif", fontWeight: 700,
+                  fontSize: 13, letterSpacing: "0.14em", color: "#fff",
+                  cursor: "pointer", display: "flex", alignItems: "center",
+                  justifyContent: "center", gap: 8,
+                  boxShadow: "0 4px 20px rgba(230,50,34,0.35)",
+                }}
+              >
+                ALLE 4 PLÄNE KAUFEN — 49,99 €
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </section>
 
