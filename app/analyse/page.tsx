@@ -38,33 +38,6 @@ interface FormData {
   email: string;
 }
 
-const PRODUCTS = [
-  {
-    id: "metabolic",
-    tag: "EINZELREPORT",
-    name: "METABOLIC PERFORMANCE SCORE",
-    question: "Wie effizient arbeitet dein Stoffwechsel?",
-    price: 29,
-    highlight: false,
-  },
-  {
-    id: "recovery",
-    tag: "EINZELREPORT",
-    name: "RECOVERY & REGENERATION SCORE",
-    question: "Wie gut erholt sich dein Körper?",
-    price: 29,
-    highlight: false,
-  },
-  {
-    id: "complete-analysis",
-    tag: "BUNDLE — BESTSELLER",
-    name: "COMPLETE PERFORMANCE ANALYSIS",
-    question: "Alle Scores. Ein vollständiger Report.",
-    price: 79,
-    highlight: true,
-  },
-];
-
 // ── Mapping helpers: form (German labels) → API payload shape ────────
 const DURATION_MIN: Record<string, number> = {
   "<20": 10,
@@ -801,39 +774,6 @@ function AnalyseContent() {
               </div>
             </div>
 
-            {/* ── Report Selector ──────────────────────── */}
-            <section className={styles.reportSection}>
-              <h2 className={styles.reportTitle}>WÄHLE DEINEN REPORT</h2>
-              <p className={styles.reportSubtitle}>
-                Wähle den Report, den du nach der Analyse erhalten möchtest.
-              </p>
-              <div className={styles.reportCards}>
-                {PRODUCTS.map((p) => (
-                  <div
-                    key={p.id}
-                    className={`${styles.reportCard} ${p.highlight ? styles.reportCardHighlight : ""} ${form.selectedProduct === p.id ? styles.reportCardActive : ""}`}
-                    onClick={() => set("selectedProduct", p.id)}
-                  >
-                    <div className={styles.reportRadio}>
-                      <div className={styles.reportRadioInner} />
-                    </div>
-                    <div className={styles.reportCardBody}>
-                      {p.highlight ? (
-                        <span className={`${styles.reportCardTag} ${styles.reportCardTagHighlight}`}>{p.tag}</span>
-                      ) : (
-                        <span className={styles.reportCardTag}>{p.tag}</span>
-                      )}
-                      <div className={styles.reportCardName}>{p.name}</div>
-                      <div className={styles.reportCardQ}>{p.question}</div>
-                    </div>
-                    <div className={`${styles.reportCardPrice} ${p.highlight ? styles.reportCardPriceHighlight : ""}`}>
-                      €{p.price}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
             {/* ── Email ───────────────────────────────── */}
             <section className={styles.emailSection}>
               <div className={styles.emailLabel}>DEINE E-MAIL</div>
@@ -846,16 +786,11 @@ function AnalyseContent() {
                 placeholder="deine@email.de"
               />
               <div className={styles.emailNote}>
-                Einmalige Zahlung. Kein Newsletter, kein Abo. Daten werden nach Verarbeitung gelöscht.
+                Kein Newsletter, kein Abo. Daten werden nach Verarbeitung gelöscht.
               </div>
             </section>
 
             {/* ── Submit ──────────────────────────────── */}
-            {/* TODO: STRIPE INTEGRATION
-                - Vor dem API Call: Stripe Checkout Session initiieren
-                - Nach erfolgreichem Payment: weiter mit Assessment
-                - Report Typ aus Stripe Session Metadata übernehmen
-                - Test-Modus-Banner + isTestMode entfernen */}
             <section className={styles.submitSection}>
               <button
                 type="button"
@@ -863,14 +798,11 @@ function AnalyseContent() {
                 disabled={!canSubmit}
                 className={`${styles.submitBtn} ${canSubmit ? styles.submitBtnEnabled : styles.submitBtnDisabled}`}
               >
-                ANALYSE STARTEN — €{PRODUCTS.find((p) => p.id === form.selectedProduct)?.price ?? 29}
+                ANALYSE STARTEN →
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8h10M8 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
-              <p className={styles.submitDisclaimer}>
-                Zahlung per Stripe · SSL-verschlüsselt · Sofortiger Download nach Kauf
-              </p>
             </section>
 
           </div>
