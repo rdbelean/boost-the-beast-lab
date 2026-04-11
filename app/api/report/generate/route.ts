@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { writeFile, mkdir } from "node:fs/promises";
+import path from "node:path";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { generatePDF, type PdfReportContent } from "@/lib/pdf/generateReport";
 import { sendReportEmail } from "@/lib/email/sendReport";
@@ -9,6 +11,21 @@ export const maxDuration = 120;
 
 const PROMPT_VERSION = "btb_report_v1.1.0";
 const STORAGE_BUCKET = "reports";
+
+function hasValidKey(key: string | undefined): boolean {
+  if (!key) return false;
+  if (key.length < 20) return false;
+  if (key.includes("your_") || key.includes("dein-")) return false;
+  return true;
+}
+
+function anthropicConfigured(): boolean {
+  return hasValidKey(process.env.ANTHROPIC_API_KEY);
+}
+
+function resendConfigured(): boolean {
+  return hasValidKey(process.env.RESEND_API_KEY);
+}
 
 const SYSTEM_PROMPT = `Du bist das Performance Intelligence System von BOOST THE BEAST LAB.
 Du erhältst strukturierte, bereits berechnete Performance-Scores.
@@ -53,6 +70,106 @@ function getAnthropic(): Anthropic {
     anthropicClient = new Anthropic({ apiKey });
   }
   return anthropicClient;
+}
+
+// Deterministic fallback report — used when ANTHROPIC_API_KEY is not configured.
+// Produces plausible German prose derived directly from the computed scores
+// so the end-to-end flow works for visual/manual testing without an LLM.
+interface StubInputs {
+  activityScore: number;
+  activityBand: string;
+  activityCategory: string;
+  totalMet: number;
+  sleepScore: number;
+  sleepBand: string;
+  sleepDuration: number;
+  vo2Score: number;
+  vo2Band: string;
+  vo2Estimated: number;
+  metabolicScore: number;
+  metabolicBand: string;
+  bmi: number;
+  bmiCategory: string;
+  stressScore: number;
+  stressBand: string;
+  overallScore: number;
+  overallBand: string;
+}
+
+function pickWeakestModule(i: StubInputs): string {
+  const entries: Array<[string, number]> = [
+    ["Schlaf", i.sleepScore],
+    ["Aktivität", i.activityScore],
+    ["Stoffwechsel", i.metabolicScore],
+    ["Stress", i.stressScore],
+    ["Kardiorespiratorische Fitness (VO2max)", i.vo2Score],
+  ];
+  entries.sort((a, b) => a[1] - b[1]);
+  return entries[0][0];
+}
+
+function buildStubReport(i: StubInputs): PdfReportContent {
+  const weakest = pickWeakestModule(i);
+  const overallTone =
+    i.overallScore >= 80
+      ? "exzellent"
+      : i.overallScore >= 65
+        ? "gut"
+        : i.overallScore >= 50
+          ? "solide mit klarem Optimierungspotenzial"
+          : "aktuell limitiert — mit hohem Hebel durch gezielte Interventionen";
+
+  return {
+    headline: `Performance Index ${i.overallScore}/100 — ${overallTone}.`,
+    executive_summary: `Dein Overall Performance Index liegt bei ${i.overallScore}/100 (${i.overallBand}). Die fünf Module liefern ein klares Bild: die Aktivität bewegt sich im Bereich ${i.activityBand} (${i.activityScore}), der Schlafscore bei ${i.sleepScore} (${i.sleepBand}), die metabolische Gesundheit bei ${i.metabolicScore} (${i.metabolicBand}), Stress-Regulation bei ${i.stressScore} (${i.stressBand}) und die kardiorespiratorische Fitness bei ${i.vo2Score} (${i.vo2Band}). Der größte Hebel liegt aktuell im Bereich ${weakest}.`,
+    modules: {
+      activity: {
+        score_context: `Dein Activity Score von ${i.activityScore}/100 basiert auf ${i.totalMet} MET-Minuten pro Woche und ergibt die IPAQ-Kategorie ${i.activityCategory}.`,
+        main_finding: `Die Trainings- und Alltagsaktivität positioniert dich im Band "${i.activityBand}". Damit bewegst du dich quantitativ ${i.activityCategory === "HIGH" ? "bereits überdurchschnittlich" : i.activityCategory === "MODERATE" ? "im empfohlenen Bereich" : "unterhalb der WHO-Mindestempfehlung"}.`,
+        limitation: i.activityCategory === "HIGH"
+          ? "Das Volumen ist solide; Qualität, Intensitätsverteilung und Regeneration werden zum limitierenden Faktor."
+          : "Das wöchentliche MET-Minuten-Volumen reicht nicht aus, um den vollen kardiovaskulären und metabolischen Effekt zu erzielen.",
+        recommendation: i.activityCategory === "HIGH"
+          ? "Strukturiere Trainingsintensitäten nach 80/20-Prinzip und priorisiere ein Regenerationstool pro Woche."
+          : "Ziele auf mindestens 150 min moderate oder 75 min intensive Aktivität pro Woche, idealerweise verteilt auf 4–5 Tage.",
+      },
+      sleep: {
+        score_context: `Dein Sleep Score liegt bei ${i.sleepScore}/100 bei einer durchschnittlichen Schlafdauer von ${i.sleepDuration}h. Die PSQI-adaptierte Bewertung ordnet dich in "${i.sleepBand}" ein.`,
+        main_finding: `Die Kombination aus Schlafdauer, subjektiver Qualität und Erholungsgefühl ergibt ein ${i.sleepBand === "excellent" ? "herausragendes" : i.sleepBand === "good" ? "solides" : "verbesserungswürdiges"} Recovery-Profil.`,
+        limitation: i.sleepScore >= 85
+          ? "Keine signifikante Limitierung; Stabilität der Routine ist der nächste Hebel."
+          : "Schlafqualität und/oder nächtliche Unterbrechungen drücken den Gesamt-Score und limitieren die Regeneration.",
+        recommendation: "Fixiere Bett- und Aufsteh-Zeit auf ±30 Minuten über sieben Tage und halte die Schlafzimmer-Temperatur bei 17–19 °C.",
+      },
+      metabolic: {
+        score_context: `Metabolic Score ${i.metabolicScore}/100 bei BMI ${i.bmi} (${i.bmiCategory}) — Zusammenspiel aus Körperzusammensetzung, Hydration, Ernährungsrhythmus und Sitzzeit.`,
+        main_finding: `Die metabolische Einordnung landet im Band "${i.metabolicBand}". ${i.bmiCategory === "normal" ? "Die Körperzusammensetzung liegt im optimalen Bereich." : `Die BMI-Kategorie "${i.bmiCategory}" wirkt als relevanter Modifier auf den Score.`}`,
+        limitation: i.metabolicScore >= 80
+          ? "Keine akuten Engpässe; Feintuning bei Mikro-Nährstoffdichte und Timing möglich."
+          : "Hydration, Mahlzeiten-Rhythmus oder Sitzzeit limitieren die metabolische Grundlast.",
+        recommendation: "Trinke täglich 30–35 ml pro kg Körpergewicht, unterbrich Sitzblöcke nach spätestens 45 Minuten und setze 4+ Gemüseportionen als Standard.",
+      },
+      stress: {
+        score_context: `Stress Score ${i.stressScore}/100 (${i.stressBand}) — gewichtete Kombination aus selbstberichtetem Stresslevel und messbarer Erholungskapazität.`,
+        main_finding: `Die Stress-Regulation befindet sich im Band "${i.stressBand}". ${i.stressScore >= 75 ? "Die autonome Belastung ist niedrig und unterstützt Anpassungsprozesse." : "Der chronische Belastungs-Level verbraucht Ressourcen, die sonst in Adaption fließen würden."}`,
+        limitation: i.stressScore >= 75
+          ? "Kein akuter Engpass; die Resilienz-Reserve ist vorhanden."
+          : "Fehlende bewusste Downregulation verhindert vollständige parasympathische Erholung.",
+        recommendation: "Installiere zwei 5-Minuten-Downregulation-Fenster pro Tag (Box-Breathing 4-4-4-4 oder Nasenatmung in Ruhe).",
+      },
+      vo2max: {
+        score_context: `Geschätzter VO2max: ${i.vo2Estimated} ml/kg/min (${i.vo2Band}) — Non-Exercise-Schätzung auf Basis von Alter, BMI und Aktivitätskategorie.`,
+        main_finding: `Die kardiorespiratorische Leistungsfähigkeit liegt im Band "${i.vo2Band}". VO2max ist einer der stärksten Einzel-Prädiktoren für langfristige Performance.`,
+        limitation: i.vo2Score >= 70
+          ? "Plateau-Risiko ohne periodisierte Intensitätssteigerung."
+          : "Limitiert durch geringe oder unspezifische Intensitätsverteilung im aktuellen Trainingsprofil.",
+        recommendation: "Integriere 1× pro Woche ein VO2max-Intervall (z.B. 4×4 min bei 90–95% HFmax, dazwischen 3 min aktive Pause).",
+      },
+    },
+    top_priority: `Hebel Nr. 1: ${weakest}. Der größte messbare Score-Gewinn in 30 Tagen liegt hier.`,
+    prognose_30_days: `Bei konsequenter Umsetzung der Empfehlungen ist ein realistischer Overall-Zuwachs von +6 bis +12 Punkten möglich — vorausgesetzt, die Maßnahmen werden mindestens 5 von 7 Tagen umgesetzt.`,
+    disclaimer: "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik.",
+  };
 }
 
 interface ScoreRow {
@@ -212,30 +329,54 @@ REPORT TYP: ${assessment.report_type}
 
 Erstelle den Report jetzt.`;
 
-    // 3. Call Claude.
-    const anthropic = getAnthropic();
-    const message = await anthropic.messages.create({
-      model: "claude-opus-4-6",
-      max_tokens: 2500,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: userPrompt }],
-    });
-
-    const content = message.content[0];
-    if (content.type !== "text") {
-      throw new Error("Unexpected Anthropic response type");
-    }
-
+    // 3. Call Claude — or fall back to deterministic stub if no API key.
     let report: PdfReportContent;
-    try {
-      const cleaned = content.text
-        .trim()
-        .replace(/^```(?:json)?/i, "")
-        .replace(/```$/i, "")
-        .trim();
-      report = JSON.parse(cleaned) as PdfReportContent;
-    } catch (e) {
-      throw new Error(`Claude returned invalid JSON: ${(e as Error).message}`);
+    if (anthropicConfigured()) {
+      const anthropic = getAnthropic();
+      const message = await anthropic.messages.create({
+        model: "claude-opus-4-6",
+        max_tokens: 2500,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: userPrompt }],
+      });
+
+      const content = message.content[0];
+      if (content.type !== "text") {
+        throw new Error("Unexpected Anthropic response type");
+      }
+
+      try {
+        const cleaned = content.text
+          .trim()
+          .replace(/^```(?:json)?/i, "")
+          .replace(/```$/i, "")
+          .trim();
+        report = JSON.parse(cleaned) as PdfReportContent;
+      } catch (e) {
+        throw new Error(`Claude returned invalid JSON: ${(e as Error).message}`);
+      }
+    } else {
+      console.warn("[report/generate] ANTHROPIC_API_KEY not configured — using stub report");
+      report = buildStubReport({
+        activityScore: activity.score,
+        activityBand: activity.band,
+        activityCategory,
+        totalMet: totalMet,
+        sleepScore: sleep.score,
+        sleepBand: sleep.band,
+        sleepDuration: sleepDuration,
+        vo2Score: vo2Score.score,
+        vo2Band: vo2Score.band,
+        vo2Estimated: vo2Estimated,
+        metabolicScore: metabolic.score,
+        metabolicBand: metabolic.band,
+        bmi,
+        bmiCategory,
+        stressScore: stress.score,
+        stressBand: stress.band,
+        overallScore: overall.score,
+        overallBand: overall.band,
+      });
     }
 
     // 4. Generate PDF.
@@ -264,9 +405,10 @@ Erstelle den Report jetzt.`;
       },
     );
 
-    // 5. Upload PDF to Supabase Storage.
+    // 5. Upload PDF → Supabase Storage, with a local fallback for dev/test.
     const fileName = `btb-report-${assessmentId}.pdf`;
     const storagePath = `${assessmentId}/${fileName}`;
+    let downloadUrl: string;
 
     const { error: uploadErr } = await supabase.storage
       .from(STORAGE_BUCKET)
@@ -274,19 +416,24 @@ Erstelle den Report jetzt.`;
         contentType: "application/pdf",
         upsert: true,
       });
-    if (uploadErr) {
-      throw new Error(
-        `Supabase Storage upload failed: ${uploadErr.message}. ` +
-          `Make sure the bucket "${STORAGE_BUCKET}" exists (create it in the Supabase Dashboard).`,
-      );
-    }
 
-    // Create a signed URL valid for 30 days.
-    const { data: signed, error: signErr } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .createSignedUrl(storagePath, 60 * 60 * 24 * 30);
-    if (signErr) throw signErr;
-    const downloadUrl = signed.signedUrl;
+    if (uploadErr) {
+      console.warn(
+        `[report/generate] Supabase Storage upload failed (${uploadErr.message}) — falling back to public/test-reports`,
+      );
+      const publicDir = path.join(process.cwd(), "public", "test-reports");
+      await mkdir(publicDir, { recursive: true });
+      const localPath = path.join(publicDir, fileName);
+      await writeFile(localPath, Buffer.from(pdfBuffer));
+      const origin = req.nextUrl.origin;
+      downloadUrl = `${origin}/test-reports/${fileName}`;
+    } else {
+      const { data: signed, error: signErr } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .createSignedUrl(storagePath, 60 * 60 * 24 * 30);
+      if (signErr) throw signErr;
+      downloadUrl = signed.signedUrl;
+    }
 
     // 6. Persist artifact reference.
     await supabase.from("report_artifacts").insert({
@@ -295,19 +442,23 @@ Erstelle den Report jetzt.`;
       file_type: "pdf",
     });
 
-    // 7. Send email via Resend.
-    try {
-      await sendReportEmail(user.email, downloadUrl, {
-        overall: overall.score,
-        activity: activity.score,
-        sleep: sleep.score,
-        vo2max: vo2Score.score,
-        metabolic: metabolic.score,
-        stress: stress.score,
-      });
-    } catch (emailErr) {
-      console.error("[report/generate] email delivery failed", emailErr);
-      // Do not fail the whole job — PDF is stored, user can still get it via artifact row.
+    // 7. Send email via Resend (skipped if not configured).
+    if (resendConfigured()) {
+      try {
+        await sendReportEmail(user.email, downloadUrl, {
+          overall: overall.score,
+          activity: activity.score,
+          sleep: sleep.score,
+          vo2max: vo2Score.score,
+          metabolic: metabolic.score,
+          stress: stress.score,
+        });
+      } catch (emailErr) {
+        console.error("[report/generate] email delivery failed", emailErr);
+        // Non-fatal — PDF is still persisted and linked.
+      }
+    } else {
+      console.warn("[report/generate] RESEND_API_KEY not configured — skipping email");
     }
 
     // 8. Mark report job completed.

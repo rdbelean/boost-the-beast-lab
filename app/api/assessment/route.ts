@@ -145,16 +145,18 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     // 3. Create assessment.
+    // NOTE: Test mode is encoded via assessment_type='test' instead of a
+    // dedicated is_test_mode column — that keeps this endpoint working even
+    // if the schema's is_test_mode migration hasn't been applied yet.
     const testMode = isTestMode();
     const { data: assessment, error: assessmentErr } = await supabase
       .from("assessments")
       .insert({
         user_id: userId,
-        assessment_type: "full",
+        assessment_type: testMode ? "test" : "full",
         instrument_version_id: instrument?.id ?? null,
         status: "processing",
         report_type: body.reportType,
-        is_test_mode: testMode,
       })
       .select("id")
       .single();
@@ -278,22 +280,55 @@ export async function POST(req: NextRequest) {
       status: "pending",
     });
 
-    // 10. Trigger AI report generation asynchronously (fire-and-forget).
+    // 10. Trigger AI report generation.
+    // In test mode: await the generator so we can return the download URL to
+    // the client (useful for manual QA without an email provider).
+    // In production: fire-and-forget so the client isn't blocked on Claude/PDF.
     const origin = req.nextUrl.origin;
-    void fetch(`${origin}/api/report/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ assessmentId }),
-    }).catch((e) => console.error("[assessment] report trigger failed", e));
+    let downloadUrl: string | null = null;
+
+    if (testMode) {
+      try {
+        const genRes = await fetch(`${origin}/api/report/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ assessmentId }),
+        });
+        const genJson = (await genRes.json()) as {
+          downloadUrl?: string;
+          error?: string;
+        };
+        if (!genRes.ok) {
+          console.error("[assessment] report generation failed", genJson.error);
+        } else {
+          downloadUrl = genJson.downloadUrl ?? null;
+        }
+      } catch (e) {
+        console.error("[assessment] report trigger failed", e);
+      }
+    } else {
+      void fetch(`${origin}/api/report/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assessmentId }),
+      }).catch((e) => console.error("[assessment] report trigger failed", e));
+    }
 
     return NextResponse.json({
       success: true,
       assessmentId,
       scores: result,
+      downloadUrl,
+      testMode,
     });
   } catch (err) {
     console.error("[assessment] error", err);
-    const message = err instanceof Error ? err.message : "Unknown error";
+    const message =
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" && err !== null
+          ? (err as { message?: string }).message ?? JSON.stringify(err)
+          : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

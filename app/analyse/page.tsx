@@ -241,6 +241,7 @@ function AnalyseContent() {
   const [visibleSteps, setVisibleSteps] = useState<number[]>([]);
   const [doneSteps, setDoneSteps] = useState<number[]>([]);
   const [overallScore, setOverallScore] = useState<number | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   // Scroll-reveal for category numbers
   const numRefs = useRef<HTMLSpanElement[]>([]);
@@ -331,6 +332,9 @@ function AnalyseContent() {
       const json = await res.json();
       if (json?.scores?.overall_score_0_100 != null) {
         setOverallScore(json.scores.overall_score_0_100);
+      }
+      if (json?.downloadUrl) {
+        setDownloadUrl(json.downloadUrl);
       }
 
       LOADING_STEPS.forEach((_, i) => {
@@ -927,9 +931,29 @@ function AnalyseContent() {
             </div>
           )}
           <p className={styles.successText}>
-            Wir haben deinen Report an <strong>{form.email}</strong> gesendet.<br />
-            Bitte prüfe auch deinen Spam-Ordner.
+            {downloadUrl ? (
+              <>
+                Dein Report ist bereit — klick den Button unten um ihn zu öffnen.<br />
+                Im Test-Modus wird keine Email versendet.
+              </>
+            ) : (
+              <>
+                Wir haben deinen Report an <strong>{form.email}</strong> gesendet.<br />
+                Bitte prüfe auch deinen Spam-Ordner.
+              </>
+            )}
           </p>
+          {downloadUrl && (
+            <a
+              href={downloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.successHomeBtn}
+              style={{ background: "#E63222", color: "#fff", marginBottom: 12 }}
+            >
+              REPORT ÖFFNEN →
+            </a>
+          )}
           <Link href="/" className={styles.successHomeBtn}>
             ZURÜCK ZUR STARTSEITE
           </Link>
