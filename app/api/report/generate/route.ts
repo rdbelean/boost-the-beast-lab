@@ -5,6 +5,7 @@ import path from "node:path";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { generatePDF, type PdfReportContent } from "@/lib/pdf/generateReport";
 import { sendReportEmail } from "@/lib/email/sendReport";
+import type { FullScoringResult } from "@/lib/scoring/index";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -204,16 +205,149 @@ function pickResponse(rows: ResponseRow[], code: string): string | null {
   return r ? r.raw_value : null;
 }
 
+// ── Offline Demo Mode ─────────────────────────────────────────────────────
+
+interface DemoContext {
+  reportType: string;
+  user: { email: string; age: number; gender: string; height_cm: number; weight_kg: number };
+  result: FullScoringResult;
+  sleepDurationHours: number;
+}
+
+function demoBand(score: number): string {
+  if (score < 40) return "low";
+  if (score < 65) return "moderate";
+  if (score < 85) return "high";
+  return "very_high";
+}
+
+async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<NextResponse> {
+  const r = ctx.result;
+
+  const activityScore = r.activity.activity_score_0_100;
+  const activityBand = demoBand(activityScore);
+  const activityCategory = r.activity.activity_category.toUpperCase();
+  const totalMet = r.activity.total_met_minutes_week;
+
+  const sleepScore = r.sleep.sleep_score_0_100;
+  const sleepBand = demoBand(sleepScore);
+  const sleepDuration = ctx.sleepDurationHours;
+
+  const vo2Score = r.vo2max.fitness_score_0_100;
+  const vo2Band = demoBand(vo2Score);
+  const vo2Estimated = r.vo2max.vo2max_estimated;
+
+  const metabolicScore = r.metabolic.metabolic_score_0_100;
+  const metabolicBand = demoBand(metabolicScore);
+  const bmi = r.metabolic.bmi;
+  const bmiCategory = r.metabolic.bmi_category;
+
+  const stressScore = r.stress.stress_score_0_100;
+  const stressBand = demoBand(stressScore);
+
+  const overallScore = r.overall_score_0_100;
+  const overallBand = r.overall_band;
+
+  let report: PdfReportContent;
+  if (anthropicConfigured()) {
+    const userPrompt = `Erstelle einen Performance Report für folgendes Profil:
+
+NUTZERPROFIL:
+- Alter: ${ctx.user.age} Jahre
+- Geschlecht: ${ctx.user.gender}
+- BMI: ${bmi} (${bmiCategory})
+
+SCORES (0-100):
+- Activity Score: ${activityScore} (${activityBand})
+  Gesamt MET-min/Woche: ${totalMet}
+  Kategorie: ${activityCategory}
+- Sleep Score: ${sleepScore} (${sleepBand})
+  Schlafdauer: ${sleepDuration}h
+- VO2max Score: ${vo2Score} (${vo2Band})
+  Geschätzter VO2max: ${vo2Estimated} ml/kg/min
+- Metabolic Score: ${metabolicScore} (${metabolicBand})
+- Stress Score: ${stressScore} (${stressBand})
+- Overall Performance Index: ${overallScore} (${overallBand})
+
+REPORT TYP: ${ctx.reportType}
+
+Erstelle den Report jetzt.`;
+    const anthropic = getAnthropic();
+    const message = await anthropic.messages.create({
+      model: "claude-opus-4-6",
+      max_tokens: 2500,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: "user", content: userPrompt }],
+    });
+    const content = message.content[0];
+    if (content.type !== "text") throw new Error("Unexpected Anthropic response type");
+    try {
+      const cleaned = content.text.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+      report = JSON.parse(cleaned) as PdfReportContent;
+    } catch (e) {
+      throw new Error(`Claude returned invalid JSON: ${(e as Error).message}`);
+    }
+  } else {
+    console.warn("[report/generate/demo] ANTHROPIC_API_KEY not configured — using stub report");
+    report = buildStubReport({
+      activityScore, activityBand, activityCategory, totalMet,
+      sleepScore, sleepBand, sleepDuration,
+      vo2Score, vo2Band, vo2Estimated,
+      metabolicScore, metabolicBand, bmi, bmiCategory,
+      stressScore, stressBand,
+      overallScore, overallBand,
+    });
+  }
+
+  const pdfBuffer = await generatePDF(
+    report,
+    {
+      activity: { score: activityScore, band: activityBand },
+      sleep: { score: sleepScore, band: sleepBand },
+      vo2max: { score: vo2Score, band: vo2Band, estimated: vo2Estimated },
+      metabolic: { score: metabolicScore, band: metabolicBand },
+      stress: { score: stressScore, band: stressBand },
+      overall: { score: overallScore, band: overallBand },
+      total_met: totalMet,
+      sleep_duration_hours: sleepDuration,
+    },
+    {
+      email: ctx.user.email,
+      age: ctx.user.age,
+      gender: ctx.user.gender,
+      bmi,
+      bmi_category: bmiCategory,
+    },
+  );
+
+  const fileName = `btb-report-demo-${Date.now()}.pdf`;
+  const publicDir = path.join(process.cwd(), "public", "test-reports");
+  await mkdir(publicDir, { recursive: true });
+  await writeFile(path.join(publicDir, fileName), Buffer.from(pdfBuffer));
+  const downloadUrl = `${req.nextUrl.origin}/test-reports/${fileName}`;
+
+  return NextResponse.json({ success: true, downloadUrl, report });
+}
+
+// ── DB-backed handler ─────────────────────────────────────────────────────
+
 export async function POST(req: NextRequest) {
-  let assessmentId: string | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let body: any;
   try {
-    const body = await req.json();
-    assessmentId = body?.assessmentId;
+    body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
+
+  const demoContext = body?.demoContext as DemoContext | undefined;
+  if (demoContext) {
+    return handleDemoReport(req, demoContext);
+  }
+
+  const assessmentId = body?.assessmentId as string | undefined;
   if (!assessmentId) {
-    return NextResponse.json({ error: "Missing assessmentId" }, { status: 400 });
+    return NextResponse.json({ error: "Missing assessmentId or demoContext" }, { status: 400 });
   }
 
   const supabase = getSupabaseServiceClient();

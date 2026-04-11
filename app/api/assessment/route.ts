@@ -95,6 +95,70 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
+  // ── Offline Demo Mode: skip all DB ops when Supabase is not configured ──
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    const scoringInputs: FullAssessmentInputs = {
+      age: body.age,
+      gender: body.gender,
+      height_cm: body.height_cm,
+      weight_kg: body.weight_kg,
+      activity: {
+        walking_days: body.walking_days,
+        walking_minutes_per_day: body.walking_minutes_per_day,
+        moderate_days: body.moderate_days,
+        moderate_minutes_per_day: body.moderate_minutes_per_day,
+        vigorous_days: body.vigorous_days,
+        vigorous_minutes_per_day: body.vigorous_minutes_per_day,
+      },
+      sleep: {
+        duration_hours: body.sleep_duration_hours,
+        quality: body.sleep_quality,
+        wakeups: body.wakeups,
+        recovery_1_10: body.recovery_1_10,
+      },
+      metabolic: {
+        meals_per_day: body.meals_per_day,
+        water_litres: body.water_litres,
+        sitting_hours: body.sitting_hours,
+        fruit_veg: body.fruit_veg,
+      },
+      stress: { stress_level_1_10: body.stress_level_1_10 },
+    };
+    const result = runFullScoring(scoringInputs);
+    const demoContext = {
+      reportType: body.reportType,
+      user: {
+        email: body.email,
+        age: body.age,
+        gender: body.gender,
+        height_cm: body.height_cm,
+        weight_kg: body.weight_kg,
+      },
+      result,
+      sleepDurationHours: body.sleep_duration_hours,
+    };
+    const origin = req.nextUrl.origin;
+    try {
+      const genRes = await fetch(`${origin}/api/report/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ demoContext }),
+      });
+      const genJson = (await genRes.json()) as { downloadUrl?: string; error?: string };
+      if (!genRes.ok) console.error("[assessment/demo] report generation failed", genJson.error);
+      return NextResponse.json({
+        success: true,
+        assessmentId: null,
+        scores: result,
+        downloadUrl: genJson.downloadUrl ?? null,
+        testMode: true,
+      });
+    } catch (e) {
+      console.error("[assessment/demo] report trigger failed", e);
+      return NextResponse.json({ error: "Demo report generation failed" }, { status: 500 });
+    }
+  }
+
   const supabase = getSupabaseServiceClient();
 
   try {
