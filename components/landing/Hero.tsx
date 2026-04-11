@@ -81,7 +81,7 @@ export default function Hero() {
 
         {/* CTAs */}
         <div className={styles.ctaRow}>
-          <Link href="/assessment?product=complete-analysis" className={styles.btnPrimary}>
+          <Link href="/analyse?product=complete-analysis" className={styles.btnPrimary}>
             STARTE DEINE ANALYSE
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

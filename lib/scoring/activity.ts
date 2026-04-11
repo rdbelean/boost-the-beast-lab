@@ -1,0 +1,130 @@
+// Activity scoring — IPAQ Short Form (Nov 2005 scoring protocol).
+// MET-values: Walking 3.3 · Moderate 4.0 · Vigorous 8.0
+// Cleaning rules:
+//   - Bouts <10 min → 0 (not counted)
+//   - Individual bout >180 min → capped to 180
+//   - Any activity-type daily total >960 min → capped to 960
+// Category rules (IPAQ scoring guide):
+//   HIGH      = (Vigorous ≥3 days AND total MET ≥1500) OR (7 days any combo AND total ≥3000)
+//   MODERATE  = (Vigorous ≥3 days × ≥20 min) OR (Moderate/Walk ≥5 days × ≥30 min) OR total ≥600
+//   LOW       = otherwise
+
+export type ActivityCategory = "LOW" | "MODERATE" | "HIGH";
+
+export interface ActivityInputs {
+  walking_days: number; // 0..7
+  walking_minutes_per_day: number;
+  moderate_days: number;
+  moderate_minutes_per_day: number;
+  vigorous_days: number;
+  vigorous_minutes_per_day: number;
+}
+
+export interface ActivityResult {
+  walking_met: number;
+  moderate_met: number;
+  vigorous_met: number;
+  total_met_minutes_week: number;
+  activity_category: ActivityCategory;
+  activity_score_0_100: number;
+}
+
+const MET_WALK = 3.3;
+const MET_MOD = 4.0;
+const MET_VIG = 8.0;
+
+function normalizeBout(minutes: number): number {
+  if (!Number.isFinite(minutes) || minutes < 10) return 0;
+  if (minutes > 180) return 180;
+  return minutes;
+}
+
+function clampDays(days: number): number {
+  if (!Number.isFinite(days) || days < 0) return 0;
+  if (days > 7) return 7;
+  return days;
+}
+
+function cap960(weeklyMin: number): number {
+  // Protocol: total minutes per day capped at 960; weekly cap = 960 × 7.
+  const maxWeek = 960 * 7;
+  return Math.min(weeklyMin, maxWeek);
+}
+
+// Non-linear score curve hitting the anchor points the spec calls for:
+//   0 MET → 0 · 600 → 40 · 3000 → 75 · 8000+ → 100
+function scoreFromTotalMet(totalMet: number): number {
+  if (totalMet <= 0) return 0;
+  if (totalMet >= 8000) return 100;
+  if (totalMet <= 600) {
+    return Math.round((totalMet / 600) * 40);
+  }
+  if (totalMet <= 3000) {
+    return Math.round(40 + ((totalMet - 600) / (3000 - 600)) * (75 - 40));
+  }
+  return Math.round(75 + ((totalMet - 3000) / (8000 - 3000)) * (100 - 75));
+}
+
+function categorize(
+  totalMet: number,
+  vigorousDays: number,
+  vigorousMinutesDay: number,
+  moderateDays: number,
+  moderateMinutesDay: number,
+  walkingDays: number,
+  walkingMinutesDay: number,
+): ActivityCategory {
+  const anyDays = vigorousDays + moderateDays + walkingDays;
+
+  // HIGH criteria
+  const highA = vigorousDays >= 3 && totalMet >= 1500;
+  const highB = anyDays >= 7 && totalMet >= 3000;
+  if (highA || highB) return "HIGH";
+
+  // MODERATE criteria
+  const modA = vigorousDays >= 3 && vigorousMinutesDay >= 20;
+  const modB =
+    moderateDays + walkingDays >= 5 &&
+    moderateMinutesDay + walkingMinutesDay >= 30;
+  const modC = totalMet >= 600;
+  if (modA || modB || modC) return "MODERATE";
+
+  return "LOW";
+}
+
+export function calculateActivityScore(inputs: ActivityInputs): ActivityResult {
+  const walkDays = clampDays(inputs.walking_days);
+  const modDays = clampDays(inputs.moderate_days);
+  const vigDays = clampDays(inputs.vigorous_days);
+
+  const walkMin = normalizeBout(inputs.walking_minutes_per_day);
+  const modMin = normalizeBout(inputs.moderate_minutes_per_day);
+  const vigMin = normalizeBout(inputs.vigorous_minutes_per_day);
+
+  const walking_met = cap960(MET_WALK * walkMin * walkDays);
+  const moderate_met = cap960(MET_MOD * modMin * modDays);
+  const vigorous_met = cap960(MET_VIG * vigMin * vigDays);
+
+  const total_met_minutes_week = walking_met + moderate_met + vigorous_met;
+
+  const activity_category = categorize(
+    total_met_minutes_week,
+    vigDays,
+    vigMin,
+    modDays,
+    modMin,
+    walkDays,
+    walkMin,
+  );
+
+  const activity_score_0_100 = scoreFromTotalMet(total_met_minutes_week);
+
+  return {
+    walking_met: Math.round(walking_met),
+    moderate_met: Math.round(moderate_met),
+    vigorous_met: Math.round(vigorous_met),
+    total_met_minutes_week: Math.round(total_met_minutes_week),
+    activity_category,
+    activity_score_0_100,
+  };
+}

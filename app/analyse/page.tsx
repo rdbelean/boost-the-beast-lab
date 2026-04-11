@@ -14,9 +14,14 @@ interface FormData {
   geschlecht: string;
   groesse: number;
   gewicht: number;
+  obstGemuese: string; // NEU: keine | wenig | moderat | optimal
   // Kategorie 2 — Aktivität & Training
   trainingsfreq: string;
   trainingsart: string;
+  moderateDauer: string; // NEU: <20 | 20-30 | 30-60 | >60
+  intensiveDauer: string; // NEU
+  gehtage: number; // NEU 0..7
+  gehdauer: string; // NEU
   schrittzahl: number;
   sitzzeit: number;
   // Kategorie 3 — Recovery & Regeneration
@@ -60,11 +65,137 @@ const PRODUCTS = [
   },
 ];
 
+// ── Mapping helpers: form (German labels) → API payload shape ────────
+const DURATION_MIN: Record<string, number> = {
+  "<20": 10,
+  "20-30": 25,
+  "30-60": 45,
+  ">60": 90,
+};
+
+const TRAININGSFREQ_DAYS: Record<string, number> = {
+  keiner: 0,
+  "1-2x": 2,
+  "3-4x": 4,
+  "5-6x": 6,
+  taeglich: 7,
+};
+
+const GENDER_MAP: Record<string, "male" | "female" | "diverse"> = {
+  maennlich: "male",
+  weiblich: "female",
+  divers: "diverse",
+};
+
+const FRUIT_VEG_MAP: Record<string, "none" | "low" | "moderate" | "optimal"> = {
+  keine: "none",
+  wenig: "low",
+  moderat: "moderate",
+  optimal: "optimal",
+};
+
+const SLEEP_QUALITY_MAP: Record<string, "sehr_gut" | "gut" | "mittel" | "schlecht"> = {
+  "sehr-gut": "sehr_gut",
+  gut: "gut",
+  mittel: "mittel",
+  schlecht: "schlecht",
+  "sehr-schlecht": "schlecht",
+};
+
+const WAKEUP_MAP: Record<string, "nie" | "selten" | "oft" | "immer"> = {
+  nie: "nie",
+  selten: "selten",
+  manchmal: "selten",
+  oft: "oft",
+  "jede-nacht": "immer",
+};
+
+const ERHOLT_TO_SCORE: Record<string, number> = {
+  "fast-nie": 2,
+  selten: 4,
+  manchmal: 5,
+  meistens: 7,
+  immer: 9,
+};
+
+const STRESS_TO_SCORE: Record<string, number> = {
+  "sehr-gering": 2,
+  gering: 4,
+  moderat: 5,
+  hoch: 7,
+  "sehr-hoch": 9,
+};
+
+const MEALS_MAP: Record<string, number> = {
+  kein: 3,
+  intuitiv: 3,
+  grob: 4,
+  makros: 4,
+  "meal-prep": 5,
+};
+
+const REPORT_MAP: Record<string, "metabolic" | "recovery" | "complete"> = {
+  metabolic: "metabolic",
+  recovery: "recovery",
+  "complete-analysis": "complete",
+};
+
+// A training session's intensity decides whether it counts as moderate or vigorous.
+const VIGOROUS_TRAININGSARTEN = new Set(["kraft", "cardio", "kampfsport", "teamsport"]);
+const MODERATE_TRAININGSARTEN = new Set(["yoga"]);
+
+function buildAssessmentPayload(f: FormData) {
+  const trainingDays = TRAININGSFREQ_DAYS[f.trainingsfreq] ?? 0;
+  const moderateMin = DURATION_MIN[f.moderateDauer] ?? 30;
+  const vigorousMin = DURATION_MIN[f.intensiveDauer] ?? 30;
+
+  let moderate_days = 0;
+  let vigorous_days = 0;
+  if (VIGOROUS_TRAININGSARTEN.has(f.trainingsart)) {
+    vigorous_days = trainingDays;
+  } else if (MODERATE_TRAININGSARTEN.has(f.trainingsart)) {
+    moderate_days = trainingDays;
+  } else {
+    // gemischt → 50/50 split
+    moderate_days = Math.ceil(trainingDays / 2);
+    vigorous_days = Math.floor(trainingDays / 2);
+  }
+
+  return {
+    email: f.email,
+    reportType: REPORT_MAP[f.selectedProduct] ?? "complete",
+    age: f.alter,
+    gender: GENDER_MAP[f.geschlecht] ?? "diverse",
+    height_cm: f.groesse,
+    weight_kg: f.gewicht,
+    fruit_veg: FRUIT_VEG_MAP[f.obstGemuese] ?? "moderate",
+    // Activity — IPAQ raw
+    walking_days: f.gehtage,
+    walking_minutes_per_day: DURATION_MIN[f.gehdauer] ?? 25,
+    moderate_days,
+    moderate_minutes_per_day: moderate_days > 0 ? moderateMin : 0,
+    vigorous_days,
+    vigorous_minutes_per_day: vigorous_days > 0 ? vigorousMin : 0,
+    // Sleep
+    sleep_duration_hours: f.schlafdauer,
+    sleep_quality: SLEEP_QUALITY_MAP[f.schlafqualitaet] ?? "mittel",
+    wakeups: WAKEUP_MAP[f.aufwachen] ?? "selten",
+    recovery_1_10: ERHOLT_TO_SCORE[f.erholtGefuehl] ?? 5,
+    // Metabolic / lifestyle
+    meals_per_day: MEALS_MAP[f.mahlzeitenPlan] ?? 3,
+    water_litres: f.wasserkonsum,
+    sitting_hours: f.sitzzeit,
+    // Stress
+    stress_level_1_10: STRESS_TO_SCORE[f.stresslevel] ?? 5,
+  };
+}
+
 const LOADING_STEPS = [
-  "Körperdaten werden analysiert...",
-  "Performance-Scores werden berechnet...",
-  "KI generiert deinen Report...",
-  "PDF wird erstellt...",
+  "Körperdaten werden verarbeitet...",
+  "IPAQ Activity Engine läuft...",
+  "Sleep & Recovery Score wird berechnet...",
+  "KI generiert deinen personalisierten Report...",
+  "Report wird an deine Email gesendet...",
 ];
 
 /* ── Component ─────────────────────────────────────────── */
@@ -85,8 +216,13 @@ function AnalyseContent() {
     geschlecht: "maennlich",
     groesse: 178,
     gewicht: 78,
+    obstGemuese: "moderat",
     trainingsfreq: "3-4x",
     trainingsart: "kraft",
+    moderateDauer: "30-60",
+    intensiveDauer: "30-60",
+    gehtage: 5,
+    gehdauer: "20-30",
     schrittzahl: 8000,
     sitzzeit: 6,
     schlafdauer: 7,
@@ -104,6 +240,7 @@ function AnalyseContent() {
   const [success, setSuccess] = useState(false);
   const [visibleSteps, setVisibleSteps] = useState<number[]>([]);
   const [doneSteps, setDoneSteps] = useState<number[]>([]);
+  const [overallScore, setOverallScore] = useState<number | null>(null);
 
   // Scroll-reveal for category numbers
   const numRefs = useRef<HTMLSpanElement[]>([]);
@@ -145,14 +282,19 @@ function AnalyseContent() {
     setForm((prev) => ({ ...prev, [key]: val }));
 
   // Count answered questions for progress
-  const totalQuestions = 15;
+  const totalQuestions = 20;
   const answeredCount = [
     form.alter > 0,
     !!form.geschlecht,
     form.groesse > 0,
     form.gewicht > 0,
+    !!form.obstGemuese,
     !!form.trainingsfreq,
     !!form.trainingsart,
+    !!form.moderateDauer,
+    !!form.intensiveDauer,
+    form.gehtage >= 0,
+    !!form.gehdauer,
     form.schrittzahl > 0,
     form.sitzzeit >= 0,
     form.schlafdauer > 0,
@@ -173,29 +315,36 @@ function AnalyseContent() {
     setVisibleSteps([]);
     setDoneSteps([]);
 
-    // Stagger loading steps
     LOADING_STEPS.forEach((_, i) => {
-      setTimeout(() => setVisibleSteps((prev) => [...prev, i]), i * 1200);
+      setTimeout(() => setVisibleSteps((prev) => [...prev, i]), i * 1500);
     });
 
     try {
-      const res = await fetch("/api/analyse", {
+      const payload = buildAssessmentPayload(form);
+      const res = await fetch("/api/assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("API error");
+      const json = await res.json();
+      if (json?.scores?.overall_score_0_100 != null) {
+        setOverallScore(json.scores.overall_score_0_100);
+      }
 
       LOADING_STEPS.forEach((_, i) => {
-        setTimeout(() => setDoneSteps((prev) => [...prev, i]), 3800 + i * 200);
+        setTimeout(() => setDoneSteps((prev) => [...prev, i]), 5000 + i * 300);
       });
 
       setTimeout(() => {
         setLoading(false);
         setSuccess(true);
-      }, 4800);
-    } catch {
+      }, 7000);
+
+      console.log("[analyse] assessmentId", json.assessmentId);
+    } catch (err) {
+      console.error("[analyse] submit failed", err);
       setLoading(false);
     }
   };
@@ -205,8 +354,31 @@ function AnalyseContent() {
     if (el) cardRefs.current[cardIndex++] = el;
   };
 
+  const isTestMode =
+    process.env.NODE_ENV !== "production" ||
+    process.env.NEXT_PUBLIC_TEST_MODE === "true";
+
   return (
     <>
+      {isTestMode && (
+        <div
+          style={{
+            background: "#F59E0B",
+            color: "#111",
+            textAlign: "center",
+            fontFamily: "Arial, sans-serif",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: "0.1em",
+            padding: "10px 14px",
+            textTransform: "uppercase",
+            borderBottom: "1px solid rgba(0,0,0,0.15)",
+          }}
+        >
+          ⚠ TEST MODUS — Kein Stripe aktiv — Reports werden trotzdem generiert
+        </div>
+      )}
+
       {/* ── Header ─────────────────────────────────────── */}
       <header className={styles.header}>
         <div className={styles.headerInner}>
@@ -251,11 +423,11 @@ function AnalyseContent() {
               DEINE ANALYSE<br />BEGINNT JETZT.
             </h1>
             <p className={styles.heroSubtitle}>
-              Beantworte 15 präzise Fragen zu Körper, Training, Schlaf und Lifestyle —
-              kalibriert nach WHO & ACSM Richtlinien. KI berechnet deine Scores.
+              Beantworte 20 präzise Fragen zu Körper, Training, Schlaf und Lifestyle —
+              kalibriert nach WHO, ACSM & IPAQ Richtlinien. KI berechnet deine Scores.
             </p>
             <div className={styles.heroStats}>
-              <span className={styles.heroStatItem}>15 FRAGEN</span>
+              <span className={styles.heroStatItem}>20 FRAGEN</span>
               <span className={styles.heroStatDot} />
               <span className={styles.heroStatItem}>4 KATEGORIEN</span>
               <span className={styles.heroStatDot} />
@@ -340,6 +512,21 @@ function AnalyseContent() {
                   onChange={(v) => set("gewicht", v)}
                 />
               </div>
+
+              {/* Q4b: Obst & Gemüse */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>OBST & GEMÜSE PRO TAG</span>
+                <RadioGroup
+                  value={form.obstGemuese}
+                  onChange={(v) => set("obstGemuese", v as string)}
+                  options={[
+                    { label: "Keine", value: "keine" },
+                    { label: "Wenig (1–2 Portionen)", value: "wenig" },
+                    { label: "Moderat (3–4 Portionen)", value: "moderat" },
+                    { label: "Optimal (5+ Portionen)", value: "optimal" },
+                  ]}
+                />
+              </div>
             </div>
 
             {/* ── KATEGORIE 2: Aktivität & Training ──────── */}
@@ -386,6 +573,63 @@ function AnalyseContent() {
                     { label: "Teamsport", value: "teamsport" },
                     { label: "Yoga / Mobility", value: "yoga" },
                     { label: "Gemischt", value: "gemischt" },
+                  ]}
+                />
+              </div>
+
+              {/* Q6b: Moderate Trainingsdauer */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>MINUTEN PRO MODERATER TRAININGSEINHEIT</span>
+                <RadioGroup
+                  value={form.moderateDauer}
+                  onChange={(v) => set("moderateDauer", v as string)}
+                  options={[
+                    { label: "< 20 Min", value: "<20" },
+                    { label: "20–30 Min", value: "20-30" },
+                    { label: "30–60 Min", value: "30-60" },
+                    { label: "> 60 Min", value: ">60" },
+                  ]}
+                />
+              </div>
+
+              {/* Q6c: Intensive Trainingsdauer */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>MINUTEN PRO INTENSIVER TRAININGSEINHEIT</span>
+                <RadioGroup
+                  value={form.intensiveDauer}
+                  onChange={(v) => set("intensiveDauer", v as string)}
+                  options={[
+                    { label: "< 20 Min", value: "<20" },
+                    { label: "20–30 Min", value: "20-30" },
+                    { label: "30–60 Min", value: "30-60" },
+                    { label: "> 60 Min", value: ">60" },
+                  ]}
+                />
+              </div>
+
+              {/* Q6d: Gehtage pro Woche */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>GEHTAGE PRO WOCHE</span>
+                <SliderInput
+                  label="Tage mit Gehen"
+                  value={form.gehtage}
+                  min={0} max={7}
+                  unit=" Tage"
+                  onChange={(v) => set("gehtage", v)}
+                />
+              </div>
+
+              {/* Q6e: Gehdauer pro Tag */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>MINUTEN GEHEN PRO TAG</span>
+                <RadioGroup
+                  value={form.gehdauer}
+                  onChange={(v) => set("gehdauer", v as string)}
+                  options={[
+                    { label: "< 20 Min", value: "<20" },
+                    { label: "20–30 Min", value: "20-30" },
+                    { label: "30–60 Min", value: "30-60" },
+                    { label: "> 60 Min", value: ">60" },
                   ]}
                 />
               </div>
@@ -603,6 +847,11 @@ function AnalyseContent() {
             </section>
 
             {/* ── Submit ──────────────────────────────── */}
+            {/* TODO: STRIPE INTEGRATION
+                - Vor dem API Call: Stripe Checkout Session initiieren
+                - Nach erfolgreichem Payment: weiter mit Assessment
+                - Report Typ aus Stripe Session Metadata übernehmen
+                - Test-Modus-Banner + isTestMode entfernen */}
             <section className={styles.submitSection}>
               <button
                 type="button"
@@ -662,10 +911,24 @@ function AnalyseContent() {
               />
             </svg>
           </div>
-          <h2 className={styles.successTitle}>ANALYSE ABGESCHLOSSEN</h2>
+          <h2 className={styles.successTitle}>DEIN REPORT WURDE GENERIERT</h2>
+          {overallScore != null && (
+            <div
+              style={{
+                fontFamily: "Arial Black, Impact, sans-serif",
+                fontSize: 88,
+                color: "#E63222",
+                lineHeight: 1,
+                margin: "18px 0 8px",
+              }}
+            >
+              {overallScore}
+              <span style={{ fontSize: 20, color: "#8a8a92", marginLeft: 8 }}>/100</span>
+            </div>
+          )}
           <p className={styles.successText}>
-            Dein personalisierter Performance Report wurde erstellt und wird
-            in Kürze an <strong>{form.email}</strong> gesendet.
+            Wir haben deinen Report an <strong>{form.email}</strong> gesendet.<br />
+            Bitte prüfe auch deinen Spam-Ordner.
           </p>
           <Link href="/" className={styles.successHomeBtn}>
             ZURÜCK ZUR STARTSEITE

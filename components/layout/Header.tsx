@@ -57,7 +57,7 @@ export default function Header() {
         </nav>
 
         {/* CTA */}
-        <Link href="/assessment?product=complete-analysis" className={styles.headerCta}>
+        <Link href="/analyse?product=complete-analysis" className={styles.headerCta}>
           ANALYSE STARTEN →
         </Link>
       </div>

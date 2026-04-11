@@ -65,26 +65,12 @@ export default function Products() {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  async function handleBuy(productId: string) {
+  // TODO: STRIPE INTEGRATION
+  // Vor dem Push zur Analyse-Seite: Stripe Checkout initiieren,
+  // nach erfolgreichem Payment weiter zu /analyse mit Stripe Metadata.
+  function handleBuy(productId: string) {
     setLoadingId(productId);
-    try {
-      const res = await fetch("/api/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        // Fallback: go directly to assessment (Stripe not configured)
-        router.push(`/assessment?product=${productId}`);
-      }
-    } catch {
-      router.push(`/assessment?product=${productId}`);
-    } finally {
-      setLoadingId(null);
-    }
+    router.push(`/analyse?product=${productId}`);
   }
 
   useEffect(() => {
