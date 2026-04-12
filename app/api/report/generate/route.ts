@@ -210,6 +210,8 @@ interface StubInputs {
   sleepScore: number;
   sleepBand: string;
   sleepDuration: number;
+  recoveryScore: number;
+  recoveryBand: string;
   vo2Score: number;
   vo2Band: string;
   vo2Estimated: number;
@@ -226,6 +228,7 @@ interface StubInputs {
 function pickWeakestModule(i: StubInputs): string {
   const entries: Array<[string, number]> = [
     ["Schlaf", i.sleepScore],
+    ["Recovery", i.recoveryScore],
     ["Aktivität", i.activityScore],
     ["Stoffwechsel", i.metabolicScore],
     ["Stress", i.stressScore],
@@ -248,11 +251,36 @@ function buildStubReport(i: StubInputs): PdfReportContent {
 
   return {
     headline: `Performance Index ${i.overallScore}/100 — ${overallTone}.`,
-    executive_summary: `Dein Overall Performance Index liegt bei ${i.overallScore}/100 (${i.overallBand}). Die fünf Module liefern ein klares Bild: die Aktivität bewegt sich im Bereich ${i.activityBand} (${i.activityScore}), der Schlafscore bei ${i.sleepScore} (${i.sleepBand}), die metabolische Gesundheit bei ${i.metabolicScore} (${i.metabolicBand}), Stress-Regulation bei ${i.stressScore} (${i.stressBand}) und die kardiorespiratorische Fitness bei ${i.vo2Score} (${i.vo2Band}). Der größte Hebel liegt aktuell im Bereich ${weakest}.`,
+    executive_summary: `Dein Overall Performance Index liegt bei ${i.overallScore}/100 (${i.overallBand}). Die sechs Module liefern ein klares Bild: Schlaf ${i.sleepScore} (${i.sleepBand}), Recovery ${i.recoveryScore} (${i.recoveryBand}), Aktivität ${i.activityScore} (${i.activityBand}), Stoffwechsel ${i.metabolicScore} (${i.metabolicBand}), Stress ${i.stressScore} (${i.stressBand}) und kardiorespiratorische Fitness ${i.vo2Score} (${i.vo2Band}). Der größte Hebel liegt aktuell im Bereich ${weakest}.`,
+    critical_flag: null,
     modules: {
+      sleep: {
+        score_context: `Dein Sleep Score liegt bei ${i.sleepScore}/100 bei einer durchschnittlichen Schlafdauer von ${i.sleepDuration}h. Die Bewertung ordnet dich in "${i.sleepBand}" ein.`,
+        key_finding: `Die Kombination aus Schlafdauer, subjektiver Qualität und Erholungsgefühl ergibt ein ${i.sleepBand === "excellent" ? "herausragendes" : i.sleepBand === "good" ? "solides" : "verbesserungswürdiges"} Recovery-Profil.`,
+        systemic_connection: "Schlaf ist der Governor für Recovery: der sleepMultiplier deckelt die Regeneration — unabhängig von Trainingsqualität.",
+        limitation: i.sleepScore >= 85
+          ? "Keine signifikante Limitierung; Stabilität der Routine ist der nächste Hebel."
+          : "Schlafqualität und/oder nächtliche Unterbrechungen drücken den Gesamt-Score und limitieren die Regeneration.",
+        recommendation: "Fixiere Bett- und Aufsteh-Zeit auf ±30 Minuten über sieben Tage und halte die Schlafzimmer-Temperatur bei 17–19 °C.",
+      },
+      recovery: {
+        score_context: `Recovery Score ${i.recoveryScore}/100 im Band "${i.recoveryBand}" — berechnet aus Trainingslast, subjektiver Erholung und den Governoren Schlaf und Stress.`,
+        key_finding: `${i.recoveryScore < 55 ? "Deine Erholungskapazität hinkt der Trainingslast hinterher. Ohne Entlastung droht ein Übergang in nicht-funktionales Overreaching." : i.recoveryScore < 75 ? "Deine Erholung trägt dein aktuelles Trainingssignal, aber ohne Reserve." : "Deine Erholung trägt dein Training zuverlässig und mit Spielraum für Progression."}`,
+        systemic_connection: "Recovery ist das Produkt aus Trainingssignal × Schlaf × Stress. Kein einzelner Hebel reicht, wenn einer der drei Faktoren limitiert.",
+        overtraining_signal: null,
+        limitation: i.recoveryScore >= 75
+          ? "Kein struktureller Engpass — jetzt zählt Trainingsstruktur, nicht Erholungs-Engineering."
+          : "Sleep- oder Stress-Multiplier arbeiten unter Kapazität und ziehen den Gesamtwert.",
+        recommendation: i.recoveryScore < 55
+          ? "Trainingsvolumen für 5–7 Tage um 30–50% reduzieren, Schlaf auf mindestens 7,5 h anheben, Recovery-Check in 7 Tagen wiederholen."
+          : "Periodisierung einsetzen: Eine Hochintensitäts-Woche, gefolgt von einer Deload-Woche.",
+      },
       activity: {
         score_context: `Dein Activity Score von ${i.activityScore}/100 basiert auf ${i.totalMet} MET-Minuten pro Woche und ergibt die IPAQ-Kategorie ${i.activityCategory}.`,
-        main_finding: `Die Trainings- und Alltagsaktivität positioniert dich im Band "${i.activityBand}". Damit bewegst du dich quantitativ ${i.activityCategory === "HIGH" ? "bereits überdurchschnittlich" : i.activityCategory === "MODERATE" ? "im empfohlenen Bereich" : "unterhalb der WHO-Mindestempfehlung"}.`,
+        key_finding: `Die Trainings- und Alltagsaktivität positioniert dich im Band "${i.activityBand}". Damit bewegst du dich quantitativ ${i.activityCategory === "HIGH" ? "bereits überdurchschnittlich" : i.activityCategory === "MODERATE" ? "im empfohlenen Bereich" : "unterhalb der WHO-Mindestempfehlung"}.`,
+        systemic_connection: "Aktivität treibt VO2max direkt und wirkt sekundär positiv auf Schlafqualität und metabolische Gesundheit.",
+        met_context: `WHO-Referenz: 150–300 Min moderate Aktivität/Woche ≈ 20–21% niedrigeres Mortalitätsrisiko (AHA 2022).`,
+        sitting_flag: null,
         limitation: i.activityCategory === "HIGH"
           ? "Das Volumen ist solide; Qualität, Intensitätsverteilung und Regeneration werden zum limitierenden Faktor."
           : "Das wöchentliche MET-Minuten-Volumen reicht nicht aus, um den vollen kardiovaskulären und metabolischen Effekt zu erzielen.",
@@ -260,42 +288,42 @@ function buildStubReport(i: StubInputs): PdfReportContent {
           ? "Strukturiere Trainingsintensitäten nach 80/20-Prinzip und priorisiere ein Regenerationstool pro Woche."
           : "Ziele auf mindestens 150 min moderate oder 75 min intensive Aktivität pro Woche, idealerweise verteilt auf 4–5 Tage.",
       },
-      sleep: {
-        score_context: `Dein Sleep Score liegt bei ${i.sleepScore}/100 bei einer durchschnittlichen Schlafdauer von ${i.sleepDuration}h. Die PSQI-adaptierte Bewertung ordnet dich in "${i.sleepBand}" ein.`,
-        main_finding: `Die Kombination aus Schlafdauer, subjektiver Qualität und Erholungsgefühl ergibt ein ${i.sleepBand === "excellent" ? "herausragendes" : i.sleepBand === "good" ? "solides" : "verbesserungswürdiges"} Recovery-Profil.`,
-        limitation: i.sleepScore >= 85
-          ? "Keine signifikante Limitierung; Stabilität der Routine ist der nächste Hebel."
-          : "Schlafqualität und/oder nächtliche Unterbrechungen drücken den Gesamt-Score und limitieren die Regeneration.",
-        recommendation: "Fixiere Bett- und Aufsteh-Zeit auf ±30 Minuten über sieben Tage und halte die Schlafzimmer-Temperatur bei 17–19 °C.",
-      },
       metabolic: {
         score_context: `Metabolic Score ${i.metabolicScore}/100 bei BMI ${i.bmi} (${i.bmiCategory}) — Zusammenspiel aus Körperzusammensetzung, Hydration, Ernährungsrhythmus und Sitzzeit.`,
-        main_finding: `Die metabolische Einordnung landet im Band "${i.metabolicBand}". ${i.bmiCategory === "normal" ? "Die Körperzusammensetzung liegt im optimalen Bereich." : `Die BMI-Kategorie "${i.bmiCategory}" wirkt als relevanter Modifier auf den Score.`}`,
+        key_finding: `Die metabolische Einordnung landet im Band "${i.metabolicBand}". ${i.bmiCategory === "normal" ? "Die Körperzusammensetzung liegt im optimalen Bereich." : `Die BMI-Kategorie "${i.bmiCategory}" wirkt als relevanter Modifier auf den Score.`}`,
+        systemic_connection: "Sitzzeit ist unabhängig vom Sport ein CVD-Risikofaktor (AHA Science Advisory). Metabolic beeinflusst VO2max indirekt über BMI.",
+        bmi_context: "BMI ist ein populationsbasierter Schätzer, kein individueller Gesundheitsmarker. Muskuläre Körperzusammensetzung verzerrt ihn nach oben.",
         limitation: i.metabolicScore >= 80
           ? "Keine akuten Engpässe; Feintuning bei Mikro-Nährstoffdichte und Timing möglich."
           : "Hydration, Mahlzeiten-Rhythmus oder Sitzzeit limitieren die metabolische Grundlast.",
         recommendation: "Trinke täglich 30–35 ml pro kg Körpergewicht, unterbrich Sitzblöcke nach spätestens 45 Minuten und setze 4+ Gemüseportionen als Standard.",
       },
       stress: {
-        score_context: `Stress Score ${i.stressScore}/100 (${i.stressBand}) — gewichtete Kombination aus selbstberichtetem Stresslevel und messbarer Erholungskapazität.`,
-        main_finding: `Die Stress-Regulation befindet sich im Band "${i.stressBand}". ${i.stressScore >= 75 ? "Die autonome Belastung ist niedrig und unterstützt Anpassungsprozesse." : "Der chronische Belastungs-Level verbraucht Ressourcen, die sonst in Adaption fließen würden."}`,
+        score_context: `Stress Score ${i.stressScore}/100 (${i.stressBand}) — gewichtete Kombination aus selbstberichtetem Stresslevel und Sleep-/Recovery-Puffer.`,
+        key_finding: `Die Stress-Regulation befindet sich im Band "${i.stressBand}". ${i.stressScore >= 75 ? "Die autonome Belastung ist niedrig und unterstützt Anpassungsprozesse." : "Der chronische Belastungs-Level verbraucht Ressourcen, die sonst in Adaption fließen würden."}`,
+        systemic_connection: "Chronischer Stress hemmt die HPG-Achse (Testosteron ↓) UND verschlechtert die Insulin-Sensitivität gleichzeitig — der am weitesten reichende Hebel im System.",
+        hpa_context: null,
         limitation: i.stressScore >= 75
           ? "Kein akuter Engpass; die Resilienz-Reserve ist vorhanden."
           : "Fehlende bewusste Downregulation verhindert vollständige parasympathische Erholung.",
         recommendation: "Installiere zwei 5-Minuten-Downregulation-Fenster pro Tag (Box-Breathing 4-4-4-4 oder Nasenatmung in Ruhe).",
       },
       vo2max: {
-        score_context: `Geschätzter VO2max: ${i.vo2Estimated} ml/kg/min (${i.vo2Band}) — Non-Exercise-Schätzung auf Basis von Alter, BMI und Aktivitätskategorie.`,
-        main_finding: `Die kardiorespiratorische Leistungsfähigkeit liegt im Band "${i.vo2Band}". VO2max ist einer der stärksten Einzel-Prädiktoren für langfristige Performance.`,
+        score_context: `Geschätzter VO2max: ${i.vo2Estimated} ml/kg/min (${i.vo2Band}) — algorithmische Schätzung auf Basis von Alter, BMI und Aktivitätskategorie.`,
+        key_finding: `Die kardiorespiratorische Leistungsfähigkeit liegt im Band "${i.vo2Band}". VO2max ist einer der stärksten Einzel-Prädiktoren für langfristige Performance.`,
+        systemic_connection: "VO2max ist direkt an das Aktivitätslevel gekoppelt — der einzige Hebel zur Steigerung ist Aktivität mit Intensitätskomponente.",
+        fitness_context: "Die Einordnung ist alters- und geschlechtsspezifisch (Cooper Institute / ACSM Normen).",
+        estimation_note: "Dies ist eine Non-Exercise-Schätzung, kein gemessener Laborwert. Für hochpräzise Diagnostik: Spiroergometrie.",
         limitation: i.vo2Score >= 70
           ? "Plateau-Risiko ohne periodisierte Intensitätssteigerung."
           : "Limitiert durch geringe oder unspezifische Intensitätsverteilung im aktuellen Trainingsprofil.",
         recommendation: "Integriere 1× pro Woche ein VO2max-Intervall (z.B. 4×4 min bei 90–95% HFmax, dazwischen 3 min aktive Pause).",
       },
     },
-    top_priority: `Hebel Nr. 1: ${weakest}. Der größte messbare Score-Gewinn in 30 Tagen liegt hier.`,
+    top_priority: `Hebel Nr. 1: ${weakest}. Der größte messbare Score-Gewinn in 30 Tagen liegt hier — und zieht mindestens 2 weitere Module mit nach oben.`,
+    systemic_connections_overview: "Schlaf, Stress und Recovery bilden ein Dreieck: Jeder der drei Faktoren limitiert die anderen beiden. Wer nur einen davon angreift, spürt nur ein Drittel des möglichen Effekts. Die hohe Aktivität bzw. die Sitzzeit wirken unabhängig davon auf VO2max und metabolische Marker.",
     prognose_30_days: `Bei konsequenter Umsetzung der Empfehlungen ist ein realistischer Overall-Zuwachs von +6 bis +12 Punkten möglich — vorausgesetzt, die Maßnahmen werden mindestens 5 von 7 Tagen umgesetzt.`,
-    disclaimer: "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik.",
+    disclaimer: "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik. VO2max ist eine algorithmische Schätzung — keine Labormessung.",
   };
 }
 
@@ -601,6 +629,8 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
     report = buildStubReport({
       activityScore, activityBand, activityCategory, totalMet,
       sleepScore, sleepBand, sleepDuration,
+      recoveryScore: r.recovery.recovery_score_0_100,
+      recoveryBand: r.recovery.recovery_band,
       vo2Score, vo2Band, vo2Estimated,
       metabolicScore, metabolicBand, bmi, bmiCategory,
       stressScore, stressBand,
@@ -611,14 +641,17 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
   const pdfBuffer = await generatePDF(
     report,
     {
-      activity: { score: activityScore, band: activityBand },
       sleep: { score: sleepScore, band: sleepBand },
-      vo2max: { score: vo2Score, band: vo2Band, estimated: vo2Estimated },
+      recovery: { score: r.recovery.recovery_score_0_100, band: r.recovery.recovery_band },
+      activity: { score: activityScore, band: activityBand },
       metabolic: { score: metabolicScore, band: metabolicBand },
       stress: { score: stressScore, band: stressBand },
+      vo2max: { score: vo2Score, band: vo2Band, estimated: vo2Estimated },
       overall: { score: overallScore, band: overallBand },
       total_met: totalMet,
       sleep_duration_hours: sleepDuration,
+      sitting_hours: r.metabolic.sitting_hours,
+      training_days: ctx.training_days ?? 0,
     },
     {
       email: ctx.user.email,
@@ -845,6 +878,8 @@ export async function POST(req: NextRequest) {
         sleepScore,
         sleepBand,
         sleepDuration,
+        recoveryScore: result.recovery.recovery_score_0_100,
+        recoveryBand: result.recovery.recovery_band,
         vo2Score: vo2ScoreNum,
         vo2Band,
         vo2Estimated,
@@ -867,18 +902,24 @@ export async function POST(req: NextRequest) {
       const pdfBuffer = await generatePDF(
         report,
         {
-          activity: { score: activityScore, band: activityBand },
           sleep: { score: sleepScore, band: sleepBand },
+          recovery: {
+            score: result.recovery.recovery_score_0_100,
+            band: result.recovery.recovery_band,
+          },
+          activity: { score: activityScore, band: activityBand },
+          metabolic: { score: metabolicScore, band: metabolicBand },
+          stress: { score: stressScore, band: stressBand },
           vo2max: {
             score: vo2ScoreNum,
             band: vo2Band,
             estimated: vo2Estimated,
           },
-          metabolic: { score: metabolicScore, band: metabolicBand },
-          stress: { score: stressScore, band: stressBand },
           overall: { score: overallScore, band: overallBand },
           total_met: totalMet,
           sleep_duration_hours: sleepDuration,
+          sitting_hours: result.metabolic.sitting_hours,
+          training_days: trainingDays,
         },
         {
           email: user.email,
