@@ -215,7 +215,7 @@ function AnalyseContent() {
     stresslevel: "moderat",
     mahlzeitenPlan: "kein",
     selectedProduct: preselectedProduct,
-    email: "",
+    email: "demo@boostthebeast.com",
   });
 
   const [loading, setLoading] = useState(false);
@@ -292,8 +292,8 @@ function AnalyseContent() {
     !!form.mahlzeitenPlan,
   ].filter(Boolean).length;
 
-  const progressPct = Math.round((answeredCount / totalQuestions) * 80) + (form.email ? 20 : 0);
-  const canSubmit = form.email.includes("@") && answeredCount === totalQuestions;
+  const progressPct = Math.round((answeredCount / totalQuestions) * 100);
+  const canSubmit = answeredCount === totalQuestions;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -805,22 +805,6 @@ function AnalyseContent() {
                 />
               </div>
             </div>
-
-            {/* ── Email ───────────────────────────────── */}
-            <section className={styles.emailSection}>
-              <div className={styles.emailLabel}>DEINE E-MAIL</div>
-              <div className={styles.emailHint}>Dein Report wird an diese Adresse gesendet.</div>
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) => set("email", e.target.value)}
-                className={styles.emailInput}
-                placeholder="deine@email.de"
-              />
-              <div className={styles.emailNote}>
-                Kein Newsletter, kein Abo. Daten werden nach Verarbeitung gelöscht.
-              </div>
-            </section>
 
             {/* ── Submit ──────────────────────────────── */}
             {/* TODO: STRIPE INTEGRATION
