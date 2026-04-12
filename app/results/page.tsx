@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import styles from "./results.module.css";
-import BackButton from "@/components/ui/BackButton";
 
 /* ─── Animated Counter ──────────────────────────────────────── */
 function useCountUp(target: number, duration = 1600) {
@@ -159,9 +158,9 @@ export default function ResultsPage() {
 
   return (
     <div className={styles.page}>
-      <BackButton />
       {/* Header */}
       <div className={styles.header}>
+        <Link href="/" className={styles.headerBtnSecondary}>← HOME</Link>
         <div className={styles.headerTitle}>BOOST THE BEAST LAB · PERFORMANCE REPORT</div>
         <div className={styles.headerActions}>
           <Link href="/analyse" className={styles.headerBtnSecondary}>Neue Analyse</Link>
@@ -363,6 +362,31 @@ export default function ResultsPage() {
                 </div>
               );
             })}
+          </div>
+        </section>
+
+        {/* ─── INDIVIDUELLE PLÄNE ──────────────────────── */}
+        <section className={styles.plansSection}>
+          <div className={styles.sectionLabel}>DEINE INDIVIDUELLEN PLÄNE</div>
+          <p className={styles.plansSubtitle}>
+            Auf Basis deiner Scores haben wir vier personalisierte Optimierungspläne erstellt — Teil deines Pakets.
+          </p>
+          <div className={styles.plansGrid}>
+            {[
+              { type: "activity",  label: "ACTIVITY-PLAN",         color: "#E63222", score: scores.activity.activity_score_0_100,  desc: "Aktivität & Training optimieren" },
+              { type: "metabolic", label: "METABOLIC-PLAN",        color: "#F59E0B", score: scores.metabolic.metabolic_score_0_100, desc: "Stoffwechsel & Ernährung verbessern" },
+              { type: "recovery",  label: "RECOVERY-PLAN",         color: "#3B82F6", score: scores.sleep.sleep_score_0_100,         desc: "Schlaf & Regeneration steigern" },
+              { type: "stress",    label: "STRESS & LIFESTYLE-PLAN",color: "#22C55E", score: scores.stress.stress_score_0_100,      desc: "Stress senken & Lifestyle optimieren" },
+            ].map((plan) => (
+              <Link key={plan.type} href={`/plans/${plan.type}`} className={styles.planCard}>
+                <div className={styles.planCardScore} style={{ color: plan.color }}>{plan.score}<span style={{ fontSize: "0.5em", opacity: 0.7 }}>/100</span></div>
+                <div>
+                  <div className={styles.planCardLabel}>{plan.label}</div>
+                  <div className={styles.planCardDesc}>{plan.desc}</div>
+                </div>
+                <div className={styles.planCardArrow} style={{ color: plan.color }}>→</div>
+              </Link>
+            ))}
           </div>
         </section>
 

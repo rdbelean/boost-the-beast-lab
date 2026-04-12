@@ -15,10 +15,10 @@ function countUp(el: HTMLElement, target: number, suffix: string, duration = 150
 }
 
 const stats = [
-  { target: 15,  suffix: "",   prefix: "",    label: "FRAGEN" },
-  { target: 4,   suffix: "",   prefix: "",    label: "SCORES" },
-  { target: 5,   suffix: " MIN", prefix: "< ", label: "AUTOMATISIERT" },
-  { target: 100, suffix: "%",  prefix: "",    label: "KI-GENERIERT" },
+  { target: 20,  suffix: "",   prefix: "",    label: "FRAGEN" },
+  { target: 5,   suffix: "",   prefix: "",    label: "SCORES" },
+  { target: 0,   suffix: "",   prefix: "",    label: "TIEFGEHENDE AUSWERTUNG", static: true },
+  { target: 0,   suffix: "",   prefix: "",    label: "EVIDENZBASIERTE DATENBANK", static: true },
 ];
 
 export default function Hero() {
@@ -94,16 +94,20 @@ export default function Hero() {
 
         {/* Stats */}
         <div className={styles.statsBar} ref={statsRef}>
-          {stats.map(({ target, suffix, prefix, label }) => (
+          {stats.map(({ target, suffix, prefix, label, static: isStatic }) => (
             <div key={label} className={styles.statItem}>
-              <span
-                className={styles.statValue}
-                data-count={target}
-                data-suffix={suffix}
-                data-prefix={prefix}
-              >
-                {prefix}0{suffix}
-              </span>
+              {isStatic ? (
+                <span className={styles.statValue}>✦</span>
+              ) : (
+                <span
+                  className={styles.statValue}
+                  data-count={target}
+                  data-suffix={suffix}
+                  data-prefix={prefix}
+                >
+                  {prefix}0{suffix}
+                </span>
+              )}
               <span className={styles.statLabel}>{label}</span>
             </div>
           ))}

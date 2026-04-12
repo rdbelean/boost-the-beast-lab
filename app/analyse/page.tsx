@@ -301,18 +301,22 @@ function AnalyseContent() {
     setVisibleSteps([]);
     setDoneSteps([]);
 
-    // All steps visible immediately (dark grey), then check off one by one
+    // All steps visible immediately (dark grey), then check off progressively
     setVisibleSteps(LOADING_STEPS.map((_, i) => i));
+
+    // Timers for steps 0..N-2 spread evenly over expected API duration (~25s)
+    const STEP_INTERVAL = 2500;
+    const stepTimers: ReturnType<typeof setTimeout>[] = [];
+    LOADING_STEPS.slice(0, -1).forEach((_, i) => {
+      const t = setTimeout(() => setDoneSteps((prev) => [...prev, i]), (i + 1) * STEP_INTERVAL);
+      stepTimers.push(t);
+    });
 
     try {
       setErrorMsg(null);
       const payload = buildAssessmentPayload(form);
 
-      // Start checking off steps while API runs (1 per second)
-      LOADING_STEPS.forEach((_, i) => {
-        setTimeout(() => setDoneSteps((prev) => [...prev, i]), (i + 1) * 1000);
-      });
-
+      const apiStart = Date.now();
       const res = await fetch("/api/assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -321,6 +325,7 @@ function AnalyseContent() {
 
       const json = await res.json().catch(() => null);
       if (!res.ok) {
+        stepTimers.forEach(clearTimeout);
         throw new Error(json?.error ?? `Server-Fehler (${res.status})`);
       }
       if (json?.scores) {
@@ -333,19 +338,21 @@ function AnalyseContent() {
         setDownloadUrl(json.downloadUrl);
       }
 
-      // Ensure all steps are checked off before transitioning to results
-      const minLoadingTime = (LOADING_STEPS.length + 1) * 1000;
+      // Wait until all previously scheduled step timers have fired, then finish
+      const elapsed = Date.now() - apiStart;
+      const minWait = (LOADING_STEPS.length - 1) * STEP_INTERVAL;
+      const remaining = Math.max(0, minWait - elapsed);
+
       setTimeout(() => {
-        setDoneSteps(LOADING_STEPS.map((_, i) => i));
-        // Store results in sessionStorage and navigate to results page
+        setDoneSteps(LOADING_STEPS.map((_, i) => i)); // last step ✓
         setTimeout(() => {
           sessionStorage.setItem("btb_results", JSON.stringify({
             scores: json?.scores,
             downloadUrl: json?.downloadUrl ?? null,
           }));
           router.push("/results");
-        }, 800);
-      }, minLoadingTime);
+        }, 1200);
+      }, remaining);
 
       console.log("[analyse] assessmentId", json?.assessmentId);
     } catch (err) {
@@ -438,11 +445,11 @@ function AnalyseContent() {
             <div className={styles.heroStats}>
               <span className={styles.heroStatItem}>20 FRAGEN</span>
               <span className={styles.heroStatDot} />
-              <span className={styles.heroStatItem}>4 KATEGORIEN</span>
+              <span className={styles.heroStatItem}>5 SCORES</span>
               <span className={styles.heroStatDot} />
-              <span className={styles.heroStatItem}>{"< 5 MIN"}</span>
+              <span className={styles.heroStatItem}>TIEFGEHENDE AUSWERTUNG</span>
               <span className={styles.heroStatDot} />
-              <span className={styles.heroStatItem}>100% KI-GENERIERT</span>
+              <span className={styles.heroStatItem}>EVIDENZBASIERTE DATENBANK</span>
             </div>
           </section>
 

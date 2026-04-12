@@ -1,0 +1,288 @@
+/* ─── Plan Page ─────────────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  background: #0D0D0D;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+}
+
+/* ─── Header ─────────────────────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 2rem;
+  background: rgba(13, 13, 13, 0.95);
+  border-bottom: 1px solid #1a1a1a;
+  backdrop-filter: blur(8px);
+}
+
+.backLink {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: #888;
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.backLink:hover {
+  color: #fff;
+}
+
+.headerTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.printBtn {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #888;
+  background: none;
+  border: 1px solid #333;
+  padding: 0.4rem 0.875rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.printBtn:hover {
+  color: #fff;
+  border-color: #555;
+}
+
+/* ─── Container ──────────────────────────────────────────────── */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 2rem 5rem;
+}
+
+/* ─── Hero ───────────────────────────────────────────────────── */
+.hero {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.tag {
+  display: inline-block;
+  font-family: "Oswald", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  border: 1px solid;
+  padding: 0.25rem 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-family: "Oswald", sans-serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0.5rem 0 0.75rem;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #aaa;
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+}
+
+.source {
+  font-size: 0.7rem;
+  color: #555;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+/* ─── Blocks ─────────────────────────────────────────────────── */
+.block {
+  margin-bottom: 2.5rem;
+  padding: 1.75rem;
+  background: #111;
+  border: 1px solid #1e1e1e;
+}
+
+.blockHeading {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #888;
+  text-transform: uppercase;
+  margin: 0 0 1.25rem;
+}
+
+.blockList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.blockItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.9rem;
+  color: #d0d0d0;
+  line-height: 1.55;
+}
+
+.bullet {
+  flex-shrink: 0;
+  margin-top: 0.05em;
+  font-size: 0.8rem;
+}
+
+/* ─── Actions ────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 3rem;
+}
+
+.btnPrimary {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #fff;
+  border: none;
+  padding: 0.875rem 1.75rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnPrimary:hover {
+  opacity: 0.85;
+}
+
+.btnSecondary {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: #888;
+  background: none;
+  border: 1px solid #333;
+  padding: 0.875rem 1.75rem;
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btnSecondary:hover {
+  color: #fff;
+  border-color: #555;
+}
+
+/* ─── Disclaimer ─────────────────────────────────────────────── */
+.disclaimer {
+  margin-top: 2.5rem;
+  font-size: 0.7rem;
+  color: #444;
+  line-height: 1.6;
+  border-top: 1px solid #1a1a1a;
+  padding-top: 1.5rem;
+}
+
+/* ─── Error ──────────────────────────────────────────────────── */
+.errorBox {
+  max-width: 480px;
+  margin: 6rem auto;
+  padding: 2rem;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  text-align: center;
+}
+
+.errorBox p {
+  color: #aaa;
+  margin-bottom: 1.5rem;
+}
+
+/* ─── Print ──────────────────────────────────────────────────── */
+@media print {
+  .header {
+    position: static;
+    border-bottom: 1px solid #ccc;
+    background: #fff;
+  }
+
+  .backLink,
+  .printBtn,
+  .actions {
+    display: none;
+  }
+
+  .page,
+  .container {
+    background: #fff;
+    color: #000;
+  }
+
+  .block {
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+
+  .blockItem {
+    color: #222;
+  }
+
+  .source,
+  .disclaimer {
+    color: #666;
+  }
+}
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .header {
+    padding: 0.75rem 1rem;
+  }
+
+  .headerTitle {
+    font-size: 0.8rem;
+  }
+
+  .container {
+    padding: 2rem 1rem 4rem;
+  }
+
+  .block {
+    padding: 1.25rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
