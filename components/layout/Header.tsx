@@ -1,12 +1,16 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "@/app/landing.module.css";
 
 export default function Header() {
+  const router = useRouter();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [hasReport, setHasReport] = useState(false);
   const [reportUrl, setReportUrl] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ids = ["how-it-works", "products"];
@@ -36,6 +40,17 @@ export default function Header() {
       }
     } catch { /* ignore */ }
   }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [dropdownOpen]);
 
   return (
     <header className={styles.header}>
@@ -73,12 +88,46 @@ export default function Header() {
         <div className={styles.headerActions}>
           {hasReport && reportUrl && (
             <a href={reportUrl} target="_blank" rel="noopener noreferrer" className={styles.headerCtaSecondary}>
-              REPORT DOWNLOADEN ↓
+              REPORT ↓
             </a>
           )}
-          <Link href="/login" className={styles.headerCta}>
-            LOGIN / ACCOUNT →
-          </Link>
+          {/* Account dropdown */}
+          <div className={styles.accountDropdown} ref={dropdownRef}>
+            <button
+              className={styles.accountDropdownBtn}
+              onClick={() => setDropdownOpen((o) => !o)}
+              aria-expanded={dropdownOpen}
+            >
+              MEIN ACCOUNT
+              <span className={`${styles.accountDropdownChevron}${dropdownOpen ? ` ${styles.accountDropdownChevronOpen}` : ""}`}>
+                ▾
+              </span>
+            </button>
+            {dropdownOpen && (
+              <div className={styles.accountDropdownMenu}>
+                <button
+                  className={styles.accountDropdownItem}
+                  onClick={() => { setDropdownOpen(false); router.push("/kaufen"); }}
+                >
+                  Neue Analyse starten →
+                </button>
+                <Link
+                  href="/account"
+                  className={styles.accountDropdownItem}
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Meine Reports einsehen
+                </Link>
+                <Link
+                  href="/login"
+                  className={styles.accountDropdownItem}
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Login / Account erstellen
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

@@ -174,7 +174,7 @@ const LOADING_STEPS = [
   "Metabolic Score aus WHO-Referenzdaten berechnet...",
   "Stress & Lifestyle Score wird gewichtet...",
   "Composite Performance Index (5 Module) aggregiert...",
-  "KI-Engine generiert personalisierten Report...",
+  "BTB Report-Engine generiert deinen personalisierten Report...",
   "Performance Insights werden formatiert...",
   "Report wird finalisiert...",
 ];
@@ -304,8 +304,8 @@ function AnalyseContent() {
     // All steps visible immediately (dark grey), then check off progressively
     setVisibleSteps(LOADING_STEPS.map((_, i) => i));
 
-    // Timers for steps 0..N-2 spread evenly over expected API duration (~25s)
-    const STEP_INTERVAL = 2500;
+    // Timers for steps 0..N-2 spread evenly — targets ~20s total
+    const STEP_INTERVAL = 1800;
     const stepTimers: ReturnType<typeof setTimeout>[] = [];
     LOADING_STEPS.slice(0, -1).forEach((_, i) => {
       const t = setTimeout(() => setDoneSteps((prev) => [...prev, i]), (i + 1) * STEP_INTERVAL);
@@ -351,7 +351,7 @@ function AnalyseContent() {
             downloadUrl: json?.downloadUrl ?? null,
           }));
           router.push("/results");
-        }, 1200);
+        }, 600);
       }, remaining);
 
       console.log("[analyse] assessmentId", json?.assessmentId);
@@ -861,7 +861,7 @@ function AnalyseContent() {
           <div className={styles.loadingInner}>
             <div className={styles.loadingLabel}>
               <span className={styles.loadingSpinner} />
-              KI ANALYSIERT DEINE DATEN
+              BTB SCIENTIFIC ENGINE · DATEN WERDEN ABGEGLICHEN
             </div>
             <div className={styles.loadingTitle}>
               DEIN REPORT<br />WIRD ERSTELLT.

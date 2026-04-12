@@ -156,3 +156,13 @@ input[type="range"]::-webkit-slider-thumb {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* ─── PRINT (plan pages) ────────────────────────────────────── */
+@media print {
+  html, body {
+    background: #EDEDED !important;
+    color: #111 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

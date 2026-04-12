@@ -166,6 +166,83 @@
   .headerCtaSecondary { display: none; }
 }
 
+/* ─── ACCOUNT DROPDOWN ──────────────────────────────────────── */
+.accountDropdown {
+  position: relative;
+}
+.accountDropdownBtn {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--accent);
+  padding: 10px 16px;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.accountDropdownBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(230, 50, 34, 0.4);
+}
+.accountDropdownChevron {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-style: normal;
+}
+.accountDropdownChevronOpen {
+  transform: rotate(180deg);
+}
+.accountDropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background: #161618;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  z-index: 100;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+  animation: dropdownFadeIn 0.15s ease both;
+}
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.accountDropdownItem {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.accountDropdownItem:last-child {
+  border-bottom: none;
+}
+.accountDropdownItem:hover {
+  background: rgba(230, 50, 34, 0.1);
+  color: #fff;
+}
+
 /* ─── HERO ──────────────────────────────────────────────────── */
 .hero {
   position: relative;
