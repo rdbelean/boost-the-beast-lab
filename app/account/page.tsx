@@ -43,18 +43,69 @@ function bandColor(score: number) {
   return "#E63222";
 }
 
-function DeltaBadge({ delta }: { delta: number }) {
-  if (delta === 0) return <span className={styles.deltaNeutral}>→ 0</span>;
-  if (delta > 0) return (
-    <span className={styles.deltaPos}>↑ +{delta}</span>
-  );
-  return <span className={styles.deltaNeg}>↓ {delta}</span>;
-}
+/* ─── Comparison row: shows old → new with arrow + delta ─────── */
+function CompareRow({
+  label,
+  color,
+  current,
+  previous,
+}: {
+  label: string;
+  color: string;
+  current: number;
+  previous: number | null;
+}) {
+  const delta = previous !== null ? current - previous : null;
+  const improved = delta !== null && delta > 0;
+  const declined = delta !== null && delta < 0;
 
-function MiniBar({ score, color }: { score: number; color: string }) {
   return (
-    <div className={styles.miniBarTrack}>
-      <div className={styles.miniBarFill} style={{ width: `${score}%`, background: color }} />
+    <div className={styles.compareRow}>
+      <div className={styles.compareLabel}>{label}</div>
+
+      {/* Bar */}
+      <div className={styles.compareBarWrap}>
+        <div
+          className={styles.compareBarFill}
+          style={{ width: `${current}%`, background: color }}
+        />
+        {previous !== null && (
+          <div
+            className={styles.compareBarPrev}
+            style={{ width: `${previous}%` }}
+          />
+        )}
+      </div>
+
+      {/* Scores */}
+      <div className={styles.compareScores}>
+        {/* Old score (crossed out, gray) */}
+        {previous !== null && (
+          <span className={styles.compareOld}>{previous}</span>
+        )}
+        {previous !== null && (
+          <span className={styles.compareArrowMid}>→</span>
+        )}
+        {/* New score */}
+        <span className={styles.compareNew} style={{ color: bandColor(current) }}>
+          {current}
+        </span>
+        {/* Arrow + delta */}
+        {delta !== null && (
+          <span
+            className={
+              improved
+                ? styles.compareDeltaPos
+                : declined
+                ? styles.compareDeltaNeg
+                : styles.compareDeltaZero
+            }
+          >
+            {improved ? "↑" : declined ? "↓" : "→"}
+            {delta > 0 ? `+${delta}` : delta}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -62,7 +113,6 @@ function MiniBar({ score, color }: { score: number; color: string }) {
 /* ─── Page ──────────────────────────────────────────────────── */
 export default function AccountPage() {
   const router = useRouter();
-
   const latest = DEMO_REPORTS[0];
   const oldest = DEMO_REPORTS[DEMO_REPORTS.length - 1];
 
@@ -86,84 +136,63 @@ export default function AccountPage() {
           </button>
         </div>
 
-        {/* ─── Demo notice ────────────────────────────────── */}
         <div className={styles.demoNotice}>
           Demo-Modus — Beispiel-Reports zur Veranschaulichung
         </div>
 
-        {/* ─── Progress summary (oldest → newest) ─────────── */}
+        {/* ─── Gesamtfortschritt ────────────────────────── */}
         {DEMO_REPORTS.length >= 2 && (
           <section className={styles.progressSection}>
             <div className={styles.progressHeader}>
-              <div className={styles.progressTitle}>GESAMTFORTSCHRITT</div>
-              <div className={styles.progressRange}>
-                {oldest.date} → {latest.date}
+              <span className={styles.progressTitle}>GESAMTFORTSCHRITT</span>
+              <span className={styles.progressRange}>{oldest.date} → {latest.date}</span>
+            </div>
+
+            {/* Overall highlight */}
+            <div className={styles.overallBanner}>
+              <div className={styles.overallBannerLeft}>
+                <div className={styles.overallBannerLabel}>OVERALL PERFORMANCE SCORE</div>
+                <div className={styles.overallBannerRow}>
+                  <span className={styles.overallOld}>{oldest.overall}</span>
+                  <span className={styles.overallBannerArrow}>→</span>
+                  <span className={styles.overallNew} style={{ color: bandColor(latest.overall) }}>
+                    {latest.overall}
+                  </span>
+                  <span className={latest.overall > oldest.overall ? styles.overallDeltaPos : styles.overallDeltaNeg}>
+                    {latest.overall > oldest.overall ? "↑" : "↓"}
+                    {latest.overall > oldest.overall ? `+${latest.overall - oldest.overall}` : latest.overall - oldest.overall}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.overallBannerRight}>
+                <div className={styles.overallPctLabel}>VERBESSERUNG</div>
+                <div className={styles.overallPct} style={{ color: "#22C55E" }}>
+                  +{Math.round(((latest.overall - oldest.overall) / oldest.overall) * 100)}%
+                </div>
               </div>
             </div>
 
-            {/* Overall delta banner */}
-            <div className={styles.overallDeltaBanner}>
-              <div className={styles.overallDeltaLabel}>OVERALL PERFORMANCE</div>
-              <div className={styles.overallDeltaRow}>
-                <span className={styles.overallFrom}>{oldest.overall}</span>
-                <span className={styles.overallArrow}>→</span>
-                <span className={styles.overallTo} style={{ color: bandColor(latest.overall) }}>
-                  {latest.overall}
-                </span>
-                <span
-                  className={
-                    latest.overall - oldest.overall > 0
-                      ? styles.overallDeltaPos
-                      : latest.overall - oldest.overall < 0
-                      ? styles.overallDeltaNeg
-                      : styles.overallDeltaNeutral
-                  }
-                >
-                  {latest.overall - oldest.overall > 0 ? "+" : ""}
-                  {latest.overall - oldest.overall}
-                </span>
+            {/* Sub-score comparison table */}
+            <div className={styles.compareTable}>
+              <div className={styles.compareTableHeader}>
+                <span></span>
+                <span></span>
+                <div className={styles.compareTableHeadScores}>
+                  <span className={styles.compareTableHeadOld}>{oldest.date}</span>
+                  <span></span>
+                  <span className={styles.compareTableHeadNew}>{latest.date}</span>
+                  <span className={styles.compareTableHeadDelta}>DIFF</span>
+                </div>
               </div>
-            </div>
-
-            {/* Sub-score progress grid */}
-            <div className={styles.progressGrid}>
-              {SCORE_DEFS.map((def) => {
-                const from = oldest.scores[def.key];
-                const to = latest.scores[def.key];
-                const delta = to - from;
-                const pct = Math.round((delta / Math.max(from, 1)) * 100);
-                return (
-                  <div key={def.key} className={styles.progressCard}>
-                    <div className={styles.progressCardLabel}>{def.label}</div>
-                    <div className={styles.progressCardScores}>
-                      <span className={styles.progressFrom}>{from}</span>
-                      <span className={styles.progressArrow} style={{ color: def.color }}>→</span>
-                      <span className={styles.progressTo} style={{ color: bandColor(to) }}>{to}</span>
-                    </div>
-                    <div className={styles.progressCardDelta}>
-                      <DeltaBadge delta={delta} />
-                      <span className={styles.progressPct}>
-                        {pct > 0 ? "+" : ""}{pct}%
-                      </span>
-                    </div>
-                    {/* Progress bar: from vs to */}
-                    <div className={styles.progressBarCombo}>
-                      <div
-                        className={styles.progressBarPrev}
-                        style={{ width: `${from}%` }}
-                      />
-                      <div
-                        className={styles.progressBarCurrent}
-                        style={{ width: `${to}%`, background: def.color }}
-                      />
-                    </div>
-                    <div className={styles.progressBarLegend}>
-                      <span>JAN</span>
-                      <span>MRZ</span>
-                    </div>
-                  </div>
-                );
-              })}
+              {SCORE_DEFS.map((def) => (
+                <CompareRow
+                  key={def.key}
+                  label={def.label}
+                  color={def.color}
+                  current={latest.scores[def.key]}
+                  previous={oldest.scores[def.key]}
+                />
+              ))}
             </div>
           </section>
         )}
@@ -176,22 +205,24 @@ export default function AccountPage() {
 
         <div className={styles.reportList}>
           {DEMO_REPORTS.map((report, i) => {
-            const prevReport = DEMO_REPORTS[i + 1] ?? null;
+            const prev = DEMO_REPORTS[i + 1] ?? null;
             const overallColor = bandColor(report.overall);
+            const overallDelta = prev ? report.overall - prev.overall : null;
 
             return (
-              <div
-                key={report.id}
-                className={styles.reportCard}
-                style={{ animationDelay: `${i * 0.08}s` }}
-              >
-                {/* Top row */}
+              <div key={report.id} className={styles.reportCard} style={{ animationDelay: `${i * 0.08}s` }}>
+
+                {/* ── Top row ─────────────────────────────── */}
                 <div className={styles.reportCardTop}>
                   <div className={styles.reportMeta}>
                     <span className={styles.reportDate}>{report.date}</span>
                     <span className={styles.reportId}>{report.id}</span>
                   </div>
                   <div className={styles.reportOverall}>
+                    {prev && (
+                      <span className={styles.overallPrevScore}>{prev.overall}</span>
+                    )}
+                    {prev && <span className={styles.overallSep}>→</span>}
                     <span className={styles.reportScore} style={{ color: overallColor }}>
                       {report.overall}
                     </span>
@@ -202,37 +233,69 @@ export default function AccountPage() {
                     >
                       {report.band}
                     </span>
-                    {prevReport && (
-                      <DeltaBadge delta={report.overall - prevReport.overall} />
+                    {overallDelta !== null && (
+                      <span
+                        className={
+                          overallDelta > 0
+                            ? styles.compareDeltaPos
+                            : overallDelta < 0
+                            ? styles.compareDeltaNeg
+                            : styles.compareDeltaZero
+                        }
+                      >
+                        {overallDelta > 0 ? "↑" : overallDelta < 0 ? "↓" : "→"}
+                        {overallDelta > 0 ? `+${overallDelta}` : overallDelta}
+                      </span>
                     )}
                   </div>
                 </div>
 
-                {/* Sub-scores with deltas */}
-                <div className={styles.subScores}>
+                {/* ── Sub-score comparison ─────────────────── */}
+                <div className={styles.subScoreList}>
                   {SCORE_DEFS.map((def) => {
-                    const score = report.scores[def.key];
-                    const prevScore = prevReport?.scores[def.key] ?? null;
-                    const delta = prevScore !== null ? score - prevScore : null;
+                    const current = report.scores[def.key];
+                    const prevScore = prev?.scores[def.key] ?? null;
+                    const delta = prevScore !== null ? current - prevScore : null;
                     return (
-                      <div key={def.key} className={styles.subScore}>
-                        <div className={styles.subScoreLabel}>{def.label}</div>
-                        <MiniBar score={score} color={def.color} />
-                        <div className={styles.subScoreBottom}>
-                          <span className={styles.subScoreVal} style={{ color: bandColor(score) }}>
-                            {score}
+                      <div key={def.key} className={styles.subScoreRow}>
+                        <span className={styles.subScoreRowLabel}>{def.label}</span>
+                        <div className={styles.subScoreBarTrack}>
+                          <div
+                            className={styles.subScoreBarFill}
+                            style={{ width: `${current}%`, background: def.color }}
+                          />
+                          {prevScore !== null && (
+                            <div
+                              className={styles.subScoreBarPrev}
+                              style={{ width: `${prevScore}%` }}
+                            />
+                          )}
+                        </div>
+                        <div className={styles.subScoreRowRight}>
+                          {prevScore !== null && (
+                            <span className={styles.subScoreOld}>{prevScore}</span>
+                          )}
+                          {prevScore !== null && (
+                            <span className={styles.subScoreSep}>→</span>
+                          )}
+                          <span
+                            className={styles.subScoreCurrent}
+                            style={{ color: bandColor(current) }}
+                          >
+                            {current}
                           </span>
                           {delta !== null && (
                             <span
                               className={
                                 delta > 0
-                                  ? styles.subDeltaPos
+                                  ? styles.compareDeltaPos
                                   : delta < 0
-                                  ? styles.subDeltaNeg
-                                  : styles.subDeltaNeutral
+                                  ? styles.compareDeltaNeg
+                                  : styles.compareDeltaZero
                               }
                             >
-                              {delta > 0 ? "+" : ""}{delta}
+                              {delta > 0 ? "↑" : delta < 0 ? "↓" : "→"}
+                              {delta > 0 ? `+${delta}` : delta}
                             </span>
                           )}
                         </div>
@@ -241,7 +304,7 @@ export default function AccountPage() {
                   })}
                 </div>
 
-                {/* Actions */}
+                {/* ── Actions ─────────────────────────────── */}
                 <div className={styles.reportActions}>
                   <button className={styles.viewBtn} disabled title="Bald verfügbar">
                     REPORT ANSEHEN

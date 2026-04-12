@@ -1,4 +1,4 @@
-/* ─── Account / Report History Page ─────────────────────────── */
+/* ─── Account / Report History ───────────────────────────────── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -17,7 +17,7 @@
   padding: 5rem 2rem 6rem;
 }
 
-/* ─── Account header ─────────────────────────────────────────── */
+/* ─── Page header ────────────────────────────────────────────── */
 .accountHeader {
   display: flex;
   align-items: flex-start;
@@ -26,7 +26,6 @@
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
-
 .accountTag {
   font-family: "Oswald", sans-serif;
   font-size: 0.65rem;
@@ -35,7 +34,6 @@
   color: #E63222;
   margin-bottom: 0.5rem;
 }
-
 .accountTitle {
   font-family: "Oswald", sans-serif;
   font-size: clamp(1.75rem, 4vw, 2.5rem);
@@ -44,13 +42,11 @@
   margin: 0 0 0.5rem;
   line-height: 1.1;
 }
-
 .accountSub {
   font-size: 0.875rem;
   color: #777;
   margin: 0;
 }
-
 .newAnalysisBtn {
   font-family: "Oswald", sans-serif;
   font-size: 0.8rem;
@@ -66,23 +62,21 @@
 }
 .newAnalysisBtn:hover { opacity: 0.85; }
 
-/* ─── Demo notice ────────────────────────────────────────────── */
 .demoNotice {
   font-size: 0.7rem;
   color: #444;
   letter-spacing: 0.06em;
   border: 1px solid #1e1e1e;
   padding: 0.5rem 0.875rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   display: inline-block;
 }
 
-/* ─── Progress summary section ───────────────────────────────── */
+/* ─── Progress section ───────────────────────────────────────── */
 .progressSection {
   margin-bottom: 3rem;
-  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
 }
-
 .progressHeader {
   display: flex;
   align-items: baseline;
@@ -91,220 +85,237 @@
   margin-bottom: 1rem;
   flex-wrap: wrap;
 }
-
 .progressTitle {
   font-family: "Oswald", sans-serif;
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.2em;
-  color: #666;
+  color: #555;
 }
-
 .progressRange {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.65rem;
   color: #444;
-  letter-spacing: 0.06em;
 }
 
-/* Overall delta banner */
-.overallDeltaBanner {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-left: 3px solid #E63222;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1rem;
+/* Overall banner */
+.overallBanner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
+  background: #111;
+  border: 1px solid #1e1e1e;
+  border-left: 4px solid #E63222;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
 }
-
-.overallDeltaLabel {
-  font-family: "Oswald", sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  color: #666;
-}
-
-.overallDeltaRow {
+.overallBannerLeft {
   display: flex;
-  align-items: baseline;
-  gap: 0.625rem;
+  flex-direction: column;
+  gap: 0.5rem;
 }
-
-.overallFrom {
+.overallBannerLabel {
   font-family: "Oswald", sans-serif;
-  font-size: 1.5rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  color: #555;
+}
+.overallBannerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.overallOld {
+  font-family: "Oswald", sans-serif;
+  font-size: 2rem;
   font-weight: 600;
+  color: #333;
+  text-decoration: line-through;
+  text-decoration-color: #444;
+}
+.overallBannerArrow {
+  font-size: 1rem;
   color: #444;
 }
-
-.overallArrow {
+.overallNew {
   font-family: "Oswald", sans-serif;
-  font-size: 1rem;
-  color: #333;
-}
-
-.overallTo {
-  font-family: "Oswald", sans-serif;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   font-weight: 700;
+  line-height: 1;
 }
-
 .overallDeltaPos {
   font-family: "Oswald", sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #22C55E;
   background: rgba(34,197,94,0.12);
-  padding: 0.15rem 0.5rem;
+  padding: 0.2rem 0.625rem;
   letter-spacing: 0.04em;
 }
-
 .overallDeltaNeg {
   font-family: "Oswald", sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #E63222;
   background: rgba(230,50,34,0.12);
-  padding: 0.15rem 0.5rem;
+  padding: 0.2rem 0.625rem;
   letter-spacing: 0.04em;
 }
-
-.overallDeltaNeutral {
-  font-family: "Oswald", sans-serif;
-  font-size: 1.1rem;
-  color: #555;
-  padding: 0.15rem 0.5rem;
+.overallBannerRight {
+  text-align: right;
 }
-
-/* Sub-score progress grid */
-.progressGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.625rem;
-}
-
-.progressCard {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  padding: 0.875rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.progressCardLabel {
+.overallPctLabel {
   font-family: "Oswald", sans-serif;
   font-size: 0.6rem;
   letter-spacing: 0.14em;
+  color: #444;
+  margin-bottom: 0.25rem;
+}
+.overallPct {
+  font-family: "Oswald", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Compare table */
+.compareTable {
+  background: #111;
+  border: 1px solid #1e1e1e;
+  overflow: hidden;
+}
+.compareTableHeader {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.5rem 1rem 0.375rem;
+  border-bottom: 1px solid #1a1a1a;
+}
+.compareTableHeadScores {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+.compareTableHeadOld {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.55rem;
+  color: #333;
+  text-decoration: line-through;
+}
+.compareTableHeadNew {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.55rem;
   color: #555;
 }
-
-.progressCardScores {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.progressFrom {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.75rem;
+.compareTableHeadDelta {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
   color: #444;
+  min-width: 52px;
+  text-align: right;
 }
 
-.progressArrow {
+/* Compare row */
+.compareRow {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #161616;
+}
+.compareRow:last-child { border-bottom: none; }
+.compareLabel {
+  font-family: "Oswald", sans-serif;
   font-size: 0.65rem;
-  opacity: 0.6;
+  letter-spacing: 0.12em;
+  color: #666;
 }
-
-.progressTo {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.progressCardDelta {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.progressPct {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.6rem;
-  color: #444;
-}
-
-/* Stacked bar: prev (dim) + current (color) */
-.progressBarCombo {
+.compareBarWrap {
   position: relative;
-  height: 4px;
+  height: 5px;
   background: #1a1a1a;
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
-  margin-top: 0.25rem;
 }
-
-.progressBarPrev {
+.compareBarFill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  border-radius: 3px;
+  z-index: 2;
+  opacity: 0.85;
+}
+.compareBarPrev {
   position: absolute;
   top: 0; left: 0;
   height: 100%;
   background: #2e2e2e;
-  border-radius: 2px;
+  border-radius: 3px;
+  z-index: 1;
 }
-
-.progressBarCurrent {
-  position: absolute;
-  top: 0; left: 0;
-  height: 100%;
-  border-radius: 2px;
-  opacity: 0.8;
-}
-
-.progressBarLegend {
+.compareScores {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 120px;
+  justify-content: flex-end;
+}
+.compareOld {
   font-family: "JetBrains Mono", monospace;
-  font-size: 0.5rem;
+  font-size: 0.75rem;
+  color: #3a3a3a;
+  text-decoration: line-through;
+  text-decoration-color: #333;
+}
+.compareArrowMid {
+  font-size: 0.6rem;
   color: #333;
-  letter-spacing: 0.04em;
+}
+.compareNew {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
-/* ─── Delta badges ───────────────────────────────────────────── */
-.deltaPos {
+/* ─── Delta badges (shared) ──────────────────────────────────── */
+.compareDeltaPos {
   font-family: "JetBrains Mono", monospace;
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
   color: #22C55E;
   background: rgba(34,197,94,0.12);
-  padding: 0.1rem 0.35rem;
+  padding: 0.1rem 0.375rem;
   border-radius: 2px;
   white-space: nowrap;
+  letter-spacing: 0.02em;
 }
-
-.deltaNeg {
+.compareDeltaNeg {
   font-family: "JetBrains Mono", monospace;
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
   color: #E63222;
   background: rgba(230,50,34,0.12);
-  padding: 0.1rem 0.35rem;
+  padding: 0.1rem 0.375rem;
   border-radius: 2px;
   white-space: nowrap;
+  letter-spacing: 0.02em;
 }
-
-.deltaNeutral {
+.compareDeltaZero {
   font-family: "JetBrains Mono", monospace;
-  font-size: 0.65rem;
-  color: #555;
-  padding: 0.1rem 0.35rem;
+  font-size: 0.7rem;
+  color: #444;
+  padding: 0.1rem 0.375rem;
   white-space: nowrap;
 }
 
-/* ─── Report list header ────────────────────────────────────── */
+/* ─── Report list ────────────────────────────────────────────── */
 .reportListHeader {
   display: flex;
   align-items: center;
@@ -315,14 +326,12 @@
   color: #555;
   margin-bottom: 0.875rem;
 }
-
 .reportCount {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.65rem;
   color: #333;
 }
 
-/* ─── Report list ────────────────────────────────────────────── */
 .reportList {
   display: flex;
   flex-direction: column;
@@ -333,7 +342,7 @@
   background: #111;
   border: 1px solid #1e1e1e;
   padding: 1.5rem;
-  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
   transition: border-color 0.2s;
 }
 .reportCard:hover { border-color: #2e2e2e; }
@@ -344,16 +353,14 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
-
 .reportMeta {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
-
 .reportDate {
   font-family: "Oswald", sans-serif;
   font-size: 1rem;
@@ -361,34 +368,43 @@
   letter-spacing: 0.04em;
   color: #ddd;
 }
-
 .reportId {
-  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.65rem;
   color: #444;
   letter-spacing: 0.06em;
 }
-
 .reportOverall {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
-
+.overallPrevScore {
+  font-family: "Oswald", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  text-decoration: line-through;
+  text-decoration-color: #333;
+  line-height: 1;
+}
+.overallSep {
+  font-size: 0.875rem;
+  color: #333;
+}
 .reportScore {
   font-family: "Oswald", sans-serif;
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   font-weight: 700;
   line-height: 1;
 }
-
 .reportScoreMax {
   font-family: "Oswald", sans-serif;
   font-size: 0.85rem;
-  color: #555;
+  color: #444;
+  line-height: 1;
 }
-
 .reportBand {
   font-family: "Oswald", sans-serif;
   font-size: 0.65rem;
@@ -399,77 +415,83 @@
   align-self: center;
 }
 
-/* ─── Sub-scores ─────────────────────────────────────────────── */
-.subScores {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.75rem;
+/* ─── Sub-score list (per-report) ────────────────────────────── */
+.subScoreList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
   margin-bottom: 1.25rem;
 }
 
-.subScore {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+.subScoreRow {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
 }
 
-.subScoreLabel {
+.subScoreRowLabel {
   font-family: "Oswald", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   letter-spacing: 0.12em;
   color: #555;
 }
 
-.miniBarTrack {
-  height: 3px;
-  background: #1e1e1e;
+.subScoreBarTrack {
+  position: relative;
+  height: 4px;
+  background: #1a1a1a;
   border-radius: 2px;
   overflow: hidden;
 }
-
-.miniBarFill {
+.subScoreBarFill {
+  position: absolute;
+  top: 0; left: 0;
   height: 100%;
   border-radius: 2px;
+  z-index: 2;
+  opacity: 0.8;
+}
+.subScoreBarPrev {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  background: #2a2a2a;
+  border-radius: 2px;
+  z-index: 1;
 }
 
-.subScoreBottom {
+.subScoreRowRight {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
+  justify-content: flex-end;
+  min-width: 110px;
 }
-
-.subScoreVal {
+.subScoreOld {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.7rem;
-  font-weight: 600;
+  color: #333;
+  text-decoration: line-through;
+  text-decoration-color: #333;
 }
-
-.subDeltaPos {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.6rem;
-  color: #22C55E;
-  font-weight: 600;
+.subScoreSep {
+  font-size: 0.55rem;
+  color: #333;
 }
-
-.subDeltaNeg {
+.subScoreCurrent {
   font-family: "JetBrains Mono", monospace;
-  font-size: 0.6rem;
-  color: #E63222;
+  font-size: 0.8rem;
   font-weight: 600;
-}
-
-.subDeltaNeutral {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.6rem;
-  color: #444;
 }
 
 /* ─── Card actions ───────────────────────────────────────────── */
 .reportActions {
   display: flex;
   gap: 0.625rem;
+  border-top: 1px solid #171717;
+  padding-top: 1rem;
 }
-
 .viewBtn {
   font-family: "Oswald", sans-serif;
   font-size: 0.7rem;
@@ -481,7 +503,6 @@
   padding: 0.5rem 1rem;
   cursor: not-allowed;
 }
-
 .pdfBtn {
   font-family: "Oswald", sans-serif;
   font-size: 0.7rem;
@@ -498,10 +519,9 @@
 .emptyHint {
   margin-top: 1.5rem;
   font-size: 0.7rem;
-  color: #333;
+  color: #2e2e2e;
   letter-spacing: 0.04em;
 }
-
 .cta {
   display: flex;
   align-items: center;
@@ -509,7 +529,6 @@
   margin-top: 3rem;
   flex-wrap: wrap;
 }
-
 .ctaBtn {
   font-family: "Oswald", sans-serif;
   font-size: 0.8rem;
@@ -523,7 +542,6 @@
   display: inline-block;
 }
 .ctaBtn:hover { opacity: 0.85; }
-
 .ctaSecondary {
   font-family: "Oswald", sans-serif;
   font-size: 0.75rem;
@@ -536,19 +554,26 @@
 .ctaSecondary:hover { color: #aaa; }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .container { padding: 4rem 1rem 5rem; }
 
-  .progressGrid {
-    grid-template-columns: repeat(3, 1fr);
+  .accountHeader { flex-direction: column; }
+  .newAnalysisBtn { width: 100%; }
+
+  .overallBanner { flex-direction: column; align-items: flex-start; }
+  .overallBannerRight { align-self: flex-start; text-align: left; }
+
+  .compareRow,
+  .subScoreRow {
+    grid-template-columns: 60px 1fr auto;
+    gap: 0.5rem;
   }
 
-  .subScores {
-    grid-template-columns: repeat(3, 1fr);
+  .compareScores,
+  .subScoreRowRight {
+    min-width: unset;
+    gap: 0.25rem;
   }
 
   .reportCardTop { flex-direction: column; }
-  .accountHeader { flex-direction: column; }
-  .newAnalysisBtn { width: 100%; }
-  .overallDeltaBanner { flex-direction: column; gap: 0.5rem; }
 }

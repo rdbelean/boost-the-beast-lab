@@ -367,24 +367,30 @@ export default function ResultsPage() {
 
         {/* ─── INDIVIDUELLE PLÄNE ──────────────────────── */}
         <section className={styles.plansSection}>
-          <div className={styles.sectionLabel}>DEINE INDIVIDUELLEN PLÄNE</div>
+          <h2 className={styles.plansSectionHeading}>DEINE 4 INDIVIDUELLEN PLÄNE</h2>
           <p className={styles.plansSubtitle}>
-            Auf Basis deiner Scores haben wir vier personalisierte Optimierungspläne erstellt — Teil deines Pakets.
+            Personalisiert auf Basis deiner Scores — inklusive in deinem Paket. Jeder Plan enthält konkrete Protokolle, Wochenpläne und wissenschaftliche Empfehlungen.
           </p>
           <div className={styles.plansGrid}>
             {[
-              { type: "activity",  label: "ACTIVITY-PLAN",         color: "#E63222", score: scores.activity.activity_score_0_100,  desc: "Aktivität & Training optimieren" },
-              { type: "metabolic", label: "METABOLIC-PLAN",        color: "#F59E0B", score: scores.metabolic.metabolic_score_0_100, desc: "Stoffwechsel & Ernährung verbessern" },
-              { type: "recovery",  label: "RECOVERY-PLAN",         color: "#3B82F6", score: scores.sleep.sleep_score_0_100,         desc: "Schlaf & Regeneration steigern" },
-              { type: "stress",    label: "STRESS & LIFESTYLE-PLAN",color: "#22C55E", score: scores.stress.stress_score_0_100,      desc: "Stress senken & Lifestyle optimieren" },
+              { type: "activity",  label: "ACTIVITY-PLAN",          color: "#E63222", score: scores.activity.activity_score_0_100,  desc: "Trainingsvolumen, Wochenplan & Progression nach WHO/ACSM-Standard", cta: "ZUM ACTIVITY-PLAN" },
+              { type: "metabolic", label: "METABOLIC-PLAN",         color: "#F59E0B", score: scores.metabolic.metabolic_score_0_100, desc: "Ernährungs- & Hydrations-Protokoll nach EFSA- und DGE-Richtlinien", cta: "ZUM METABOLIC-PLAN" },
+              { type: "recovery",  label: "RECOVERY-PLAN",          color: "#3B82F6", score: scores.sleep.sleep_score_0_100,         desc: "Schlaf-Hygiene, Regenerationsprotokoll & Wochenstruktur nach NSF", cta: "ZUM RECOVERY-PLAN" },
+              { type: "stress",    label: "STRESS & LIFESTYLE-PLAN", color: "#22C55E", score: scores.stress.stress_score_0_100,      desc: "Stressreduktion, Lifestyle-Optimierung & Sport als Stress-Tool", cta: "ZUM STRESS-PLAN" },
             ].map((plan) => (
               <Link key={plan.type} href={`/plans/${plan.type}`} className={styles.planCard}>
-                <div className={styles.planCardScore} style={{ color: plan.color }}>{plan.score}<span style={{ fontSize: "0.5em", opacity: 0.7 }}>/100</span></div>
-                <div>
+                <div className={styles.planCardAccent} style={{ background: plan.color }} />
+                <div className={styles.planCardBody}>
+                  <div className={styles.planCardScore} style={{ color: plan.color }}>
+                    {plan.score}<span className={styles.planCardScoreSub}>/100</span>
+                  </div>
                   <div className={styles.planCardLabel}>{plan.label}</div>
                   <div className={styles.planCardDesc}>{plan.desc}</div>
                 </div>
-                <div className={styles.planCardArrow} style={{ color: plan.color }}>→</div>
+                <div className={styles.planCardCta} style={{ color: plan.color }}>
+                  <span>{plan.cta} →</span>
+                  <span className={styles.planCardArrow}>→</span>
+                </div>
               </Link>
             ))}
           </div>

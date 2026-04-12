@@ -926,65 +926,115 @@
 
 /* ─── PLANS SECTION ──────────────────────────────────────── */
 .plansSection {
-  padding: 48px 0;
-  border-top: 1px solid var(--border);
+  padding: 64px 0 32px;
+  border-top: 2px solid var(--border);
+}
+.plansSectionHeading {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: clamp(28px, 5vw, 42px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1.05;
+  margin: 0 0 8px;
 }
 .plansSubtitle {
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  color: rgba(255,255,255,0.45);
-  margin: 8px 0 28px;
+  font-size: 15px;
+  color: rgba(255,255,255,0.5);
+  margin: 0 0 40px;
   line-height: 1.6;
+  max-width: 560px;
 }
 .plansGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 16px;
 }
 .planCard {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--bg-card, #141414);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 20px 20px;
+  flex-direction: column;
+  gap: 0;
+  background: #111;
+  border: 1px solid #222;
   text-decoration: none;
-  transition: border-color 0.2s, background 0.2s;
+  transition: transform 0.2s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.2s cubic-bezier(0.16,1,0.3,1),
+              border-color 0.2s;
+  overflow: hidden;
+  position: relative;
 }
 .planCard:hover {
-  background: rgba(255,255,255,0.03);
-  border-color: rgba(255,255,255,0.18);
+  transform: translateY(-3px);
+  border-color: #333;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+}
+.planCardAccent {
+  height: 4px;
+  width: 100%;
+  flex-shrink: 0;
+}
+.planCardBody {
+  padding: 24px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
 }
 .planCardScore {
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
-  font-size: 32px;
+  font-size: 52px;
   line-height: 1;
-  flex-shrink: 0;
-  min-width: 56px;
+}
+.planCardScoreSub {
+  font-family: 'Oswald', sans-serif;
+  font-size: 16px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 400;
 }
 .planCardLabel {
   font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.12em;
   color: #fff;
   text-transform: uppercase;
+  margin-top: 4px;
 }
 .planCardDesc {
   font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+}
+.planCardCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-top: 1px solid #1e1e1e;
+  font-family: 'Oswald', sans-serif;
   font-size: 12px;
-  color: rgba(255,255,255,0.4);
-  margin-top: 3px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.7);
+  transition: color 0.2s;
+}
+.planCard:hover .planCardCta {
+  color: #fff;
 }
 .planCardArrow {
-  font-size: 20px;
-  margin-left: auto;
-  flex-shrink: 0;
+  font-size: 18px;
+  transition: transform 0.2s;
 }
-@media (max-width: 600px) {
+.planCard:hover .planCardArrow {
+  transform: translateX(4px);
+}
+@media (max-width: 640px) {
   .plansGrid { grid-template-columns: 1fr; }
+  .planCardScore { font-size: 44px; }
 }
 
 /* ─── UPSELL SECTION ──────────────────────────────────────── */
