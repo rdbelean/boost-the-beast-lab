@@ -215,6 +215,7 @@ function AnalyseContent() {
   const [doneSteps, setDoneSteps] = useState<number[]>([]);
   const [overallScore, setOverallScore] = useState<number | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Scroll-reveal for category numbers
   const numRefs = useRef<HTMLSpanElement[]>([]);
@@ -294,6 +295,7 @@ function AnalyseContent() {
     });
 
     try {
+      setErrorMsg(null);
       const payload = buildAssessmentPayload(form);
       const res = await fetch("/api/assessment", {
         method: "POST",
@@ -301,8 +303,10 @@ function AnalyseContent() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("API error");
-      const json = await res.json();
+      const json = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(json?.error ?? `Server-Fehler (${res.status})`);
+      }
       if (json?.scores?.overall_score_0_100 != null) {
         setOverallScore(json.scores.overall_score_0_100);
       }
@@ -319,10 +323,13 @@ function AnalyseContent() {
         setSuccess(true);
       }, 7000);
 
-      console.log("[analyse] assessmentId", json.assessmentId);
+      console.log("[analyse] assessmentId", json?.assessmentId);
     } catch (err) {
       console.error("[analyse] submit failed", err);
       setLoading(false);
+      setErrorMsg(
+        err instanceof Error ? err.message : "Ein unbekannter Fehler ist aufgetreten.",
+      );
     }
   };
 
@@ -791,17 +798,40 @@ function AnalyseContent() {
             </section>
 
             {/* ── Submit ──────────────────────────────── */}
+            {/* TODO: STRIPE INTEGRATION
+                - Vor dem API Call: Stripe Checkout Session initiieren
+                - Nach erfolgreichem Payment: weiter mit Assessment
+                - Report Typ aus Stripe Session Metadata übernehmen
+                - Test-Modus-Banner + isTestMode entfernen */}
             <section className={styles.submitSection}>
+              {errorMsg && (
+                <div
+                  style={{
+                    background: "rgba(230,50,34,0.12)",
+                    border: "1px solid #E63222",
+                    color: "#ff6b6b",
+                    padding: "14px 18px",
+                    marginBottom: 18,
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                    fontFamily: "Helvetica, Arial, sans-serif",
+                  }}
+                >
+                  <strong style={{ color: "#E63222" }}>Fehler:</strong> {errorMsg}
+                </div>
+              )}
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={!canSubmit}
+                disabled={!canSubmit || loading}
                 className={`${styles.submitBtn} ${canSubmit ? styles.submitBtnEnabled : styles.submitBtnDisabled}`}
               >
-                ANALYSE STARTEN →
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8h10M8 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                {loading ? "WIRD VERARBEITET..." : "ANALYSE STARTEN →"}
+                {!loading && (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8h10M8 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
               </button>
             </section>
 
