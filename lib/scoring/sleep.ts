@@ -1,6 +1,21 @@
-// Sleep scoring — PSQI-inspired, adapted for a short self-report module.
-// References: Buysse et al. (1989) PSQI; NSF (2015) sleep duration recommendations;
-// AASM/SRS consensus (Watson et al., 2015).
+// Sleep scoring — calibrated against NSF/AASM consensus (Watson et al., 2015)
+// and recent evidence on sleep, recovery and metabolic health.
+//
+// Duration cutoffs (briefing):
+//   18–64:  <6h=20 · 6–6.9h=55 · 7–9h=100 · >9h=70
+//   65+:    <6h=20 · 6–6.9h=65 · 7–8h=100 · >8h=75
+// Quality:   sehr_gut=100 · gut=75 · mittel=45 · schlecht=15
+// Wakeups:   nie=100 · selten=72 · oft=38 · immer=10
+// Recovery:  (1..10) × 10
+// Weights:   Qualität 35% · Dauer 30% · Aufwachen 20% · Erholung 15%
+// Bands:     poor <40 · moderate 40–64 · good 65–84 · excellent ≥85
+//
+// References:
+// - NSF/AASM Consensus (Watson et al., 2015)
+// - Kaczmarek et al. (MDPI 2025) — sleep, cortisol, testosterone
+// - Sondrup et al. Sleep Medicine Reviews (2022) — insulin resistance
+// - PMC Sleep & Athletic Performance (2024) — GH release in N3
+// - Kalkanis et al. Sleep Medicine Reviews (2025) — irregular sleep impact
 
 export type SleepBand = "poor" | "moderate" | "good" | "excellent";
 export type SleepDurationBand = "kurz" | "optimal" | "lang";
@@ -13,33 +28,36 @@ export interface SleepInputs {
   quality: SleepQualityLabel;
   wakeups: WakeupFrequency;
   recovery_1_10: number;
+  /** Optional: self-reported weekly schedule regularity (1..10). */
+  consistency_1_10?: number;
 }
 
 export interface SleepResult {
   sleep_duration_score: number;
   sleep_quality_score: number;
   wakeup_score: number;
+  /** Subjective morning recovery feeling — NOT the Recovery Module score. */
   recovery_score: number;
   sleep_score_0_100: number;
   sleep_band: SleepBand;
   sleep_duration_band: SleepDurationBand;
+  /** True when the user reports inconsistent schedule (<6 on 1–10 scale). */
+  sleep_consistency_flag: boolean;
 }
 
-function durationScore(hours: number, age: number): {
-  score: number;
-  band: SleepDurationBand;
-} {
+function durationScore(
+  hours: number,
+  age: number,
+): { score: number; band: SleepDurationBand } {
   if (!Number.isFinite(hours)) return { score: 0, band: "kurz" };
 
   if (age >= 65) {
-    // 65+: target 7–8 h
     if (hours < 6) return { score: 20, band: "kurz" };
     if (hours < 7) return { score: 65, band: "kurz" };
     if (hours <= 8) return { score: 100, band: "optimal" };
     return { score: 75, band: "lang" };
   }
 
-  // 18–64: target 7–9 h
   if (hours < 6) return { score: 20, band: "kurz" };
   if (hours < 7) return { score: 55, band: "kurz" };
   if (hours <= 9) return { score: 100, band: "optimal" };
@@ -97,10 +115,13 @@ export function calculateSleepScore(inputs: SleepInputs): SleepResult {
   const wake = wakeupScore(inputs.wakeups);
   const rec = recoveryScore(inputs.recovery_1_10);
 
-  // Weights: Duration 30%, Quality 35%, Wake-ups 20%, Recovery 15%.
+  // Briefing weights: Quality 35% · Duration 30% · Wakeups 20% · Recovery 15%
   const sleep_score_0_100 = Math.round(
-    durScore * 0.3 + qual * 0.35 + wake * 0.2 + rec * 0.15,
+    qual * 0.35 + durScore * 0.3 + wake * 0.2 + rec * 0.15,
   );
+
+  const consistencyFlag =
+    typeof inputs.consistency_1_10 === "number" && inputs.consistency_1_10 < 6;
 
   return {
     sleep_duration_score: durScore,
@@ -110,5 +131,6 @@ export function calculateSleepScore(inputs: SleepInputs): SleepResult {
     sleep_score_0_100,
     sleep_band: bandFor(sleep_score_0_100),
     sleep_duration_band: duration_band,
+    sleep_consistency_flag: consistencyFlag,
   };
 }

@@ -1,15 +1,31 @@
-// Activity scoring — IPAQ Short Form (Nov 2005 scoring protocol).
-// MET-values: Walking 3.3 · Moderate 4.0 · Vigorous 8.0
-// Cleaning rules:
-//   - Bouts <10 min → 0 (not counted)
-//   - Individual bout >180 min → capped to 180
-//   - Any activity-type daily total >960 min → capped to 960
-// Category rules (IPAQ scoring guide):
-//   HIGH      = (Vigorous ≥3 days AND total MET ≥1500) OR (7 days any combo AND total ≥3000)
-//   MODERATE  = (Vigorous ≥3 days × ≥20 min) OR (Moderate/Walk ≥5 days × ≥30 min) OR total ≥600
+// Activity scoring — IPAQ Short Form (2005 scoring protocol) with 2020/2024
+// WHO Physical Activity guideline alignment (no minimum bout length in WHO,
+// but IPAQ retains the 10-minute bout cleaning rule — we follow IPAQ for
+// scoring and surface WHO context in interpretations).
+//
+// MET values:   Walking 3.3 · Moderate 4.0 · Vigorous 8.0
+// Bout rules:   <10 min → 0 · bout >180 → cap 180 · weekly per-type cap 960×7
+// Categories:
+//   HIGH      = (Vigorous ≥3d AND total ≥1500) OR (7d any combo AND total ≥3000)
+//   MODERATE  = (Vigorous ≥3d × ≥20min) OR (Mod/Walk ≥5d × ≥30min) OR total ≥600
 //   LOW       = otherwise
+// Score curve: 0→0 · 600→40 · 3000→75 · 8000+→100
+// Bands:      low <40 · moderate 40–74 · high ≥75
+//
+// Sitting hours surfaced as an independent risk flag (AHA Science Advisory —
+// sitting is an independent CVD risk factor).
+//
+// References:
+// - WHO Physical Activity Guidelines (2020, updated 2024)
+// - IPAQ-SF Scoring Protocol (Nov 2005)
+// - AHA Circulation (2022) — 150–300 min/wk ≈ 20–21% mortality reduction
+// - AMA Longevity (2024) — 150–299 min vigorous ≈ 21–23% mortality reduction
+// - Frontiers Sedentary & CVD Meta-Analysis (2022)
+// - AHA Science Advisory — sedentary independent of MVPA
 
 export type ActivityCategory = "LOW" | "MODERATE" | "HIGH";
+export type ActivityBand = "low" | "moderate" | "high";
+export type SittingRiskFlag = "normal" | "elevated" | "critical";
 
 export interface ActivityInputs {
   walking_days: number; // 0..7
@@ -18,6 +34,8 @@ export interface ActivityInputs {
   moderate_minutes_per_day: number;
   vigorous_days: number;
   vigorous_minutes_per_day: number;
+  /** Optional — if provided, sitting_risk_flag is derived and returned. */
+  sitting_hours_per_day?: number;
 }
 
 export interface ActivityResult {
@@ -27,6 +45,8 @@ export interface ActivityResult {
   total_met_minutes_week: number;
   activity_category: ActivityCategory;
   activity_score_0_100: number;
+  activity_band: ActivityBand;
+  sitting_risk_flag: SittingRiskFlag;
 }
 
 const MET_WALK = 3.3;
@@ -46,19 +66,16 @@ function clampDays(days: number): number {
 }
 
 function cap960(weeklyMin: number): number {
-  // Protocol: total minutes per day capped at 960; weekly cap = 960 × 7.
-  const maxWeek = 960 * 7;
-  return Math.min(weeklyMin, maxWeek);
+  // Protocol: per-day per-type cap 960 minutes → weekly cap = 960×7.
+  return Math.min(weeklyMin, 960 * 7);
 }
 
-// Non-linear score curve hitting the anchor points the spec calls for:
-//   0 MET → 0 · 600 → 40 · 3000 → 75 · 8000+ → 100
+// Piecewise-linear curve through the calibration anchors specified in the
+// briefing: 0→0 · 600→40 · 3000→75 · 8000+→100.
 function scoreFromTotalMet(totalMet: number): number {
   if (totalMet <= 0) return 0;
   if (totalMet >= 8000) return 100;
-  if (totalMet <= 600) {
-    return Math.round((totalMet / 600) * 40);
-  }
+  if (totalMet <= 600) return Math.round((totalMet / 600) * 40);
   if (totalMet <= 3000) {
     return Math.round(40 + ((totalMet - 600) / (3000 - 600)) * (75 - 40));
   }
@@ -76,12 +93,10 @@ function categorize(
 ): ActivityCategory {
   const anyDays = vigorousDays + moderateDays + walkingDays;
 
-  // HIGH criteria
   const highA = vigorousDays >= 3 && totalMet >= 1500;
   const highB = anyDays >= 7 && totalMet >= 3000;
   if (highA || highB) return "HIGH";
 
-  // MODERATE criteria
   const modA = vigorousDays >= 3 && vigorousMinutesDay >= 20;
   const modB =
     moderateDays + walkingDays >= 5 &&
@@ -90,6 +105,19 @@ function categorize(
   if (modA || modB || modC) return "MODERATE";
 
   return "LOW";
+}
+
+function bandFor(score: number): ActivityBand {
+  if (score < 40) return "low";
+  if (score < 75) return "moderate";
+  return "high";
+}
+
+function sittingRisk(hours: number | undefined): SittingRiskFlag {
+  if (typeof hours !== "number" || !Number.isFinite(hours)) return "normal";
+  if (hours > 8) return "critical";
+  if (hours >= 6) return "elevated";
+  return "normal";
 }
 
 export function calculateActivityScore(inputs: ActivityInputs): ActivityResult {
@@ -126,5 +154,7 @@ export function calculateActivityScore(inputs: ActivityInputs): ActivityResult {
     total_met_minutes_week: Math.round(total_met_minutes_week),
     activity_category,
     activity_score_0_100,
+    activity_band: bandFor(activity_score_0_100),
+    sitting_risk_flag: sittingRisk(inputs.sitting_hours_per_day),
   };
 }

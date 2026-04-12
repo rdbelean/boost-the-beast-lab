@@ -6,6 +6,43 @@ export type ReportType = "metabolic" | "recovery" | "complete";
 export type AnswerType = "number" | "select" | "radio" | "slider";
 export type ScoreBand = "low" | "moderate" | "high" | "very_high";
 
+// ─── Systemic warnings & assessment result envelope ────────────────────────
+// Mirrors lib/scoring/index.ts → FullScoringResult so the report pipeline has
+// one canonical shape to consume. Kept here so downstream code (PDF, email,
+// client) doesn't need to reach into the scoring package for types.
+
+export interface SystemicWarningFlags {
+  overtraining_risk: boolean;
+  chronic_stress_risk: boolean;
+  hpa_axis_risk: boolean;
+  sleep_consistency_flag: boolean;
+  sitting_critical: boolean;
+  sitting_elevated: boolean;
+  bmi_disclaimer_needed: boolean;
+}
+
+export interface SystemicWarningEntry {
+  code:
+    | "overtraining_risk"
+    | "chronic_stress_risk"
+    | "hpa_axis_risk"
+    | "sleep_consistency"
+    | "sitting_critical"
+    | "sitting_elevated"
+    | "bmi_disclaimer";
+  text: string;
+}
+
+export interface CompleteAssessmentResult {
+  assessment_id: string | null;
+  user_id: string | null;
+  overall_score_0_100: number;
+  overall_band: string;
+  top_priority_module: string;
+  systemic_warnings: SystemicWarningFlags;
+  warnings_active: SystemicWarningEntry[];
+}
+
 export interface User {
   id: string;
   email: string;

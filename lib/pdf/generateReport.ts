@@ -10,21 +10,33 @@ export interface PdfModule {
   interpretation?: string;
   score_context?: string;
   main_finding?: string;
+  systemic_impact?: string;
   limitation?: string;
   recommendation?: string;
+  // Module-specific enrichments (optional — PDF renders what is present)
+  overtraining_signal?: string | null;
+  met_context?: string;
+  sitting_flag?: string | null;
+  bmi_context?: string;
+  hpa_context?: string | null;
+  estimation_note?: string;
+  fitness_context?: string;
 }
 
 export interface PdfReportContent {
   headline: string;
   executive_summary: string;
+  critical_flag?: string | null;
   modules: {
     activity: PdfModule;
     sleep: PdfModule;
     metabolic: PdfModule;
     stress: PdfModule;
     vo2max: PdfModule;
+    recovery?: PdfModule;
   };
   top_priority: string;
+  systemic_connections?: string;
   prognose_30_days: string;
   disclaimer: string;
 }

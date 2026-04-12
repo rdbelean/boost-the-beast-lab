@@ -10,7 +10,7 @@ import type { FullScoringResult } from "@/lib/scoring/index";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-const PROMPT_VERSION = "btb_report_v1.1.0";
+const PROMPT_VERSION = "btb_report_v2.0.0";
 const STORAGE_BUCKET = "Reports";
 
 function hasValidKey(key: string | undefined): boolean {
@@ -29,45 +29,70 @@ function resendConfigured(): boolean {
 }
 
 const SYSTEM_PROMPT = `Du bist das Performance Intelligence System von BOOST THE BEAST LAB.
-Du erhältst strukturierte, bereits mathematisch berechnete Performance-Scores.
-Deine einzige Aufgabe ist die präzise textliche Interpretation dieser Scores.
 
-DATENTREUE — ABSOLUT BINDEND:
-- Verwende AUSSCHLIESSLICH die im Input übermittelten Zahlenwerte und Scores.
-- Erfinde KEINE Werte, Studien, Prozentzahlen oder Benchmarks die nicht im Input stehen.
-- Alle Interpretationen müssen direkt aus den gelieferten Scores ableitbar sein.
-- Empfehlungen basieren auf WHO/ACSM/IPAQ-Standardprotokollen — keine erfundenen Protokolle.
-- Wenn ein Wert nicht im Input steht, nenne ihn nicht.
+DEINE ROLLE:
+Du bist kein Arzt. Du bist kein Therapeut. Du bist ein präzises KI-System,
+das bereits berechnete Performance-Scores wissenschaftlich interpretiert und
+in verständliche, handlungsorientierte Sprache übersetzt.
 
 ABSOLUTE GRENZEN — nicht verhandelbar:
-- Keine medizinischen Diagnosen
-- Keine Krankheitsbehauptungen
-- Keine Heilversprechen
-- Keine Aussagen die eine Labordiagnostik oder ärztliche
-  Untersuchung ersetzen könnten
-- Kein Halluzinieren von Werten die nicht im Input stehen
-- Immer als 'Performance-Insight' oder 'Einordnung' formulieren
-- Nie als 'Diagnose', 'Befund' oder 'medizinisches Ergebnis'
+1. Keine medizinischen Diagnosen
+2. Keine Krankheitsbehauptungen oder Heilversprechen
+3. Keine Aussagen, die laborgestützte Diagnostik oder ärztliche Untersuchung
+   ersetzen könnten
+4. Keine Zahlen oder Werte erfinden, die nicht im Input stehen
+5. Keine Studien zitieren, die nicht im System hinterlegt sind
+6. Immer als "Performance-Insight" formulieren, nie als "Befund" oder "Diagnose"
+7. VO2max ist eine Schätzung — nie als Messwert darstellen
+8. BMI ist ein Populationsschätzer — nie als individuelles Urteil formulieren
 
-TON: Klar, direkt, wissenschaftlich. Wie ein Elite-Coach der
-Daten erklärt — nicht wie ein Arzt, nicht wie ein Influencer.
-SPRACHE: Deutsch. Fachlich aber verständlich.
-LÄNGE: Jede Interpretation 2-4 Sätze. Empfehlung 1-2 Sätze.
+WISSENSCHAFTLICHE GRUNDLAGEN, die du nutzen darfst:
+- WHO Physical Activity Guidelines 2020/2024
+- IPAQ MET-Minuten Kategorisierung
+- NSF/AASM Schlafempfehlungen (altersabhängig)
+- Allostatic Load Modell (HPA-Achse, Cortisol-Testosteron)
+- AHA/AMA Mortalitätsdaten zu Aktivität
+- JAMA 2024 Meal Timing Meta-Analysis
 
-Antworte AUSSCHLIESSLICH als valides JSON:
+MODUL-VERBINDUNGEN, die du kommunizieren sollst:
+- Schlechter Schlaf limitiert Recovery direkt (sleepMultiplier)
+- Chronischer Stress senkt Testosteron und verschlechtert Insulinsensitivität
+- Sitzzeit ist unabhängig vom Sport ein CVD-Risikofaktor
+- VO2max ist direkt von Aktivitätslevel abhängig
+- Alle Scores beeinflussen sich gegenseitig — isoliert ist keiner zu verstehen
+
+DATENTREUE:
+- Verwende AUSSCHLIESSLICH die im Input übermittelten Scores, Bänder, Zahlen
+  und die im Input enthaltenen vorgefertigten Interpretationen.
+- Paraphrasieren ist erlaubt, erfinden nicht.
+- Wenn eine systemische Warnung im Input aktiv ist, MUSS sie prominent
+  adressiert werden.
+
+TON: Klar, direkt, wissenschaftlich fundiert. Wie ein Elite-Coach, der Daten
+erklärt — nicht weich, nicht vage, nicht generisch. Konkrete Zahlen und
+Zeitrahmen, wenn im Input vorhanden.
+
+SPRACHE: Deutsch. Fachlich aber verständlich. Keine Anglizismen, wenn vermeidbar.
+
+FORMAT: Nur valides JSON. Keine Markdown-Backticks, keine Präambel. Direkt mit { beginnen.
+
+JSON-STRUKTUR:
 {
   "headline": string,
   "executive_summary": string,
+  "critical_flag": string | null,
   "modules": {
-    "activity": { "score_context": string, "main_finding": string, "limitation": string, "recommendation": string },
-    "sleep":    { "score_context": string, "main_finding": string, "limitation": string, "recommendation": string },
-    "metabolic":{ "score_context": string, "main_finding": string, "limitation": string, "recommendation": string },
-    "stress":   { "score_context": string, "main_finding": string, "limitation": string, "recommendation": string },
-    "vo2max":   { "score_context": string, "main_finding": string, "limitation": string, "recommendation": string }
+    "sleep":     { "score_context": string, "main_finding": string, "systemic_impact": string, "limitation": string, "recommendation": string },
+    "recovery":  { "score_context": string, "main_finding": string, "overtraining_signal": string | null, "limitation": string, "recommendation": string },
+    "activity":  { "score_context": string, "main_finding": string, "met_context": string, "sitting_flag": string | null, "limitation": string, "recommendation": string },
+    "metabolic": { "score_context": string, "main_finding": string, "bmi_context": string, "limitation": string, "recommendation": string },
+    "stress":    { "score_context": string, "main_finding": string, "hpa_context": string | null, "systemic_impact": string, "limitation": string, "recommendation": string },
+    "vo2max":    { "score_context": string, "main_finding": string, "estimation_note": string, "fitness_context": string, "limitation": string, "recommendation": string }
   },
   "top_priority": string,
+  "systemic_connections": string,
   "prognose_30_days": string,
-  "disclaimer": "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik."
+  "disclaimer": "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik oder ärztliche Beratung. VO2max-Wert ist eine algorithmische Schätzung."
 }`;
 
 let anthropicClient: Anthropic | null = null;
@@ -257,28 +282,93 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
 
   let report: PdfReportContent;
   if (anthropicConfigured()) {
-    const userPrompt = `Erstelle einen Performance Report für folgendes Profil:
+    const interp = r.interpretation;
+    const warnings = r.systemic_warnings;
+    const activeWarnings = interp.warnings.length
+      ? interp.warnings
+          .map((w) => `  • [${w.code}] ${w.text}`)
+          .join("\n")
+      : "  (keine aktiven systemischen Warnungen)";
 
-NUTZERPROFIL:
-- Alter: ${ctx.user.age} Jahre
-- Geschlecht: ${ctx.user.gender}
-- BMI: ${bmi} (${bmiCategory})
+    const userPrompt = `Erstelle einen Performance Report für dieses Profil. Nutze AUSSCHLIESSLICH die unten gelieferten Scores und vorformulierten Interpretationen. Paraphrasieren ist erlaubt, Erfinden ist verboten.
 
-SCORES (0-100):
-- Activity Score: ${activityScore} (${activityBand})
+BASISDATEN:
+Alter: ${ctx.user.age} | Geschlecht: ${ctx.user.gender} | BMI: ${bmi} (${bmiCategory})
+
+SCORES (0-100 Skala):
+Sleep Score: ${sleepScore} | Band: ${sleepBand}
+  Schlafdauer: ${sleepDuration}h | Duration-Band: ${r.sleep.sleep_duration_band}
+
+Recovery Score: ${r.recovery.recovery_score_0_100} | Band: ${r.recovery.recovery_band}
+  Basis-Recovery: ${r.recovery.base_recovery_0_100}
+  Sleep Impact: ${r.recovery.sleep_impact} (×${r.recovery.sleep_multiplier})
+  Stress Impact: ${r.recovery.stress_impact} (×${r.recovery.stress_multiplier})
+  Overtraining Risk: ${r.recovery.overtraining_risk}
+
+Activity Score: ${activityScore} | Band: ${activityBand}
   Gesamt MET-min/Woche: ${totalMet}
   Kategorie: ${activityCategory}
-- Sleep Score: ${sleepScore} (${sleepBand})
-  Schlafdauer: ${sleepDuration}h
-- VO2max Score: ${vo2Score} (${vo2Band})
-  Geschätzter VO2max: ${vo2Estimated} ml/kg/min
-- Metabolic Score: ${metabolicScore} (${metabolicBand})
-- Stress Score: ${stressScore} (${stressBand})
-- Overall Performance Index: ${overallScore} (${overallBand})
+  Sitzzeit-Risiko: ${r.activity.sitting_risk_flag}
+
+Metabolic Score: ${metabolicScore} | Band: ${metabolicBand}
+  BMI: ${bmi} (${bmiCategory}) | Sitzzeit: ${r.metabolic.sitting_hours}h/Tag
+  BMI-Disclaimer nötig: ${warnings.bmi_disclaimer_needed}
+
+Stress Score: ${stressScore} | Band: ${stressBand}
+  Chronischer Stress Risiko: ${warnings.chronic_stress_risk}
+  HPA-Achsen Risiko: ${warnings.hpa_axis_risk}
+
+VO2max Score: ${vo2Score} | Band: ${vo2Band}
+  Geschätzter VO2max: ${vo2Estimated} ml/kg/min (algorithmische Schätzung, kein Messwert)
+
+Overall Performance Index: ${overallScore} | Band: ${overallBand}
+Top-Priorität-Modul (aus Scoring ermittelt): ${r.top_priority_module}
+
+VORFORMULIERTE INTERPRETATIONEN — Du darfst NUR diese Inhalte paraphrasieren:
+
+[SLEEP]
+finding: ${interp.sleep.finding}
+metabolic_link: ${interp.sleep.metabolic_link}
+recovery_link: ${interp.sleep.recovery_link}
+recommendation: ${interp.sleep.recommendation}
+
+[RECOVERY]
+finding: ${interp.recovery.finding}
+overtraining_context: ${interp.recovery.overtraining_context}
+sleep_stress_dependency: ${interp.recovery.sleep_stress_dependency}
+recommendation: ${interp.recovery.recommendation}
+
+[ACTIVITY]
+finding: ${interp.activity.finding}
+mortality_context: ${interp.activity.mortality_context}
+recommendation: ${interp.activity.recommendation}
+sitting_flag: ${interp.sitting_flag ? interp.sitting_flag.text : "null"}
+
+[METABOLIC]
+finding: ${interp.metabolic.finding}
+bmi_disclaimer: ${interp.metabolic.bmi_disclaimer}
+bmi_context: ${interp.bmi_context}
+sitting_note: ${interp.metabolic.sitting_note}
+recommendation: ${interp.metabolic.recommendation}
+
+[STRESS]
+finding: ${interp.stress.finding}
+systemic_impact: ${interp.stress.systemic_impact}
+recommendation: ${interp.stress.recommendation}
+
+[VO2MAX]
+finding: ${interp.vo2max.finding}
+fitness_context: ${interp.vo2max.fitness_context}
+activity_link: ${interp.vo2max.activity_link}
+recommendation: ${interp.vo2max.recommendation}
+estimation_note: ${interp.vo2max_disclaimer}
+
+AKTIVE SYSTEMISCHE WARNUNGEN:
+${activeWarnings}
 
 REPORT TYP: ${ctx.reportType}
 
-Erstelle den Report jetzt.`;
+Erstelle jetzt den Report im geforderten JSON-Format.`;
     const anthropic = getAnthropic();
     const message = await anthropic.messages.create({
       model: "claude-opus-4-6",
