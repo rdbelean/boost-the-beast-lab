@@ -11,6 +11,7 @@ import {
 import type { ReportType, ScoreBand } from "@/lib/supabase/types";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 // TODO: STRIPE WEBHOOK VERIFICATION
 // Bevor der Assessment-Flow startet, Payment-Status über Stripe-Session
@@ -323,37 +324,29 @@ export async function POST(req: NextRequest) {
     });
 
     // 10. Trigger AI report generation.
-    // In test mode: await the generator so we can return the download URL to
-    // the client (useful for manual QA without an email provider).
-    // In production: fire-and-forget so the client isn't blocked on Claude/PDF.
+    // Always awaited — Vercel kills Lambdas after response, so fire-and-forget
+    // never completes. With maxDuration=120 we have enough headroom for
+    // Claude (~50s) + PDF (~5s) + Storage + Email.
     const origin = req.nextUrl.origin;
     let downloadUrl: string | null = null;
 
-    if (testMode) {
-      try {
-        const genRes = await fetch(`${origin}/api/report/generate`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ assessmentId }),
-        });
-        const genJson = (await genRes.json()) as {
-          downloadUrl?: string;
-          error?: string;
-        };
-        if (!genRes.ok) {
-          console.error("[assessment] report generation failed", genJson.error);
-        } else {
-          downloadUrl = genJson.downloadUrl ?? null;
-        }
-      } catch (e) {
-        console.error("[assessment] report trigger failed", e);
-      }
-    } else {
-      void fetch(`${origin}/api/report/generate`, {
+    try {
+      const genRes = await fetch(`${origin}/api/report/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ assessmentId }),
-      }).catch((e) => console.error("[assessment] report trigger failed", e));
+      });
+      const genJson = (await genRes.json()) as {
+        downloadUrl?: string;
+        error?: string;
+      };
+      if (!genRes.ok) {
+        console.error("[assessment] report generation failed", genJson.error);
+      } else {
+        downloadUrl = genJson.downloadUrl ?? null;
+      }
+    } catch (e) {
+      console.error("[assessment] report trigger failed", e);
     }
 
     return NextResponse.json({
