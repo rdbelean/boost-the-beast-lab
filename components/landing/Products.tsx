@@ -80,7 +80,7 @@ export default function Products() {
               <div className={`${styles.price} ${styles.priceAccent}`}>
                 €199<span style={{ fontSize: "0.55em", verticalAlign: "super" }}>,99</span>
               </div>
-              <div className={styles.priceSub}>einmalig · kein Abo</div>
+              <div className={styles.priceSub}>einmalig</div>
 
               <button
                 onClick={() => router.push("/login")}

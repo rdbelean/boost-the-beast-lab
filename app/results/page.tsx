@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import styles from "./results.module.css";
+import BackButton from "@/components/ui/BackButton";
 
 /* ─── Animated Counter ──────────────────────────────────────── */
 function useCountUp(target: number, duration = 1600) {
@@ -158,6 +159,7 @@ export default function ResultsPage() {
 
   return (
     <div className={styles.page}>
+      <BackButton />
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerTitle}>BOOST THE BEAST LAB · PERFORMANCE REPORT</div>

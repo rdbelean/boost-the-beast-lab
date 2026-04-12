@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./analyse.module.css";
+import BackButton from "@/components/ui/BackButton";
 import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";
 import CustomSelect from "@/components/analyse/CustomSelect";
@@ -367,6 +368,7 @@ function AnalyseContent() {
 
   return (
     <>
+      <BackButton />
       {isTestMode && (
         <div
           style={{

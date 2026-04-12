@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "./kaufen.module.css";
+import BackButton from "@/components/ui/BackButton";
 
 const CheckIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
@@ -27,6 +28,7 @@ export default function KaufenPage() {
 
   return (
     <div className={styles.page}>
+      <BackButton />
       <div className={styles.inner}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>

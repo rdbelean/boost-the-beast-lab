@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./login.module.css";
+import BackButton from "@/components/ui/BackButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function LoginPage() {
 
   return (
     <div className={styles.page}>
+      <BackButton />
       <div className={styles.card}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
@@ -65,6 +67,9 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <button type="button" onClick={() => router.push("/kaufen")} className={styles.btnSkip}>
+          Überspringen (Demo)
+        </button>
         <p className={styles.demoHint}>E-Mail & Passwort — Demo-Platzhalter</p>
       </div>
     </div>
