@@ -333,6 +333,8 @@ function AnalyseContent() {
       const payload = buildAssessmentPayload(form);
 
       const apiStart = Date.now();
+
+      // ── Step 1: /api/assessment — scoring only (fast, ~2-4s) ────────────
       const res = await fetch("/api/assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -350,8 +352,28 @@ function AnalyseContent() {
           setOverallScore(json.scores.overall_score_0_100);
         }
       }
-      if (json?.downloadUrl) {
-        setDownloadUrl(json.downloadUrl);
+
+      // ── Step 2: /api/report/generate — Claude + PDF (~30-60s) ──────────
+      // Fresh serverless invocation = fresh timeout budget. If this fails
+      // we still show the scores; the PDF just isn't available yet.
+      let downloadUrl: string | null = null;
+      if (json?.assessmentId) {
+        try {
+          const genRes = await fetch("/api/report/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ assessmentId: json.assessmentId }),
+          });
+          if (genRes.ok) {
+            const genJson = (await genRes.json()) as { downloadUrl?: string };
+            downloadUrl = genJson.downloadUrl ?? null;
+            if (downloadUrl) setDownloadUrl(downloadUrl);
+          } else {
+            console.warn("[analyse] report generation returned", genRes.status);
+          }
+        } catch (e) {
+          console.warn("[analyse] report generation fetch failed", e);
+        }
       }
 
       // Wait until all previously scheduled step timers have fired, then finish
@@ -364,7 +386,7 @@ function AnalyseContent() {
         setTimeout(() => {
           sessionStorage.setItem("btb_results", JSON.stringify({
             scores: json?.scores,
-            downloadUrl: json?.downloadUrl ?? null,
+            downloadUrl,
           }));
           router.push("/results");
         }, 600);

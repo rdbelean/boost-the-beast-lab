@@ -329,37 +329,20 @@ export async function POST(req: NextRequest) {
       status: "pending",
     });
 
-    // 10. Trigger AI report generation.
-    // Always awaited — Vercel kills Lambdas after response, so fire-and-forget
-    // never completes. With maxDuration=120 we have enough headroom for
-    // Claude (~50s) + PDF (~5s) + Storage + Email.
-    const origin = req.nextUrl.origin;
-    let downloadUrl: string | null = null;
-
-    try {
-      const genRes = await fetch(`${origin}/api/report/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assessmentId }),
-      });
-      const genJson = (await genRes.json()) as {
-        downloadUrl?: string;
-        error?: string;
-      };
-      if (!genRes.ok) {
-        console.error("[assessment] report generation failed", genJson.error);
-      } else {
-        downloadUrl = genJson.downloadUrl ?? null;
-      }
-    } catch (e) {
-      console.error("[assessment] report trigger failed", e);
-    }
-
+    // 10. Return scores immediately. The client is responsible for calling
+    // /api/report/generate afterwards with { assessmentId }.
+    //
+    // WHY: Previously this endpoint did `await fetch('/api/report/generate')`,
+    // which chained two serverless invocations under one outer timeout.
+    // Claude (30-60s) + Puppeteer PDF (5-15s) + Supabase Storage upload
+    // consistently pushed the outer response past Vercel's gateway limit and
+    // surfaced as a 504. Splitting into two client-initiated calls gives
+    // each endpoint its own fresh timeout budget.
     return NextResponse.json({
       success: true,
       assessmentId,
       scores: result,
-      downloadUrl,
+      downloadUrl: null,
       testMode,
     });
   } catch (err) {

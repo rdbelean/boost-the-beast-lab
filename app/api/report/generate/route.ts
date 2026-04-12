@@ -102,12 +102,12 @@ REPORT-STRUKTUR — ausführlich und tiefgründig:
 2. EXECUTIVE SUMMARY (6–8 Sätze)
    Das Gesamtbild. Welche 2–3 Faktoren definieren diesen Menschen am stärksten — positiv und negativ? Welche systemischen Verbindungen sind entscheidend? Kein Score-Aufzählen — erzähle eine kohärente Geschichte über genau diesen Nutzer.
 
-3. PRO MODUL (Sleep, Recovery, Activity, Metabolic, Stress, VO2max) — je mindestens 15–20 Sätze insgesamt:
-   a) score_context (3–4 Sätze): Was bedeutet dieser Score konkret im Alltag dieses Nutzers?
-   b) key_finding (3–4 Sätze): Die wichtigste Erkenntnis aus diesem Modul, wissenschaftlich untermauert, mit echten Zahlen aus dem Input.
-   c) systemic_connection (2–3 Sätze): Wie beeinflusst dieser Score andere Module? Zeige Verbindungen, die der Nutzer nicht selbst gesehen hätte.
-   d) limitation (2–3 Sätze): Was limitiert gerade die Performance in diesem Bereich? Direkt, nicht weichspülen.
-   e) recommendation (3–4 Sätze): Konkret: Was genau, wie oft, ab wann, warum gerade das. Evidenzbasiert. Mit realistischem Zeitrahmen für erste Resultate.
+3. PRO MODUL (Sleep, Recovery, Activity, Metabolic, Stress, VO2max) — je ca. 12–15 Sätze insgesamt:
+   a) score_context (2–3 Sätze): Was bedeutet dieser Score konkret im Alltag dieses Nutzers?
+   b) key_finding (3 Sätze): Die wichtigste Erkenntnis aus diesem Modul, wissenschaftlich untermauert, mit echten Zahlen aus dem Input.
+   c) systemic_connection (2 Sätze): Wie beeinflusst dieser Score andere Module? Zeige Verbindungen, die der Nutzer nicht selbst gesehen hätte.
+   d) limitation (2 Sätze): Was limitiert gerade die Performance in diesem Bereich? Direkt, nicht weichspülen.
+   e) recommendation (3 Sätze): Konkret: Was genau, wie oft, ab wann, warum gerade das. Evidenzbasiert. Mit realistischem Zeitrahmen.
    Zusätzlich je nach Modul: overtraining_signal, met_context, sitting_flag, bmi_context, hpa_context, fitness_context, estimation_note (alle string | null — null nur, wenn im Input keine aktive Flag/Information vorliegt).
 
 4. TOP_PRIORITY (5–6 Sätze)
@@ -122,7 +122,7 @@ REPORT-STRUKTUR — ausführlich und tiefgründig:
 7. DISCLAIMER (exakt dieser Wortlaut):
    "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik. VO2max ist eine algorithmische Schätzung — keine Labormessung."
 
-LÄNGE: Ausführlich. Lieber zu viel als zu wenig. Der Nutzer soll das Gefühl haben, er liest einen professionellen Lab-Report — nicht eine App-Zusammenfassung. Executive Summary und Top Priority besonders ausführlich.
+LÄNGE: Ausführlich, aber effizient. Ca. 12–15 Sätze pro Modul insgesamt. Executive Summary 6–8 Sätze. Top Priority 4–5 Sätze. systemic_connections_overview 3–4 Sätze. prognose_30_days 3 Sätze. Der Nutzer soll das Gefühl haben, er liest einen professionellen Lab-Report — nicht eine App-Zusammenfassung. Fokus auf Präzision und Personalisierung, nicht auf Wortzahl.
 
 SPRACHE: Deutsch. Professionell, direkt, fachlich fundiert.
 
@@ -611,8 +611,10 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
     });
     const anthropic = getAnthropic();
     const message = await anthropic.messages.create({
-      model: "claude-opus-4-6",
-      max_tokens: 8000,
+      // Sonnet 4.6 is ~2-3× faster than Opus for this structured paraphrase
+      // task and keeps the total latency under the Vercel timeout.
+      model: "claude-sonnet-4-6",
+      max_tokens: 5000,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: userPrompt }],
     });
