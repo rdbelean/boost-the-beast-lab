@@ -572,10 +572,15 @@ Erstelle den Report jetzt.`;
         downloadUrl = signed.signedUrl;
       }
     } catch (pdfErr) {
-      console.warn(
-        "[report/generate] PDF generation failed (Puppeteer not available?) — skipping PDF + Storage",
-        pdfErr instanceof Error ? pdfErr.message : pdfErr,
-      );
+      const pdfErrMsg = pdfErr instanceof Error ? pdfErr.message : String(pdfErr);
+      console.warn("[report/generate] PDF generation failed:", pdfErrMsg);
+      // Persist the error for debugging (visible in Supabase report_jobs).
+      if (jobId) {
+        await supabase
+          .from("report_jobs")
+          .update({ error_message: `PDF: ${pdfErrMsg.slice(0, 500)}` })
+          .eq("id", jobId);
+      }
     }
 
     // 6. Persist artifact reference (only if PDF was generated).
