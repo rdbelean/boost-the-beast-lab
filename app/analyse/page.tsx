@@ -164,11 +164,18 @@ function buildAssessmentPayload(f: FormData) {
 }
 
 const LOADING_STEPS = [
-  "Körperdaten werden verarbeitet...",
-  "IPAQ Activity Engine läuft...",
-  "Sleep & Recovery Score wird berechnet...",
-  "KI generiert deinen personalisierten Report...",
-  "Report wird an deine Email gesendet...",
+  "Körperdaten werden kalibriert...",
+  "BMI & Körperkomposition analysiert...",
+  "IPAQ Activity Engine berechnet MET-Minuten...",
+  "Vigorous / Moderate / Walking Kategorien zugewiesen...",
+  "PSQI-basierter Sleep & Recovery Score läuft...",
+  "VO2max Schätzung nach Jackson Non-Exercise Modell...",
+  "Metabolic Score aus WHO-Referenzdaten berechnet...",
+  "Stress & Lifestyle Score wird gewichtet...",
+  "Composite Performance Index (5 Module) aggregiert...",
+  "KI-Engine generiert personalisierten Report...",
+  "Performance Insights werden formatiert...",
+  "Report wird finalisiert...",
 ];
 
 /* ── Component ─────────────────────────────────────────── */
@@ -292,8 +299,9 @@ function AnalyseContent() {
     setVisibleSteps([]);
     setDoneSteps([]);
 
+    // Stagger loading steps: 1 new step per second over ~12 seconds
     LOADING_STEPS.forEach((_, i) => {
-      setTimeout(() => setVisibleSteps((prev) => [...prev, i]), i * 1500);
+      setTimeout(() => setVisibleSteps((prev) => [...prev, i]), i * 1000);
     });
 
     try {
@@ -319,14 +327,16 @@ function AnalyseContent() {
         setDownloadUrl(json.downloadUrl);
       }
 
+      // Mark all steps as done with checkmarks (stagger over ~3s)
       LOADING_STEPS.forEach((_, i) => {
-        setTimeout(() => setDoneSteps((prev) => [...prev, i]), 5000 + i * 300);
+        setTimeout(() => setDoneSteps((prev) => [...prev, i]), 8000 + i * 250);
       });
 
+      // Transition to success after all checkmarks are done (~12s total)
       setTimeout(() => {
         setLoading(false);
         setSuccess(true);
-      }, 7000);
+      }, 12000);
 
       console.log("[analyse] assessmentId", json?.assessmentId);
     } catch (err) {
@@ -872,231 +882,50 @@ function AnalyseContent() {
         </div>
       )}
 
-      {/* ── Results Screen ─────────────────────────────── */}
+      {/* ── Success Overlay ─────────────────────────────── */}
       {success && (
-        <div style={{
-          position: "fixed", inset: 0, background: "#0A0A0C", zIndex: 200,
-          overflowY: "auto", WebkitOverflowScrolling: "touch",
-        }}>
-          <div style={{ maxWidth: 640, margin: "0 auto", padding: "48px 20px 80px" }}>
-
-            {/* Header Label */}
-            <div style={{
-              display: "flex", alignItems: "center", gap: 10, marginBottom: 32,
-              fontFamily: "Arial, sans-serif", fontSize: 11, letterSpacing: "0.25em",
-              color: "#E63222", textTransform: "uppercase" as const,
-            }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22C55E" }} />
-              ANALYSE ABGESCHLOSSEN
-            </div>
-
-            {/* Overall Score */}
-            {overallScore != null && (
-              <div style={{ marginBottom: 40 }}>
-                <div style={{
-                  fontFamily: "Arial, sans-serif", fontSize: 10, letterSpacing: "0.2em",
-                  color: "#6b6b72", textTransform: "uppercase" as const, marginBottom: 8,
-                }}>OVERALL PERFORMANCE INDEX</div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-                  <span style={{
-                    fontFamily: "Arial Black, Impact, sans-serif", fontSize: 96,
-                    fontWeight: 900, color: "#E63222", lineHeight: 1,
-                  }}>{overallScore}</span>
-                  <span style={{ fontFamily: "Arial, sans-serif", fontSize: 24, color: "#6b6b72" }}>/100</span>
-                </div>
-                {allScores?.overall_band && (
-                  <div style={{
-                    display: "inline-block", marginTop: 12, padding: "6px 16px",
-                    border: "1px solid #2a2a2f", fontSize: 11, fontFamily: "Arial, sans-serif",
-                    letterSpacing: "0.15em", textTransform: "uppercase" as const,
-                    color: overallScore >= 80 ? "#22C55E" : overallScore >= 65 ? "#EAB308" : overallScore >= 50 ? "#F59E0B" : "#E63222",
-                  }}>
-                    {allScores.overall_band}
-                  </div>
-                )}
-                {/* Overall Bar */}
-                <div style={{ marginTop: 16, height: 4, background: "#1a1a1f", borderRadius: 2 }}>
-                  <div style={{
-                    height: "100%", borderRadius: 2, width: `${overallScore}%`,
-                    background: overallScore >= 80 ? "#22C55E" : overallScore >= 65 ? "#EAB308" : overallScore >= 50 ? "#F59E0B" : "#E63222",
-                    transition: "width 1.2s ease",
-                  }} />
-                </div>
-              </div>
-            )}
-
-            {/* Module Scores Grid */}
-            {allScores && (() => {
-              const modules: Array<{
-                key: string; label: string; score: number; band: string; detail?: string;
-              }> = [
-                {
-                  key: "activity", label: "ACTIVITY",
-                  score: allScores.activity?.activity_score_0_100 ?? 0,
-                  band: allScores.activity?.activity_category ?? "",
-                  detail: `${allScores.activity?.total_met_minutes_week ?? 0} MET-min/Woche`,
-                },
-                {
-                  key: "sleep", label: "SLEEP & RECOVERY",
-                  score: allScores.sleep?.sleep_score_0_100 ?? 0,
-                  band: allScores.sleep?.sleep_band ?? "",
-                  detail: `Schlafdauer: ${allScores.sleep?.sleep_duration_band ?? "—"}`,
-                },
-                {
-                  key: "vo2max", label: "VO2MAX FITNESS",
-                  score: allScores.vo2max?.fitness_score_0_100 ?? 0,
-                  band: allScores.vo2max?.vo2max_band ?? "",
-                  detail: `${allScores.vo2max?.vo2max_estimated ?? 0} ml/kg/min`,
-                },
-                {
-                  key: "metabolic", label: "METABOLIC HEALTH",
-                  score: allScores.metabolic?.metabolic_score_0_100 ?? 0,
-                  band: allScores.metabolic?.metabolic_band ?? "",
-                  detail: `BMI ${allScores.metabolic?.bmi ?? 0} (${allScores.metabolic?.bmi_category ?? ""})`,
-                },
-                {
-                  key: "stress", label: "STRESS & LIFESTYLE",
-                  score: allScores.stress?.stress_score_0_100 ?? 0,
-                  band: allScores.stress?.stress_band ?? "",
-                },
-              ];
-              const barColor = (s: number) =>
-                s >= 85 ? "#22C55E" : s >= 65 ? "#EAB308" : s >= 40 ? "#F59E0B" : "#E63222";
-
-              return (
-                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 40 }}>
-                  {modules.map((m) => (
-                    <div key={m.key} style={{
-                      background: "#111114", border: "1px solid #1e1e24", padding: "20px 22px",
-                    }}>
-                      <div style={{
-                        display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-                      }}>
-                        <div>
-                          <div style={{
-                            fontFamily: "Arial, sans-serif", fontSize: 10, letterSpacing: "0.2em",
-                            color: "#6b6b72", textTransform: "uppercase" as const, marginBottom: 4,
-                          }}>{m.label}</div>
-                          <div style={{
-                            fontFamily: "Arial, sans-serif", fontSize: 11, color: "#52525a",
-                            textTransform: "uppercase" as const, letterSpacing: "0.1em",
-                          }}>{m.band}</div>
-                        </div>
-                        <div style={{
-                          fontFamily: "Arial Black, Impact, sans-serif", fontSize: 40,
-                          fontWeight: 900, color: barColor(m.score), lineHeight: 1,
-                        }}>
-                          {m.score}
-                        </div>
-                      </div>
-                      {/* Score Bar */}
-                      <div style={{ marginTop: 14, height: 3, background: "#1a1a1f", borderRadius: 2 }}>
-                        <div style={{
-                          height: "100%", borderRadius: 2, width: `${m.score}%`,
-                          background: barColor(m.score), transition: "width 1s ease",
-                        }} />
-                      </div>
-                      {m.detail && (
-                        <div style={{
-                          marginTop: 10, fontFamily: "Arial, sans-serif", fontSize: 11,
-                          color: "#52525a",
-                        }}>{m.detail}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
-
-            {/* Derived Metrics Row */}
-            {allScores && (
-              <div style={{
-                display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 40,
-              }}>
-                {[
-                  { label: "BMI", value: allScores.metabolic?.bmi ?? "—", unit: "kg/m²" },
-                  { label: "VO2MAX", value: allScores.vo2max?.vo2max_estimated ?? "—", unit: "ml/kg/min" },
-                  { label: "MET-MIN", value: allScores.activity?.total_met_minutes_week ?? "—", unit: "/Woche" },
-                ].map((d) => (
-                  <div key={d.label} style={{
-                    background: "#111114", border: "1px solid #1e1e24", padding: "16px 14px",
-                    textAlign: "center",
-                  }}>
-                    <div style={{
-                      fontFamily: "Arial, sans-serif", fontSize: 9, letterSpacing: "0.2em",
-                      color: "#52525a", textTransform: "uppercase" as const, marginBottom: 6,
-                    }}>{d.label}</div>
-                    <div style={{
-                      fontFamily: "Arial Black, sans-serif", fontSize: 28, color: "#fff",
-                      lineHeight: 1, fontWeight: 900,
-                    }}>{d.value}</div>
-                    <div style={{
-                      fontFamily: "Arial, sans-serif", fontSize: 9, color: "#3f3f46", marginTop: 4,
-                    }}>{d.unit}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Report Info */}
-            <div style={{
-              background: "#111114", border: "1px solid #1e1e24", padding: "20px 22px",
-              marginBottom: 24,
-            }}>
-              <div style={{
-                fontFamily: "Arial, sans-serif", fontSize: 10, letterSpacing: "0.2em",
-                color: "#E63222", textTransform: "uppercase" as const, marginBottom: 8,
-              }}>DEIN PERFORMANCE REPORT</div>
-              <p style={{
-                fontFamily: "Arial, sans-serif", fontSize: 13, color: "#a0a0aa",
-                lineHeight: 1.6, margin: 0,
-              }}>
-                {downloadUrl
-                  ? "Dein vollständiger Report mit KI-Interpretation, Empfehlungen und 30-Tage Prognose ist bereit."
-                  : `Wir haben deinen Report an ${form.email} gesendet. Prüfe auch deinen Spam-Ordner.`}
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "stretch" }}>
-              {downloadUrl && (
-                <a
-                  href={downloadUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "block", textAlign: "center", padding: "16px 32px",
-                    background: "#E63222", color: "#fff", textDecoration: "none",
-                    fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: 13,
-                    letterSpacing: "0.1em", textTransform: "uppercase" as const,
-                    borderRadius: 2,
-                  }}
-                >
-                  REPORT HERUNTERLADEN →
-                </a>
-              )}
-              <Link
-                href="/"
-                style={{
-                  display: "block", textAlign: "center", padding: "14px 32px",
-                  background: "transparent", color: "#6b6b72", textDecoration: "none",
-                  fontFamily: "Arial, sans-serif", fontWeight: 600, fontSize: 12,
-                  letterSpacing: "0.1em", textTransform: "uppercase" as const,
-                  border: "1px solid #2a2a2f", borderRadius: 2,
-                }}
-              >
-                ZURÜCK ZUR STARTSEITE
-              </Link>
-            </div>
-
-            {/* Disclaimer */}
-            <p style={{
-              marginTop: 40, fontFamily: "Arial, sans-serif", fontSize: 10,
-              color: "#3f3f46", lineHeight: 1.6, textAlign: "center",
-            }}>
-              Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik.
-            </p>
+        <div className={styles.successOverlay}>
+          <div className={styles.successCheck}>
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 18l7 7 14-14" strokeDasharray="100" strokeDashoffset="100"
+                style={{ animation: "checkDraw 0.6s ease forwards 0.2s", strokeDashoffset: 100 }}
+              />
+            </svg>
           </div>
+          <h2 className={styles.successTitle}>ANALYSE ABGESCHLOSSEN</h2>
+          {overallScore != null && (
+            <div
+              style={{
+                fontFamily: "Arial Black, Impact, sans-serif",
+                fontSize: 88,
+                color: "#E63222",
+                lineHeight: 1,
+                margin: "18px 0 8px",
+              }}
+            >
+              {overallScore}
+              <span style={{ fontSize: 20, color: "#8a8a92", marginLeft: 8 }}>/100</span>
+            </div>
+          )}
+          <p className={styles.successText}>
+            Dein personalisierter Performance Report wurde erstellt und wird
+            in Kürze an <strong>{form.email}</strong> gesendet.
+            <br />Bitte prüfe auch deinen Spam-Ordner.
+          </p>
+          {downloadUrl && (
+            <a
+              href={downloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.successHomeBtn}
+              style={{ marginBottom: 12 }}
+            >
+              REPORT HERUNTERLADEN →
+            </a>
+          )}
+          <Link href="/" className={styles.successHomeBtn} style={{ background: "transparent", border: "1px solid #2a2a2f", color: "#6b6b72" }}>
+            ZURÜCK ZUR STARTSEITE
+          </Link>
         </div>
       )}
     </>
