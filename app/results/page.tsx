@@ -382,6 +382,36 @@ export default function ResultsPage() {
             Beschwerden konsultieren Sie bitte einen Arzt. Kein Medizinprodukt i.S.d. MDR.
           </p>
         </section>
+
+        {/* ─── UPSELL ──────────────────────────────────── */}
+        <section className={styles.upsellSection}>
+          <div className={styles.upsellTag}>NÄCHSTES LEVEL</div>
+          <h2 className={styles.upsellTitle}>BEREIT FÜR ECHTE LAB-DIAGNOSTIK?</h2>
+          <p className={styles.upsellText}>
+            Dein Performance Report basiert auf wissenschaftlichen Modellen — aber die präziseste Messung
+            findet im Labor statt. Hol dir eine persönliche Beratung und eine echte
+            VO2max-Messung mit Atemmaske (Spiroergometrie) in Düsseldorf.
+          </p>
+          <div className={styles.upsellFeatures}>
+            {[
+              "Persönliches Beratungsgespräch mit einem Experten",
+              "Präzise VO2max-Messung mit Spiroergometrie",
+              "Individuelle Trainings- & Ernährungsberatung",
+              "Vor Ort in Düsseldorf · echte Lab-Diagnostik",
+            ].map((f) => (
+              <div key={f} className={styles.upsellFeatureItem}>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
+                  <path d="M2 7l3.5 3.5L12 3" stroke="#E63222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {f}
+              </div>
+            ))}
+          </div>
+          <a href="(LINK)" className={styles.upsellBtn}>
+            TERMIN BUCHEN →
+          </a>
+          <p className={styles.upsellNote}>Persönliche Beratung · Düsseldorf</p>
+        </section>
       </div>
     </div>
   );

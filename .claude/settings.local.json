@@ -10,7 +10,12 @@
       "Bash(mkdir -p ~/.local/bin)",
       "Bash(cp /tmp/fnm-bin/fnm ~/.local/bin/fnm)",
       "Bash(chmod +x ~/.local/bin/fnm)",
-      "Bash(~/.local/bin/fnm --version)"
+      "Bash(~/.local/bin/fnm --version)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)"
     ]
   }
 }

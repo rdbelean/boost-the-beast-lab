@@ -137,8 +137,33 @@
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(230, 50, 34, 0.4);
 }
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.headerCtaSecondary {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: transparent;
+  padding: 10px 16px;
+  border-radius: 2px;
+  text-decoration: none;
+  border: 1px solid var(--accent);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.headerCtaSecondary:hover {
+  background: rgba(230, 50, 34, 0.08);
+}
 @media (max-width: 768px) {
   .nav { display: none; }
+  .headerCtaSecondary { display: none; }
 }
 
 /* ─── HERO ──────────────────────────────────────────────────── */

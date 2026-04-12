@@ -912,4 +912,101 @@
   .ctaSection { padding: 32px 0 60px; }
   .ctaBtnPrimary { font-size: 13px; padding: 16px 24px; min-height: 52px; }
   .ctaBtnSecondary { font-size: 12px; padding: 14px 20px; min-height: 48px; }
+
+  /* Upsell */
+  .upsellSection { padding: 40px 24px; }
+  .upsellTitle { font-size: 22px; }
+  .upsellFeatures { grid-template-columns: 1fr; }
+}
+
+/* ─── UPSELL SECTION ──────────────────────────────────────── */
+.upsellSection {
+  margin-top: 0;
+  padding: 56px 0 80px;
+  border-top: 1px solid rgba(230, 50, 34, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.upsellTag {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent, #E63222);
+  border: 1px solid var(--accent, #E63222);
+  border-radius: 2px;
+  padding: 5px 12px;
+}
+
+.upsellTitle {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.upsellText {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: rgba(255,255,255,0.55);
+  max-width: 540px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.upsellFeatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+  text-align: left;
+  max-width: 560px;
+  width: 100%;
+}
+
+.upsellFeatureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.4;
+}
+
+.upsellBtn {
+  background: var(--accent, #E63222);
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  padding: 16px 36px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: inline-block;
+  margin-top: 8px;
+}
+.upsellBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(230, 50, 34, 0.45);
+}
+
+.upsellNote {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  margin: -8px 0 0;
 }

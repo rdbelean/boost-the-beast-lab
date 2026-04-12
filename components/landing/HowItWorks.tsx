@@ -5,21 +5,27 @@ import styles from "@/app/landing.module.css";
 const steps = [
   {
     num: "01",
-    tag: "ANALYSE",
-    title: "15 WISSENSCHAFTLICHE FRAGEN",
-    text: "Beantworte präzise Fragen zu Schlaf, Training, Ernährung, Stress und Körperdaten — kalibriert nach WHO & ACSM Richtlinien.",
+    tag: "PAKET WÄHLEN",
+    title: "DEIN PERFORMANCE-PAKET",
+    text: "Wähle deinen vollständigen Performance Report inkl. individueller Optimierungs- & Trainingspläne — einmalig, kein Abo.",
   },
   {
     num: "02",
-    tag: "ENGINE",
-    title: "KI BERECHNET DEINE SCORES",
-    text: "Unser Scoring-Algorithmus analysiert 4 Performance-Dimensionen: Metabolismus, Recovery, Aktivität und Stress & Lifestyle.",
+    tag: "ANMELDEN",
+    title: "ACCOUNT ERSTELLEN",
+    text: "Erstelle deinen sicheren Account mit E-Mail & Passwort — damit dein Report dauerhaft gespeichert und jederzeit abrufbar ist.",
   },
   {
     num: "03",
+    tag: "ANALYSE-PROTOKOLL",
+    title: "20 WISSENSCHAFTLICHE FRAGEN",
+    text: "Beantworte präzise Fragen zu Schlaf, Training, Ernährung, Stress und Körperdaten — kalibriert nach WHO & ACSM Richtlinien.",
+  },
+  {
+    num: "04",
     tag: "REPORT",
     title: "DEIN PERSONALISIERTER REPORT",
-    text: "Claude AI generiert einen maßgeschneiderten Report mit konkreten Handlungsempfehlungen — sofort als Premium PDF verfügbar.",
+    text: "Dein Performance Report mit Fitnessscore, Einzelanalysen und individuellen Optimierungsplänen — sofort als Premium PDF verfügbar.",
   },
 ];
 

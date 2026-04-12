@@ -382,7 +382,7 @@ function AnalyseContent() {
             borderBottom: "1px solid rgba(0,0,0,0.15)",
           }}
         >
-          ⚠ TEST MODUS — Kein Stripe aktiv — Reports werden trotzdem generiert
+          ⚠ DEMO MODUS — Analyse-Protokoll aktiv
         </div>
       )}
 
@@ -401,7 +401,7 @@ function AnalyseContent() {
           </Link>
 
           <span className={styles.stepIndicator}>
-            {answeredCount}/{totalQuestions} FRAGEN
+            {answeredCount}/{totalQuestions} PROTOKOLL-FRAGEN
           </span>
 
           <Link href="/" className={styles.closeBtn} aria-label="Schließen">
@@ -424,10 +424,10 @@ function AnalyseContent() {
           <section className={styles.heroSection}>
             <div className={styles.heroLabel}>
               <span className={styles.heroDot} />
-              PERFORMANCE DIAGNOSTIK
+              ANALYSE-PROTOKOLL
             </div>
             <h1 className={styles.heroTitle}>
-              DEINE ANALYSE<br />BEGINNT JETZT.
+              DEIN ANALYSE-<br />PROTOKOLL.
             </h1>
             <p className={styles.heroSubtitle}>
               Beantworte 20 präzise Fragen zu Körper, Training, Schlaf und Lifestyle —
