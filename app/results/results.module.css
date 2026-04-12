@@ -194,11 +194,16 @@
   border-bottom: 1px solid var(--border);
 }
 .headerTitle {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: 'Oswald', sans-serif;
   font-size: 11px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--text-muted);
+  white-space: nowrap;
+  pointer-events: none;
 }
 .headerActions {
   display: flex;

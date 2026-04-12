@@ -433,7 +433,7 @@ export default function ResultsPage() {
               </div>
             ))}
           </div>
-          <a href="(LINK)" className={styles.upsellBtn}>
+          <a href="https://boostthebeast.com/" target="_blank" rel="noopener noreferrer" className={styles.upsellBtn}>
             TERMIN BUCHEN →
           </a>
           <p className={styles.upsellNote}>Persönliche Beratung · Düsseldorf</p>

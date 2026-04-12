@@ -15,7 +15,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     // Demo: direkt weiterleiten
-    setTimeout(() => router.push("/kaufen"), 600);
+    setTimeout(() => router.push("/account"), 600);
   }
 
   return (
@@ -67,7 +67,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <button type="button" onClick={() => router.push("/kaufen")} className={styles.btnSkip}>
+        <button type="button" onClick={() => router.push("/account")} className={styles.btnSkip}>
           Überspringen (Demo)
         </button>
         <p className={styles.demoHint}>E-Mail & Passwort — Demo-Platzhalter</p>

@@ -226,7 +226,7 @@
   .header {
     position: static;
     border-bottom: 1px solid #ccc;
-    background: #fff;
+    background: #EDEDED;
   }
 
   .backLink,
@@ -235,25 +235,57 @@
     display: none;
   }
 
-  .page,
+  .page {
+    background: #EDEDED;
+    color: #111;
+  }
+
   .container {
-    background: #fff;
-    color: #000;
+    background: #EDEDED;
+  }
+
+  .hero {
+    border-bottom-color: #ccc;
+  }
+
+  .title {
+    color: #111;
+  }
+
+  .subtitle {
+    color: #444;
+  }
+
+  .tag {
+    /* keep color from inline style — just ensure contrast */
+    background: transparent;
   }
 
   .block {
-    background: #f8f8f8;
-    border: 1px solid #ddd;
+    background: #E3E3E3;
+    border: 1px solid #ccc;
     break-inside: avoid;
   }
 
-  .blockItem {
-    color: #222;
+  .blockHeading {
+    color: #555;
   }
 
-  .source,
+  .blockItem {
+    color: #1a1a1a;
+  }
+
+  .bullet {
+    /* keep inline accent color */
+  }
+
+  .source {
+    color: #666;
+  }
+
   .disclaimer {
     color: #666;
+    border-top-color: #ccc;
   }
 }
 

@@ -1,0 +1,297 @@
+/* ─── Account / Report History Page ─────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page {
+  min-height: 100vh;
+  background: #0D0D0D;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 5rem 2rem 6rem;
+}
+
+/* ─── Account header ─────────────────────────────────────────── */
+.accountHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.accountTag {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: #E63222;
+  margin-bottom: 0.5rem;
+}
+
+.accountTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+  line-height: 1.1;
+}
+
+.accountSub {
+  font-size: 0.875rem;
+  color: #777;
+  margin: 0;
+}
+
+.newAnalysisBtn {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  background: #E63222;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.newAnalysisBtn:hover {
+  opacity: 0.85;
+}
+
+/* ─── Demo notice ────────────────────────────────────────────── */
+.demoNotice {
+  font-size: 0.7rem;
+  color: #444;
+  letter-spacing: 0.06em;
+  border: 1px solid #1e1e1e;
+  padding: 0.5rem 0.875rem;
+  margin-bottom: 2rem;
+  display: inline-block;
+}
+
+/* ─── Report list ────────────────────────────────────────────── */
+.reportList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reportCard {
+  background: #111;
+  border: 1px solid #1e1e1e;
+  padding: 1.5rem;
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: border-color 0.2s;
+}
+.reportCard:hover {
+  border-color: #2e2e2e;
+}
+
+/* ─── Card top row ───────────────────────────────────────────── */
+.reportCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.reportMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reportDate {
+  font-family: "Oswald", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ddd;
+}
+
+.reportId {
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-size: 0.65rem;
+  color: #444;
+  letter-spacing: 0.06em;
+}
+
+.reportOverall {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.reportScore {
+  font-family: "Oswald", sans-serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.reportScoreMax {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.reportBand {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  border: 1px solid;
+  padding: 0.2rem 0.5rem;
+  align-self: center;
+}
+
+/* ─── Sub-scores ─────────────────────────────────────────────── */
+.subScores {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.subScore {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.subScoreLabel {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: #555;
+}
+
+.miniBarTrack {
+  height: 3px;
+  background: #1e1e1e;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.miniBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+.subScoreVal {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* ─── Card actions ───────────────────────────────────────────── */
+.reportActions {
+  display: flex;
+  gap: 0.625rem;
+}
+
+.viewBtn {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #555;
+  background: none;
+  border: 1px solid #2a2a2a;
+  padding: 0.5rem 1rem;
+  cursor: not-allowed;
+  transition: color 0.2s;
+}
+
+.pdfBtn {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #555;
+  background: none;
+  border: 1px solid #2a2a2a;
+  padding: 0.5rem 0.75rem;
+  cursor: not-allowed;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────── */
+.emptyHint {
+  margin-top: 1.5rem;
+  font-size: 0.7rem;
+  color: #333;
+  letter-spacing: 0.04em;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 3rem;
+  flex-wrap: wrap;
+}
+
+.ctaBtn {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  background: #E63222;
+  color: #fff;
+  padding: 0.875rem 1.75rem;
+  text-decoration: none;
+  transition: opacity 0.2s;
+  display: inline-block;
+}
+.ctaBtn:hover {
+  opacity: 0.85;
+}
+
+.ctaSecondary {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.ctaSecondary:hover {
+  color: #aaa;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .container {
+    padding: 4rem 1rem 5rem;
+  }
+
+  .subScores {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .reportCardTop {
+    flex-direction: column;
+  }
+
+  .accountHeader {
+    flex-direction: column;
+  }
+
+  .newAnalysisBtn {
+    width: 100%;
+  }
+}

@@ -97,7 +97,11 @@ export default function Hero() {
           {stats.map(({ target, suffix, prefix, label, static: isStatic }) => (
             <div key={label} className={styles.statItem}>
               {isStatic ? (
-                <span className={styles.statValue}>✦</span>
+                <span className={styles.statValue} style={{ color: "var(--accent, #E63222)", fontSize: "20px" }}>
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden style={{ display: "block" }}>
+                    <path d="M3 11l5.5 5.5L19 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
               ) : (
                 <span
                   className={styles.statValue}
