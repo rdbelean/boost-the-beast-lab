@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./analyse.module.css";
 import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";
@@ -189,6 +189,7 @@ export default function AnalysePage() {
 
 function AnalyseContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const preselectedProduct = searchParams.get("product") ?? "complete-analysis";
 
   const [form, setForm] = useState<FormData>({
@@ -331,14 +332,17 @@ function AnalyseContent() {
         setDownloadUrl(json.downloadUrl);
       }
 
-      // Ensure all steps are checked off before transitioning
+      // Ensure all steps are checked off before transitioning to results
       const minLoadingTime = (LOADING_STEPS.length + 1) * 1000;
       setTimeout(() => {
-        // Force all done in case API was faster than animation
         setDoneSteps(LOADING_STEPS.map((_, i) => i));
+        // Store results in sessionStorage and navigate to results page
         setTimeout(() => {
-          setLoading(false);
-          setSuccess(true);
+          sessionStorage.setItem("btb_results", JSON.stringify({
+            scores: json?.scores,
+            downloadUrl: json?.downloadUrl ?? null,
+          }));
+          router.push("/results");
         }, 800);
       }, minLoadingTime);
 
@@ -886,130 +890,7 @@ function AnalyseContent() {
         </div>
       )}
 
-      {/* ── Report Results ─────────────────────────────── */}
-      {success && (() => {
-        const sc = allScores;
-        const barColor = (s: number) =>
-          s >= 85 ? "#22C55E" : s >= 65 ? "#EAB308" : s >= 50 ? "#F59E0B" : "#E63222";
-
-        const modules = sc ? [
-          { label: "ACTIVITY", score: sc.activity?.activity_score_0_100 ?? 0, band: sc.activity?.activity_category ?? "", detail: `${sc.activity?.total_met_minutes_week ?? 0} MET-min/Woche` },
-          { label: "SLEEP & RECOVERY", score: sc.sleep?.sleep_score_0_100 ?? 0, band: sc.sleep?.sleep_band ?? "", detail: `Schlafdauer: ${sc.sleep?.sleep_duration_band ?? "—"}` },
-          { label: "VO2MAX FITNESS", score: sc.vo2max?.fitness_score_0_100 ?? 0, band: sc.vo2max?.vo2max_band ?? "", detail: `${sc.vo2max?.vo2max_estimated ?? 0} ml/kg/min` },
-          { label: "METABOLIC HEALTH", score: sc.metabolic?.metabolic_score_0_100 ?? 0, band: sc.metabolic?.metabolic_band ?? "", detail: `BMI ${sc.metabolic?.bmi ?? 0} · ${sc.metabolic?.bmi_category ?? ""}` },
-          { label: "STRESS & LIFESTYLE", score: sc.stress?.stress_score_0_100 ?? 0, band: sc.stress?.stress_band ?? "" },
-        ] : [];
-
-        return (
-          <div style={{ position: "fixed", inset: 0, background: "#0A0A0C", zIndex: 200, overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
-            <div style={{ maxWidth: 620, margin: "0 auto", padding: "48px 20px 80px" }}>
-
-              {/* Brand */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 40 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6.5V12C4 16.5 7.5 20.7 12 22C16.5 20.7 20 16.5 20 12V6.5L12 2Z" stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round"/></svg>
-                <span style={{ fontFamily: "Arial, sans-serif", fontSize: 11, letterSpacing: "0.3em", color: "#fff", textTransform: "uppercase" as const }}>BOOST THE BEAST LAB</span>
-              </div>
-
-              {/* Section Label */}
-              <div style={{ fontFamily: "Arial, sans-serif", fontSize: 10, letterSpacing: "0.25em", color: "#E63222", textTransform: "uppercase" as const, marginBottom: 12 }}>
-                PERFORMANCE REPORT
-              </div>
-
-              {/* Overall Score */}
-              {overallScore != null && (
-                <div style={{ marginBottom: 44 }}>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                    <span style={{ fontFamily: "Arial Black, Impact, sans-serif", fontSize: 88, fontWeight: 900, color: "#E63222", lineHeight: 1 }}>{overallScore}</span>
-                    <span style={{ fontFamily: "Arial, sans-serif", fontSize: 22, color: "#3f3f46" }}>/100</span>
-                  </div>
-                  {sc?.overall_band && (
-                    <div style={{ marginTop: 10, display: "inline-block", padding: "5px 14px", border: `1px solid ${barColor(overallScore)}33`, fontSize: 10, fontFamily: "Arial, sans-serif", letterSpacing: "0.15em", textTransform: "uppercase" as const, color: barColor(overallScore) }}>
-                      {sc.overall_band}
-                    </div>
-                  )}
-                  <div style={{ marginTop: 14, height: 3, background: "#1a1a1f", borderRadius: 2 }}>
-                    <div style={{ height: "100%", borderRadius: 2, width: `${overallScore}%`, background: barColor(overallScore), transition: "width 1.5s ease" }} />
-                  </div>
-                </div>
-              )}
-
-              {/* Module Cards */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 36 }}>
-                {modules.map((m) => (
-                  <div key={m.label} style={{ background: "#111114", border: "1px solid #1a1a1f", padding: "18px 20px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                      <div>
-                        <div style={{ fontFamily: "Arial, sans-serif", fontSize: 9, letterSpacing: "0.2em", color: "#52525a", textTransform: "uppercase" as const, marginBottom: 3 }}>{m.label}</div>
-                        <div style={{ fontFamily: "Arial, sans-serif", fontSize: 10, color: "#3f3f46", textTransform: "uppercase" as const, letterSpacing: "0.1em" }}>{m.band}</div>
-                      </div>
-                      <div style={{ fontFamily: "Arial Black, sans-serif", fontSize: 36, fontWeight: 900, color: barColor(m.score), lineHeight: 1 }}>{m.score}</div>
-                    </div>
-                    <div style={{ marginTop: 12, height: 2, background: "#1a1a1f", borderRadius: 1 }}>
-                      <div style={{ height: "100%", borderRadius: 1, width: `${m.score}%`, background: barColor(m.score), transition: "width 1s ease" }} />
-                    </div>
-                    {m.detail && <div style={{ marginTop: 8, fontFamily: "Arial, sans-serif", fontSize: 10, color: "#3f3f46" }}>{m.detail}</div>}
-                  </div>
-                ))}
-              </div>
-
-              {/* Derived Metrics */}
-              {sc && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 36 }}>
-                  {[
-                    { label: "BMI", value: sc.metabolic?.bmi ?? "—", unit: "kg/m²" },
-                    { label: "VO2MAX", value: sc.vo2max?.vo2max_estimated ?? "—", unit: "ml/kg/min" },
-                    { label: "MET-MIN", value: sc.activity?.total_met_minutes_week ?? "—", unit: "/Woche" },
-                  ].map((d) => (
-                    <div key={d.label} style={{ background: "#111114", border: "1px solid #1a1a1f", padding: "14px 12px", textAlign: "center" }}>
-                      <div style={{ fontFamily: "Arial, sans-serif", fontSize: 8, letterSpacing: "0.2em", color: "#3f3f46", textTransform: "uppercase" as const, marginBottom: 5 }}>{d.label}</div>
-                      <div style={{ fontFamily: "Arial Black, sans-serif", fontSize: 24, color: "#fff", lineHeight: 1, fontWeight: 900 }}>{d.value}</div>
-                      <div style={{ fontFamily: "Arial, sans-serif", fontSize: 8, color: "#2a2a30", marginTop: 3 }}>{d.unit}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Download PDF Button */}
-              {downloadUrl && (
-                <a
-                  href={downloadUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                    width: "100%", padding: "18px 32px", marginBottom: 12,
-                    background: "#E63222", color: "#fff", textDecoration: "none", borderRadius: 2,
-                    fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: 13,
-                    letterSpacing: "0.1em", textTransform: "uppercase" as const,
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M4 8l4 4 4-4M2 14h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  REPORT ALS PDF HERUNTERLADEN
-                </a>
-              )}
-
-              {/* Back Home */}
-              <Link
-                href="/"
-                style={{
-                  display: "block", textAlign: "center", width: "100%", padding: "14px 32px",
-                  background: "transparent", color: "#52525a", textDecoration: "none", borderRadius: 2,
-                  fontFamily: "Arial, sans-serif", fontWeight: 600, fontSize: 11,
-                  letterSpacing: "0.1em", textTransform: "uppercase" as const,
-                  border: "1px solid #1a1a1f",
-                }}
-              >
-                ZURÜCK ZUR STARTSEITE
-              </Link>
-
-              {/* Disclaimer */}
-              <p style={{ marginTop: 36, fontFamily: "Arial, sans-serif", fontSize: 9, color: "#2a2a30", lineHeight: 1.6, textAlign: "center" }}>
-                Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik.
-              </p>
-            </div>
-          </div>
-        );
-      })()}
+      {/* Results are shown on /results page after redirect */}
     </>
   );
 }
