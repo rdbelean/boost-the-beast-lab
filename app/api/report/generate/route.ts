@@ -513,71 +513,82 @@ Erstelle den Report jetzt.`;
       });
     }
 
-    // 4. Generate PDF.
-    const pdfBuffer = await generatePDF(
-      report,
-      {
-        activity: { score: activity.score, band: activity.band },
-        sleep: { score: sleep.score, band: sleep.band },
-        vo2max: {
-          score: vo2Score.score,
-          band: vo2Score.band,
-          estimated: vo2Estimated,
+    // 4. Generate PDF — Puppeteer needs a local Chromium binary which is NOT
+    //    available on Vercel serverless. If it fails, we skip the PDF/Storage
+    //    steps and still return the report JSON so the flow doesn't break.
+    let downloadUrl: string | null = null;
+    try {
+      const pdfBuffer = await generatePDF(
+        report,
+        {
+          activity: { score: activity.score, band: activity.band },
+          sleep: { score: sleep.score, band: sleep.band },
+          vo2max: {
+            score: vo2Score.score,
+            band: vo2Score.band,
+            estimated: vo2Estimated,
+          },
+          metabolic: { score: metabolic.score, band: metabolic.band },
+          stress: { score: stress.score, band: stress.band },
+          overall: { score: overall.score, band: overall.band },
+          total_met: totalMet,
+          sleep_duration_hours: sleepDuration,
         },
-        metabolic: { score: metabolic.score, band: metabolic.band },
-        stress: { score: stress.score, band: stress.band },
-        overall: { score: overall.score, band: overall.band },
-        total_met: totalMet,
-        sleep_duration_hours: sleepDuration,
-      },
-      {
-        email: user.email,
-        age: user.age,
-        gender: user.gender,
-        bmi,
-        bmi_category: bmiCategory,
-      },
-    );
-
-    // 5. Upload PDF → Supabase Storage, with a local fallback for dev/test.
-    const fileName = `btb-report-${assessmentId}.pdf`;
-    const storagePath = `${assessmentId}/${fileName}`;
-    let downloadUrl: string;
-
-    const { error: uploadErr } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(storagePath, pdfBuffer, {
-        contentType: "application/pdf",
-        upsert: true,
-      });
-
-    if (uploadErr) {
-      console.warn(
-        `[report/generate] Supabase Storage upload failed (${uploadErr.message}) — falling back to public/test-reports`,
+        {
+          email: user.email,
+          age: user.age,
+          gender: user.gender,
+          bmi,
+          bmi_category: bmiCategory,
+        },
       );
-      const publicDir = path.join(process.cwd(), "public", "test-reports");
-      await mkdir(publicDir, { recursive: true });
-      const localPath = path.join(publicDir, fileName);
-      await writeFile(localPath, Buffer.from(pdfBuffer));
-      const origin = req.nextUrl.origin;
-      downloadUrl = `${origin}/test-reports/${fileName}`;
-    } else {
-      const { data: signed, error: signErr } = await supabase.storage
+
+      // 5. Upload PDF → Supabase Storage, with a local fallback for dev/test.
+      const fileName = `btb-report-${assessmentId}.pdf`;
+      const storagePath = `${assessmentId}/${fileName}`;
+
+      const { error: uploadErr } = await supabase.storage
         .from(STORAGE_BUCKET)
-        .createSignedUrl(storagePath, 60 * 60 * 24 * 30);
-      if (signErr) throw signErr;
-      downloadUrl = signed.signedUrl;
+        .upload(storagePath, pdfBuffer, {
+          contentType: "application/pdf",
+          upsert: true,
+        });
+
+      if (uploadErr) {
+        console.warn(
+          `[report/generate] Supabase Storage upload failed (${uploadErr.message}) — falling back to public/test-reports`,
+        );
+        const publicDir = path.join(process.cwd(), "public", "test-reports");
+        await mkdir(publicDir, { recursive: true });
+        const localPath = path.join(publicDir, fileName);
+        await writeFile(localPath, Buffer.from(pdfBuffer));
+        const origin = req.nextUrl.origin;
+        downloadUrl = `${origin}/test-reports/${fileName}`;
+      } else {
+        const { data: signed, error: signErr } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .createSignedUrl(storagePath, 60 * 60 * 24 * 30);
+        if (signErr) throw signErr;
+        downloadUrl = signed.signedUrl;
+      }
+    } catch (pdfErr) {
+      console.warn(
+        "[report/generate] PDF generation failed (Puppeteer not available?) — skipping PDF + Storage",
+        pdfErr instanceof Error ? pdfErr.message : pdfErr,
+      );
     }
 
-    // 6. Persist artifact reference.
-    await supabase.from("report_artifacts").insert({
-      assessment_id: assessmentId,
-      file_url: downloadUrl,
-      file_type: "pdf",
-    });
+    // 6. Persist artifact reference (only if PDF was generated).
+    if (downloadUrl) {
+      await supabase.from("report_artifacts").insert({
+        assessment_id: assessmentId,
+        file_url: downloadUrl,
+        file_type: "pdf",
+      });
+    }
 
-    // 7. Send email via Resend (skipped if not configured).
-    if (resendConfigured()) {
+    // 7. Send email via Resend (skipped if not configured or no PDF).
+    if (resendConfigured() && downloadUrl) {
       try {
         await sendReportEmail(user.email, downloadUrl, {
           overall: overall.score,
