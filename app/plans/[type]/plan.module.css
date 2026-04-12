@@ -224,7 +224,7 @@
 /* ─── Print ──────────────────────────────────────────────────── */
 @media print {
   /* Force background colors in print */
-  * {
+  :global(*) {
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
