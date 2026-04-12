@@ -340,7 +340,7 @@ export async function generatePDF(
   try {
     browser = await puppeteer.launch({
       executablePath,
-      headless: IS_SERVERLESS ? ("shell" as "new") : true,
+      headless: IS_SERVERLESS ? ("shell" as const) : true,
       args,
     });
     const page = await browser.newPage();
