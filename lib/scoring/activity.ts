@@ -36,6 +36,14 @@ export interface ActivityInputs {
   vigorous_minutes_per_day: number;
   /** Optional — if provided, sitting_risk_flag is derived and returned. */
   sitting_hours_per_day?: number;
+  /**
+   * Optional override for walking MET minutes / week. Used when the UI
+   * collects total time-on-feet (standing + walking) rather than discrete
+   * walking bouts — the IPAQ 180-min bout cap would otherwise distort the
+   * total. When present, walking_days + walking_minutes_per_day are ignored
+   * for the walking MET calc.
+   */
+  walking_total_minutes_week?: number;
 }
 
 export interface ActivityResult {
@@ -129,7 +137,13 @@ export function calculateActivityScore(inputs: ActivityInputs): ActivityResult {
   const modMin = normalizeBout(inputs.moderate_minutes_per_day);
   const vigMin = normalizeBout(inputs.vigorous_minutes_per_day);
 
-  const walking_met = cap960(MET_WALK * walkMin * walkDays);
+  // Walking MET: prefer explicit weekly total when provided (new standing-
+  // hours question). Otherwise fall back to IPAQ days × bout-normalized minutes.
+  const walking_met = cap960(
+    Number.isFinite(inputs.walking_total_minutes_week as number)
+      ? MET_WALK * Math.max(0, inputs.walking_total_minutes_week as number)
+      : MET_WALK * walkMin * walkDays,
+  );
   const moderate_met = cap960(MET_MOD * modMin * modDays);
   const vigorous_met = cap960(MET_VIG * vigMin * vigDays);
 

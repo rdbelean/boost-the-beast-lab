@@ -36,6 +36,10 @@ interface AssessmentRequestBody {
   // Activity — IPAQ raw
   walking_days: number;
   walking_minutes_per_day: number;
+  /** Optional new-UI override: hours on feet per day (standing + walking). */
+  standing_hours_per_day?: number;
+  /** Optional override: total walking MET minutes / week (bypasses bout cap). */
+  walking_total_minutes_week?: number;
   moderate_days: number;
   moderate_minutes_per_day: number;
   vigorous_days: number;
@@ -109,6 +113,7 @@ export async function POST(req: NextRequest) {
       activity: {
         walking_days: body.walking_days,
         walking_minutes_per_day: body.walking_minutes_per_day,
+        walking_total_minutes_week: body.walking_total_minutes_week,
         moderate_days: body.moderate_days,
         moderate_minutes_per_day: body.moderate_minutes_per_day,
         vigorous_days: body.vigorous_days,
@@ -227,6 +232,7 @@ export async function POST(req: NextRequest) {
       activity: {
         walking_days: body.walking_days,
         walking_minutes_per_day: body.walking_minutes_per_day,
+        walking_total_minutes_week: body.walking_total_minutes_week,
         moderate_days: body.moderate_days,
         moderate_minutes_per_day: body.moderate_minutes_per_day,
         vigorous_days: body.vigorous_days,

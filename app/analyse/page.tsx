@@ -21,8 +21,7 @@ interface FormData {
   trainingsart: string;
   moderateDauer: string; // NEU: <20 | 20-30 | 30-60 | >60
   intensiveDauer: string; // NEU
-  gehtage: number; // NEU 0..7
-  gehdauer: string; // NEU
+  stehzeit: string; // Stunden auf den Beinen pro Tag: <2 | 2-4 | 4-6 | >6
   schrittzahl: number;
   sitzzeit: number;
   // Kategorie 3 — Recovery & Regeneration
@@ -118,6 +117,15 @@ const REPORT_MAP: Record<string, "metabolic" | "recovery" | "complete"> = {
 const VIGOROUS_TRAININGSARTEN = new Set(["kraft", "cardio", "kampfsport", "teamsport"]);
 const MODERATE_TRAININGSARTEN = new Set(["yoga"]);
 
+// Standing-hours buckets → representative hours per day. Mapped to walking-MET
+// minutes per week in the payload (hours × 60 × 5 days as conservative avg).
+const STANDING_HOURS_MAP: Record<string, number> = {
+  "<2": 1.0,
+  "2-4": 3.0,
+  "4-6": 5.0,
+  ">6": 7.0,
+};
+
 function buildAssessmentPayload(f: FormData) {
   const trainingDays = TRAININGSFREQ_DAYS[f.trainingsfreq] ?? 0;
   const moderateMin = DURATION_MIN[f.moderateDauer] ?? 30;
@@ -135,6 +143,11 @@ function buildAssessmentPayload(f: FormData) {
     vigorous_days = Math.floor(trainingDays / 2);
   }
 
+  // Standing hours → walking MET minutes / week.
+  // Formula (briefing): walking_met_minutes = hours_on_feet × 60 × 5 days
+  const standingHoursPerDay = STANDING_HOURS_MAP[f.stehzeit] ?? 3.0;
+  const walking_total_minutes_week = standingHoursPerDay * 60 * 5;
+
   return {
     email: f.email,
     reportType: REPORT_MAP[f.selectedProduct] ?? "complete",
@@ -143,9 +156,14 @@ function buildAssessmentPayload(f: FormData) {
     height_cm: f.groesse,
     weight_kg: f.gewicht,
     fruit_veg: FRUIT_VEG_MAP[f.obstGemuese] ?? "moderate",
-    // Activity — IPAQ raw
-    walking_days: f.gehtage,
-    walking_minutes_per_day: DURATION_MIN[f.gehdauer] ?? 25,
+    // Activity — IPAQ raw. Walking is now derived from "Stunden auf den Beinen":
+    //   walking_total_minutes_week = standing_hours × 60 × 5 days (conservative avg)
+    // walking_days + walking_minutes_per_day are retained for legacy compatibility
+    // but ignored by the scoring engine when walking_total_minutes_week is present.
+    standing_hours_per_day: standingHoursPerDay,
+    walking_total_minutes_week,
+    walking_days: 5,
+    walking_minutes_per_day: Math.round(standingHoursPerDay * 60),
     moderate_days,
     moderate_minutes_per_day: moderate_days > 0 ? moderateMin : 0,
     vigorous_days,
@@ -203,8 +221,7 @@ function AnalyseContent() {
     trainingsart: "kraft",
     moderateDauer: "30-60",
     intensiveDauer: "30-60",
-    gehtage: 5,
-    gehdauer: "20-30",
+    stehzeit: "4-6",
     schrittzahl: 8000,
     sitzzeit: 6,
     schlafdauer: 7,
@@ -268,7 +285,7 @@ function AnalyseContent() {
     setForm((prev) => ({ ...prev, [key]: val }));
 
   // Count answered questions for progress
-  const totalQuestions = 20;
+  const totalQuestions = 19;
   const answeredCount = [
     form.alter > 0,
     !!form.geschlecht,
@@ -279,8 +296,7 @@ function AnalyseContent() {
     !!form.trainingsart,
     !!form.moderateDauer,
     !!form.intensiveDauer,
-    form.gehtage >= 0,
-    !!form.gehdauer,
+    !!form.stehzeit,
     form.schrittzahl > 0,
     form.sitzzeit >= 0,
     form.schlafdauer > 0,
@@ -623,29 +639,20 @@ function AnalyseContent() {
                 />
               </div>
 
-              {/* Q6d: Gehtage pro Woche */}
+              {/* Q6d: Stunden auf den Beinen pro Tag */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>GEHTAGE PRO WOCHE</span>
-                <SliderInput
-                  label="Tage mit Gehen"
-                  value={form.gehtage}
-                  min={0} max={7}
-                  unit=" Tage"
-                  onChange={(v) => set("gehtage", v)}
-                />
-              </div>
-
-              {/* Q6e: Gehdauer pro Tag */}
-              <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>MINUTEN GEHEN PRO TAG</span>
+                <span className={styles.questionLabel}>WIE VIELE STUNDEN PRO TAG BIST DU AUF DEN BEINEN?</span>
+                <span className={styles.questionSub ?? ""} style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
+                  Stehen, Gehen, Bewegen — alles außer Sitzen zählt
+                </span>
                 <RadioGroup
-                  value={form.gehdauer}
-                  onChange={(v) => set("gehdauer", v as string)}
+                  value={form.stehzeit}
+                  onChange={(v) => set("stehzeit", v as string)}
                   options={[
-                    { label: "< 20 Min", value: "<20" },
-                    { label: "20–30 Min", value: "20-30" },
-                    { label: "30–60 Min", value: "30-60" },
-                    { label: "> 60 Min", value: ">60" },
+                    { label: "< 2 Stunden", value: "<2" },
+                    { label: "2–4 Stunden", value: "2-4" },
+                    { label: "4–6 Stunden", value: "4-6" },
+                    { label: "> 6 Stunden", value: ">6" },
                   ]}
                 />
               </div>
