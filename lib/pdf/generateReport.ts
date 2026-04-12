@@ -1,12 +1,10 @@
-// PDF generation via Puppeteer. Produces the BOOST THE BEAST LAB
-// Performance Intelligence Report as an A4 PDF buffer.
-//
-// NOTE: Puppeteer ships its own Chromium (~300 MB). This is fine for local
-// dev and self-hosted Node, but Vercel's serverless function size limit
-// (250 MB compressed) will reject it. For Vercel deployment, migrate to
-// puppeteer-core + @sparticuz/chromium and load Chromium from the layer.
+// PDF generation via puppeteer-core + @sparticuz/chromium.
+// Works on both local dev AND Vercel serverless:
+//   - On Vercel: @sparticuz/chromium provides a Lambda-compatible Chromium binary
+//   - Locally: falls back to any installed Chrome/Chromium
 
-import puppeteer, { type Browser } from "puppeteer";
+import puppeteer, { type Browser } from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 export interface PdfModule {
   interpretation?: string;
@@ -284,23 +282,66 @@ function buildHtml(
 </html>`;
 }
 
+// On Vercel / AWS Lambda → @sparticuz/chromium (Linux binary).
+// Locally (macOS / Windows) → system-installed Chrome.
+const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+
+const LOCAL_CHROME_PATHS = [
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", // macOS
+  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // Windows
+  "/usr/bin/google-chrome-stable",
+  "/usr/bin/google-chrome",
+  "/usr/bin/chromium-browser",
+  "/usr/bin/chromium",
+];
+
+async function resolveChromium(): Promise<{
+  executablePath: string;
+  args: string[];
+}> {
+  if (IS_SERVERLESS) {
+    return {
+      executablePath: await chromium.executablePath(),
+      args: chromium.args,
+    };
+  }
+  // Local: find system Chrome
+  const { access } = await import("node:fs/promises");
+  for (const p of LOCAL_CHROME_PATHS) {
+    try {
+      await access(p);
+      return {
+        executablePath: p,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--font-render-hinting=none",
+        ],
+      };
+    } catch {
+      // try next
+    }
+  }
+  throw new Error(
+    "No Chrome/Chromium found locally. Install Google Chrome to generate PDFs.",
+  );
+}
+
 export async function generatePDF(
   content: PdfReportContent,
   scores: PdfScores,
   user: PdfUserProfile,
 ): Promise<Uint8Array> {
   const html = buildHtml(content, scores, user);
+  const { executablePath, args } = await resolveChromium();
 
   let browser: Browser | null = null;
   try {
     browser = await puppeteer.launch({
+      executablePath,
       headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--font-render-hinting=none",
-      ],
+      args,
     });
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
