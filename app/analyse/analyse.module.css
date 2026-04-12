@@ -709,11 +709,11 @@
   gap: 12px;
   font-family: 'Inter', sans-serif;
   font-size: 15px;
-  color: var(--text-muted);
-  opacity: 0;
-  transition: opacity 0.4s, color 0.4s;
+  color: #2a2a30;
+  opacity: 1;
+  transition: color 0.5s;
 }
-.loadingStep.stepVisible { opacity: 1; color: var(--text-primary); }
+.loadingStep.stepVisible { color: #2a2a30; }
 .loadingStep.stepDone { color: var(--success); }
 .loadingStepIcon {
   width: 20px;
