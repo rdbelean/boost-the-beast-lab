@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export const maxDuration = 120;
 
 const PROMPT_VERSION = "btb_report_v1.1.0";
-const STORAGE_BUCKET = "reports";
+const STORAGE_BUCKET = "Reports";
 
 function hasValidKey(key: string | undefined): boolean {
   if (!key) return false;
