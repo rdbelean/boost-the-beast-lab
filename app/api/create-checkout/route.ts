@@ -22,7 +22,7 @@ const PRODUCTS: Record<string, { name: string; price: number; description: strin
   },
   "complete-analysis": {
     name: "Complete Performance Analysis",
-    price: 7900,
+    price: 3990,
     description: "Alle 4 Scores + Overall Index, AI-Report, 30-Tage Prognose, Premium PDF",
   },
   "plan-metabolic": {

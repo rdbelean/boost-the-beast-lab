@@ -82,7 +82,7 @@ export default function KaufenPage() {
           {/* Price */}
           <div className={styles.priceRow}>
             <div className={styles.price}>
-              €199<span className={styles.priceCents}>,99</span>
+              €39<span className={styles.priceCents}>,90</span>
             </div>
             <div className={styles.priceSub}>einmalig · kein Abo</div>
           </div>
