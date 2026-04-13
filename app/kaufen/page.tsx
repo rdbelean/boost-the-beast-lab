@@ -25,6 +25,25 @@ const features = [
 export default function KaufenPage() {
   const router = useRouter();
 
+  async function handleBuy() {
+    try {
+      const res = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: "complete-analysis" }),
+      });
+      const { url } = await res.json();
+      if (url) {
+        window.location.href = url;
+      } else {
+        router.push("/analyse?product=complete-analysis");
+      }
+    } catch (err) {
+      console.error("[kaufen] checkout failed", err);
+      alert("Checkout konnte nicht gestartet werden. Bitte erneut versuchen.");
+    }
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.inner}>
@@ -69,7 +88,7 @@ export default function KaufenPage() {
           </div>
 
           {/* CTAs */}
-          <button className={styles.btnPrimary}>
+          <button onClick={handleBuy} className={styles.btnPrimary}>
             JETZT KAUFEN →
           </button>
 

@@ -210,6 +210,34 @@ function AnalyseContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const preselectedProduct = searchParams.get("product") ?? "complete-analysis";
+  const sessionId = searchParams.get("session_id");
+  const [paymentChecked, setPaymentChecked] = useState(false);
+
+  useEffect(() => {
+    if (!sessionId) {
+      // No session_id present — allow dev skip flow (kaufen has a demo skip button)
+      setPaymentChecked(true);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/stripe/verify?session_id=${encodeURIComponent(sessionId)}`);
+        const data = await res.json();
+        if (cancelled) return;
+        if (!data.paid) {
+          router.replace("/kaufen");
+          return;
+        }
+        setPaymentChecked(true);
+      } catch {
+        if (!cancelled) router.replace("/kaufen");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, router]);
 
   const [form, setForm] = useState<FormData>({
     alter: 28,

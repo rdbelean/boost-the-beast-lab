@@ -89,8 +89,8 @@ export async function POST(req: NextRequest) {
       metadata: {
         productId,
       },
-      success_url: `${origin}/assessment?product=${productId}&paid=true`,
-      cancel_url: `${origin}/#products`,
+      success_url: `${origin}/analyse?product=${productId}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/kaufen`,
     });
 
     return NextResponse.json({ url: session.url });

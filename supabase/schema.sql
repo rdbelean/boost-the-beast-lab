@@ -165,3 +165,18 @@ CREATE POLICY "service_role_all" ON scores FOR ALL USING (true);
 CREATE POLICY "service_role_all" ON derived_metrics FOR ALL USING (true);
 CREATE POLICY "service_role_all" ON report_jobs FOR ALL USING (true);
 CREATE POLICY "service_role_all" ON report_artifacts FOR ALL USING (true);
+
+-- PAID SESSIONS (Stripe Checkout)
+CREATE TABLE IF NOT EXISTS paid_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  stripe_session_id TEXT UNIQUE NOT NULL,
+  product_id TEXT,
+  email TEXT,
+  amount_cents INTEGER,
+  currency TEXT DEFAULT 'eur',
+  status TEXT DEFAULT 'paid',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_paid_sessions_stripe_id ON paid_sessions(stripe_session_id);
+ALTER TABLE paid_sessions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "service_role_all" ON paid_sessions FOR ALL USING (true);
