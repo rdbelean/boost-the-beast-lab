@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import styles from "./plan.module.css";
 
-async function downloadPlanAsPDF(plan: PlanContent) {
+async function openPlanAsPDF(plan: PlanContent) {
   try {
     const res = await fetch("/api/plan/pdf", {
       method: "POST",
@@ -14,15 +14,12 @@ async function downloadPlanAsPDF(plan: PlanContent) {
     if (!res.ok) throw new Error("PDF generation failed");
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `btb-${plan.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Open in new tab — browser shows native PDF viewer with download button
+    window.open(url, "_blank");
+    // Revoke after a short delay to allow the tab to load the blob
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   } catch {
-    // Fallback to html2canvas if server PDF fails
+    // Fallback: open html2canvas screenshot as PDF in new tab
     const content = document.getElementById("plan-content");
     if (!content) return;
     const { default: html2canvas } = await import("html2canvas");
@@ -41,7 +38,10 @@ async function downloadPlanAsPDF(plan: PlanContent) {
       placed += pageH;
       if (remaining > 0) pdf.addPage();
     }
-    pdf.save(`btb-${plan.title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
+    const pdfBlob = pdf.output("blob");
+    const url = URL.createObjectURL(pdfBlob);
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 }
 
@@ -329,7 +329,7 @@ export default function PlanPage() {
       <div className={styles.header}>
         <Link href="/results" className={styles.backLink}>← ZURÜCK ZUM REPORT</Link>
         <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
-        <button onClick={() => downloadPlanAsPDF(plan)} className={styles.printBtn}>
+        <button onClick={() => openPlanAsPDF(plan)} className={styles.printBtn}>
           PDF DOWNLOAD ↓
         </button>
       </div>
@@ -357,7 +357,7 @@ export default function PlanPage() {
         ))}
 
         <div className={styles.actions}>
-          <button onClick={() => downloadPlanAsPDF(plan)} className={styles.btnPrimary} style={{ background: plan.color }}>
+          <button onClick={() => openPlanAsPDF(plan)} className={styles.btnPrimary} style={{ background: plan.color }}>
             PLAN ALS PDF HERUNTERLADEN
           </button>
           <Link href="/results" className={styles.btnSecondary}>

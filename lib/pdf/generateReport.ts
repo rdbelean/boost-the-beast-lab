@@ -203,13 +203,6 @@ function buildHtml(
   // Module-specific enrichment boxes per page
   const sleepExtras = ""; // sleep has no module-specific extras in schema
 
-  const recoveryExtras = contextBox(
-    "ÜBERTRAININGS-SIGNAL",
-    "⚠",
-    "#E63222",
-    content.modules.recovery.overtraining_signal,
-  );
-
   const activityExtras = [
     contextBox(
       "WHO & IPAQ KONTEXT",
@@ -399,12 +392,11 @@ function buildHtml(
     <p>${esc(content.executive_summary)}</p>
 
     <div class="score-grid">
-      ${scoreCard("SLEEP", scores.sleep.score, scores.sleep.band)}
-      ${scoreCard("RECOVERY", scores.recovery.score, scores.recovery.band)}
       ${scoreCard("ACTIVITY", scores.activity.score, scores.activity.band)}
+      ${scoreCard("SLEEP", scores.sleep.score, scores.sleep.band)}
+      ${scoreCard("VO2MAX", scores.vo2max.score, scores.vo2max.band)}
       ${scoreCard("METABOLIC", scores.metabolic.score, scores.metabolic.band)}
       ${scoreCard("STRESS", scores.stress.score, scores.stress.band)}
-      ${scoreCard("VO2MAX", scores.vo2max.score, scores.vo2max.band)}
     </div>
 
     <div class="overall">
@@ -438,31 +430,7 @@ function buildHtml(
   </section>
   ` : ""}
 
-  <!-- MODULE PAGES — order: Sleep → Recovery → Activity → Metabolic → Stress → VO2max -->
-
-  ${modulePage(
-    "SLEEP",
-    scores.sleep.score,
-    scores.sleep.band,
-    content.modules.sleep,
-    sleepExtras,
-    `<table>
-      <tr><td>Schlafdauer</td><td>${scores.sleep_duration_hours} h / Nacht</td></tr>
-    </table>`,
-  )}
-
-  ${modulePage(
-    "RECOVERY",
-    scores.recovery.score,
-    scores.recovery.band,
-    content.modules.recovery,
-    recoveryExtras,
-    scores.training_days != null
-      ? `<table>
-          <tr><td>Trainingseinheiten / Woche</td><td>${scores.training_days}</td></tr>
-        </table>`
-      : "",
-  )}
+  <!-- MODULE PAGES — order: Activity → Sleep → VO2max → Metabolic → Stress -->
 
   ${modulePage(
     "ACTIVITY",
@@ -473,6 +441,30 @@ function buildHtml(
     `<table>
       <tr><td>Gesamt MET-Minuten / Woche</td><td>${scores.total_met}</td></tr>
       ${scores.sitting_hours != null ? `<tr><td>Sitzzeit / Tag</td><td>${scores.sitting_hours} h</td></tr>` : ""}
+      ${scores.training_days != null ? `<tr><td>Trainingseinheiten / Woche</td><td>${scores.training_days}</td></tr>` : ""}
+    </table>`,
+  )}
+
+  ${modulePage(
+    "SLEEP",
+    scores.sleep.score,
+    scores.sleep.band,
+    content.modules.sleep,
+    sleepExtras,
+    `<table>
+      <tr><td>Schlafdauer</td><td>${scores.sleep_duration_hours} h / Nacht</td></tr>
+      ${scores.training_days != null ? `<tr><td>Recovery Score</td><td>${scores.recovery.score}/100 (${esc(scores.recovery.band)})</td></tr>` : ""}
+    </table>`,
+  )}
+
+  ${modulePage(
+    "VO2MAX",
+    scores.vo2max.score,
+    scores.vo2max.band,
+    content.modules.vo2max,
+    vo2maxExtras,
+    `<table>
+      <tr><td>Geschätzter VO2max</td><td>${scores.vo2max.estimated} ml/kg/min</td></tr>
     </table>`,
   )}
 
@@ -494,17 +486,6 @@ function buildHtml(
     content.modules.stress,
     stressExtras,
     "",
-  )}
-
-  ${modulePage(
-    "VO2MAX",
-    scores.vo2max.score,
-    scores.vo2max.band,
-    content.modules.vo2max,
-    vo2maxExtras,
-    `<table>
-      <tr><td>Geschätzter VO2max</td><td>${scores.vo2max.estimated} ml/kg/min</td></tr>
-    </table>`,
   )}
 
   <!-- DISCLAIMER -->

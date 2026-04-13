@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import styles from "./results.module.css";
 
-async function downloadResultsAsPDF() {
+async function openResultsAsPDF() {
   const content = document.getElementById("results-content");
   if (!content) return;
   const { default: html2canvas } = await import("html2canvas");
@@ -22,7 +22,10 @@ async function downloadResultsAsPDF() {
     placed += pageH;
     if (remaining > 0) pdf.addPage();
   }
-  pdf.save("btb-performance-report.pdf");
+  const blob = pdf.output("blob");
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank");
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 /* ─── Animated Counter ──────────────────────────────────────── */
@@ -191,7 +194,7 @@ export default function ResultsPage() {
               PDF DOWNLOAD
             </a>
           ) : (
-            <button onClick={downloadResultsAsPDF} className={styles.headerBtnPrimary}>
+            <button onClick={openResultsAsPDF} className={styles.headerBtnPrimary}>
               PDF DOWNLOAD
             </button>
           )}
@@ -430,7 +433,7 @@ export default function ResultsPage() {
                 REPORT ALS PDF HERUNTERLADEN
               </a>
             ) : (
-              <button onClick={downloadResultsAsPDF} className={styles.ctaBtnPrimary}>
+              <button onClick={openResultsAsPDF} className={styles.ctaBtnPrimary}>
                 REPORT ALS PDF HERUNTERLADEN
               </button>
             )}
