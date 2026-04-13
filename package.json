@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
+    "@react-pdf/renderer": "^4.4.1",
     "@sparticuz/chromium": "^147.0.0",
     "@stripe/stripe-js": "^9.0.1",
     "@supabase/supabase-js": "^2.103.0",

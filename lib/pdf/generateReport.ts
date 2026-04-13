@@ -1,25 +1,30 @@
-// PDF generation via puppeteer-core + @sparticuz/chromium.
-// Works on both local dev AND Vercel serverless:
-//   - On Vercel: @sparticuz/chromium provides a Lambda-compatible Chromium binary
-//   - Locally: falls back to any installed Chrome/Chromium
+// Server-side PDF generation via @react-pdf/renderer.
+// Pure JavaScript — no Chromium / Puppeteer required.
+// Works reliably on Vercel serverless functions.
 
-import puppeteer, { type Browser } from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import React from "react";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  renderToBuffer,
+  type DocumentProps,
+} from "@react-pdf/renderer";
 
-// ── Types ────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────
 
 export interface PdfModule {
-  // Core fields (always present)
   score_context?: string;
   key_finding?: string;
   systemic_connection?: string;
   limitation?: string;
   recommendation?: string;
-  // Legacy alias for main_finding → key_finding (tolerated)
+  // Legacy aliases
   main_finding?: string;
   interpretation?: string;
   systemic_impact?: string;
-  // Module-specific enrichments (optional — rendered as contextual boxes)
   overtraining_signal?: string | null;
   met_context?: string;
   sitting_flag?: string | null;
@@ -43,7 +48,6 @@ export interface PdfReportContent {
   };
   top_priority: string;
   systemic_connections_overview?: string;
-  /** Legacy alias for systemic_connections_overview */
   systemic_connections?: string;
   prognose_30_days: string;
   disclaimer: string;
@@ -76,7 +80,16 @@ export interface PdfUserProfile {
   bmi_category: string;
 }
 
-// ── Rendering helpers ────────────────────────────────────────────────────
+// ── Colour helpers ────────────────────────────────────────────────────────
+
+const ACCENT = "#E63222";
+const BG_COVER = "#111111";
+const BG_PAGE = "#F0EEEA";
+const TEXT_PRIMARY = "#111111";
+const TEXT_SECONDARY = "#444444";
+const TEXT_MUTED = "#777777";
+const BORDER_LIGHT = "#DEDAD5";
+const CARD_BG = "#FFFFFF";
 
 function scoreColor(score: number): string {
   if (score < 40) return "#E63222";
@@ -85,492 +98,859 @@ function scoreColor(score: number): string {
   return "#22C55E";
 }
 
-function esc(s: string | undefined | null): string {
+function safe(s: string | undefined | null): string {
   if (!s) return "";
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return String(s);
 }
 
-function paragraphs(text: string | undefined | null): string {
-  if (!text) return "";
-  return esc(text)
-    .split(/\n{2,}/)
-    .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
-    .join("");
+// ── Styles ────────────────────────────────────────────────────────────────
+
+const S = StyleSheet.create({
+  // Pages
+  coverPage: {
+    backgroundColor: BG_COVER,
+    width: "100%",
+    height: "100%",
+    padding: 0,
+    flexDirection: "column",
+  },
+  contentPage: {
+    backgroundColor: BG_PAGE,
+    padding: "18mm 20mm",
+    flexDirection: "column",
+  },
+  disclaimerPage: {
+    backgroundColor: BG_PAGE,
+    padding: "18mm 20mm",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+
+  // Cover elements
+  coverAccentBar: {
+    height: 6,
+    backgroundColor: ACCENT,
+    width: "100%",
+  },
+  coverInner: {
+    padding: "20mm 20mm 18mm",
+    flex: 1,
+    flexDirection: "column",
+  },
+  coverBrand: {
+    fontSize: 10,
+    letterSpacing: 3,
+    color: "#FFFFFF",
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+  },
+  coverBrandSub: {
+    fontSize: 7,
+    letterSpacing: 2,
+    color: ACCENT,
+    textTransform: "uppercase",
+    marginTop: 4,
+  },
+  coverHeroWrapper: {
+    marginTop: 52,
+  },
+  coverHero: {
+    fontSize: 52,
+    color: "#FFFFFF",
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: -1,
+    lineHeight: 1.05,
+    textTransform: "uppercase",
+  },
+  coverSubtitle: {
+    marginTop: 18,
+    fontSize: 12,
+    color: "#AAAAAA",
+    lineHeight: 1.6,
+    maxWidth: 340,
+  },
+  coverFooterRow: {
+    marginTop: "auto",
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: "#2A2A2A",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+  },
+  coverFooterText: {
+    fontSize: 7,
+    color: "#555555",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  coverScoreWatermark: {
+    fontSize: 110,
+    color: ACCENT,
+    fontFamily: "Helvetica-Bold",
+    opacity: 0.15,
+    lineHeight: 1,
+  },
+
+  // Page header (content pages)
+  pageHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: ACCENT,
+    marginBottom: 18,
+  },
+  pageHeaderBrand: {
+    fontSize: 7,
+    letterSpacing: 2,
+    color: TEXT_MUTED,
+    textTransform: "uppercase",
+  },
+  pageHeaderDate: {
+    fontSize: 7,
+    color: "#AAAAAA",
+  },
+
+  // Section labels
+  sectionLabel: {
+    fontSize: 8,
+    letterSpacing: 2.5,
+    color: ACCENT,
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 12,
+  },
+  sectionSub: {
+    fontSize: 7,
+    letterSpacing: 2,
+    color: TEXT_MUTED,
+    textTransform: "uppercase",
+    marginTop: 14,
+    marginBottom: 5,
+  },
+
+  // Summary
+  summaryText: {
+    fontSize: 11,
+    lineHeight: 1.8,
+    color: TEXT_SECONDARY,
+    marginBottom: 16,
+  },
+  scoreGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7,
+    marginTop: 4,
+  },
+  scoreCard: {
+    width: "18.5%",
+    backgroundColor: CARD_BG,
+    borderWidth: 1,
+    borderColor: BORDER_LIGHT,
+    borderRadius: 3,
+    padding: "10 8",
+  },
+  scLabel: {
+    fontSize: 6,
+    color: TEXT_MUTED,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+  },
+  scValue: {
+    fontSize: 26,
+    fontFamily: "Helvetica-Bold",
+    marginTop: 3,
+    marginBottom: 2,
+  },
+  scBarTrack: {
+    height: 3,
+    backgroundColor: BORDER_LIGHT,
+    borderRadius: 2,
+    marginTop: 3,
+  },
+  scBarFill: {
+    height: 3,
+    borderRadius: 2,
+  },
+  scBand: {
+    marginTop: 5,
+    fontSize: 6,
+    color: TEXT_MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+
+  overallBox: {
+    marginTop: 14,
+    padding: "12 16",
+    backgroundColor: CARD_BG,
+    borderWidth: 1,
+    borderColor: BORDER_LIGHT,
+    borderLeftWidth: 4,
+    borderLeftColor: ACCENT,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  overallLabel: {
+    fontSize: 7,
+    color: TEXT_MUTED,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+  },
+  overallValue: {
+    fontSize: 42,
+    fontFamily: "Helvetica-Bold",
+    color: ACCENT,
+    lineHeight: 1,
+    marginTop: 3,
+  },
+  overallMeta: {
+    fontSize: 7,
+    color: TEXT_SECONDARY,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    marginTop: 4,
+  },
+  overallRight: {
+    fontSize: 8,
+    color: TEXT_MUTED,
+    textAlign: "right",
+    lineHeight: 1.7,
+  },
+
+  priorityBox: {
+    marginTop: 12,
+    padding: "10 14",
+    borderWidth: 1.5,
+    borderColor: ACCENT,
+    backgroundColor: "#FFF5F4",
+  },
+  priorityLabel: {
+    fontSize: 7,
+    letterSpacing: 2.5,
+    color: ACCENT,
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+  },
+  priorityText: {
+    marginTop: 5,
+    fontSize: 10,
+    color: TEXT_PRIMARY,
+    lineHeight: 1.6,
+    fontFamily: "Helvetica-Bold",
+  },
+
+  // Module page
+  moduleHead: {
+    marginBottom: 10,
+  },
+  moduleTitleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+  },
+  moduleTitle: {
+    fontSize: 26,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    color: TEXT_PRIMARY,
+    letterSpacing: -0.5,
+  },
+  moduleScoreNum: {
+    fontSize: 46,
+    fontFamily: "Helvetica-Bold",
+    lineHeight: 1,
+  },
+  moduleScoreSub: {
+    fontSize: 12,
+    color: TEXT_MUTED,
+  },
+  moduleBand: {
+    fontSize: 7,
+    color: TEXT_MUTED,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    marginTop: 3,
+  },
+  moduleBarTrack: {
+    marginTop: 8,
+    height: 4,
+    backgroundColor: BORDER_LIGHT,
+  },
+  moduleBarFill: {
+    height: 4,
+  },
+
+  // Text blocks
+  contextText: {
+    fontSize: 10.5,
+    color: "#555555",
+    lineHeight: 1.75,
+  },
+  findingText: {
+    fontSize: 11,
+    color: TEXT_PRIMARY,
+    lineHeight: 1.7,
+    fontFamily: "Helvetica-Bold",
+  },
+
+  // Info boxes
+  systemicBox: {
+    marginTop: 12,
+    padding: "10 12",
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    borderLeftWidth: 3,
+    borderLeftColor: "#3B82F6",
+    flexDirection: "row",
+    gap: 10,
+  },
+  systemicIcon: {
+    fontSize: 13,
+    color: "#3B82F6",
+    fontFamily: "Helvetica-Bold",
+  },
+  systemicLabel: {
+    fontSize: 6.5,
+    letterSpacing: 2,
+    color: "#3B82F6",
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 3,
+  },
+  systemicText: {
+    fontSize: 10,
+    color: "#333333",
+    lineHeight: 1.65,
+  },
+
+  warnRow: {
+    marginTop: 10,
+    padding: "9 12",
+    backgroundColor: "#FFF8F7",
+    borderWidth: 1,
+    borderColor: BORDER_LIGHT,
+    borderLeftWidth: 3,
+    borderLeftColor: ACCENT,
+    flexDirection: "row",
+    gap: 10,
+  },
+  okRow: {
+    marginTop: 10,
+    padding: "9 12",
+    backgroundColor: "#F7FFF9",
+    borderWidth: 1,
+    borderColor: BORDER_LIGHT,
+    borderLeftWidth: 3,
+    borderLeftColor: "#22C55E",
+    flexDirection: "row",
+    gap: 10,
+  },
+  rowIconWarn: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: ACCENT,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rowIconOk: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: "#22C55E",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rowIconText: {
+    fontSize: 9,
+    color: "#FFFFFF",
+    fontFamily: "Helvetica-Bold",
+  },
+  rowLabel: {
+    fontSize: 6.5,
+    letterSpacing: 2,
+    color: TEXT_MUTED,
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 3,
+  },
+  rowText: {
+    fontSize: 10,
+    color: TEXT_SECONDARY,
+    lineHeight: 1.6,
+  },
+
+  // Metrics table
+  metricsSection: {
+    marginTop: 14,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: BORDER_LIGHT,
+  },
+  metricsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 3,
+  },
+  metricsKey: {
+    fontSize: 9,
+    color: TEXT_MUTED,
+  },
+  metricsVal: {
+    fontSize: 9,
+    color: TEXT_PRIMARY,
+    fontFamily: "Helvetica-Bold",
+  },
+
+  // Disclaimer
+  disclaimerTitle: {
+    marginTop: 40,
+    fontSize: 18,
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: 1,
+    color: TEXT_PRIMARY,
+    textAlign: "center",
+  },
+  disclaimerStrong: {
+    marginTop: 10,
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: ACCENT,
+    letterSpacing: 1,
+    textAlign: "center",
+    textTransform: "uppercase",
+  },
+  disclaimerBody: {
+    marginTop: 18,
+    maxWidth: 360,
+    fontSize: 10,
+    lineHeight: 1.75,
+    color: "#555555",
+    textAlign: "center",
+  },
+  disclaimerContact: {
+    marginTop: 28,
+    fontSize: 7,
+    letterSpacing: 1.5,
+    color: "#999999",
+    textTransform: "uppercase",
+    textAlign: "center",
+  },
+
+  // Footer
+  footerNote: {
+    position: "absolute",
+    bottom: 14,
+    left: 20,
+    right: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderTopWidth: 1,
+    borderTopColor: BORDER_LIGHT,
+    paddingTop: 5,
+  },
+  footerText: {
+    fontSize: 7,
+    color: "#AAAAAA",
+    letterSpacing: 0.5,
+  },
+
+  // Critical banner
+  criticalBanner: {
+    marginTop: 28,
+    padding: "14 18",
+    backgroundColor: "#FEE2E2",
+    borderWidth: 1,
+    borderColor: ACCENT,
+    borderLeftWidth: 4,
+    borderLeftColor: ACCENT,
+  },
+  criticalBadge: {
+    fontSize: 7,
+    letterSpacing: 2.5,
+    fontFamily: "Helvetica-Bold",
+    backgroundColor: ACCENT,
+    color: "#FFFFFF",
+    padding: "3 8",
+    marginBottom: 8,
+    alignSelf: "flex-start",
+  },
+  criticalText: {
+    fontSize: 11,
+    color: TEXT_PRIMARY,
+    lineHeight: 1.6,
+  },
+});
+
+// ── Reusable sub-components ───────────────────────────────────────────────
+
+function PageHeader({ today }: { today: string }) {
+  return (
+    React.createElement(View, { style: S.pageHeader },
+      React.createElement(Text, { style: S.pageHeaderBrand }, "BOOST THE BEAST LAB"),
+      React.createElement(Text, { style: S.pageHeaderDate }, today),
+    )
+  );
 }
 
-function contextBox(label: string, icon: string, color: string, text: string | null | undefined): string {
-  if (!text) return "";
-  return `
-    <div class="ctx-box" style="border-left-color:${color}">
-      <div class="ctx-icon" style="background:${color}">${icon}</div>
-      <div class="ctx-body">
-        <div class="ctx-label">${esc(label)}</div>
-        <div class="ctx-text">${esc(text)}</div>
-      </div>
-    </div>
-  `;
+function ScoreCard({ label, score, band }: { label: string; score: number; band: string }) {
+  const color = scoreColor(score);
+  const pct = Math.max(0, Math.min(100, score));
+  return (
+    React.createElement(View, { style: S.scoreCard },
+      React.createElement(Text, { style: S.scLabel }, label),
+      React.createElement(Text, { style: [S.scValue, { color }] }, String(score)),
+      React.createElement(View, { style: S.scBarTrack },
+        React.createElement(View, { style: [S.scBarFill, { width: `${pct}%`, backgroundColor: color }] }),
+      ),
+      React.createElement(Text, { style: S.scBand }, safe(band)),
+    )
+  );
 }
 
-function scoreCard(label: string, score: number, band: string): string {
-  return `
-    <div class="score-card">
-      <div class="sc-label">${esc(label)}</div>
-      <div class="sc-value" style="color:${scoreColor(score)}">${score}</div>
-      <div class="sc-bar"><div class="sc-fill" style="width:${Math.max(0, Math.min(100, score))}%;background:${scoreColor(score)}"></div></div>
-      <div class="sc-band">${esc(band)}</div>
-    </div>
-  `;
+function SectionRow({
+  variant,
+  label,
+  text,
+}: {
+  variant: "warn" | "ok";
+  label: string;
+  text: string;
+}) {
+  const rowStyle = variant === "warn" ? S.warnRow : S.okRow;
+  const iconStyle = variant === "warn" ? S.rowIconWarn : S.rowIconOk;
+  const icon = variant === "warn" ? "!" : "→";
+  return (
+    React.createElement(View, { style: rowStyle },
+      React.createElement(View, { style: iconStyle },
+        React.createElement(Text, { style: S.rowIconText }, icon),
+      ),
+      React.createElement(View, { style: { flex: 1 } },
+        React.createElement(Text, { style: S.rowLabel }, label),
+        React.createElement(Text, { style: S.rowText }, safe(text)),
+      ),
+    )
+  );
 }
 
-function modulePage(
-  title: string,
-  score: number,
-  band: string,
-  mod: PdfModule,
-  enrichments: string,
-  metricsTable: string,
-): string {
+function ModulePage({
+  title,
+  score,
+  band,
+  mod,
+  metrics,
+  today,
+}: {
+  title: string;
+  score: number;
+  band: string;
+  mod: PdfModule;
+  metrics: Array<[string, string]>;
+  today: string;
+}) {
   const color = scoreColor(score);
   const keyFinding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
   const systemic = mod.systemic_connection ?? mod.systemic_impact ?? "";
-  return `
-  <section class="page module">
-    <div class="module-head">
-      <div class="module-title-row">
-        <div class="module-title">${esc(title)}</div>
-        <div class="module-score" style="color:${color}">${score}<span class="module-score-sub">/100</span></div>
-      </div>
-      <div class="module-band">${esc(band)}</div>
-      <div class="module-bar"><div class="module-bar-fill" style="width:${Math.max(0, Math.min(100, score))}%;background:${color}"></div></div>
-    </div>
+  const pct = Math.max(0, Math.min(100, score));
 
-    ${mod.score_context ? `<div class="section-sub">EINORDNUNG</div><p class="context">${esc(mod.score_context)}</p>` : ""}
-    ${keyFinding ? `<div class="section-sub">HAUPTBEFUND</div><p class="finding">${esc(keyFinding)}</p>` : ""}
-    ${systemic ? `
-      <div class="systemic">
-        <div class="systemic-icon">↔</div>
-        <div>
-          <div class="systemic-label">SYSTEMISCHE VERBINDUNG</div>
-          <div class="systemic-text">${esc(systemic)}</div>
-        </div>
-      </div>
-    ` : ""}
+  return (
+    React.createElement(Page, { size: "A4", style: S.contentPage },
+      React.createElement(PageHeader, { today }),
 
-    ${enrichments}
+      // Module head
+      React.createElement(View, { style: S.moduleHead },
+        React.createElement(View, { style: S.moduleTitleRow },
+          React.createElement(Text, { style: S.moduleTitle }, title),
+          React.createElement(View, { style: { flexDirection: "row", alignItems: "baseline" } },
+            React.createElement(Text, { style: [S.moduleScoreNum, { color }] }, String(score)),
+            React.createElement(Text, { style: S.moduleScoreSub }, "/100"),
+          ),
+        ),
+        React.createElement(Text, { style: S.moduleBand }, safe(band)),
+        React.createElement(View, { style: S.moduleBarTrack },
+          React.createElement(View, { style: [S.moduleBarFill, { width: `${pct}%`, backgroundColor: color }] }),
+        ),
+      ),
 
-    ${mod.limitation ? `
-      <div class="row row-warn">
-        <span class="icon icon-warn">!</span>
-        <div>
-          <div class="row-label">LIMITIERUNG</div>
-          ${esc(mod.limitation)}
-        </div>
-      </div>
-    ` : ""}
+      // Score context
+      mod.score_context ? React.createElement(React.Fragment, null,
+        React.createElement(Text, { style: S.sectionSub }, "EINORDNUNG"),
+        React.createElement(Text, { style: S.contextText }, safe(mod.score_context)),
+      ) : null,
 
-    ${mod.recommendation ? `
-      <div class="row row-ok">
-        <span class="icon icon-ok">→</span>
-        <div>
-          <div class="row-label">NÄCHSTER SCHRITT</div>
-          ${esc(mod.recommendation)}
-        </div>
-      </div>
-    ` : ""}
+      // Key finding
+      keyFinding ? React.createElement(React.Fragment, null,
+        React.createElement(Text, { style: S.sectionSub }, "HAUPTBEFUND"),
+        React.createElement(Text, { style: S.findingText }, keyFinding),
+      ) : null,
 
-    ${metricsTable ? `<div class="metrics">${metricsTable}</div>` : ""}
-  </section>
-  `;
+      // Systemic connection
+      systemic ? React.createElement(View, { style: S.systemicBox },
+        React.createElement(View, { style: { flex: 1 } },
+          React.createElement(Text, { style: S.systemicLabel }, "SYSTEMISCHE VERBINDUNG"),
+          React.createElement(Text, { style: S.systemicText }, systemic),
+        ),
+      ) : null,
+
+      // Limitation
+      mod.limitation ? React.createElement(SectionRow, { variant: "warn", label: "LIMITIERUNG", text: mod.limitation }) : null,
+
+      // Recommendation
+      mod.recommendation ? React.createElement(SectionRow, { variant: "ok", label: "NÄCHSTER SCHRITT", text: mod.recommendation }) : null,
+
+      // Metrics
+      metrics.length > 0 ? React.createElement(View, { style: S.metricsSection },
+        ...metrics.map(([key, val]) =>
+          React.createElement(View, { key, style: S.metricsRow },
+            React.createElement(Text, { style: S.metricsKey }, key),
+            React.createElement(Text, { style: S.metricsVal }, val),
+          )
+        ),
+      ) : null,
+
+      // Footer
+      React.createElement(View, { style: S.footerNote },
+        React.createElement(Text, { style: S.footerText }, "PERFORMANCE LAB · Kein Ersatz für medizinische Beratung"),
+        React.createElement(Text, { style: S.footerText }, today),
+      ),
+    )
+  );
 }
 
-function buildHtml(
-  content: PdfReportContent,
-  scores: PdfScores,
-  user: PdfUserProfile,
-): string {
-  const today = new Date().toLocaleDateString("de-DE", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+// ── Main document ─────────────────────────────────────────────────────────
 
+function BTBReport({
+  content,
+  scores,
+  user,
+  today,
+}: {
+  content: PdfReportContent;
+  scores: PdfScores;
+  user: PdfUserProfile;
+  today: string;
+}) {
   const systemicOverview =
     content.systemic_connections_overview ?? content.systemic_connections ?? "";
 
-  // Module-specific enrichment boxes per page
-  const sleepExtras = ""; // sleep has no module-specific extras in schema
+  return React.createElement(Document, { title: "BTB Performance Intelligence Report" },
 
-  const activityExtras = [
-    contextBox(
-      "WHO & IPAQ KONTEXT",
-      "i",
-      "#3B82F6",
-      content.modules.activity.met_context,
+    // ── Page 1: Cover ───────────────────────────────────────────────────
+    React.createElement(Page, { size: "A4", style: S.coverPage },
+      React.createElement(View, { style: S.coverAccentBar }),
+      React.createElement(View, { style: S.coverInner },
+        React.createElement(Text, { style: S.coverBrand }, "BOOST THE BEAST LAB"),
+        React.createElement(Text, { style: S.coverBrandSub }, "PERFORMANCE LAB"),
+
+        React.createElement(View, { style: S.coverHeroWrapper },
+          React.createElement(Text, { style: S.coverHero }, "PERFORMANCE"),
+          React.createElement(Text, { style: S.coverHero }, "INTELLIGENCE"),
+          React.createElement(Text, { style: S.coverHero }, "REPORT"),
+        ),
+
+        React.createElement(Text, { style: S.coverSubtitle },
+          `Performance Report — ${user.age} Jahre, ${safe(user.gender)} | Overall Performance Index: ${scores.overall.score}/100 (${safe(scores.overall.band)})`
+        ),
+
+        safe(content.headline) ? React.createElement(Text, {
+          style: [S.coverSubtitle, { marginTop: 12, color: "#888888", fontSize: 10 }]
+        }, safe(content.headline)) : null,
+
+        // Critical flag on cover
+        content.critical_flag ? React.createElement(View, { style: S.criticalBanner },
+          React.createElement(Text, { style: S.criticalBadge }, "KRITISCH"),
+          React.createElement(Text, { style: S.criticalText }, safe(content.critical_flag)),
+        ) : null,
+
+        React.createElement(View, { style: S.coverFooterRow },
+          React.createElement(View, null,
+            React.createElement(Text, { style: S.coverFooterText }, today),
+            React.createElement(Text, { style: [S.coverFooterText, { marginTop: 3 }] },
+              `VERTRAULICH — NUR FÜR ${safe(user.email).toUpperCase()}`
+            ),
+          ),
+          React.createElement(Text, { style: S.coverScoreWatermark }, String(scores.overall.score)),
+        ),
+      ),
     ),
-    contextBox(
-      "SITZZEIT-RISIKO",
-      "!",
-      "#E63222",
-      content.modules.activity.sitting_flag,
+
+    // ── Page 2: Summary ─────────────────────────────────────────────────
+    React.createElement(Page, { size: "A4", style: S.contentPage },
+      React.createElement(PageHeader, { today }),
+      React.createElement(Text, { style: S.sectionLabel }, "GESAMTBILD"),
+
+      // Executive summary
+      React.createElement(Text, { style: S.summaryText }, safe(content.executive_summary)),
+
+      // Score grid — 5 cards
+      React.createElement(View, { style: S.scoreGrid },
+        React.createElement(ScoreCard, { label: "ACTIVITY", score: scores.activity.score, band: scores.activity.band }),
+        React.createElement(ScoreCard, { label: "SLEEP", score: scores.sleep.score, band: scores.sleep.band }),
+        React.createElement(ScoreCard, { label: "VO2MAX", score: scores.vo2max.score, band: scores.vo2max.band }),
+        React.createElement(ScoreCard, { label: "METABOLIC", score: scores.metabolic.score, band: scores.metabolic.band }),
+        React.createElement(ScoreCard, { label: "STRESS", score: scores.stress.score, band: scores.stress.band }),
+      ),
+
+      // Overall index
+      React.createElement(View, { style: S.overallBox },
+        React.createElement(View, null,
+          React.createElement(Text, { style: S.overallLabel }, "OVERALL PERFORMANCE INDEX"),
+          React.createElement(Text, { style: S.overallValue }, String(scores.overall.score)),
+          React.createElement(Text, { style: S.overallMeta }, safe(scores.overall.band)),
+        ),
+        React.createElement(Text, { style: S.overallRight },
+          `BMI ${user.bmi} · ${safe(user.bmi_category)}\n${user.age} Jahre · ${safe(user.gender)}`
+        ),
+      ),
+
+      // Top priority
+      React.createElement(View, { style: S.priorityBox },
+        React.createElement(Text, { style: S.priorityLabel }, "TOP PRIORITÄT"),
+        React.createElement(Text, { style: S.priorityText }, safe(content.top_priority)),
+      ),
+
+      React.createElement(View, { style: S.footerNote },
+        React.createElement(Text, { style: S.footerText }, "PERFORMANCE LAB · Kein Ersatz für medizinische Beratung"),
+        React.createElement(Text, { style: S.footerText }, today),
+      ),
     ),
-  ].join("");
 
-  const metabolicExtras = contextBox(
-    "BMI-KONTEXT",
-    "i",
-    "#8B5CF6",
-    content.modules.metabolic.bmi_context,
-  );
+    // ── Pages 3–7: Module pages (Activity, Sleep, VO2max, Metabolic, Stress) ──
 
-  const stressExtras = contextBox(
-    "HPA-ACHSE",
-    "⚠",
-    "#E63222",
-    content.modules.stress.hpa_context,
-  );
+    React.createElement(ModulePage, {
+      title: "ACTIVITY",
+      score: scores.activity.score,
+      band: scores.activity.band,
+      mod: content.modules.activity,
+      metrics: [
+        ["Gesamt MET-Minuten / Woche", String(scores.total_met)],
+        ...(scores.sitting_hours != null ? [["Sitzzeit / Tag", `${scores.sitting_hours} h`] as [string, string]] : []),
+        ...(scores.training_days != null ? [["Trainingseinheiten / Woche", String(scores.training_days)] as [string, string]] : []),
+      ],
+      today,
+    }),
 
-  const vo2maxExtras = [
-    contextBox(
-      "FITNESS-KONTEXT",
-      "i",
-      "#3B82F6",
-      content.modules.vo2max.fitness_context,
+    React.createElement(ModulePage, {
+      title: "SLEEP",
+      score: scores.sleep.score,
+      band: scores.sleep.band,
+      mod: content.modules.sleep,
+      metrics: [
+        ["Schlafdauer", `${scores.sleep_duration_hours} h / Nacht`],
+        ["Recovery Score", `${scores.recovery.score}/100 (${safe(scores.recovery.band)})`],
+      ],
+      today,
+    }),
+
+    React.createElement(ModulePage, {
+      title: "VO2MAX",
+      score: scores.vo2max.score,
+      band: scores.vo2max.band,
+      mod: content.modules.vo2max,
+      metrics: [
+        ["Geschätzter VO2max", `${scores.vo2max.estimated} ml/kg/min`],
+      ],
+      today,
+    }),
+
+    React.createElement(ModulePage, {
+      title: "METABOLIC",
+      score: scores.metabolic.score,
+      band: scores.metabolic.band,
+      mod: content.modules.metabolic,
+      metrics: [
+        ["BMI", `${user.bmi} (${safe(user.bmi_category)})`],
+      ],
+      today,
+    }),
+
+    React.createElement(ModulePage, {
+      title: "STRESS",
+      score: scores.stress.score,
+      band: scores.stress.band,
+      mod: content.modules.stress,
+      metrics: [],
+      today,
+    }),
+
+    // Optional systemic connections page
+    systemicOverview ? React.createElement(Page, { size: "A4", style: S.contentPage },
+      React.createElement(PageHeader, { today }),
+      React.createElement(Text, { style: S.sectionLabel }, "DAS SYSTEM VERSTEHEN"),
+      React.createElement(Text, { style: [S.moduleTitle, { fontSize: 22, marginBottom: 16 }] }, "SYSTEMISCHE VERBINDUNGEN"),
+      React.createElement(Text, { style: S.summaryText }, systemicOverview),
+
+      React.createElement(View, {
+        style: {
+          marginTop: 28,
+          padding: "16 20",
+          backgroundColor: "#F0FDF4",
+          borderWidth: 1,
+          borderColor: "#BBF7D0",
+          borderLeftWidth: 4,
+          borderLeftColor: "#22C55E",
+        }
+      },
+        React.createElement(Text, {
+          style: {
+            fontSize: 7,
+            letterSpacing: 2.5,
+            color: "#16A34A",
+            textTransform: "uppercase",
+            fontFamily: "Helvetica-Bold",
+            marginBottom: 7,
+          }
+        }, "30-TAGE PROGNOSE"),
+        React.createElement(Text, { style: { fontSize: 10.5, color: TEXT_SECONDARY, lineHeight: 1.75 } },
+          safe(content.prognose_30_days)
+        ),
+      ),
+
+      React.createElement(View, { style: S.footerNote },
+        React.createElement(Text, { style: S.footerText }, "PERFORMANCE LAB · Kein Ersatz für medizinische Beratung"),
+        React.createElement(Text, { style: S.footerText }, today),
+      ),
+    ) : null,
+
+    // ── Page 8: Disclaimer ───────────────────────────────────────────────
+    React.createElement(Page, { size: "A4", style: S.disclaimerPage },
+      React.createElement(Text, { style: S.sectionLabel }, "RECHTLICHER HINWEIS"),
+      React.createElement(Text, { style: S.disclaimerTitle }, "KEINE MEDIZINISCHE DIAGNOSE"),
+      React.createElement(Text, { style: S.disclaimerStrong },
+        "PERFORMANCE-INSIGHTS · KEIN ERSATZ FÜR ÄRZTLICHE BERATUNG"
+      ),
+      React.createElement(Text, { style: S.disclaimerBody }, safe(content.disclaimer)),
+      React.createElement(Text, { style: S.disclaimerBody },
+        "Alle Angaben basieren auf selbstberichteten Daten und modellbasierten Berechnungen nach IPAQ, NSF/AASM, WHO und ACSM Leitlinien. VO2max ist eine algorithmische Schätzung (Jackson Non-Exercise Prediction). Dieses Dokument stellt keine Heilaussagen dar und ist kein Medizinprodukt im Sinne der MDR."
+      ),
+      React.createElement(Text, { style: S.disclaimerContact },
+        `LAB@BOOSTTHEBEAST.COM · MODELL v1.0.0 · ${today}`
+      ),
     ),
-    contextBox(
-      "SCHÄTZUNG",
-      "i",
-      "#6B7280",
-      content.modules.vo2max.estimation_note,
-    ),
-  ].join("");
 
-  const criticalBanner = content.critical_flag
-    ? `
-    <div class="critical-banner">
-      <div class="critical-badge">KRITISCH</div>
-      <div class="critical-text">${esc(content.critical_flag)}</div>
-    </div>
-  `
-    : "";
-
-  return `<!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8" />
-<style>
-  @page { size: A4; margin: 0; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    background: #F4F3F0;
-    color: #111111;
-    font-family: Helvetica, Arial, sans-serif;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .page { width: 210mm; min-height: 297mm; padding: 18mm 20mm; page-break-after: always; position: relative; background: #F4F3F0; }
-  .page:last-child { page-break-after: auto; }
-
-  /* ── Cover — keeps dark for premium impact ──── */
-  .cover { background: #111111 !important; color: #FFFFFF; padding: 22mm 20mm; }
-  .cover .brand { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0.35em; color: #fff; text-transform: uppercase; font-weight: 700; }
-  .cover .brand-sub { font-size: 9px; color: #E63222; letter-spacing: 0.22em; margin-top: 4px; text-transform: uppercase; }
-  .cover .hero { margin-top: 52mm; font-family: "Arial Black", Impact, sans-serif; font-size: 64px; line-height: 1.0; font-weight: 900; letter-spacing: -0.02em; color: #FFFFFF; }
-  .cover .hero span { display: block; }
-  .cover .headline { margin-top: 26px; font-size: 16px; color: #AAAAAA; font-family: Helvetica, Arial, sans-serif; max-width: 150mm; line-height: 1.5; }
-  .cover .meta { position: absolute; bottom: 22mm; left: 20mm; font-size: 9px; color: #555; letter-spacing: 0.12em; }
-  .cover .big-score { position: absolute; bottom: 10mm; right: 20mm; font-family: "Arial Black", Impact, sans-serif; font-size: 140px; color: #E63222; opacity: 0.15; line-height: 1; }
-
-  /* ── Page header (content pages) ────────── */
-  .page-hdr { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 2px solid #E63222; margin-bottom: 20px; }
-  .page-hdr-brand { font-size: 9px; letter-spacing: 0.28em; color: #888; text-transform: uppercase; }
-  .page-hdr-date { font-size: 9px; color: #AAA; letter-spacing: 0.08em; }
-
-  /* ── Critical banner ──────────────────── */
-  .critical-banner { margin-top: 28mm; padding: 16px 20px; background: #FEE2E2; border: 1px solid #E63222; border-left: 4px solid #E63222; }
-  .critical-badge { display: inline-block; background: #E63222; color: #fff; font-size: 9px; letter-spacing: 0.25em; padding: 4px 10px; font-family: Arial, sans-serif; font-weight: 700; }
-  .critical-text { margin-top: 10px; font-size: 13px; color: #111; font-family: Helvetica, Arial, sans-serif; line-height: 1.6; }
-
-  /* ── Section labels ───────────────────── */
-  .section-label { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 0.28em; color: #E63222; text-transform: uppercase; margin-bottom: 14px; font-weight: 700; }
-  .section-sub { font-family: Arial, sans-serif; font-size: 8px; letter-spacing: 0.22em; color: #888; text-transform: uppercase; margin-top: 20px; margin-bottom: 6px; }
-
-  /* ── Summary page ─────────────────────── */
-  .summary p { font-family: Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.8; color: #222; }
-  .score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 20px; }
-  .score-card { background: #FFFFFF; border: 1px solid #E2E0DB; border-radius: 4px; padding: 12px 10px; }
-  .sc-label { font-size: 8px; color: #888; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; }
-  .sc-value { font-size: 30px; font-family: "Arial Black", sans-serif; font-weight: 900; margin: 4px 0 3px; }
-  .sc-bar { height: 3px; background: #E2E0DB; border-radius: 2px; overflow: hidden; margin-top: 4px; }
-  .sc-fill { height: 100%; }
-  .sc-band { margin-top: 6px; font-size: 8px; color: #555; text-transform: uppercase; letter-spacing: 0.12em; }
-
-  .overall { margin-top: 16px; padding: 14px 18px; background: #FFFFFF; border: 1px solid #E2E0DB; border-left: 4px solid #E63222; display: flex; align-items: center; justify-content: space-between; }
-  .overall-label { font-size: 9px; color: #888; letter-spacing: 0.25em; text-transform: uppercase; }
-  .overall-value { font-size: 46px; font-family: "Arial Black", sans-serif; color: #E63222; line-height: 1; margin-top: 4px; }
-  .overall-meta { font-size: 9px; color: #444; text-transform: uppercase; letter-spacing: 0.15em; margin-top: 5px; }
-  .overall-right { text-align: right; font-size: 9px; color: #888; letter-spacing: 0.08em; line-height: 1.7; }
-
-  .priority { margin-top: 14px; padding: 12px 14px; border: 1.5px solid #E63222; background: #FFF5F4; }
-  .priority-label { font-size: 8px; letter-spacing: 0.28em; color: #E63222; text-transform: uppercase; font-weight: 700; }
-  .priority-text { margin-top: 5px; font-weight: 700; color: #111; font-size: 12px; line-height: 1.55; font-family: Helvetica, Arial, sans-serif; }
-
-  /* ── Systemic connections page ─────────── */
-  .systemic-page h2 { font-family: "Arial Black", sans-serif; font-size: 26px; letter-spacing: -0.01em; margin-bottom: 20px; color: #111; }
-  .systemic-page .lead { font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #222; line-height: 1.8; max-width: 160mm; }
-  .prognose-block { margin-top: 36px; padding: 18px 22px; background: #F0FDF4; border: 1px solid #BBF7D0; border-left: 4px solid #22C55E; }
-  .prognose-label { font-size: 9px; letter-spacing: 0.25em; color: #16A34A; text-transform: uppercase; font-weight: 700; }
-  .prognose-text { margin-top: 8px; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.75; color: #222; }
-
-  /* ── Module pages ─────────────────────── */
-  .module-head { margin-bottom: 10px; }
-  .module-title-row { display: flex; justify-content: space-between; align-items: flex-end; }
-  .module-title { font-family: "Arial Black", sans-serif; font-size: 28px; letter-spacing: -0.01em; text-transform: uppercase; color: #111; }
-  .module-score { font-family: "Arial Black", sans-serif; font-size: 50px; font-weight: 900; }
-  .module-score-sub { font-size: 14px; color: #888; }
-  .module-band { font-size: 9px; color: #666; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 4px; }
-  .module-bar { margin-top: 10px; height: 4px; background: #E2E0DB; }
-  .module-bar-fill { height: 100%; }
-
-  .context { font-size: 12px; color: #555; line-height: 1.7; font-family: Helvetica, Arial, sans-serif; }
-  .finding { font-size: 13px; color: #111; line-height: 1.65; font-family: Helvetica, Arial, sans-serif; font-weight: 500; }
-
-  .systemic { margin-top: 16px; padding: 12px 14px; background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 3px solid #3B82F6; display: flex; gap: 12px; align-items: flex-start; }
-  .systemic-icon { font-size: 16px; color: #3B82F6; font-family: Arial, sans-serif; flex-shrink: 0; }
-  .systemic-label { font-size: 8px; letter-spacing: 0.22em; color: #3B82F6; text-transform: uppercase; margin-bottom: 4px; font-family: Arial, sans-serif; font-weight: 700; }
-  .systemic-text { font-size: 11px; color: #333; line-height: 1.65; font-family: Helvetica, Arial, sans-serif; }
-
-  .ctx-box { margin-top: 10px; padding: 9px 12px; background: #FAFAF8; border: 1px solid #E2E0DB; border-left: 3px solid #6B7280; display: flex; gap: 10px; align-items: flex-start; }
-  .ctx-icon { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-weight: 700; font-size: 11px; color: #fff; flex-shrink: 0; font-family: Arial, sans-serif; }
-  .ctx-body { flex: 1; }
-  .ctx-label { font-size: 8px; letter-spacing: 0.2em; color: #888; text-transform: uppercase; margin-bottom: 3px; font-family: Arial, sans-serif; font-weight: 700; }
-  .ctx-text { font-size: 11px; color: #333; line-height: 1.6; font-family: Helvetica, Arial, sans-serif; }
-
-  .row { margin-top: 12px; padding: 10px 14px; background: #FAFAF8; border: 1px solid #E2E0DB; display: flex; gap: 12px; align-items: flex-start; font-size: 12px; line-height: 1.55; color: #222; font-family: Helvetica, Arial, sans-serif; }
-  .row-warn { border-left: 3px solid #E63222; background: #FFF8F7; }
-  .row-ok { border-left: 3px solid #22C55E; background: #F7FFF9; }
-  .icon { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; font-weight: 700; font-size: 12px; flex-shrink: 0; font-family: Arial, sans-serif; }
-  .icon-warn { background: #E63222; color: #fff; }
-  .icon-ok { background: #22C55E; color: #000; }
-  .row-label { font-size: 8px; letter-spacing: 0.25em; color: #888; text-transform: uppercase; margin-bottom: 4px; font-family: Arial, sans-serif; font-weight: 700; }
-
-  .metrics { margin-top: 16px; border-top: 1px solid #E2E0DB; padding-top: 10px; }
-  .metrics table { width: 100%; font-size: 10px; color: #666; font-family: Helvetica, Arial, sans-serif; }
-  .metrics td { padding: 3px 0; }
-  .metrics td:last-child { text-align: right; color: #111; font-weight: 600; }
-
-  /* ── Disclaimer page ──────────────────── */
-  .disclaimer-page { text-align: center; background: #F4F3F0 !important; }
-  .disclaimer-page h2 { margin-top: 50mm; font-family: "Arial Black", sans-serif; font-size: 20px; letter-spacing: 0.1em; color: #111; }
-  .disclaimer-page .strong { margin-top: 12px; font-weight: 700; color: #E63222; letter-spacing: 0.1em; }
-  .disclaimer-page p { margin: 20px auto; max-width: 140mm; font-size: 12px; line-height: 1.7; color: #555; font-family: Helvetica, Arial, sans-serif; }
-  .disclaimer-page .contact { margin-top: 30px; font-size: 9px; letter-spacing: 0.2em; color: #888; text-transform: uppercase; }
-</style>
-</head>
-<body>
-
-  <!-- COVER -->
-  <section class="page cover">
-    <div class="brand">BOOST THE BEAST LAB</div>
-    <div class="brand-sub">PERFORMANCE LAB</div>
-    <div class="hero">
-      <span>PERFORMANCE</span>
-      <span>INTELLIGENCE</span>
-      <span>REPORT</span>
-    </div>
-    <div class="headline">${esc(content.headline)}</div>
-    ${criticalBanner}
-    <div class="meta">${esc(today)} · VERTRAULICH — NUR FÜR ${esc(user.email.toUpperCase())}</div>
-    <div class="big-score">${scores.overall.score}</div>
-  </section>
-
-  <!-- SUMMARY -->
-  <section class="page summary">
-    <div class="section-label">GESAMTBILD</div>
-    <p>${esc(content.executive_summary)}</p>
-
-    <div class="score-grid">
-      ${scoreCard("ACTIVITY", scores.activity.score, scores.activity.band)}
-      ${scoreCard("SLEEP", scores.sleep.score, scores.sleep.band)}
-      ${scoreCard("VO2MAX", scores.vo2max.score, scores.vo2max.band)}
-      ${scoreCard("METABOLIC", scores.metabolic.score, scores.metabolic.band)}
-      ${scoreCard("STRESS", scores.stress.score, scores.stress.band)}
-    </div>
-
-    <div class="overall">
-      <div class="overall-left">
-        <div class="overall-label">OVERALL PERFORMANCE INDEX</div>
-        <div class="overall-value">${scores.overall.score}</div>
-        <div class="overall-meta">${esc(scores.overall.band)}</div>
-      </div>
-      <div class="overall-right">
-        BMI ${user.bmi} · ${esc(user.bmi_category)}<br/>
-        ${user.age} Jahre · ${esc(user.gender)}
-      </div>
-    </div>
-
-    <div class="priority">
-      <div class="priority-label">TOP PRIORITÄT</div>
-      <div class="priority-text">${esc(content.top_priority)}</div>
-    </div>
-  </section>
-
-  <!-- SYSTEMIC CONNECTIONS PAGE -->
-  ${systemicOverview ? `
-  <section class="page systemic-page">
-    <div class="section-label">DAS SYSTEM VERSTEHEN</div>
-    <h2>SYSTEMISCHE VERBINDUNGEN</h2>
-    <div class="lead">${paragraphs(systemicOverview)}</div>
-    <div class="prognose-block">
-      <div class="prognose-label">30-TAGE PROGNOSE</div>
-      <div class="prognose-text">${esc(content.prognose_30_days)}</div>
-    </div>
-  </section>
-  ` : ""}
-
-  <!-- MODULE PAGES — order: Activity → Sleep → VO2max → Metabolic → Stress -->
-
-  ${modulePage(
-    "ACTIVITY",
-    scores.activity.score,
-    scores.activity.band,
-    content.modules.activity,
-    activityExtras,
-    `<table>
-      <tr><td>Gesamt MET-Minuten / Woche</td><td>${scores.total_met}</td></tr>
-      ${scores.sitting_hours != null ? `<tr><td>Sitzzeit / Tag</td><td>${scores.sitting_hours} h</td></tr>` : ""}
-      ${scores.training_days != null ? `<tr><td>Trainingseinheiten / Woche</td><td>${scores.training_days}</td></tr>` : ""}
-    </table>`,
-  )}
-
-  ${modulePage(
-    "SLEEP",
-    scores.sleep.score,
-    scores.sleep.band,
-    content.modules.sleep,
-    sleepExtras,
-    `<table>
-      <tr><td>Schlafdauer</td><td>${scores.sleep_duration_hours} h / Nacht</td></tr>
-      ${scores.training_days != null ? `<tr><td>Recovery Score</td><td>${scores.recovery.score}/100 (${esc(scores.recovery.band)})</td></tr>` : ""}
-    </table>`,
-  )}
-
-  ${modulePage(
-    "VO2MAX",
-    scores.vo2max.score,
-    scores.vo2max.band,
-    content.modules.vo2max,
-    vo2maxExtras,
-    `<table>
-      <tr><td>Geschätzter VO2max</td><td>${scores.vo2max.estimated} ml/kg/min</td></tr>
-    </table>`,
-  )}
-
-  ${modulePage(
-    "METABOLIC",
-    scores.metabolic.score,
-    scores.metabolic.band,
-    content.modules.metabolic,
-    metabolicExtras,
-    `<table>
-      <tr><td>BMI</td><td>${user.bmi} (${esc(user.bmi_category)})</td></tr>
-    </table>`,
-  )}
-
-  ${modulePage(
-    "STRESS",
-    scores.stress.score,
-    scores.stress.band,
-    content.modules.stress,
-    stressExtras,
-    "",
-  )}
-
-  <!-- DISCLAIMER -->
-  <section class="page disclaimer-page">
-    <div class="section-label">RECHTLICHER HINWEIS</div>
-    <h2>KEINE MEDIZINISCHE DIAGNOSE</h2>
-    <div class="strong">PERFORMANCE-INSIGHTS · KEIN ERSATZ FÜR ÄRZTLICHE BERATUNG</div>
-    <p>${esc(content.disclaimer)}</p>
-    <p>Alle Angaben basieren auf selbstberichteten Daten und modellbasierten Berechnungen nach IPAQ, NSF/AASM, WHO und ACSM Leitlinien. VO2max ist eine algorithmische Schätzung (Jackson Non-Exercise Prediction). Dieses Dokument stellt keine Heilaussagen dar und ist kein Medizinprodukt im Sinne der MDR.</p>
-    <div class="contact">LAB@BOOSTTHEBEAST.COM · MODELL v1.0.0 · ${esc(today)}</div>
-  </section>
-
-</body>
-</html>`;
+  ); // end Document
 }
 
-// ── Puppeteer bootstrap ──────────────────────────────────────────────────
-
-const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
-
-const LOCAL_CHROME_PATHS = [
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", // macOS
-  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // Windows
-  "/usr/bin/google-chrome-stable",
-  "/usr/bin/google-chrome",
-  "/usr/bin/chromium-browser",
-  "/usr/bin/chromium",
-];
-
-async function resolveChromium(): Promise<{
-  executablePath: string;
-  args: string[];
-}> {
-  if (IS_SERVERLESS) {
-    return {
-      executablePath: await chromium.executablePath(),
-      args: chromium.args,
-    };
-  }
-  const { access } = await import("node:fs/promises");
-  for (const p of LOCAL_CHROME_PATHS) {
-    try {
-      await access(p);
-      return {
-        executablePath: p,
-        args: [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--font-render-hinting=none",
-        ],
-      };
-    } catch {
-      // try next
-    }
-  }
-  throw new Error(
-    "No Chrome/Chromium found locally. Install Google Chrome to generate PDFs.",
-  );
-}
+// ── Export ────────────────────────────────────────────────────────────────
 
 export async function generatePDF(
   content: PdfReportContent,
   scores: PdfScores,
   user: PdfUserProfile,
 ): Promise<Uint8Array> {
-  const html = buildHtml(content, scores, user);
-  const { executablePath, args } = await resolveChromium();
+  const today = new Date().toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
-  let browser: Browser | null = null;
-  try {
-    browser = await puppeteer.launch({
-      executablePath,
-      headless: IS_SERVERLESS ? ("shell" as const) : true,
-      args,
-    });
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
-    const buffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "0", right: "0", bottom: "0", left: "0" },
-    });
-    return buffer;
-  } finally {
-    if (browser) await browser.close();
-  }
+  const doc = React.createElement(BTBReport, { content, scores, user, today }) as React.ReactElement<DocumentProps>;
+  const buffer = await renderToBuffer(doc);
+  return new Uint8Array(buffer);
 }
