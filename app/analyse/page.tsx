@@ -472,6 +472,7 @@ function AnalyseContent() {
           sessionStorage.setItem("btb_results", JSON.stringify({
             scores: json?.scores,
             downloadUrl,
+            parentSessionId: sessionId ?? null,
           }));
           router.push("/results");
         }, 600);

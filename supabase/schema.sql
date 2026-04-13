@@ -175,8 +175,14 @@ CREATE TABLE IF NOT EXISTS paid_sessions (
   amount_cents INTEGER,
   currency TEXT DEFAULT 'eur',
   status TEXT DEFAULT 'paid',
+  customer_id TEXT,
+  payment_method_id TEXT,
+  parent_session_id TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS customer_id TEXT;
+ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS payment_method_id TEXT;
+ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS parent_session_id TEXT;
 CREATE INDEX IF NOT EXISTS idx_paid_sessions_stripe_id ON paid_sessions(stripe_session_id);
 ALTER TABLE paid_sessions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "service_role_all" ON paid_sessions FOR ALL USING (true);

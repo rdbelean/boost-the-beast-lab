@@ -73,6 +73,11 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       payment_method_types: ["card"],
       customer_email: email || undefined,
+      customer_creation: "always",
+      payment_intent_data: {
+        setup_future_usage: "off_session",
+        description: product.name,
+      },
       line_items: [
         {
           price_data: {
@@ -88,6 +93,15 @@ export async function POST(req: NextRequest) {
       ],
       metadata: {
         productId,
+      },
+      consent_collection: {
+        terms_of_service: "required",
+      },
+      custom_text: {
+        terms_of_service_acceptance: {
+          message:
+            "Mit Bestätigung stimmst du zu, dass Boost the Beast Lab deine Zahlungsdaten speichert und für zukünftige optionale Upsell-Käufe (Trainings- & Ernährungspläne) verwenden darf, die du auf der Ergebnisseite freigibst.",
+        },
       },
       success_url: `${origin}/analyse?product=${productId}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/kaufen`,

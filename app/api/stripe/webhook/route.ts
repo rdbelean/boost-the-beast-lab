@@ -42,6 +42,26 @@ export async function POST(req: NextRequest) {
     const productId = session.metadata?.productId ?? null;
     const email = session.customer_details?.email ?? session.customer_email ?? null;
     const amount = session.amount_total ?? 0;
+    const customerId =
+      typeof session.customer === "string" ? session.customer : session.customer?.id ?? null;
+
+    // Retrieve the PaymentIntent to get the saved payment_method id
+    let paymentMethodId: string | null = null;
+    try {
+      if (session.payment_intent) {
+        const piId =
+          typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : session.payment_intent.id;
+        const pi = await stripe.paymentIntents.retrieve(piId);
+        paymentMethodId =
+          typeof pi.payment_method === "string"
+            ? pi.payment_method
+            : pi.payment_method?.id ?? null;
+      }
+    } catch (err) {
+      console.error("[stripe/webhook] pi retrieve failed", err);
+    }
 
     try {
       const supabase = getSupabaseServiceClient();
@@ -53,6 +73,8 @@ export async function POST(req: NextRequest) {
           amount_cents: amount,
           currency: session.currency ?? "eur",
           status: session.payment_status ?? "paid",
+          customer_id: customerId,
+          payment_method_id: paymentMethodId,
         },
         { onConflict: "stripe_session_id" },
       );
