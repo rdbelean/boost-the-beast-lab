@@ -426,7 +426,8 @@ function AnalyseContent() {
           downloadUrl = genJson.downloadUrl ?? null;
           if (downloadUrl) setDownloadUrl(downloadUrl);
         } else {
-          console.warn("[analyse] report generation returned", genRes.status);
+          const errBody = await genRes.text().catch(() => "(no body)");
+          console.error("[analyse] report generation failed", genRes.status, errBody);
         }
       } catch (e) {
         console.warn("[analyse] report generation fetch failed", e);

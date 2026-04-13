@@ -696,7 +696,13 @@ export async function POST(req: NextRequest) {
 
   const demoContext = body?.demoContext as DemoContext | undefined;
   if (demoContext) {
-    return handleDemoReport(req, demoContext);
+    try {
+      return await handleDemoReport(req, demoContext);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[report/generate] handleDemoReport error:", msg);
+      return NextResponse.json({ error: msg }, { status: 500 });
+    }
   }
 
   const assessmentId = body?.assessmentId as string | undefined;
