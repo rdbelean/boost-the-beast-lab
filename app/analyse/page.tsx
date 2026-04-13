@@ -382,23 +382,54 @@ function AnalyseContent() {
       // Fresh serverless invocation = fresh timeout budget. If this fails
       // we still show the scores; the PDF just isn't available yet.
       let downloadUrl: string | null = null;
-      if (json?.assessmentId) {
-        try {
-          const genRes = await fetch("/api/report/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ assessmentId: json.assessmentId }),
-          });
-          if (genRes.ok) {
-            const genJson = (await genRes.json()) as { downloadUrl?: string };
-            downloadUrl = genJson.downloadUrl ?? null;
-            if (downloadUrl) setDownloadUrl(downloadUrl);
-          } else {
-            console.warn("[analyse] report generation returned", genRes.status);
-          }
-        } catch (e) {
-          console.warn("[analyse] report generation fetch failed", e);
+      try {
+        let genBody: Record<string, unknown>;
+        if (json?.assessmentId) {
+          // Production (Supabase configured): use the DB-backed path
+          genBody = { assessmentId: json.assessmentId };
+        } else {
+          // Demo mode (no Supabase): pass all data inline so the server can
+          // generate the Claude report + @react-pdf/renderer PDF without a DB
+          genBody = {
+            demoContext: {
+              reportType: payload.reportType,
+              user: {
+                email: payload.email,
+                age: payload.age,
+                gender: payload.gender,
+                height_cm: payload.height_cm,
+                weight_kg: payload.weight_kg,
+              },
+              result: json.scores,
+              sleepDurationHours: payload.sleep_duration_hours,
+              sleep_quality_label: payload.sleep_quality,
+              wakeup_frequency_label: payload.wakeups,
+              morning_recovery_1_10: payload.recovery_1_10,
+              stress_level_1_10: payload.stress_level_1_10,
+              meals_per_day: payload.meals_per_day,
+              water_litres: payload.water_litres,
+              fruit_veg_label: payload.fruit_veg,
+              standing_hours_per_day: payload.standing_hours_per_day,
+              sitting_hours_per_day: payload.sitting_hours,
+              training_days: (payload.vigorous_days ?? 0) + (payload.moderate_days ?? 0),
+              daily_steps: form.schrittzahl,
+            },
+          };
         }
+        const genRes = await fetch("/api/report/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(genBody),
+        });
+        if (genRes.ok) {
+          const genJson = (await genRes.json()) as { downloadUrl?: string };
+          downloadUrl = genJson.downloadUrl ?? null;
+          if (downloadUrl) setDownloadUrl(downloadUrl);
+        } else {
+          console.warn("[analyse] report generation returned", genRes.status);
+        }
+      } catch (e) {
+        console.warn("[analyse] report generation fetch failed", e);
       }
 
       // Wait until all previously scheduled step timers have fired, then finish

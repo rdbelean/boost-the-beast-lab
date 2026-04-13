@@ -664,11 +664,21 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
     },
   );
 
-  const fileName = `btb-report-demo-${Date.now()}.pdf`;
-  const publicDir = path.join(process.cwd(), "public", "test-reports");
-  await mkdir(publicDir, { recursive: true });
-  await writeFile(path.join(publicDir, fileName), Buffer.from(pdfBuffer));
-  const downloadUrl = `${req.nextUrl.origin}/test-reports/${fileName}`;
+  // In demo mode, try to save to /public/test-reports for local dev.
+  // On Vercel the filesystem outside /tmp is read-only — fall back to
+  // returning the PDF as a base64 data URL that the client can open directly.
+  let downloadUrl: string | null = null;
+  try {
+    const fileName = `btb-report-demo-${Date.now()}.pdf`;
+    const publicDir = path.join(process.cwd(), "public", "test-reports");
+    await mkdir(publicDir, { recursive: true });
+    await writeFile(path.join(publicDir, fileName), Buffer.from(pdfBuffer));
+    downloadUrl = `${req.nextUrl.origin}/test-reports/${fileName}`;
+  } catch {
+    // Filesystem is read-only (Vercel prod) — embed PDF as base64 data URL
+    const b64 = Buffer.from(pdfBuffer).toString("base64");
+    downloadUrl = `data:application/pdf;base64,${b64}`;
+  }
 
   return NextResponse.json({ success: true, downloadUrl, report });
 }
