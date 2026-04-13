@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
     "/api/report/generate": [
       "./node_modules/@sparticuz/chromium/bin/**",
     ],
+    "/api/plan/pdf": [
+      "./node_modules/@sparticuz/chromium/bin/**",
+    ],
   },
 };
 
