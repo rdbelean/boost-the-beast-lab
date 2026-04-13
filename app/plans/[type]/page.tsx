@@ -315,7 +315,13 @@ export default function PlanPage() {
     </div>
   );
 
-  if (!plan) return null;
+  if (!plan) return (
+    <div className={styles.page} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+      <div style={{ fontFamily: "Arial, sans-serif", fontSize: 13, letterSpacing: "0.1em", color: "#888", textTransform: "uppercase" }}>
+        Wird geladen…
+      </div>
+    </div>
+  );
 
   return (
     <div className={styles.page}>

@@ -183,18 +183,18 @@ function buildAssessmentPayload(f: FormData) {
 }
 
 const LOADING_STEPS = [
-  "Körperdaten werden kalibriert...",
-  "BMI & Körperkomposition analysiert...",
-  "IPAQ Activity Engine berechnet MET-Minuten...",
-  "Vigorous / Moderate / Walking Kategorien zugewiesen...",
-  "PSQI-basierter Sleep & Recovery Score läuft...",
-  "VO2max Schätzung nach Jackson Non-Exercise Modell...",
-  "Metabolic Score aus WHO-Referenzdaten berechnet...",
-  "Stress & Lifestyle Score wird gewichtet...",
-  "Composite Performance Index (5 Module) aggregiert...",
-  "BTB Report-Engine generiert deinen personalisierten Report...",
-  "Performance Insights werden formatiert...",
-  "Report wird finalisiert...",
+  "Abgleich mit der wissenschaftlichen Referenzdatenbank des BTB Lab...",
+  "WHO & ACSM-Normwerte werden auf dein Profil angewendet...",
+  "Aktivitätsdaten werden mit internationalen Standards verglichen...",
+  "Leistungskategorien aus globalen Studiendaten zugeordnet...",
+  "Schlaf- & Recovery-Profil wird gegen NSF-Referenzwerte geprüft...",
+  "VO2max aus internationalen Fitness-Datenbanken kalkuliert...",
+  "Metabolisches Profil mit WHO-Klassifikationen abgeglichen...",
+  "Stress & Lifestyle-Muster werden wissenschaftlich ausgewertet...",
+  "Ganzheitlicher Performance Index über 6 Module berechnet...",
+  "BTB Lab erstellt deinen personalisierten Report...",
+  "Wissenschaftliche Befunde werden aufbereitet...",
+  "Dein persönlicher Report wird finalisiert...",
 ];
 
 /* ── Component ─────────────────────────────────────────── */
@@ -915,7 +915,7 @@ function AnalyseContent() {
           <div className={styles.loadingInner}>
             <div className={styles.loadingLabel}>
               <span className={styles.loadingSpinner} />
-              BTB SCIENTIFIC ENGINE · DATEN WERDEN ABGEGLICHEN
+              BOOST THE BEAST LAB · WISSENSCHAFTLICHE DATENBANK WIRD ABGEGLICHEN
             </div>
             <div className={styles.loadingTitle}>
               DEIN REPORT<br />WIRD ERSTELLT.

@@ -281,9 +281,7 @@ function buildHtml(
   .page:last-child { page-break-after: auto; }
 
   /* ── Cover — keeps dark for premium impact ──── */
-  .cover { background: #111111 !important; color: #FFFFFF; padding: 0; }
-  .cover-accent-bar { height: 6px; background: #E63222; width: 100%; }
-  .cover-inner { padding: 22mm 20mm 22mm; }
+  .cover { background: #111111 !important; color: #FFFFFF; padding: 22mm 20mm; }
   .cover .brand { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0.35em; color: #fff; text-transform: uppercase; font-weight: 700; }
   .cover .brand-sub { font-size: 9px; color: #E63222; letter-spacing: 0.22em; margin-top: 4px; text-transform: uppercase; }
   .cover .hero { margin-top: 52mm; font-family: "Arial Black", Impact, sans-serif; font-size: 64px; line-height: 1.0; font-weight: 900; letter-spacing: -0.02em; color: #FFFFFF; }
@@ -382,20 +380,17 @@ function buildHtml(
 
   <!-- COVER -->
   <section class="page cover">
-    <div class="cover-accent-bar"></div>
-    <div class="cover-inner">
-      <div class="brand">BOOST THE BEAST LAB</div>
-      <div class="brand-sub">PERFORMANCE LAB</div>
-      <div class="hero">
-        <span>PERFORMANCE</span>
-        <span>INTELLIGENCE</span>
-        <span>REPORT</span>
-      </div>
-      <div class="headline">${esc(content.headline)}</div>
-      ${criticalBanner}
-      <div class="meta">${esc(today)} · VERTRAULICH — NUR FÜR ${esc(user.email.toUpperCase())}</div>
-      <div class="big-score">${scores.overall.score}</div>
+    <div class="brand">BOOST THE BEAST LAB</div>
+    <div class="brand-sub">PERFORMANCE LAB</div>
+    <div class="hero">
+      <span>PERFORMANCE</span>
+      <span>INTELLIGENCE</span>
+      <span>REPORT</span>
     </div>
+    <div class="headline">${esc(content.headline)}</div>
+    ${criticalBanner}
+    <div class="meta">${esc(today)} · VERTRAULICH — NUR FÜR ${esc(user.email.toUpperCase())}</div>
+    <div class="big-score">${scores.overall.score}</div>
   </section>
 
   <!-- SUMMARY -->
