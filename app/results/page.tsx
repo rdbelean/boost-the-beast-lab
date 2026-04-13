@@ -398,13 +398,17 @@ export default function ResultsPage() {
 
         {/* ─── BOTTOM CTA ──────────────────────────────── */}
         <section className={styles.ctaSection}>
-          {downloadUrl && (
-            <div className={styles.ctaBtns}>
+          <div className={styles.ctaBtns}>
+            {downloadUrl ? (
               <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className={styles.ctaBtnPrimary}>
                 REPORT ALS PDF HERUNTERLADEN
               </a>
-            </div>
-          )}
+            ) : (
+              <button onClick={() => window.print()} className={styles.ctaBtnPrimary}>
+                REPORT ALS PDF HERUNTERLADEN
+              </button>
+            )}
+          </div>
           <p className={styles.ctaDisclaimer}>
             Hinweis: Dieser Report dient ausschließlich der allgemeinen Information und ersetzt keinen
             Arztbesuch, keine medizinische Diagnose oder Therapieempfehlung. Bei gesundheitlichen

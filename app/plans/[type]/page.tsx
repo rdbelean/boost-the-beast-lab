@@ -4,6 +4,29 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import styles from "./plan.module.css";
 
+async function downloadPlanAsPDF(planTitle: string) {
+  const content = document.getElementById("plan-content");
+  if (!content) return;
+  const { default: html2canvas } = await import("html2canvas");
+  const { jsPDF } = await import("jspdf");
+  const canvas = await html2canvas(content, { scale: 2, useCORS: true, backgroundColor: "#0D0D0D" });
+  const imgData = canvas.toDataURL("image/jpeg", 0.92);
+  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const imgW = pageW;
+  const imgH = (canvas.height * pageW) / canvas.width;
+  let y = 0;
+  let remaining = imgH;
+  while (remaining > 0) {
+    pdf.addImage(imgData, "JPEG", 0, y === 0 ? 0 : -(imgH - remaining), imgW, imgH);
+    remaining -= pageH;
+    if (remaining > 0) { pdf.addPage(); y -= pageH; }
+  }
+  const filename = `btb-${planTitle.toLowerCase().replace(/\s+/g, "-")}-plan.pdf`;
+  pdf.save(filename);
+}
+
 /* ─── Plan definitions ───────────────────────────────────────── */
 type PlanType = "activity" | "metabolic" | "recovery" | "stress";
 
@@ -263,12 +286,12 @@ export default function PlanPage() {
       <div className={styles.header}>
         <Link href="/results" className={styles.backLink}>← ZURÜCK ZUM REPORT</Link>
         <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
-        <button onClick={() => window.print()} className={styles.printBtn}>
+        <button onClick={() => downloadPlanAsPDF(plan.title)} className={styles.printBtn}>
           PDF DOWNLOAD ↓
         </button>
       </div>
 
-      <div className={styles.container}>
+      <div className={styles.container} id="plan-content">
         <div className={styles.hero}>
           <span className={styles.tag} style={{ color: plan.color, borderColor: plan.color }}>INDIVIDUELLER PLAN</span>
           <h1 className={styles.title}>{plan.title}</h1>
@@ -291,7 +314,7 @@ export default function PlanPage() {
         ))}
 
         <div className={styles.actions}>
-          <button onClick={() => window.print()} className={styles.btnPrimary} style={{ background: plan.color }}>
+          <button onClick={() => downloadPlanAsPDF(plan.title)} className={styles.btnPrimary} style={{ background: plan.color }}>
             PLAN ALS PDF HERUNTERLADEN
           </button>
           <Link href="/results" className={styles.btnSecondary}>

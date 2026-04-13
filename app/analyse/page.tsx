@@ -520,7 +520,7 @@ function AnalyseContent() {
                     <span className={styles.inputLabel}>Alter</span>
                     <input
                       type="number"
-                      value={form.alter}
+                      value={form.alter || ""}
                       min={14} max={80}
                       onChange={(e) => set("alter", Number(e.target.value))}
                       className={styles.numberInput}
