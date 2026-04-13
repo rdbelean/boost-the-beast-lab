@@ -852,6 +852,13 @@
   .benchmarkLabel { width: 80px; font-size: 9px; }
   .ctaBtns { flex-direction: column; }
   .ctaBtnPrimary, .ctaBtnSecondary { width: 100%; justify-content: center; }
+  /* Hide "Neue Analyse" header button so PDF DOWNLOAD has room */
+  .hideOnMobile { display: none; }
+  /* Plans section */
+  .plansSectionHeading { font-size: clamp(22px, 6vw, 32px); }
+  .planCardScore { font-size: 40px; }
+  .planCardBody { padding: 18px 18px 14px; }
+  .planCardCta { padding: 12px 18px; font-size: 11px; }
 }
 
 @media (max-width: 700px) {
@@ -919,9 +926,16 @@
   .ctaBtnSecondary { font-size: 12px; padding: 14px 20px; min-height: 48px; }
 
   /* Upsell */
-  .upsellSection { padding: 40px 24px; }
-  .upsellTitle { font-size: 22px; }
+  .upsellSection { padding: 40px 16px; }
+  .upsellTitle { font-size: 20px; }
   .upsellFeatures { grid-template-columns: 1fr; }
+
+  /* Plans section */
+  .plansSection { padding: 40px 0 24px; }
+  .plansSectionHeading { font-size: clamp(20px, 7vw, 28px); }
+  .planCardScore { font-size: 36px; }
+  .planCardLabel { font-size: 13px; }
+  .planCardCta { font-size: 11px; padding: 12px 16px; }
 }
 
 /* ─── PLANS SECTION ──────────────────────────────────────── */

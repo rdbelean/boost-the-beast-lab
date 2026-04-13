@@ -164,6 +164,10 @@
 @media (max-width: 768px) {
   .nav { display: none; }
   .headerCtaSecondary { display: none; }
+  /* Keep account dropdown visible but tighten it */
+  .accountDropdownBtn { padding: 9px 14px; }
+  /* Prevent dropdown menu from overflowing viewport edge */
+  .accountDropdownMenu { max-width: calc(100vw - 24px); }
 }
 
 /* ─── ACCOUNT DROPDOWN ──────────────────────────────────────── */
@@ -870,6 +874,10 @@
   .header { height: 56px; }
   .headerInner { padding: 0 16px; }
   .headerCta { padding: 10px 14px; font-size: 10px; }
+  /* Account dropdown on small phones */
+  .accountDropdownBtn { padding: 8px 12px; font-size: 10px; letter-spacing: 0.08em; }
+  .accountDropdownMenu { right: 0; min-width: 180px; max-width: calc(100vw - 32px); }
+  .accountDropdownItem { font-size: 10px; padding: 11px 14px; }
 
   /* Hero */
   .hero { min-height: auto; align-items: flex-start; }

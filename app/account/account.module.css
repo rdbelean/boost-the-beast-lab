@@ -554,6 +554,12 @@
 .ctaSecondary:hover { color: #aaa; }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .container { padding: 4rem 1.5rem 5rem; }
+  .overallBanner { padding: 1rem 1.25rem; }
+  .compareTable { overflow-x: auto; }
+}
+
 @media (max-width: 640px) {
   .container { padding: 4rem 1rem 5rem; }
 
@@ -562,10 +568,12 @@
 
   .overallBanner { flex-direction: column; align-items: flex-start; }
   .overallBannerRight { align-self: flex-start; text-align: left; }
+  .overallOld { font-size: 1.5rem; }
+  .overallNew { font-size: 2rem; }
 
   .compareRow,
   .subScoreRow {
-    grid-template-columns: 60px 1fr auto;
+    grid-template-columns: 58px 1fr auto;
     gap: 0.5rem;
   }
 
@@ -573,7 +581,25 @@
   .subScoreRowRight {
     min-width: unset;
     gap: 0.25rem;
+    font-size: 0.65rem;
   }
 
+  .compareOld, .subScoreOld { font-size: 0.65rem; }
+  .compareNew, .subScoreCurrent { font-size: 0.75rem; }
+  .compareDeltaPos, .compareDeltaNeg, .compareDeltaZero { font-size: 0.62rem; padding: 0.08rem 0.25rem; }
+
   .reportCardTop { flex-direction: column; }
+  .reportOverall { flex-wrap: wrap; align-items: center; }
+  .reportScore { font-size: 2rem; }
+
+  .cta { flex-direction: column; align-items: stretch; }
+  .ctaBtn { text-align: center; }
+}
+
+@media (max-width: 420px) {
+  .compareRow,
+  .subScoreRow {
+    grid-template-columns: 52px 1fr auto;
+  }
+  .compareLabel, .subScoreRowLabel { font-size: 0.58rem; letter-spacing: 0.08em; }
 }

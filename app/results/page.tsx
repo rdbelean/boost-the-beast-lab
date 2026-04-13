@@ -163,7 +163,7 @@ export default function ResultsPage() {
         <Link href="/" className={styles.headerBtnSecondary}>← HOME</Link>
         <div className={styles.headerTitle}>BOOST THE BEAST LAB · PERFORMANCE REPORT</div>
         <div className={styles.headerActions}>
-          <Link href="/analyse" className={styles.headerBtnSecondary}>Neue Analyse</Link>
+          <Link href="/analyse" className={`${styles.headerBtnSecondary} ${styles.hideOnMobile}`}>Neue Analyse</Link>
           {downloadUrl && (
             <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className={styles.headerBtnPrimary}>
               PDF DOWNLOAD
