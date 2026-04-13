@@ -281,8 +281,33 @@ function AnalyseContent() {
     });
   }, []);
 
-  const set = <K extends keyof FormData>(key: K, val: FormData[K]) =>
+  // Block page refresh and back navigation while report is generating
+  useEffect(() => {
+    if (!loading) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    history.pushState(null, "", window.location.href);
+    const handlePopState = () => {
+      history.pushState(null, "", window.location.href);
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [loading]);
+
+  // Trailing comma required in .tsx to disambiguate generic from JSX
+  function set<K extends keyof FormData>(key: K, val: FormData[K]) {
     setForm((prev) => ({ ...prev, [key]: val }));
+  }
 
   // Count answered questions for progress
   const totalQuestions = 19;
