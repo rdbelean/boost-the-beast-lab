@@ -4,27 +4,45 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import styles from "./plan.module.css";
 
-async function downloadPlanAsPDF(planTitle: string) {
-  const content = document.getElementById("plan-content");
-  if (!content) return;
-  const { default: html2canvas } = await import("html2canvas");
-  const { jsPDF } = await import("jspdf");
-  const canvas = await html2canvas(content, { scale: 2, useCORS: true, backgroundColor: "#0D0D0D" });
-  const imgData = canvas.toDataURL("image/jpeg", 0.92);
-  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const pageW = pdf.internal.pageSize.getWidth();
-  const pageH = pdf.internal.pageSize.getHeight();
-  const imgW = pageW;
-  const imgH = (canvas.height * pageW) / canvas.width;
-  let y = 0;
-  let remaining = imgH;
-  while (remaining > 0) {
-    pdf.addImage(imgData, "JPEG", 0, y === 0 ? 0 : -(imgH - remaining), imgW, imgH);
-    remaining -= pageH;
-    if (remaining > 0) { pdf.addPage(); y -= pageH; }
+async function downloadPlanAsPDF(plan: PlanContent) {
+  try {
+    const res = await fetch("/api/plan/pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan }),
+    });
+    if (!res.ok) throw new Error("PDF generation failed");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `btb-${plan.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch {
+    // Fallback to html2canvas if server PDF fails
+    const content = document.getElementById("plan-content");
+    if (!content) return;
+    const { default: html2canvas } = await import("html2canvas");
+    const { jsPDF } = await import("jspdf");
+    const canvas = await html2canvas(content, { scale: 2, useCORS: true, backgroundColor: "#0D0D0D" });
+    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgH = (canvas.height * pageW) / canvas.width;
+    let remaining = imgH;
+    let placed = 0;
+    while (remaining > 0) {
+      pdf.addImage(imgData, "JPEG", 0, -placed, pageW, imgH);
+      remaining -= pageH;
+      placed += pageH;
+      if (remaining > 0) pdf.addPage();
+    }
+    pdf.save(`btb-${plan.title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
   }
-  const filename = `btb-${planTitle.toLowerCase().replace(/\s+/g, "-")}-plan.pdf`;
-  pdf.save(filename);
 }
 
 /* ─── Plan definitions ───────────────────────────────────────── */
@@ -254,45 +272,38 @@ function buildPlan(type: PlanType, scores: Record<string, unknown>): PlanContent
 export default function PlanPage() {
   const { type } = useParams() as { type: string };
   const [plan, setPlan] = useState<PlanContent | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadPlan() {
-      try {
-        const raw = sessionStorage.getItem("btb_results");
-        if (!raw) { setError("Keine Analyse-Daten gefunden. Bitte starte die Analyse neu."); setLoading(false); return; }
-        const data = JSON.parse(raw);
-        if (!data?.scores) { setError("Scores nicht verfügbar."); setLoading(false); return; }
-        const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
-        if (!validTypes.includes(type as PlanType)) { setError("Unbekannter Plan-Typ."); setLoading(false); return; }
+    const COLORS: Record<string, string> = { activity: "#E63222", metabolic: "#F59E0B", recovery: "#3B82F6", stress: "#22C55E" };
+    try {
+      const raw = sessionStorage.getItem("btb_results");
+      if (!raw) { setError("Keine Analyse-Daten gefunden. Bitte starte die Analyse neu."); return; }
+      const data = JSON.parse(raw);
+      if (!data?.scores) { setError("Scores nicht verfügbar."); return; }
+      const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
+      if (!validTypes.includes(type as PlanType)) { setError("Unbekannter Plan-Typ."); return; }
 
-        try {
-          const res = await fetch("/api/plan/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ type, scores: data.scores }),
-          });
-          if (res.ok) {
-            const planData = await res.json() as PlanContent & { color?: string };
-            const colors: Record<string, string> = { activity: "#E63222", metabolic: "#F59E0B", recovery: "#3B82F6", stress: "#22C55E" };
-            setPlan({ ...planData, color: colors[type] ?? "#E63222" });
-          } else {
-            throw new Error("API error");
+      // Show immediately with local content
+      const initial = buildPlan(type as PlanType, data.scores);
+      setPlan({ ...initial, color: COLORS[type] ?? "#E63222" });
+
+      // Optionally enhance with AI in background — does not block display
+      fetch("/api/plan/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, scores: data.scores }),
+      })
+        .then((r) => r.ok ? r.json() : null)
+        .then((ai) => {
+          if (ai?.blocks?.length) {
+            setPlan((prev) => prev ? { ...prev, blocks: ai.blocks, source: ai.source ?? prev.source } : prev);
           }
-        } catch {
-          // Fallback to local generation if API fails
-          const colors: Record<string, string> = { activity: "#E63222", metabolic: "#F59E0B", recovery: "#3B82F6", stress: "#22C55E" };
-          const fallback = buildPlan(type as PlanType, data.scores);
-          setPlan({ ...fallback, color: colors[type] ?? "#E63222" });
-        }
-      } catch {
-        setError("Plan konnte nicht geladen werden.");
-      } finally {
-        setLoading(false);
-      }
+        })
+        .catch(() => {}); // silent — local content already shown
+    } catch {
+      setError("Plan konnte nicht geladen werden.");
     }
-    loadPlan();
   }, [type]);
 
   if (error) return (
@@ -304,14 +315,7 @@ export default function PlanPage() {
     </div>
   );
 
-  if (loading || !plan) return (
-    <div className={styles.page}>
-      <div className={styles.loadingBox}>
-        <div className={styles.loadingSpinner} />
-        <p className={styles.loadingText}>PLAN WIRD GENERIERT …</p>
-      </div>
-    </div>
-  );
+  if (!plan) return null;
 
   return (
     <div className={styles.page}>
@@ -319,7 +323,7 @@ export default function PlanPage() {
       <div className={styles.header}>
         <Link href="/results" className={styles.backLink}>← ZURÜCK ZUM REPORT</Link>
         <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
-        <button onClick={() => downloadPlanAsPDF(plan.title)} className={styles.printBtn}>
+        <button onClick={() => downloadPlanAsPDF(plan)} className={styles.printBtn}>
           PDF DOWNLOAD ↓
         </button>
       </div>
@@ -347,7 +351,7 @@ export default function PlanPage() {
         ))}
 
         <div className={styles.actions}>
-          <button onClick={() => downloadPlanAsPDF(plan.title)} className={styles.btnPrimary} style={{ background: plan.color }}>
+          <button onClick={() => downloadPlanAsPDF(plan)} className={styles.btnPrimary} style={{ background: plan.color }}>
             PLAN ALS PDF HERUNTERLADEN
           </button>
           <Link href="/results" className={styles.btnSecondary}>

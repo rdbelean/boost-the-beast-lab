@@ -270,117 +270,132 @@ function buildHtml(
 <style>
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: #0D0D0F; color: #FFFFFF; font-family: Georgia, "Times New Roman", serif; }
-  :global(*) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .page { width: 210mm; min-height: 297mm; padding: 22mm 20mm; page-break-after: always; position: relative; }
+  html, body {
+    background: #F4F3F0;
+    color: #111111;
+    font-family: Helvetica, Arial, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page { width: 210mm; min-height: 297mm; padding: 18mm 20mm; page-break-after: always; position: relative; background: #F4F3F0; }
   .page:last-child { page-break-after: auto; }
 
-  /* ── Cover ─────────────────────────── */
-  .cover .brand { font-family: Arial, Helvetica, sans-serif; font-size: 14px; letter-spacing: 0.3em; color: #fff; text-transform: uppercase; }
-  .cover .brand-sub { font-size: 10px; color: #E63222; letter-spacing: 0.2em; margin-top: 4px; text-transform: uppercase; }
-  .cover .hero { margin-top: 55mm; font-family: "Arial Black", Impact, sans-serif; font-size: 68px; line-height: 1.02; font-weight: 900; letter-spacing: -0.02em; }
+  /* ── Cover — keeps dark for premium impact ──── */
+  .cover { background: #111111 !important; color: #FFFFFF; padding: 0; }
+  .cover-accent-bar { height: 6px; background: #E63222; width: 100%; }
+  .cover-inner { padding: 22mm 20mm 22mm; }
+  .cover .brand { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0.35em; color: #fff; text-transform: uppercase; font-weight: 700; }
+  .cover .brand-sub { font-size: 9px; color: #E63222; letter-spacing: 0.22em; margin-top: 4px; text-transform: uppercase; }
+  .cover .hero { margin-top: 52mm; font-family: "Arial Black", Impact, sans-serif; font-size: 64px; line-height: 1.0; font-weight: 900; letter-spacing: -0.02em; color: #FFFFFF; }
   .cover .hero span { display: block; }
-  .cover .headline { margin-top: 28px; font-size: 18px; color: #A0A0AA; font-family: Helvetica, Arial, sans-serif; max-width: 150mm; line-height: 1.45; }
-  .cover .meta { position: absolute; bottom: 22mm; left: 20mm; font-size: 10px; color: #6b6b72; letter-spacing: 0.1em; }
-  .cover .big-score { position: absolute; bottom: 12mm; right: 20mm; font-family: "Arial Black", Impact, sans-serif; font-size: 140px; color: #E63222; opacity: 0.18; line-height: 1; }
+  .cover .headline { margin-top: 26px; font-size: 16px; color: #AAAAAA; font-family: Helvetica, Arial, sans-serif; max-width: 150mm; line-height: 1.5; }
+  .cover .meta { position: absolute; bottom: 22mm; left: 20mm; font-size: 9px; color: #555; letter-spacing: 0.12em; }
+  .cover .big-score { position: absolute; bottom: 10mm; right: 20mm; font-family: "Arial Black", Impact, sans-serif; font-size: 140px; color: #E63222; opacity: 0.15; line-height: 1; }
 
-  /* ── Critical banner ──────────────── */
-  .critical-banner { margin-top: 30mm; padding: 18px 22px; background: rgba(230,50,34,0.1); border: 1px solid #E63222; border-left: 4px solid #E63222; }
+  /* ── Page header (content pages) ────────── */
+  .page-hdr { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 2px solid #E63222; margin-bottom: 20px; }
+  .page-hdr-brand { font-size: 9px; letter-spacing: 0.28em; color: #888; text-transform: uppercase; }
+  .page-hdr-date { font-size: 9px; color: #AAA; letter-spacing: 0.08em; }
+
+  /* ── Critical banner ──────────────────── */
+  .critical-banner { margin-top: 28mm; padding: 16px 20px; background: #FEE2E2; border: 1px solid #E63222; border-left: 4px solid #E63222; }
   .critical-badge { display: inline-block; background: #E63222; color: #fff; font-size: 9px; letter-spacing: 0.25em; padding: 4px 10px; font-family: Arial, sans-serif; font-weight: 700; }
-  .critical-text { margin-top: 10px; font-size: 13px; color: #fff; font-family: Helvetica, Arial, sans-serif; line-height: 1.6; }
+  .critical-text { margin-top: 10px; font-size: 13px; color: #111; font-family: Helvetica, Arial, sans-serif; line-height: 1.6; }
 
-  /* ── Section labels ───────────────── */
-  .section-label { font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 0.25em; color: #E63222; text-transform: uppercase; margin-bottom: 14px; }
-  .section-sub { font-family: Arial, sans-serif; font-size: 9px; letter-spacing: 0.22em; color: #6b6b72; text-transform: uppercase; margin-top: 22px; margin-bottom: 6px; }
+  /* ── Section labels ───────────────────── */
+  .section-label { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 0.28em; color: #E63222; text-transform: uppercase; margin-bottom: 14px; font-weight: 700; }
+  .section-sub { font-family: Arial, sans-serif; font-size: 8px; letter-spacing: 0.22em; color: #888; text-transform: uppercase; margin-top: 20px; margin-bottom: 6px; }
 
-  /* ── Summary page ─────────────────── */
-  .summary p { font-family: Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.75; color: #D4D4D8; }
-  .score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 24px; }
-  .score-card { background: #16161A; border: 1px solid #2a2a2f; border-radius: 6px; padding: 12px 10px; }
-  .sc-label { font-size: 9px; color: #8a8a92; letter-spacing: 0.18em; text-transform: uppercase; }
-  .sc-value { font-size: 32px; font-family: "Arial Black", sans-serif; font-weight: 900; margin: 4px 0 3px; }
-  .sc-bar { height: 3px; background: #2a2a2f; border-radius: 2px; overflow: hidden; }
+  /* ── Summary page ─────────────────────── */
+  .summary p { font-family: Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.8; color: #222; }
+  .score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 20px; }
+  .score-card { background: #FFFFFF; border: 1px solid #E2E0DB; border-radius: 4px; padding: 12px 10px; }
+  .sc-label { font-size: 8px; color: #888; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; }
+  .sc-value { font-size: 30px; font-family: "Arial Black", sans-serif; font-weight: 900; margin: 4px 0 3px; }
+  .sc-bar { height: 3px; background: #E2E0DB; border-radius: 2px; overflow: hidden; margin-top: 4px; }
   .sc-fill { height: 100%; }
-  .sc-band { margin-top: 6px; font-size: 9px; color: #c5c5cc; text-transform: uppercase; letter-spacing: 0.1em; }
+  .sc-band { margin-top: 6px; font-size: 8px; color: #555; text-transform: uppercase; letter-spacing: 0.12em; }
 
-  .overall { margin-top: 20px; padding: 16px 18px; background: #16161A; border-left: 3px solid #E63222; display: flex; align-items: center; justify-content: space-between; }
-  .overall-left { }
-  .overall-label { font-size: 10px; color: #8a8a92; letter-spacing: 0.25em; text-transform: uppercase; }
-  .overall-value { font-size: 48px; font-family: "Arial Black", sans-serif; color: #E63222; line-height: 1; margin-top: 4px; }
-  .overall-meta { font-size: 10px; color: #c5c5cc; text-transform: uppercase; letter-spacing: 0.15em; margin-top: 6px; }
-  .overall-right { text-align: right; font-size: 9px; color: #6b6b72; letter-spacing: 0.1em; line-height: 1.6; }
+  .overall { margin-top: 16px; padding: 14px 18px; background: #FFFFFF; border: 1px solid #E2E0DB; border-left: 4px solid #E63222; display: flex; align-items: center; justify-content: space-between; }
+  .overall-label { font-size: 9px; color: #888; letter-spacing: 0.25em; text-transform: uppercase; }
+  .overall-value { font-size: 46px; font-family: "Arial Black", sans-serif; color: #E63222; line-height: 1; margin-top: 4px; }
+  .overall-meta { font-size: 9px; color: #444; text-transform: uppercase; letter-spacing: 0.15em; margin-top: 5px; }
+  .overall-right { text-align: right; font-size: 9px; color: #888; letter-spacing: 0.08em; line-height: 1.7; }
 
-  .priority { margin-top: 16px; padding: 12px 14px; border: 1.5px solid #E63222; }
-  .priority-label { font-size: 9px; letter-spacing: 0.25em; color: #E63222; text-transform: uppercase; }
-  .priority-text { margin-top: 5px; font-weight: 700; color: #fff; font-size: 12px; line-height: 1.55; font-family: Helvetica, Arial, sans-serif; }
+  .priority { margin-top: 14px; padding: 12px 14px; border: 1.5px solid #E63222; background: #FFF5F4; }
+  .priority-label { font-size: 8px; letter-spacing: 0.28em; color: #E63222; text-transform: uppercase; font-weight: 700; }
+  .priority-text { margin-top: 5px; font-weight: 700; color: #111; font-size: 12px; line-height: 1.55; font-family: Helvetica, Arial, sans-serif; }
 
-  /* ── Systemic connections page ────── */
-  .systemic-page h2 { font-family: "Arial Black", sans-serif; font-size: 28px; letter-spacing: -0.01em; margin-bottom: 24px; }
-  .systemic-page .lead { font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #D4D4D8; line-height: 1.8; max-width: 160mm; }
-  .prognose-block { margin-top: 40px; padding: 20px 24px; background: #16161A; border-left: 3px solid #22C55E; }
-  .prognose-label { font-size: 10px; letter-spacing: 0.25em; color: #22C55E; text-transform: uppercase; }
-  .prognose-text { margin-top: 10px; font-family: Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.75; color: #D4D4D8; }
+  /* ── Systemic connections page ─────────── */
+  .systemic-page h2 { font-family: "Arial Black", sans-serif; font-size: 26px; letter-spacing: -0.01em; margin-bottom: 20px; color: #111; }
+  .systemic-page .lead { font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #222; line-height: 1.8; max-width: 160mm; }
+  .prognose-block { margin-top: 36px; padding: 18px 22px; background: #F0FDF4; border: 1px solid #BBF7D0; border-left: 4px solid #22C55E; }
+  .prognose-label { font-size: 9px; letter-spacing: 0.25em; color: #16A34A; text-transform: uppercase; font-weight: 700; }
+  .prognose-text { margin-top: 8px; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.75; color: #222; }
 
-  /* ── Module page ──────────────────── */
-  .module-head { margin-bottom: 8px; }
+  /* ── Module pages ─────────────────────── */
+  .module-head { margin-bottom: 10px; }
   .module-title-row { display: flex; justify-content: space-between; align-items: flex-end; }
-  .module-title { font-family: "Arial Black", sans-serif; font-size: 30px; letter-spacing: -0.01em; text-transform: uppercase; }
-  .module-score { font-family: "Arial Black", sans-serif; font-size: 52px; font-weight: 900; }
-  .module-score-sub { font-size: 15px; color: #6b6b72; }
-  .module-band { font-size: 9px; color: #8a8a92; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 4px; }
-  .module-bar { margin-top: 12px; height: 4px; background: #2a2a2f; }
+  .module-title { font-family: "Arial Black", sans-serif; font-size: 28px; letter-spacing: -0.01em; text-transform: uppercase; color: #111; }
+  .module-score { font-family: "Arial Black", sans-serif; font-size: 50px; font-weight: 900; }
+  .module-score-sub { font-size: 14px; color: #888; }
+  .module-band { font-size: 9px; color: #666; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 4px; }
+  .module-bar { margin-top: 10px; height: 4px; background: #E2E0DB; }
   .module-bar-fill { height: 100%; }
 
-  .context { font-size: 12px; color: #a0a0aa; line-height: 1.7; font-family: Helvetica, Arial, sans-serif; }
-  .finding { font-size: 14px; color: #fff; line-height: 1.65; font-family: Helvetica, Arial, sans-serif; }
+  .context { font-size: 12px; color: #555; line-height: 1.7; font-family: Helvetica, Arial, sans-serif; }
+  .finding { font-size: 13px; color: #111; line-height: 1.65; font-family: Helvetica, Arial, sans-serif; font-weight: 500; }
 
-  .systemic { margin-top: 18px; padding: 12px 14px; background: rgba(59,130,246,0.08); border-left: 3px solid #3B82F6; display: flex; gap: 12px; align-items: flex-start; }
-  .systemic-icon { font-size: 18px; color: #3B82F6; font-family: Arial, sans-serif; flex-shrink: 0; }
+  .systemic { margin-top: 16px; padding: 12px 14px; background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 3px solid #3B82F6; display: flex; gap: 12px; align-items: flex-start; }
+  .systemic-icon { font-size: 16px; color: #3B82F6; font-family: Arial, sans-serif; flex-shrink: 0; }
   .systemic-label { font-size: 8px; letter-spacing: 0.22em; color: #3B82F6; text-transform: uppercase; margin-bottom: 4px; font-family: Arial, sans-serif; font-weight: 700; }
-  .systemic-text { font-size: 12px; color: #D4D4D8; line-height: 1.65; font-family: Helvetica, Arial, sans-serif; }
+  .systemic-text { font-size: 11px; color: #333; line-height: 1.65; font-family: Helvetica, Arial, sans-serif; }
 
-  .ctx-box { margin-top: 12px; padding: 10px 12px; background: #16161A; border-left: 3px solid #3B82F6; display: flex; gap: 10px; align-items: flex-start; }
+  .ctx-box { margin-top: 10px; padding: 9px 12px; background: #FAFAF8; border: 1px solid #E2E0DB; border-left: 3px solid #6B7280; display: flex; gap: 10px; align-items: flex-start; }
   .ctx-icon { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-weight: 700; font-size: 11px; color: #fff; flex-shrink: 0; font-family: Arial, sans-serif; }
   .ctx-body { flex: 1; }
-  .ctx-label { font-size: 8px; letter-spacing: 0.22em; color: #8a8a92; text-transform: uppercase; margin-bottom: 3px; font-family: Arial, sans-serif; font-weight: 700; }
-  .ctx-text { font-size: 11px; color: #c5c5cc; line-height: 1.6; font-family: Helvetica, Arial, sans-serif; }
+  .ctx-label { font-size: 8px; letter-spacing: 0.2em; color: #888; text-transform: uppercase; margin-bottom: 3px; font-family: Arial, sans-serif; font-weight: 700; }
+  .ctx-text { font-size: 11px; color: #333; line-height: 1.6; font-family: Helvetica, Arial, sans-serif; }
 
-  .row { margin-top: 14px; padding: 11px 14px; background: #16161A; display: flex; gap: 12px; align-items: flex-start; font-size: 12px; line-height: 1.55; color: #d4d4d8; font-family: Helvetica, Arial, sans-serif; }
-  .row-warn { border-left: 3px solid #E63222; }
-  .row-ok { border-left: 3px solid #22C55E; }
+  .row { margin-top: 12px; padding: 10px 14px; background: #FAFAF8; border: 1px solid #E2E0DB; display: flex; gap: 12px; align-items: flex-start; font-size: 12px; line-height: 1.55; color: #222; font-family: Helvetica, Arial, sans-serif; }
+  .row-warn { border-left: 3px solid #E63222; background: #FFF8F7; }
+  .row-ok { border-left: 3px solid #22C55E; background: #F7FFF9; }
   .icon { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; font-weight: 700; font-size: 12px; flex-shrink: 0; font-family: Arial, sans-serif; }
   .icon-warn { background: #E63222; color: #fff; }
   .icon-ok { background: #22C55E; color: #000; }
-  .row-label { font-size: 8px; letter-spacing: 0.25em; color: #6b6b72; text-transform: uppercase; margin-bottom: 4px; font-family: Arial, sans-serif; font-weight: 700; }
+  .row-label { font-size: 8px; letter-spacing: 0.25em; color: #888; text-transform: uppercase; margin-bottom: 4px; font-family: Arial, sans-serif; font-weight: 700; }
 
-  .metrics { margin-top: 18px; border-top: 1px solid #2a2a2f; padding-top: 10px; }
-  .metrics table { width: 100%; font-size: 10px; color: #8a8a92; font-family: Helvetica, Arial, sans-serif; }
+  .metrics { margin-top: 16px; border-top: 1px solid #E2E0DB; padding-top: 10px; }
+  .metrics table { width: 100%; font-size: 10px; color: #666; font-family: Helvetica, Arial, sans-serif; }
   .metrics td { padding: 3px 0; }
-  .metrics td:last-child { text-align: right; color: #fff; }
+  .metrics td:last-child { text-align: right; color: #111; font-weight: 600; }
 
-  /* ── Disclaimer page ──────────────── */
-  .disclaimer-page { text-align: center; }
-  .disclaimer-page h2 { margin-top: 50mm; font-family: "Arial Black", sans-serif; font-size: 20px; letter-spacing: 0.1em; }
+  /* ── Disclaimer page ──────────────────── */
+  .disclaimer-page { text-align: center; background: #F4F3F0 !important; }
+  .disclaimer-page h2 { margin-top: 50mm; font-family: "Arial Black", sans-serif; font-size: 20px; letter-spacing: 0.1em; color: #111; }
   .disclaimer-page .strong { margin-top: 12px; font-weight: 700; color: #E63222; letter-spacing: 0.1em; }
-  .disclaimer-page p { margin: 20px auto; max-width: 140mm; font-size: 12px; line-height: 1.7; color: #a0a0aa; font-family: Helvetica, Arial, sans-serif; }
-  .disclaimer-page .contact { margin-top: 30px; font-size: 10px; letter-spacing: 0.2em; color: #6b6b72; text-transform: uppercase; }
+  .disclaimer-page p { margin: 20px auto; max-width: 140mm; font-size: 12px; line-height: 1.7; color: #555; font-family: Helvetica, Arial, sans-serif; }
+  .disclaimer-page .contact { margin-top: 30px; font-size: 9px; letter-spacing: 0.2em; color: #888; text-transform: uppercase; }
 </style>
 </head>
 <body>
 
   <!-- COVER -->
   <section class="page cover">
-    <div class="brand">BOOST THE BEAST LAB</div>
-    <div class="brand-sub">PERFORMANCE LAB</div>
-    <div class="hero">
-      <span>PERFORMANCE</span>
-      <span>INTELLIGENCE</span>
-      <span>REPORT</span>
+    <div class="cover-accent-bar"></div>
+    <div class="cover-inner">
+      <div class="brand">BOOST THE BEAST LAB</div>
+      <div class="brand-sub">PERFORMANCE LAB</div>
+      <div class="hero">
+        <span>PERFORMANCE</span>
+        <span>INTELLIGENCE</span>
+        <span>REPORT</span>
+      </div>
+      <div class="headline">${esc(content.headline)}</div>
+      ${criticalBanner}
+      <div class="meta">${esc(today)} · VERTRAULICH — NUR FÜR ${esc(user.email.toUpperCase())}</div>
+      <div class="big-score">${scores.overall.score}</div>
     </div>
-    <div class="headline">${esc(content.headline)}</div>
-    ${criticalBanner}
-    <div class="meta">${esc(today)} · VERTRAULICH — NUR FÜR ${esc(user.email.toUpperCase())}</div>
-    <div class="big-score">${scores.overall.score}</div>
   </section>
 
   <!-- SUMMARY -->
