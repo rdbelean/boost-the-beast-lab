@@ -3,6 +3,28 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import styles from "./results.module.css";
 
+async function downloadResultsAsPDF() {
+  const content = document.getElementById("results-content");
+  if (!content) return;
+  const { default: html2canvas } = await import("html2canvas");
+  const { jsPDF } = await import("jspdf");
+  const canvas = await html2canvas(content, { scale: 2, useCORS: true, backgroundColor: "#0D0D0D", logging: false });
+  const imgData = canvas.toDataURL("image/jpeg", 0.92);
+  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const imgH = (canvas.height * pageW) / canvas.width;
+  let remaining = imgH;
+  let placed = 0;
+  while (remaining > 0) {
+    pdf.addImage(imgData, "JPEG", 0, -placed, pageW, imgH);
+    remaining -= pageH;
+    placed += pageH;
+    if (remaining > 0) pdf.addPage();
+  }
+  pdf.save("btb-performance-report.pdf");
+}
+
 /* ─── Animated Counter ──────────────────────────────────────── */
 function useCountUp(target: number, duration = 1600) {
   const [value, setValue] = useState(0);
@@ -164,15 +186,19 @@ export default function ResultsPage() {
         <div className={styles.headerTitle}>BOOST THE BEAST LAB · PERFORMANCE REPORT</div>
         <div className={styles.headerActions}>
           <Link href="/analyse" className={`${styles.headerBtnSecondary} ${styles.hideOnMobile}`}>Neue Analyse</Link>
-          {downloadUrl && (
+          {downloadUrl ? (
             <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className={styles.headerBtnPrimary}>
               PDF DOWNLOAD
             </a>
+          ) : (
+            <button onClick={downloadResultsAsPDF} className={styles.headerBtnPrimary}>
+              PDF DOWNLOAD
+            </button>
           )}
         </div>
       </div>
 
-      <div className={styles.container}>
+      <div className={styles.container} id="results-content">
 
         {/* ─── HERO: Overall Score ──────────────────────── */}
         <section className={styles.heroSection}>
@@ -404,7 +430,7 @@ export default function ResultsPage() {
                 REPORT ALS PDF HERUNTERLADEN
               </a>
             ) : (
-              <button onClick={() => window.print()} className={styles.ctaBtnPrimary}>
+              <button onClick={downloadResultsAsPDF} className={styles.ctaBtnPrimary}>
                 REPORT ALS PDF HERUNTERLADEN
               </button>
             )}

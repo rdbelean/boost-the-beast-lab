@@ -254,20 +254,45 @@ function buildPlan(type: PlanType, scores: Record<string, unknown>): PlanContent
 export default function PlanPage() {
   const { type } = useParams() as { type: string };
   const [plan, setPlan] = useState<PlanContent | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("btb_results");
-      if (!raw) { setError("Keine Analyse-Daten gefunden. Bitte starte die Analyse neu."); return; }
-      const data = JSON.parse(raw);
-      if (!data?.scores) { setError("Scores nicht verfügbar."); return; }
-      const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
-      if (!validTypes.includes(type as PlanType)) { setError("Unbekannter Plan-Typ."); return; }
-      setPlan(buildPlan(type as PlanType, data.scores));
-    } catch {
-      setError("Plan konnte nicht geladen werden.");
+    async function loadPlan() {
+      try {
+        const raw = sessionStorage.getItem("btb_results");
+        if (!raw) { setError("Keine Analyse-Daten gefunden. Bitte starte die Analyse neu."); setLoading(false); return; }
+        const data = JSON.parse(raw);
+        if (!data?.scores) { setError("Scores nicht verfügbar."); setLoading(false); return; }
+        const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
+        if (!validTypes.includes(type as PlanType)) { setError("Unbekannter Plan-Typ."); setLoading(false); return; }
+
+        try {
+          const res = await fetch("/api/plan/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type, scores: data.scores }),
+          });
+          if (res.ok) {
+            const planData = await res.json() as PlanContent & { color?: string };
+            const colors: Record<string, string> = { activity: "#E63222", metabolic: "#F59E0B", recovery: "#3B82F6", stress: "#22C55E" };
+            setPlan({ ...planData, color: colors[type] ?? "#E63222" });
+          } else {
+            throw new Error("API error");
+          }
+        } catch {
+          // Fallback to local generation if API fails
+          const colors: Record<string, string> = { activity: "#E63222", metabolic: "#F59E0B", recovery: "#3B82F6", stress: "#22C55E" };
+          const fallback = buildPlan(type as PlanType, data.scores);
+          setPlan({ ...fallback, color: colors[type] ?? "#E63222" });
+        }
+      } catch {
+        setError("Plan konnte nicht geladen werden.");
+      } finally {
+        setLoading(false);
+      }
     }
+    loadPlan();
   }, [type]);
 
   if (error) return (
@@ -278,7 +303,15 @@ export default function PlanPage() {
       </div>
     </div>
   );
-  if (!plan) return null;
+
+  if (loading || !plan) return (
+    <div className={styles.page}>
+      <div className={styles.loadingBox}>
+        <div className={styles.loadingSpinner} />
+        <p className={styles.loadingText}>PLAN WIRD GENERIERT …</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className={styles.page}>
