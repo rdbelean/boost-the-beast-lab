@@ -912,12 +912,12 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Generate PDF — Puppeteer needs a local Chromium binary which is NOT
-    //    available on Vercel serverless. If it fails, we skip the PDF/Storage
-    //    steps and still return the report JSON so the flow doesn't break.
+    // 4. Generate PDF (pdf-lib — pure JS, no native deps, works on Vercel).
+    let pdfBuffer: Uint8Array | null = null;
     let downloadUrl: string | null = null;
+
     try {
-      const pdfBuffer = await generatePDF(
+      pdfBuffer = await generatePDF(
         report,
         {
           sleep: { score: sleepScore, band: sleepBand },
@@ -947,53 +947,50 @@ export async function POST(req: NextRequest) {
           bmi_category: bmiCategory,
         },
       );
-
-      // 5. Upload PDF → Supabase Storage, with a local fallback for dev/test.
-      const fileName = `btb-report-${assessmentId}.pdf`;
-      const storagePath = `${assessmentId}/${fileName}`;
-
-      const { error: uploadErr } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(storagePath, pdfBuffer, {
-          contentType: "application/pdf",
-          upsert: true,
-        });
-
-      if (uploadErr) {
-        console.warn(
-          `[report/generate] Supabase Storage upload failed (${uploadErr.message}) — falling back`,
-        );
-        try {
-          // Try local filesystem first (works in dev, not on Vercel)
-          const publicDir = path.join(process.cwd(), "public", "test-reports");
-          await mkdir(publicDir, { recursive: true });
-          const localPath = path.join(publicDir, fileName);
-          await writeFile(localPath, Buffer.from(pdfBuffer));
-          const origin = req.nextUrl.origin;
-          downloadUrl = `${origin}/test-reports/${fileName}`;
-        } catch {
-          // Vercel read-only filesystem — embed as base64 data URL so the
-          // client can still open the PDF in the browser immediately.
-          console.warn("[report/generate] filesystem write failed — using base64 data URL");
-          const b64 = Buffer.from(pdfBuffer).toString("base64");
-          downloadUrl = `data:application/pdf;base64,${b64}`;
-        }
-      } else {
-        const { data: signed, error: signErr } = await supabase.storage
-          .from(STORAGE_BUCKET)
-          .createSignedUrl(storagePath, 60 * 60 * 24 * 30);
-        if (signErr) throw signErr;
-        downloadUrl = signed.signedUrl;
-      }
     } catch (pdfErr) {
       const pdfErrMsg = pdfErr instanceof Error ? pdfErr.message : String(pdfErr);
       console.warn("[report/generate] PDF generation failed:", pdfErrMsg);
-      // Persist the error for debugging (visible in Supabase report_jobs).
       if (jobId) {
         await supabase
           .from("report_jobs")
           .update({ error_message: `PDF: ${pdfErrMsg.slice(0, 500)}` })
           .eq("id", jobId);
+      }
+    }
+
+    // 5. Store PDF — try Supabase Storage, then local fs, then base64 data URL.
+    //    downloadUrl is always set if pdfBuffer exists.
+    if (pdfBuffer) {
+      const fileName = `btb-report-${assessmentId}.pdf`;
+      const storagePath = `${assessmentId}/${fileName}`;
+
+      try {
+        const { error: uploadErr } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .upload(storagePath, pdfBuffer, { contentType: "application/pdf", upsert: true });
+
+        if (uploadErr) throw uploadErr;
+
+        const { data: signed, error: signErr } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .createSignedUrl(storagePath, 60 * 60 * 24 * 30);
+
+        if (signErr) throw signErr;
+        downloadUrl = signed.signedUrl;
+      } catch (storageErr) {
+        const storageMsg = storageErr instanceof Error ? storageErr.message : String(storageErr);
+        console.warn(`[report/generate] Supabase Storage failed (${storageMsg}) — trying fs fallback`);
+        try {
+          const publicDir = path.join(process.cwd(), "public", "test-reports");
+          await mkdir(publicDir, { recursive: true });
+          await writeFile(path.join(publicDir, fileName), Buffer.from(pdfBuffer));
+          downloadUrl = `${req.nextUrl.origin}/test-reports/${fileName}`;
+        } catch {
+          // Vercel read-only filesystem — embed as base64 so the browser can
+          // open the PDF immediately without any external storage dependency.
+          console.warn("[report/generate] fs write failed — using base64 data URL");
+          downloadUrl = `data:application/pdf;base64,${Buffer.from(pdfBuffer).toString("base64")}`;
+        }
       }
     }
 

@@ -26,6 +26,15 @@ function AnimNum({ target }: { target: number }) {
   return <>{useCountUp(target)}</>;
 }
 
+/* ─── Urgency label ─────────────────────────────────────────── */
+function urgencyLabel(score: number): { text: string; color: string } {
+  if (score <= 30) return { text: "KRITISCH",              color: "#E63222" };
+  if (score <= 50) return { text: "HANDLUNGSBEDARF",       color: "#F59E0B" };
+  if (score <= 70) return { text: "OPTIMIERUNGSPOTENZIAL", color: "#D4B800" };
+  if (score <= 85) return { text: "FEINTUNING",            color: "#22C55E" };
+  return                 { text: "TOP-LEVEL",              color: "#15A34A" };
+}
+
 /* ─── Color helpers ─────────────────────────────────────────── */
 function scoreColor(score: number): string {
   if (score >= 70) return "#22C55E";
@@ -385,8 +394,15 @@ export default function ResultsPage() {
               <Link key={plan.type} href={`/plans/${plan.type}`} className={styles.planCard}>
                 <div className={styles.planCardAccent} style={{ background: plan.color }} />
                 <div className={styles.planCardBody}>
-                  <div className={styles.planCardScore} style={{ color: plan.color }}>
-                    {plan.score}<span className={styles.planCardScoreSub}>/100</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                    <div className={styles.planCardScore} style={{ color: plan.color, marginBottom: 0 }}>
+                      {plan.score}<span className={styles.planCardScoreSub}>/100</span>
+                    </div>
+                    {(() => { const u = urgencyLabel(plan.score); return (
+                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: u.color, border: `1px solid ${u.color}`, background: `${u.color}18`, padding: "2px 7px", borderRadius: 2, whiteSpace: "nowrap" }}>
+                        {u.text}
+                      </span>
+                    ); })()}
                   </div>
                   <div className={styles.planCardLabel}>{plan.label}</div>
                   <div className={styles.planCardDesc}>{plan.desc}</div>
