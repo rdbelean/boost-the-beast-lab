@@ -222,20 +222,20 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
 
 function blockHeight(block: PlanBlock, f: F): number {
   const innerW = CW - 32;
-  // headingH = 40: heading drawn at startY-18, separator at startY-27,
-  //   items start at startY-40 → 40pt consumed before first item.
-  const headingH = 40;
+  // headingH = 44: heading drawn at startY-22, separator at startY-31,
+  //   items start at startY-44 → 44pt consumed before first item.
+  const headingH = 44;
   // +4 per item matches the drawBlock `itemY -= 4` inter-item gap.
   const itemsH = block.items.reduce(
     (acc, item) => acc + textH(item, f.reg, 9.5, innerW - 14, 1.55) + 4,
     0,
   );
-  // Rationale overhead: 8pt gap + separator + 12pt gap + label + 12pt gap = 32pt.
+  // Rationale overhead: 12pt gap + separator + 12pt gap + label + 12pt gap = 36pt.
   const rationaleH = block.rationale
-    ? 32 + textH(block.rationale, f.reg, 8.5, innerW - 8, 1.5)
+    ? 36 + textH(block.rationale, f.reg, 8.5, innerW - 8, 1.5)
     : 0;
-  // 16pt bottom pad + 14pt inter-block gap (stripped in drawBlock via - 14).
-  return Math.max(60, headingH + itemsH + rationaleH + 16) + 14;
+  // 20pt bottom pad + 20pt inter-block gap (stripped in drawBlock via - 20).
+  return Math.max(70, headingH + itemsH + rationaleH + 20) + 20;
 }
 
 function drawBlock(
@@ -246,14 +246,14 @@ function drawBlock(
   startY: number,
 ): number {
   const innerW = CW - 32;  // 16pt left (3pt bar + 13pt gap) + 16pt right
-  const bh = blockHeight(block, f) - 14;  // strip inter-block gap to get card height
+  const bh = blockHeight(block, f) - 20;  // strip inter-block gap to get card height
 
   // Card background + left accent bar
   page.drawRectangle({ x: MX, y: startY - bh, width: CW, height: bh, color: BG_CARD });
   page.drawRectangle({ x: MX, y: startY - bh, width: 3, height: bh, color: accentColor });
 
-  // Heading
-  const headY = startY - 18;
+  // Heading — 22pt from card top gives generous breathing room
+  const headY = startY - 22;
   page.drawText(tx(block.heading).toUpperCase(), {
     x: MX + 16, y: headY, size: 7.5, font: f.bold, color: accentColor,
   });
@@ -263,8 +263,8 @@ function drawBlock(
     thickness: 0.5, color: BORDER_C,
   });
 
-  // Items
-  let itemY = headY - 22;
+  // Items — start 22pt below separator baseline
+  let itemY = headY - 22;  // = startY - 44
   for (const item of block.items) {
     if (itemY < 80) break;  // respect footer zone
     page.drawText("-", { x: MX + 16, y: itemY, size: 8, font: f.bold, color: accentColor });
@@ -272,9 +272,9 @@ function drawBlock(
     itemY -= 4;
   }
 
-  // Rationale section
+  // Rationale section — 12pt gap before separator matches the 36pt overhead in blockHeight
   if (block.rationale && itemY > 90) {
-    itemY -= 8;
+    itemY -= 12;  // generous gap above separator
     page.drawLine({
       start: { x: MX + 16, y: itemY },
       end: { x: MX + CW - 16, y: itemY },
@@ -288,7 +288,7 @@ function drawBlock(
     drawW(page, block.rationale, MX + 16, itemY, innerW - 8, f.reg, 8.5, TXT_MUTED, 1.5);
   }
 
-  return startY - bh - 14;  // = startY - blockHeight(block, f)
+  return startY - bh - 20;  // = startY - blockHeight(block, f)
 }
 
 // ── Key takeaways card ─────────────────────────────────────────────────────
@@ -350,31 +350,51 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
 
   for (const block of plan.blocks) {
     const bh = blockHeight(block, f);
-    const footerClearance = 80;  // matches SAFE_Y in generateReport; footer line is at 45pt
 
-    if (y - bh < footerClearance) {
+    if (y - bh < 80) {  // 80pt = SAFE_Y; footer line is at 45pt
       pageFooter(page, f, today);
       page = doc.addPage([PW, PH]);
       y = pageChrome(page, f, accentColor, today);
-      page.drawText(tx(plan.title).toUpperCase(), { x: MX, y, size: 16, font: f.bold, color: TXT_WHITE });
-      y -= 24;
+      // Compact muted continuation header with a visual rule — gives clear top separation
+      page.drawText(tx(plan.title).toUpperCase(), {
+        x: MX, y, size: 11, font: f.bold, color: TXT_MUTED,
+      });
+      y -= 14;
+      page.drawLine({
+        start: { x: MX, y }, end: { x: PW - MX, y }, thickness: 0.5, color: BORDER_C,
+      });
+      y -= 20;
     }
 
     y = drawBlock(page, block, f, accentColor, y);
   }
 
-  // Key takeaways card — fills remaining whitespace with a numbered action list
-  const srcInnerW = CW - 32;  // 16pt left + 16pt right
+  // ── Key takeaways card ────────────────────────────────────────────────────
+  // Pre-compute height so we never draw a box that bleeds into the footer.
+  const srcInnerW = CW - 32;
   const srcH = plan.source ? Math.max(44, textH(plan.source, f.reg, 8.5, srcInnerW, 1.5) + 28) : 0;
-  const minSpaceNeeded = 100 + (plan.source ? srcH + 12 : 0);
 
-  if (y > minSpaceNeeded + 65) {
-    y -= 8;
-    y = drawKeyTakeaways(page, plan, f, accentColor, y);
+  {
+    const ktActions = plan.blocks.map((b) => b.items[0]).filter(Boolean);
+    if (ktActions.length > 0) {
+      const ktInnerW = CW - 32;
+      const ktItemsH = ktActions.reduce(
+        (acc, item) => acc + textH(item, f.bold, 9, ktInnerW - 16, 1.5) + 8,
+        0,
+      );
+      const ktBoxH = Math.max(90, ktItemsH + 56);
+      // Draw only if key takeaways + gap + source box (if present) all fit above footer zone
+      const totalNeeded = 8 + ktBoxH + 10 + (plan.source ? srcH + 4 : 0);
+      if (y - totalNeeded > 80) {
+        y -= 8;
+        y = drawKeyTakeaways(page, plan, f, accentColor, y);
+      }
+    }
   }
 
-  // Source box
-  if (plan.source && y > 100) {
+  // ── Source box ────────────────────────────────────────────────────────────
+  // Only draw if the entire box fits above the footer zone.
+  if (plan.source && y - 4 - srcH > 80) {
     y -= 4;
     page.drawRectangle({ x: MX, y: y - srcH, width: CW, height: srcH, color: BG_INSET });
     page.drawText("WISSENSCHAFTLICHE BASIS", { x: MX + 16, y: y - 14, size: 6, font: f.bold, color: TXT_MUTED });
