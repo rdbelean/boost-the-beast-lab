@@ -23,7 +23,7 @@ export interface PlanPdfInput {
 
 const PW = 595.28;
 const PH = 841.89;
-const MX = 48;
+const MX = 52;
 const CW = PW - MX * 2;
 
 // ── Colour palette (matches generateReport.ts) ────────────────────────────
@@ -221,17 +221,17 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
 // Returns new y after the block + gap.
 
 function blockHeight(block: PlanBlock, f: F): number {
-  const innerW = CW - 26;
+  const innerW = CW - 32;  // 16pt left + 16pt right inside card
   const headingH = 28;  // heading + separator
   const itemsH = block.items.reduce(
-    (acc, item) => acc + textH(item, f.reg, 9.5, innerW - 12, 1.55) + 2,
+    (acc, item) => acc + textH(item, f.reg, 9.5, innerW - 14, 1.55) + 2,
     0,
   );
   let rationaleH = 0;
   if (block.rationale) {
     rationaleH = 14 + textH(block.rationale, f.reg, 8.5, innerW - 8, 1.5);  // separator + text
   }
-  return Math.max(50, headingH + itemsH + rationaleH + 24) + 12;
+  return Math.max(50, headingH + itemsH + rationaleH + 28) + 12;
 }
 
 function drawBlock(
@@ -241,7 +241,7 @@ function drawBlock(
   accentColor: Color,
   startY: number,
 ): number {
-  const innerW = CW - 26;
+  const innerW = CW - 32;  // 16pt left (3pt bar + 13pt gap) + 16pt right
   const bh = blockHeight(block, f) - 12;  // without gap
 
   // Card background + left accent bar
@@ -249,42 +249,42 @@ function drawBlock(
   page.drawRectangle({ x: MX, y: startY - bh, width: 3, height: bh, color: accentColor });
 
   // Heading
-  const headY = startY - 16;
+  const headY = startY - 18;
   page.drawText(tx(block.heading).toUpperCase(), {
-    x: MX + 14, y: headY, size: 7.5, font: f.bold, color: accentColor,
+    x: MX + 16, y: headY, size: 7.5, font: f.bold, color: accentColor,
   });
   page.drawLine({
-    start: { x: MX + 14, y: headY - 8 },
-    end: { x: MX + CW - 8, y: headY - 8 },
+    start: { x: MX + 16, y: headY - 9 },
+    end: { x: MX + CW - 16, y: headY - 9 },
     thickness: 0.5, color: BORDER_C,
   });
 
   // Items
-  let itemY = headY - 20;
+  let itemY = headY - 22;
   for (const item of block.items) {
     if (itemY < 60) break;
-    page.drawText("-", { x: MX + 14, y: itemY, size: 8, font: f.bold, color: accentColor });
-    itemY = drawW(page, item, MX + 26, itemY, innerW - 12, f.reg, 9.5, TXT_WHITE, 1.55);
-    itemY -= 3;
+    page.drawText("-", { x: MX + 16, y: itemY, size: 8, font: f.bold, color: accentColor });
+    itemY = drawW(page, item, MX + 28, itemY, innerW - 14, f.reg, 9.5, TXT_WHITE, 1.55);
+    itemY -= 4;
   }
 
   // Rationale section
   if (block.rationale && itemY > 72) {
     itemY -= 8;
     page.drawLine({
-      start: { x: MX + 14, y: itemY },
-      end: { x: MX + CW - 8, y: itemY },
+      start: { x: MX + 16, y: itemY },
+      end: { x: MX + CW - 16, y: itemY },
       thickness: 0.5, color: BORDER_C,
     });
     itemY -= 12;
     page.drawText("WISSENSCHAFTLICHE EINORDNUNG", {
-      x: MX + 14, y: itemY, size: 6, font: f.bold, color: TXT_MUTED,
+      x: MX + 16, y: itemY, size: 6, font: f.bold, color: TXT_MUTED,
     });
     itemY -= 12;
-    drawW(page, block.rationale, MX + 14, itemY, innerW - 8, f.reg, 8.5, TXT_MUTED, 1.5);
+    drawW(page, block.rationale, MX + 16, itemY, innerW - 8, f.reg, 8.5, TXT_MUTED, 1.5);
   }
 
-  return startY - bh - 12;
+  return startY - bh - 14;  // slightly more gap between blocks
 }
 
 // ── Key takeaways card ─────────────────────────────────────────────────────
@@ -300,12 +300,12 @@ function drawKeyTakeaways(
   const actions = plan.blocks.map((b) => b.items[0]).filter(Boolean);
   if (actions.length === 0) return startY;
 
-  const innerW = CW - 28;
+  const innerW = CW - 32;  // 16pt left + 16pt right
   const itemsH = actions.reduce(
     (acc, item) => acc + textH(item, f.bold, 9, innerW - 16, 1.5) + 8,
     0,
   );
-  const boxH = Math.max(90, itemsH + 52);
+  const boxH = Math.max(90, itemsH + 56);
 
   // Card background + top accent bar
   page.drawRectangle({ x: MX, y: startY - boxH, width: CW, height: boxH, color: BG_INSET });
@@ -313,19 +313,19 @@ function drawKeyTakeaways(
 
   // Heading
   page.drawText("DEINE WICHTIGSTEN MASSNAHMEN", {
-    x: MX + 14, y: startY - 19, size: 7, font: f.bold, color: accentColor,
+    x: MX + 16, y: startY - 20, size: 7, font: f.bold, color: accentColor,
   });
   page.drawLine({
-    start: { x: MX + 14, y: startY - 27 },
-    end: { x: MX + CW - 14, y: startY - 27 },
+    start: { x: MX + 16, y: startY - 29 },
+    end: { x: MX + CW - 16, y: startY - 29 },
     thickness: 0.5, color: BORDER_C,
   });
 
-  let itemY = startY - 41;
+  let itemY = startY - 44;
   for (let i = 0; i < actions.length; i++) {
     const num = String(i + 1);
-    page.drawText(num, { x: MX + 14, y: itemY, size: 8, font: f.bold, color: accentColor });
-    itemY = drawW(page, actions[i], MX + 28, itemY, innerW - 16, f.bold, 9, TXT_WHITE, 1.5);
+    page.drawText(num, { x: MX + 16, y: itemY, size: 8, font: f.bold, color: accentColor });
+    itemY = drawW(page, actions[i], MX + 30, itemY, innerW - 16, f.bold, 9, TXT_WHITE, 1.5);
     itemY -= 8;
   }
 
@@ -338,11 +338,11 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
   let page = doc.addPage([PW, PH]);
   let y = pageChrome(page, f, accentColor, today);
 
-  // Page title + subtitle
-  page.drawText(tx(plan.title).toUpperCase(), { x: MX, y, size: 20, font: f.bold, color: TXT_WHITE });
-  y -= 26;
-  page.drawText(tx(plan.subtitle), { x: MX, y, size: 8.5, font: f.reg, color: TXT_MUTED });
-  y -= 20;
+  // Page title + subtitle — wrapped so long strings never overflow right margin
+  y = drawW(page, tx(plan.title).toUpperCase(), MX, y, CW, f.bold, 20, TXT_WHITE, 1.3);
+  y -= 8;
+  y = drawW(page, tx(plan.subtitle), MX, y, CW, f.reg, 8.5, TXT_MUTED);
+  y -= 16;
 
   for (const block of plan.blocks) {
     const bh = blockHeight(block, f);
@@ -360,7 +360,7 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
   }
 
   // Key takeaways card — fills remaining whitespace with a numbered action list
-  const srcInnerW = CW - 28;
+  const srcInnerW = CW - 32;  // 16pt left + 16pt right
   const srcH = plan.source ? Math.max(44, textH(plan.source, f.reg, 8.5, srcInnerW, 1.5) + 28) : 0;
   const minSpaceNeeded = 100 + (plan.source ? srcH + 12 : 0);
 
@@ -373,8 +373,8 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
   if (plan.source && y > 100) {
     y -= 4;
     page.drawRectangle({ x: MX, y: y - srcH, width: CW, height: srcH, color: BG_INSET });
-    page.drawText("WISSENSCHAFTLICHE BASIS", { x: MX + 12, y: y - 14, size: 6, font: f.bold, color: TXT_MUTED });
-    drawW(page, plan.source, MX + 12, y - 28, srcInnerW, f.reg, 8.5, TXT_MUTED, 1.5);
+    page.drawText("WISSENSCHAFTLICHE BASIS", { x: MX + 16, y: y - 14, size: 6, font: f.bold, color: TXT_MUTED });
+    drawW(page, plan.source, MX + 16, y - 28, srcInnerW, f.reg, 8.5, TXT_MUTED, 1.5);
   }
 
   pageFooter(page, f, today);

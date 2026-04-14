@@ -73,8 +73,8 @@ export interface PdfUserProfile {
 
 const PW = 595.28;   // A4 width  (points)
 const PH = 841.89;   // A4 height (points)
-const MX = 48;       // horizontal margin
-const CW = PW - MX * 2; // content width ≈ 499 pt
+const MX = 52;       // horizontal margin
+const CW = PW - MX * 2; // content width ≈ 491 pt
 
 // ── Colour palette ─────────────────────────────────────────────────────────
 
@@ -245,24 +245,24 @@ function scoreCard(
 
   // Label (6pt, below colour bar)
   page.drawText(tx(label).toUpperCase(), {
-    x: x + 9, y: topY - 18, size: 6, font: f.bold, color: TXT_MUTED,
+    x: x + 12, y: topY - 18, size: 6, font: f.bold, color: TXT_MUTED,
   });
 
   // Score number (24pt) — cap top at topY-18-17=topY-35, no overlap with label
   page.drawText(String(score), {
-    x: x + 9, y: topY - 42, size: 24, font: f.bold, color: col,
+    x: x + 12, y: topY - 42, size: 24, font: f.bold, color: col,
   });
 
   // Band — placed between score and progress bar
   const bStr = tx(band).toUpperCase();
-  const bW = Math.min(f.reg.widthOfTextAtSize(bStr, 6), w - 12);
+  const bW = Math.min(f.reg.widthOfTextAtSize(bStr, 6), w - 24);
   page.drawText(bStr, {
-    x: x + w - 8 - bW, y: topY - h + 28, size: 6, font: f.reg, color: TXT_MUTED,
+    x: x + w - 12 - bW, y: topY - h + 28, size: 6, font: f.reg, color: TXT_MUTED,
   });
 
   // Progress bar near the bottom of the card (12pt from bottom)
-  const barX = x + 9;
-  const barW = w - 18;
+  const barX = x + 12;
+  const barW = w - 24;
   const barY = topY - h + 12;
   page.drawRectangle({ x: barX, y: barY, width: barW, height: 3, color: BG_INSET });
   page.drawRectangle({
@@ -288,9 +288,9 @@ function infoBox(
 ): number {
   if (!text || !tx(text).trim()) return topY;
 
-  const innerW = w - 24;   // text width (left margin 12 + bar 3 + gap 9)
+  const innerW = w - 32;   // text width: 16pt left (3pt bar + 13pt gap) + 16pt right
   const bodyPx = textH(text, f.reg, 9.5, innerW, 1.5);
-  const boxH = Math.max(50, bodyPx + 40);  // 18 top padding + 22 below label
+  const boxH = Math.max(50, bodyPx + 44);  // 20 top padding + 24 below label
 
   // Background + left bar
   page.drawRectangle({ x, y: topY - boxH, width: w, height: boxH, color: BG_CARD });
@@ -298,11 +298,11 @@ function infoBox(
 
   // Label (6pt bold, 16pt from box top)
   page.drawText(tx(label).toUpperCase(), {
-    x: x + 12, y: topY - 16, size: 6, font: f.bold, color: barColor,
+    x: x + 16, y: topY - 16, size: 6, font: f.bold, color: barColor,
   });
 
   // Body text (start 32pt from box top)
-  drawW(page, text, x + 12, topY - 32, innerW, f.reg, 9.5, TXT_WHITE, 1.5);
+  drawW(page, text, x + 16, topY - 32, innerW, f.reg, 9.5, TXT_WHITE, 1.5);
 
   return topY - boxH - 10;  // 10pt gap after box
 }
@@ -330,14 +330,14 @@ function statBoxes(
 
     // Label
     page.drawText(tx(key).toUpperCase(), {
-      x: bx + 10, y: topY - 15, size: 6, font: f.bold, color: TXT_MUTED,
+      x: bx + 12, y: topY - 15, size: 6, font: f.bold, color: TXT_MUTED,
     });
 
-    // Value — fit on one line, shrink if needed
+    // Value — fit on one line, shrink if needed (leave 24pt padding total)
     const valStr = tx(val);
-    const valSize = f.bold.widthOfTextAtSize(valStr, 12) <= boxW - 20 ? 12 : 10;
+    const valSize = f.bold.widthOfTextAtSize(valStr, 12) <= boxW - 24 ? 12 : 10;
     page.drawText(valStr, {
-      x: bx + 10, y: topY - 36, size: valSize, font: f.bold, color: TXT_WHITE,
+      x: bx + 12, y: topY - 36, size: valSize, font: f.bold, color: TXT_WHITE,
     });
   }
 }
@@ -450,22 +450,22 @@ function buildSummary(
   page.drawRectangle({ x: MX, y: y - ovH, width: 4, height: ovH, color: ACCENT });
 
   page.drawText("OVERALL PERFORMANCE INDEX", {
-    x: MX + 14, y: y - 16, size: 7, font: f.bold, color: TXT_MUTED,
+    x: MX + 16, y: y - 16, size: 7, font: f.bold, color: TXT_MUTED,
   });
   page.drawText(String(scores.overall.score), {
-    x: MX + 14, y: y - 50, size: 40, font: f.bold, color: oc,
+    x: MX + 16, y: y - 50, size: 40, font: f.bold, color: oc,
   });
   page.drawText(`/100  ${tx(scores.overall.band).toUpperCase()}`, {
-    x: MX + 80, y: y - 36, size: 10, font: f.reg, color: TXT_MUTED,
+    x: MX + 84, y: y - 36, size: 10, font: f.reg, color: TXT_MUTED,
   });
 
-  // Right side user meta
+  // Right side user meta — 16pt inside box right edge to avoid clinging to border
   const meta = `BMI ${user.bmi}  |  ${user.age} Jahre  |  ${tx(user.gender)}`;
   const metaW = f.reg.widthOfTextAtSize(meta, 9);
-  page.drawText(meta, { x: PW - MX - metaW, y: y - 22, size: 9, font: f.reg, color: TXT_MUTED });
+  page.drawText(meta, { x: PW - MX - metaW - 16, y: y - 22, size: 9, font: f.reg, color: TXT_MUTED });
   const bCat = tx(user.bmi_category).toUpperCase();
   const bCatW = f.reg.widthOfTextAtSize(bCat, 7);
-  page.drawText(bCat, { x: PW - MX - bCatW, y: y - 34, size: 7, font: f.reg, color: TXT_MUTED });
+  page.drawText(bCat, { x: PW - MX - bCatW - 16, y: y - 34, size: 7, font: f.reg, color: TXT_MUTED });
 
   y -= ovH + 14;
 
@@ -475,9 +475,9 @@ function buildSummary(
   page.drawRectangle({ x: MX, y: y - prioH, width: CW, height: prioH, color: BG_CARD });
   page.drawRectangle({ x: MX, y: y - 5, width: CW, height: 5, color: ACCENT });
   page.drawText("TOP PRIORITAET", {
-    x: MX + 12, y: y - 19, size: 7, font: f.bold, color: ACCENT,
+    x: MX + 16, y: y - 19, size: 7, font: f.bold, color: ACCENT,
   });
-  drawW(page, content.top_priority, MX + 12, y - 33, CW - 24, f.bold, 10, TXT_WHITE, 1.65);
+  drawW(page, content.top_priority, MX + 16, y - 33, CW - 32, f.bold, 10, TXT_WHITE, 1.65);
 
   pageFooter(page, f, today);
 }
@@ -505,9 +505,11 @@ function buildModule(
   page.drawText(tx(title).toUpperCase(), { x: MX, y, size: 26, font: f.bold, color: TXT_WHITE });
   const sStr = String(score);
   const sW = f.bold.widthOfTextAtSize(sStr, 42);
+  const slashW = f.reg.widthOfTextAtSize("/100", 12);
   const scoreY = y - 12;  // shift down: cap top = scoreY+30 = y+18, well below line
-  page.drawText(sStr, { x: PW - MX - sW - 20, y: scoreY, size: 42, font: f.bold, color: col });
-  page.drawText("/100", { x: PW - MX - 20, y: scoreY + 6, size: 12, font: f.reg, color: TXT_MUTED });
+  // Anchor both score + "/100" so "/100" ends exactly at the right margin (no overflow).
+  page.drawText(sStr, { x: PW - MX - sW - slashW - 4, y: scoreY, size: 42, font: f.bold, color: col });
+  page.drawText("/100", { x: PW - MX - slashW, y: scoreY + 6, size: 12, font: f.reg, color: TXT_MUTED });
 
   // Band label — below the title baseline
   y -= 32;
