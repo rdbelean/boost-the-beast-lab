@@ -473,6 +473,7 @@ function AnalyseContent() {
             scores: json?.scores,
             downloadUrl,
             parentSessionId: sessionId ?? null,
+            assessmentId: json?.assessmentId ?? null,
           }));
           router.push("/results");
         }, 600);

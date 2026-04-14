@@ -108,7 +108,10 @@ interface ResultsData {
 export default function ResultsPage() {
   const [scores, setScores] = useState<ResultsData | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [pdfRetrying, setPdfRetrying] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("btb_results");
@@ -120,10 +123,50 @@ export default function ResultsPage() {
       const data = JSON.parse(raw);
       setScores(data.scores);
       setDownloadUrl(data.downloadUrl ?? null);
+      setAssessmentId(data.assessmentId ?? null);
     } catch {
       setError("Ergebnisse konnten nicht geladen werden.");
     }
   }, []);
+
+  async function retryPdfGeneration() {
+    if (!assessmentId) {
+      setPdfError("Keine Assessment-ID — bitte Analyse neu starten.");
+      return;
+    }
+    setPdfRetrying(true);
+    setPdfError(null);
+    try {
+      const res = await fetch("/api/report/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assessmentId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPdfError(data?.error ?? `Fehler ${res.status}`);
+        return;
+      }
+      if (data.downloadUrl) {
+        setDownloadUrl(data.downloadUrl);
+        // persist so refresh still has it
+        const raw = sessionStorage.getItem("btb_results");
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            parsed.downloadUrl = data.downloadUrl;
+            sessionStorage.setItem("btb_results", JSON.stringify(parsed));
+          } catch {}
+        }
+      } else {
+        setPdfError("Server lieferte keine URL zurück.");
+      }
+    } catch (err) {
+      setPdfError(err instanceof Error ? err.message : "Netzwerkfehler");
+    } finally {
+      setPdfRetrying(false);
+    }
+  }
 
   if (error) {
     return (
@@ -178,8 +221,14 @@ export default function ResultsPage() {
               PDF DOWNLOAD
             </a>
           ) : (
-            <button disabled className={styles.headerBtnPrimary} style={{ opacity: 0.4, cursor: "not-allowed" }}>
-              PDF WIRD GENERIERT…
+            <button
+              onClick={retryPdfGeneration}
+              disabled={pdfRetrying}
+              className={styles.headerBtnPrimary}
+              style={{ opacity: pdfRetrying ? 0.5 : 1, cursor: pdfRetrying ? "wait" : "pointer" }}
+              title={pdfError ?? undefined}
+            >
+              {pdfRetrying ? "PDF WIRD GENERIERT…" : "PDF JETZT GENERIEREN"}
             </button>
           )}
         </div>
@@ -424,11 +473,21 @@ export default function ResultsPage() {
                 REPORT ALS PDF HERUNTERLADEN
               </a>
             ) : (
-              <button disabled className={styles.ctaBtnPrimary} style={{ opacity: 0.4, cursor: "not-allowed" }}>
-                PDF WIRD GENERIERT…
+              <button
+                onClick={retryPdfGeneration}
+                disabled={pdfRetrying}
+                className={styles.ctaBtnPrimary}
+                style={{ opacity: pdfRetrying ? 0.5 : 1, cursor: pdfRetrying ? "wait" : "pointer" }}
+              >
+                {pdfRetrying ? "PDF WIRD GENERIERT…" : "PDF JETZT GENERIEREN"}
               </button>
             )}
           </div>
+          {pdfError && (
+            <div style={{ marginTop: "0.75rem", color: "#DC2626", fontSize: "0.8rem", textAlign: "center" }}>
+              {pdfError}
+            </div>
+          )}
           <p className={styles.ctaDisclaimer}>
             Hinweis: Dieser Report dient ausschließlich der allgemeinen Information und ersetzt keinen
             Arztbesuch, keine medizinische Diagnose oder Therapieempfehlung. Bei gesundheitlichen
