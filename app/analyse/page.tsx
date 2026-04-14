@@ -7,6 +7,69 @@ import BackButton from "@/components/ui/BackButton";
 import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";
 import CustomSelect from "@/components/analyse/CustomSelect";
+import { buildPlan, type PlanType, type PlanBlock } from "@/lib/plan/buildPlan";
+
+// ── Plan bundle cached in sessionStorage ─────────────────
+interface PlanBundle {
+  blocks: PlanBlock[];
+  source?: string;
+  pdfBase64?: string;
+}
+
+async function generatePlanBundle(
+  planType: PlanType,
+  scores: Record<string, unknown>,
+): Promise<PlanBundle | null> {
+  // 1. Build static fallback content locally
+  const basePlan = buildPlan(planType, scores);
+
+  // 2. Try to get AI-enhanced blocks (non-blocking if it fails)
+  let blocks = basePlan.blocks;
+  let source = basePlan.source;
+  try {
+    const aiRes = await fetch("/api/plan/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: planType, scores }),
+    });
+    if (aiRes.ok) {
+      const ai = (await aiRes.json()) as { blocks?: PlanBlock[]; source?: string };
+      if (ai.blocks?.length) {
+        blocks = ai.blocks;
+        if (ai.source) source = ai.source;
+      }
+    }
+  } catch (e) {
+    console.warn(`[plan ${planType}] AI gen failed, using static blocks`, e);
+  }
+
+  // 3. Generate PDF with merged content
+  const merged = { ...basePlan, blocks, source };
+  try {
+    const pdfRes = await fetch("/api/plan/pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan: merged }),
+    });
+    if (!pdfRes.ok) {
+      console.warn(`[plan ${planType}] PDF gen failed`, pdfRes.status);
+      return { blocks, source };
+    }
+    const buf = await pdfRes.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    // Convert to base64 via chunked encoding (handles large payloads)
+    let binary = "";
+    const CHUNK = 0x8000;
+    for (let i = 0; i < bytes.length; i += CHUNK) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+    }
+    const pdfBase64 = btoa(binary);
+    return { blocks, source, pdfBase64 };
+  } catch (e) {
+    console.warn(`[plan ${planType}] PDF fetch error`, e);
+    return { blocks, source };
+  }
+}
 
 /* ── Types ─────────────────────────────────────────────── */
 interface FormData {
@@ -265,11 +328,26 @@ function AnalyseContent() {
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [visibleSteps, setVisibleSteps] = useState<number[]>([]);
-  const [doneSteps, setDoneSteps] = useState<number[]>([]);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [progressCap, setProgressCap] = useState(5);
   const [overallScore, setOverallScore] = useState<number | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Smooth progress animation — interpolates toward the current cap so the
+  // bar feels alive even while API calls are in flight.
+  useEffect(() => {
+    if (!loading) return;
+    const interval = setInterval(() => {
+      setLoadingProgress((prev) => {
+        if (prev >= progressCap) return prev;
+        // Approach cap faster when far away, slower near it
+        const delta = Math.max(0.3, (progressCap - prev) * 0.08);
+        return Math.min(progressCap, prev + delta);
+      });
+    }, 120);
+    return () => clearInterval(interval);
+  }, [loading, progressCap]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [allScores, setAllScores] = useState<any>(null);
 
@@ -367,25 +445,12 @@ function AnalyseContent() {
   const handleSubmit = async () => {
     if (!canSubmit) return;
     setLoading(true);
-    setVisibleSteps([]);
-    setDoneSteps([]);
-
-    // All steps visible immediately (dark grey), then check off progressively
-    setVisibleSteps(LOADING_STEPS.map((_, i) => i));
-
-    // Timers for steps 0..N-2 spread evenly — targets ~20s total
-    const STEP_INTERVAL = 1800;
-    const stepTimers: ReturnType<typeof setTimeout>[] = [];
-    LOADING_STEPS.slice(0, -1).forEach((_, i) => {
-      const t = setTimeout(() => setDoneSteps((prev) => [...prev, i]), (i + 1) * STEP_INTERVAL);
-      stepTimers.push(t);
-    });
+    setProgressCap(5);
+    setLoadingProgress(0);
 
     try {
       setErrorMsg(null);
       const payload = buildAssessmentPayload(form);
-
-      const apiStart = Date.now();
 
       // ── Step 1: /api/assessment — scoring only (fast, ~2-4s) ────────────
       const res = await fetch("/api/assessment", {
@@ -393,10 +458,8 @@ function AnalyseContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       const json = await res.json().catch(() => null);
       if (!res.ok) {
-        stepTimers.forEach(clearTimeout);
         throw new Error(json?.error ?? `Server-Fehler (${res.status})`);
       }
       if (json?.scores) {
@@ -405,20 +468,20 @@ function AnalyseContent() {
           setOverallScore(json.scores.overall_score_0_100);
         }
       }
+      // Scoring done — 15% cap
+      setProgressCap(15);
 
-      // ── Step 2: /api/report/generate — Claude + PDF (~30-60s) ──────────
-      // Fresh serverless invocation = fresh timeout budget. If this fails
-      // we still show the scores; the PDF just isn't available yet.
-      let downloadUrl: string | null = null;
-      try {
-        let genBody: Record<string, unknown>;
-        if (json?.assessmentId) {
-          // Production (Supabase configured): use the DB-backed path
-          genBody = { assessmentId: json.assessmentId };
-        } else {
-          // Demo mode (no Supabase): pass all data inline so the server can
-          // generate the Claude report + @react-pdf/renderer PDF without a DB
-          genBody = {
+      const scores = json?.scores;
+
+      // ── Step 2: FIRE ALL PDF TASKS IN PARALLEL ─────────────────────────
+      // 1 main report (Claude + PDF, ~30-45s, weighted 50%)
+      // 4 plan PDFs  (Claude + pdf-lib, ~10-20s each, weighted 10% each)
+      // Each task bumps progress cap when it resolves.
+      const TASK_WEIGHTS = { report: 50, perPlan: 10 }; // total: 50 + 40 = 90 (+15 from scoring = 105, clamped to 100)
+
+      const reportBody: Record<string, unknown> = json?.assessmentId
+        ? { assessmentId: json.assessmentId }
+        : {
             demoContext: {
               reportType: payload.reportType,
               user: {
@@ -428,7 +491,7 @@ function AnalyseContent() {
                 height_cm: payload.height_cm,
                 weight_kg: payload.weight_kg,
               },
-              result: json.scores,
+              result: scores,
               sleepDurationHours: payload.sleep_duration_hours,
               sleep_quality_label: payload.sleep_quality,
               wakeup_frequency_label: payload.wakeups,
@@ -443,41 +506,70 @@ function AnalyseContent() {
               daily_steps: form.schrittzahl,
             },
           };
-        }
-        const genRes = await fetch("/api/report/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(genBody),
+
+      const reportPromise = fetch("/api/report/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reportBody),
+      })
+        .then(async (r) => {
+          if (!r.ok) {
+            const body = await r.text().catch(() => "");
+            console.error("[analyse] report gen failed", r.status, body);
+            return null;
+          }
+          return (await r.json()) as { downloadUrl?: string };
+        })
+        .then((data) => {
+          setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.report));
+          return data?.downloadUrl ?? null;
+        })
+        .catch((e) => {
+          console.warn("[analyse] report gen error", e);
+          setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.report));
+          return null;
         });
-        if (genRes.ok) {
-          const genJson = (await genRes.json()) as { downloadUrl?: string };
-          downloadUrl = genJson.downloadUrl ?? null;
-          if (downloadUrl) setDownloadUrl(downloadUrl);
-        } else {
-          const errBody = await genRes.text().catch(() => "(no body)");
-          console.error("[analyse] report generation failed", genRes.status, errBody);
-        }
-      } catch (e) {
-        console.warn("[analyse] report generation fetch failed", e);
+
+      const PLAN_TYPES: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
+      const planPromises = PLAN_TYPES.map((planType) =>
+        generatePlanBundle(planType, scores)
+          .then((bundle) => {
+            setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
+            return { planType, bundle };
+          })
+          .catch((e) => {
+            console.warn(`[analyse] plan ${planType} failed`, e);
+            setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
+            return { planType, bundle: null as PlanBundle | null };
+          }),
+      );
+
+      // Wait for everything
+      const [downloadUrl, ...planResults] = await Promise.all([reportPromise, ...planPromises]);
+      if (downloadUrl) setDownloadUrl(downloadUrl);
+
+      const plans: Record<string, PlanBundle> = {};
+      for (const r of planResults) {
+        if (r.bundle) plans[r.planType] = r.bundle;
       }
 
-      // Wait until all previously scheduled step timers have fired, then finish
-      const elapsed = Date.now() - apiStart;
-      const minWait = (LOADING_STEPS.length - 1) * STEP_INTERVAL;
-      const remaining = Math.max(0, minWait - elapsed);
+      // Finalize progress and route
+      setProgressCap(100);
+      setLoadingProgress(100);
 
       setTimeout(() => {
-        setDoneSteps(LOADING_STEPS.map((_, i) => i)); // last step ✓
-        setTimeout(() => {
-          sessionStorage.setItem("btb_results", JSON.stringify({
-            scores: json?.scores,
+        sessionStorage.setItem(
+          "btb_results",
+          JSON.stringify({
+            scores,
             downloadUrl,
             parentSessionId: sessionId ?? null,
             assessmentId: json?.assessmentId ?? null,
-          }));
-          router.push("/results");
-        }, 600);
-      }, remaining);
+            plans,
+          }),
+        );
+        router.push("/results");
+      }, 600);
 
       console.log("[analyse] assessmentId", json?.assessmentId);
     } catch (err) {
@@ -982,18 +1074,100 @@ function AnalyseContent() {
             <div className={styles.loadingTitle}>
               DEIN REPORT<br />WIRD ERSTELLT.
             </div>
-            <div className={styles.loadingSteps}>
-              {LOADING_STEPS.map((step, i) => (
+
+            {/* Progress bar */}
+            <div
+              style={{
+                marginTop: 36,
+                marginBottom: 24,
+                fontFamily: "'Oswald', sans-serif",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  marginBottom: 10,
+                }}
+              >
                 <div
-                  key={i}
-                  className={`${styles.loadingStep} ${visibleSteps.includes(i) ? styles.stepVisible : ""} ${doneSteps.includes(i) ? styles.stepDone : ""}`}
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: "0.2em",
+                    color: "#888",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                  }}
                 >
-                  <span className={styles.loadingStepIcon}>
-                    {doneSteps.includes(i) ? "✓" : (i + 1)}
-                  </span>
-                  {step}
+                  Fortschritt
                 </div>
-              ))}
+                <div
+                  style={{
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: "#E63222",
+                    fontVariantNumeric: "tabular-nums",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  {Math.floor(loadingProgress)}<span style={{ fontSize: 16, color: "#666" }}>%</span>
+                </div>
+              </div>
+              <div
+                style={{
+                  height: 6,
+                  width: "100%",
+                  background: "rgba(255,255,255,0.08)",
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  position: "relative",
+                }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${loadingProgress}%`,
+                    background: "linear-gradient(90deg, #E63222 0%, #ff6b4a 100%)",
+                    borderRadius: 3,
+                    transition: "width 120ms linear",
+                    boxShadow: "0 0 12px rgba(230,50,34,0.5)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  marginTop: 12,
+                  fontSize: 12,
+                  color: "#666",
+                  fontFamily: "Helvetica, Arial, sans-serif",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                {loadingProgress < 15
+                  ? "Scores werden berechnet…"
+                  : loadingProgress < 60
+                  ? "Personalisierter Report wird erstellt…"
+                  : loadingProgress < 95
+                  ? "Optimierungspläne werden vorbereitet…"
+                  : "Alles bereit — wechsle zum Report…"}
+              </div>
+            </div>
+
+            <div className={styles.loadingSteps} style={{ opacity: 0.7 }}>
+              {LOADING_STEPS.map((step, i) => {
+                const threshold = ((i + 1) / LOADING_STEPS.length) * 100;
+                const isDone = loadingProgress >= threshold;
+                return (
+                  <div
+                    key={i}
+                    className={`${styles.loadingStep} ${styles.stepVisible} ${isDone ? styles.stepDone : ""}`}
+                  >
+                    <span className={styles.loadingStepIcon}>{isDone ? "✓" : i + 1}</span>
+                    {step}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
