@@ -153,7 +153,7 @@ function drawW(
   if (!text || !tx(text).trim()) return y;
   const lh = size * lhMul;
   for (const line of wrapLines(text, font, size, maxW)) {
-    if (y < 52) break;
+    if (y < 80) break;  // respect footer zone (line 45pt, text 32pt, safe at 80)
     page.drawText(line, { x, y, size, font, color });
     y -= lh;
   }
@@ -494,28 +494,40 @@ function buildModule(
   f: F,
   today: string,
 ): void {
-  const page = doc.addPage([PW, PH]);
+  // Content must not go below this y — footer line is at 45pt, text at 32pt.
+  // 80pt gives a clean 35pt gap above the footer line.
+  const SAFE_Y = 80;
+
+  let page = doc.addPage([PW, PH]);
   let y = pageChrome(page, f, today);
+
+  // Finalise the current page with a footer and open a fresh continuation page.
+  // Uses a closure so 'page' and 'y' are updated in the outer scope.
+  function cont(): void {
+    pageFooter(page, f, today);
+    page = doc.addPage([PW, PH]);
+    y = pageChrome(page, f, today);
+    // Compact continuation header so readers know which module they're on.
+    page.drawText(tx(title).toUpperCase(), {
+      x: MX, y, size: 13, font: f.bold, color: TXT_MUTED,
+    });
+    y -= 22;
+  }
 
   const col = scoreColor(score);
 
   // ── Title row ─────────────────────────────────────────────────────────
-  // Title (26pt) at content start. Score number (42pt) shifted down 12pt so
-  // its cap top (baseline+30pt) clears the red separator line above.
   page.drawText(tx(title).toUpperCase(), { x: MX, y, size: 26, font: f.bold, color: TXT_WHITE });
   const sStr = String(score);
   const sW = f.bold.widthOfTextAtSize(sStr, 42);
   const slashW = f.reg.widthOfTextAtSize("/100", 12);
-  const scoreY = y - 12;  // shift down: cap top = scoreY+30 = y+18, well below line
-  // Anchor both score + "/100" so "/100" ends exactly at the right margin (no overflow).
+  const scoreY = y - 12;
   page.drawText(sStr, { x: PW - MX - sW - slashW - 4, y: scoreY, size: 42, font: f.bold, color: col });
   page.drawText("/100", { x: PW - MX - slashW, y: scoreY + 6, size: 12, font: f.reg, color: TXT_MUTED });
 
-  // Band label — below the title baseline
   y -= 32;
   page.drawText(tx(band).toUpperCase(), { x: MX, y, size: 7.5, font: f.reg, color: TXT_MUTED });
 
-  // Progress bar
   y -= 14;
   page.drawRectangle({ x: MX, y, width: CW, height: 5, color: BG_INSET });
   page.drawRectangle({ x: MX, y, width: Math.max(2, (score / 100) * CW), height: 5, color: col });
@@ -523,6 +535,8 @@ function buildModule(
 
   // ── EINORDNUNG ────────────────────────────────────────────────────────
   if (mod.score_context) {
+    const need = 15 + textH(mod.score_context, f.reg, 10, CW, 1.65) + 14;
+    if (y - need < SAFE_Y) cont();
     y = secLabel(page, "EINORDNUNG", f, MX, y);
     y = drawW(page, mod.score_context, MX, y, CW, f.reg, 10, TXT_WHITE, 1.65);
     y -= 14;
@@ -531,25 +545,37 @@ function buildModule(
   // ── HAUPTBEFUND ───────────────────────────────────────────────────────
   const finding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
   if (finding) {
+    const need = 15 + textH(finding, f.bold, 10.5, CW, 1.65) + 14;
+    if (y - need < SAFE_Y) cont();
     y = secLabel(page, "HAUPTBEFUND", f, MX, y);
     y = drawW(page, finding, MX, y, CW, f.bold, 10.5, TXT_WHITE, 1.65);
     y -= 14;
   }
 
   // ── Info boxes ────────────────────────────────────────────────────────
+  // Pre-compute each box height (same formula as infoBox internals) and
+  // trigger a page break before drawing if the box would bleed into the footer.
   const systemic = mod.systemic_connection ?? mod.systemic_impact ?? "";
-  if (systemic) {
+  if (systemic && tx(systemic).trim()) {
+    const boxH = Math.max(50, textH(systemic, f.reg, 9.5, CW - 32, 1.5) + 44);
+    if (y - boxH - 10 < SAFE_Y) cont();
     y = infoBox(page, "SYSTEMISCHE VERBINDUNG", systemic, f, MX, y, CW, BLUE_INFO);
   }
-  if (mod.limitation) {
+  if (mod.limitation && tx(mod.limitation).trim()) {
+    const boxH = Math.max(50, textH(mod.limitation, f.reg, 9.5, CW - 32, 1.5) + 44);
+    if (y - boxH - 10 < SAFE_Y) cont();
     y = infoBox(page, "LIMITIERUNG", mod.limitation, f, MX, y, CW, ACCENT);
   }
-  if (mod.recommendation) {
+  if (mod.recommendation && tx(mod.recommendation).trim()) {
+    const boxH = Math.max(50, textH(mod.recommendation, f.reg, 9.5, CW - 32, 1.5) + 44);
+    if (y - boxH - 10 < SAFE_Y) cont();
     y = infoBox(page, "NAECHSTER SCHRITT", mod.recommendation, f, MX, y, CW, SC_GREEN);
   }
 
-  // ── Kennwert / Stat boxes ─────────────────────────────────────────────
-  if (metrics.length > 0 && y > 110) {
+  // ── Stat boxes ────────────────────────────────────────────────────────
+  if (metrics.length > 0) {
+    const need = 8 + 18 + 52;  // gap + secLabel + box height
+    if (y - need < SAFE_Y) cont();
     y -= 8;
     secLabel(page, "KENNWERTE", f, MX, y);
     y -= 18;

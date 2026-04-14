@@ -106,7 +106,7 @@ function drawW(
   if (!text || !tx(text).trim()) return y;
   const lh = size * lhMul;
   for (const line of wrapLines(text, font, size, maxW)) {
-    if (y < 52) break;
+    if (y < 80) break;  // respect footer zone
     page.drawText(line, { x, y, size, font, color });
     y -= lh;
   }
@@ -221,17 +221,21 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
 // Returns new y after the block + gap.
 
 function blockHeight(block: PlanBlock, f: F): number {
-  const innerW = CW - 32;  // 16pt left + 16pt right inside card
-  const headingH = 28;  // heading + separator
+  const innerW = CW - 32;
+  // headingH = 40: heading drawn at startY-18, separator at startY-27,
+  //   items start at startY-40 → 40pt consumed before first item.
+  const headingH = 40;
+  // +4 per item matches the drawBlock `itemY -= 4` inter-item gap.
   const itemsH = block.items.reduce(
-    (acc, item) => acc + textH(item, f.reg, 9.5, innerW - 14, 1.55) + 2,
+    (acc, item) => acc + textH(item, f.reg, 9.5, innerW - 14, 1.55) + 4,
     0,
   );
-  let rationaleH = 0;
-  if (block.rationale) {
-    rationaleH = 14 + textH(block.rationale, f.reg, 8.5, innerW - 8, 1.5);  // separator + text
-  }
-  return Math.max(50, headingH + itemsH + rationaleH + 28) + 12;
+  // Rationale overhead: 8pt gap + separator + 12pt gap + label + 12pt gap = 32pt.
+  const rationaleH = block.rationale
+    ? 32 + textH(block.rationale, f.reg, 8.5, innerW - 8, 1.5)
+    : 0;
+  // 16pt bottom pad + 14pt inter-block gap (stripped in drawBlock via - 14).
+  return Math.max(60, headingH + itemsH + rationaleH + 16) + 14;
 }
 
 function drawBlock(
@@ -242,7 +246,7 @@ function drawBlock(
   startY: number,
 ): number {
   const innerW = CW - 32;  // 16pt left (3pt bar + 13pt gap) + 16pt right
-  const bh = blockHeight(block, f) - 12;  // without gap
+  const bh = blockHeight(block, f) - 14;  // strip inter-block gap to get card height
 
   // Card background + left accent bar
   page.drawRectangle({ x: MX, y: startY - bh, width: CW, height: bh, color: BG_CARD });
@@ -262,14 +266,14 @@ function drawBlock(
   // Items
   let itemY = headY - 22;
   for (const item of block.items) {
-    if (itemY < 60) break;
+    if (itemY < 80) break;  // respect footer zone
     page.drawText("-", { x: MX + 16, y: itemY, size: 8, font: f.bold, color: accentColor });
     itemY = drawW(page, item, MX + 28, itemY, innerW - 14, f.reg, 9.5, TXT_WHITE, 1.55);
     itemY -= 4;
   }
 
   // Rationale section
-  if (block.rationale && itemY > 72) {
+  if (block.rationale && itemY > 90) {
     itemY -= 8;
     page.drawLine({
       start: { x: MX + 16, y: itemY },
@@ -284,7 +288,7 @@ function drawBlock(
     drawW(page, block.rationale, MX + 16, itemY, innerW - 8, f.reg, 8.5, TXT_MUTED, 1.5);
   }
 
-  return startY - bh - 14;  // slightly more gap between blocks
+  return startY - bh - 14;  // = startY - blockHeight(block, f)
 }
 
 // ── Key takeaways card ─────────────────────────────────────────────────────
@@ -346,7 +350,7 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
 
   for (const block of plan.blocks) {
     const bh = blockHeight(block, f);
-    const footerClearance = 65;
+    const footerClearance = 80;  // matches SAFE_Y in generateReport; footer line is at 45pt
 
     if (y - bh < footerClearance) {
       pageFooter(page, f, today);
