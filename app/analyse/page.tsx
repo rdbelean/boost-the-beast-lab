@@ -92,6 +92,8 @@ interface FormData {
   schlafqualitaet: string;
   aufwachen: string;
   erholtGefuehl: string;
+  // Kategorie 3 — zusätzlich
+  bildschirmVorSchlaf: string; // Bildschirmzeit vor dem Einschlafen
   // Kategorie 4 — Ernährung, Stress & Lifestyle
   wasserkonsum: number;
   stresslevel: string;
@@ -319,6 +321,7 @@ function AnalyseContent() {
     schlafqualitaet: "mittel",
     aufwachen: "selten",
     erholtGefuehl: "meistens",
+    bildschirmVorSchlaf: "30-60",
     wasserkonsum: 2,
     stresslevel: "moderat",
     mahlzeitenPlan: "kein",
@@ -416,7 +419,7 @@ function AnalyseContent() {
   }
 
   // Count answered questions for progress
-  const totalQuestions = 19;
+  const totalQuestions = 20;
   const answeredCount = [
     form.alter > 0,
     !!form.geschlecht,
@@ -434,6 +437,7 @@ function AnalyseContent() {
     !!form.schlafqualitaet,
     !!form.aufwachen,
     !!form.erholtGefuehl,
+    !!form.bildschirmVorSchlaf,
     form.wasserkonsum > 0,
     !!form.stresslevel,
     !!form.mahlzeitenPlan,
@@ -955,6 +959,24 @@ function AnalyseContent() {
                     { label: "Manchmal", value: "manchmal" },
                     { label: "Meistens", value: "meistens" },
                     { label: "Immer", value: "immer" },
+                  ]}
+                />
+              </div>
+
+              {/* Q13: Bildschirmzeit vor dem Schlafen */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>BILDSCHIRMZEIT VOR DEM EINSCHLAFEN</span>
+                <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
+                  Handy, Laptop, TV — wie lange vor dem Schlafen nutzt du noch Bildschirme?
+                </span>
+                <RadioGroup
+                  value={form.bildschirmVorSchlaf}
+                  onChange={(v) => set("bildschirmVorSchlaf", v as string)}
+                  options={[
+                    { label: "Kein Bildschirm", value: "kein" },
+                    { label: "< 30 Minuten", value: "<30" },
+                    { label: "30–60 Minuten", value: "30-60" },
+                    { label: "> 60 Minuten", value: ">60" },
                   ]}
                 />
               </div>

@@ -700,7 +700,7 @@ function buildDisclaimer(
   y -= 36;
 
   // Contact line
-  page.drawText(`LAB@BOOSTTHEBEAST.COM  |  MODELL v1.0.0  |  ${today}`, {
+  page.drawText(`INFO@BOOSTTHEBEAST.COM  |  MODELL v1.0.0  |  ${today}`, {
     x: MX, y, size: 7.5, font: f.reg, color: TXT_MUTED,
   });
 

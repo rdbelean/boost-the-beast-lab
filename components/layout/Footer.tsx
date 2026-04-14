@@ -38,8 +38,8 @@ export default function Footer() {
                 <span className={styles.footerColTitle}>KONTAKT</span>
                 <ul className={styles.footerColList}>
                   <li>
-                    <a href="mailto:lab@boostthebeast.com" className={styles.footerLink}>
-                      lab@boostthebeast.com
+                    <a href="mailto:info@boostthebeast.com" className={styles.footerLink}>
+                      info@boostthebeast.com
                     </a>
                   </li>
                 </ul>
