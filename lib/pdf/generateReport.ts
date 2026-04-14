@@ -285,12 +285,17 @@ function infoBox(
   topY: number,
   w: number,
   barColor: Color,
+  fontSize = 9.5,
+  lhMul = 1.5,
+  overhead = 44,
+  gap = 10,
+  bodyOffset = 32,
 ): number {
   if (!text || !tx(text).trim()) return topY;
 
   const innerW = w - 32;   // text width: 16pt left (3pt bar + 13pt gap) + 16pt right
-  const bodyPx = textH(text, f.reg, 9.5, innerW, 1.5);
-  const boxH = Math.max(50, bodyPx + 44);  // 20 top padding + 24 below label
+  const bodyPx = textH(text, f.reg, fontSize, innerW, lhMul);
+  const boxH = Math.max(50, bodyPx + overhead);
 
   // Background + left bar
   page.drawRectangle({ x, y: topY - boxH, width: w, height: boxH, color: BG_CARD });
@@ -301,10 +306,10 @@ function infoBox(
     x: x + 16, y: topY - 16, size: 6, font: f.bold, color: barColor,
   });
 
-  // Body text (start 32pt from box top)
-  drawW(page, text, x + 16, topY - 32, innerW, f.reg, 9.5, TXT_WHITE, 1.5);
+  // Body text
+  drawW(page, text, x + 16, topY - bodyOffset, innerW, f.reg, fontSize, TXT_WHITE, lhMul);
 
-  return topY - boxH - 10;  // 10pt gap after box
+  return topY - boxH - gap;
 }
 
 // ── Stat boxes (metrics section at bottom of module pages) ────────────────
@@ -340,6 +345,77 @@ function statBoxes(
       x: bx + 12, y: topY - 36, size: valSize, font: f.bold, color: TXT_WHITE,
     });
   }
+}
+
+// ── Adaptive module layout ─────────────────────────────────────────────────
+// Available height per module page after the fixed title / score / band / bar
+// header block (≈72pt) and the SAFE_Y footer guard (80pt):
+//   pageChrome returns y ≈ 760pt; 760 - 72 - 80 = 608pt.
+// Three tiers reduce font sizes / gaps until content fits in that budget.
+
+interface ModuleLayout {
+  bodySize: number;     // EINORDNUNG / HAUPTBEFUND font size
+  findingSize: number;  // HAUPTBEFUND font size (slightly larger in NORMAL)
+  boxSize: number;      // info-box body font size
+  lhBody: number;       // line-height multiplier for free text
+  lhBox: number;        // line-height multiplier for info boxes
+  sectionGap: number;   // pt gap after each free-text section
+  boxOverhead: number;  // overhead constant in infoBox boxH formula
+  boxGap: number;       // gap after each info box
+  bodyOffset: number;   // pt below boxTop where body text begins
+}
+
+const LAYOUT_NORMAL: ModuleLayout = {
+  bodySize: 10, findingSize: 10.5, boxSize: 9.5,
+  lhBody: 1.65, lhBox: 1.5,
+  sectionGap: 14, boxOverhead: 44, boxGap: 10, bodyOffset: 32,
+};
+const LAYOUT_COMPACT: ModuleLayout = {
+  bodySize: 9, findingSize: 9.5, boxSize: 9,
+  lhBody: 1.5, lhBox: 1.4,
+  sectionGap: 10, boxOverhead: 38, boxGap: 8, bodyOffset: 28,
+};
+const LAYOUT_TIGHT: ModuleLayout = {
+  bodySize: 9, findingSize: 9, boxSize: 9,
+  lhBody: 1.45, lhBox: 1.35,
+  sectionGap: 6, boxOverhead: 32, boxGap: 5, bodyOffset: 24,
+};
+
+/** Estimate total content height below the fixed header block. */
+function moduleContentH(
+  mod: PdfModule,
+  metrics: Array<[string, string]>,
+  f: F,
+  L: ModuleLayout,
+): number {
+  const innerW = CW - 32;
+  let h = 0;
+
+  if (mod.score_context) {
+    h += 15 + textH(mod.score_context, f.reg, L.bodySize, CW, L.lhBody) + L.sectionGap;
+  }
+
+  const finding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
+  if (finding) {
+    h += 15 + textH(finding, f.bold, L.findingSize, CW, L.lhBody) + L.sectionGap;
+  }
+
+  const systemic = mod.systemic_connection ?? mod.systemic_impact ?? "";
+  if (systemic && tx(systemic).trim()) {
+    h += Math.max(50, textH(systemic, f.reg, L.boxSize, innerW, L.lhBox) + L.boxOverhead) + L.boxGap;
+  }
+  if (mod.limitation && tx(mod.limitation).trim()) {
+    h += Math.max(50, textH(mod.limitation, f.reg, L.boxSize, innerW, L.lhBox) + L.boxOverhead) + L.boxGap;
+  }
+  if (mod.recommendation && tx(mod.recommendation).trim()) {
+    h += Math.max(50, textH(mod.recommendation, f.reg, L.boxSize, innerW, L.lhBox) + L.boxOverhead) + L.boxGap;
+  }
+
+  if (metrics.length > 0) {
+    h += 8 + 18 + 52;  // pre-gap + secLabel + stat box height
+  }
+
+  return h;
 }
 
 // ── Page 1: Cover ──────────────────────────────────────────────────────────
@@ -494,26 +570,17 @@ function buildModule(
   f: F,
   today: string,
 ): void {
-  // Content must not go below this y — footer line is at 45pt, text at 32pt.
-  // 80pt gives a clean 35pt gap above the footer line.
-  const SAFE_Y = 80;
+  // Available height below the fixed header block (≈72pt) down to SAFE_Y (80pt).
+  // pageChrome → y ≈ 760; fixed header consumes 72pt → content starts ≈ 688.
+  // 688 - 80 = 608pt budget.
+  const AVAIL = 608;
+  const L =
+    moduleContentH(mod, metrics, f, LAYOUT_NORMAL)  <= AVAIL ? LAYOUT_NORMAL  :
+    moduleContentH(mod, metrics, f, LAYOUT_COMPACT) <= AVAIL ? LAYOUT_COMPACT :
+    LAYOUT_TIGHT;
 
-  let page = doc.addPage([PW, PH]);
+  const page = doc.addPage([PW, PH]);
   let y = pageChrome(page, f, today);
-
-  // Finalise the current page with a footer and open a fresh continuation page.
-  // Uses a closure so 'page' and 'y' are updated in the outer scope.
-  function cont(): void {
-    pageFooter(page, f, today);
-    page = doc.addPage([PW, PH]);
-    y = pageChrome(page, f, today);
-    // Compact continuation header so readers know which module they're on.
-    page.drawText(tx(title).toUpperCase(), {
-      x: MX, y, size: 13, font: f.bold, color: TXT_MUTED,
-    });
-    y -= 22;
-  }
-
   const col = scoreColor(score);
 
   // ── Title row ─────────────────────────────────────────────────────────
@@ -535,47 +602,36 @@ function buildModule(
 
   // ── EINORDNUNG ────────────────────────────────────────────────────────
   if (mod.score_context) {
-    const need = 15 + textH(mod.score_context, f.reg, 10, CW, 1.65) + 14;
-    if (y - need < SAFE_Y) cont();
     y = secLabel(page, "EINORDNUNG", f, MX, y);
-    y = drawW(page, mod.score_context, MX, y, CW, f.reg, 10, TXT_WHITE, 1.65);
-    y -= 14;
+    y = drawW(page, mod.score_context, MX, y, CW, f.reg, L.bodySize, TXT_WHITE, L.lhBody);
+    y -= L.sectionGap;
   }
 
   // ── HAUPTBEFUND ───────────────────────────────────────────────────────
   const finding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
   if (finding) {
-    const need = 15 + textH(finding, f.bold, 10.5, CW, 1.65) + 14;
-    if (y - need < SAFE_Y) cont();
     y = secLabel(page, "HAUPTBEFUND", f, MX, y);
-    y = drawW(page, finding, MX, y, CW, f.bold, 10.5, TXT_WHITE, 1.65);
-    y -= 14;
+    y = drawW(page, finding, MX, y, CW, f.bold, L.findingSize, TXT_WHITE, L.lhBody);
+    y -= L.sectionGap;
   }
 
   // ── Info boxes ────────────────────────────────────────────────────────
-  // Pre-compute each box height (same formula as infoBox internals) and
-  // trigger a page break before drawing if the box would bleed into the footer.
   const systemic = mod.systemic_connection ?? mod.systemic_impact ?? "";
   if (systemic && tx(systemic).trim()) {
-    const boxH = Math.max(50, textH(systemic, f.reg, 9.5, CW - 32, 1.5) + 44);
-    if (y - boxH - 10 < SAFE_Y) cont();
-    y = infoBox(page, "SYSTEMISCHE VERBINDUNG", systemic, f, MX, y, CW, BLUE_INFO);
+    y = infoBox(page, "SYSTEMISCHE VERBINDUNG", systemic, f, MX, y, CW, BLUE_INFO,
+      L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
   if (mod.limitation && tx(mod.limitation).trim()) {
-    const boxH = Math.max(50, textH(mod.limitation, f.reg, 9.5, CW - 32, 1.5) + 44);
-    if (y - boxH - 10 < SAFE_Y) cont();
-    y = infoBox(page, "LIMITIERUNG", mod.limitation, f, MX, y, CW, ACCENT);
+    y = infoBox(page, "LIMITIERUNG", mod.limitation, f, MX, y, CW, ACCENT,
+      L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
   if (mod.recommendation && tx(mod.recommendation).trim()) {
-    const boxH = Math.max(50, textH(mod.recommendation, f.reg, 9.5, CW - 32, 1.5) + 44);
-    if (y - boxH - 10 < SAFE_Y) cont();
-    y = infoBox(page, "NAECHSTER SCHRITT", mod.recommendation, f, MX, y, CW, SC_GREEN);
+    y = infoBox(page, "NAECHSTER SCHRITT", mod.recommendation, f, MX, y, CW, SC_GREEN,
+      L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
 
   // ── Stat boxes ────────────────────────────────────────────────────────
   if (metrics.length > 0) {
-    const need = 8 + 18 + 52;  // gap + secLabel + box height
-    if (y - need < SAFE_Y) cont();
     y -= 8;
     secLabel(page, "KENNWERTE", f, MX, y);
     y -= 18;
