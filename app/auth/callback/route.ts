@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const url = req.nextUrl;
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") ?? "/account";
+  const next = url.searchParams.get("next") ?? "/kaufen";
 
   if (!code) {
     return NextResponse.redirect(new URL("/login?error=no_code", url.origin));

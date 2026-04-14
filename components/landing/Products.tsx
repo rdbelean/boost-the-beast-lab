@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "@/app/landing.module.css";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const CheckIcon = ({ color = "#22C55E" }: { color?: string }) => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
@@ -83,7 +84,11 @@ export default function Products() {
               <div className={styles.priceSub}>einmalig</div>
 
               <button
-                onClick={() => router.push("/login")}
+                onClick={async () => {
+                  const supabase = getSupabaseBrowserClient();
+                  const { data } = await supabase.auth.getUser();
+                  router.push(data.user ? "/kaufen" : "/login?next=/kaufen");
+                }}
                 className={`${styles.cardBtn} ${styles.cardBtnPrimary}`}
               >
                 ANALYSE STARTEN →

@@ -79,7 +79,6 @@ const CW = PW - MX * 2; // content width ≈ 499 pt
 // ── Colour palette ─────────────────────────────────────────────────────────
 
 const ACCENT     = rgb(0.902, 0.196, 0.133);   // #E63222 — BTB red
-const BG_COVER   = rgb(0.051, 0.051, 0.055);   // #0D0D0E — near-black
 const BG_PAGE    = rgb(0.176, 0.176, 0.188);   // ~RGB(45,45,48) — warm dark grey
 const BG_CARD    = rgb(0.220, 0.220, 0.235);   // slightly lighter card
 const BG_INSET   = rgb(0.133, 0.133, 0.145);   // progress track / inset
@@ -354,7 +353,7 @@ function buildCover(
   today: string,
 ): void {
   const page = doc.addPage([PW, PH]);
-  fillBg(page, BG_COVER);
+  fillBg(page, BG_PAGE);
   topBar(page, 6);
 
   let y = PH - 54;
@@ -396,14 +395,14 @@ function buildCover(
   page.drawLine({
     start: { x: MX, y: fy + 16 },
     end: { x: PW - MX, y: fy + 16 },
-    thickness: 0.5, color: rgb(0.165, 0.165, 0.165),
+    thickness: 0.5, color: BORDER_C,
   });
-  page.drawText(today, { x: MX, y: fy, size: 7, font: f.reg, color: rgb(0.333, 0.333, 0.333) });
+  page.drawText(today, { x: MX, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
   // Truncate email line so it never overflows the right margin
   const confFull = `VERTRAULICH - NUR FUER ${tx(user.email).toUpperCase()}`;
   const confLines = wrapLines(confFull, f.reg, 6, CW);
   page.drawText(confLines[0] ?? confFull, {
-    x: MX, y: fy - 14, size: 6, font: f.reg, color: rgb(0.267, 0.267, 0.267),
+    x: MX, y: fy - 14, size: 6, font: f.reg, color: TXT_MUTED,
   });
 }
 

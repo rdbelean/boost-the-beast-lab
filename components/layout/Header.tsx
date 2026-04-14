@@ -106,7 +106,7 @@ export default function Header() {
         <div className={styles.headerActions}>
           {hasReport && reportUrl && (
             <a href={reportUrl} target="_blank" rel="noopener noreferrer" className={styles.headerCtaSecondary}>
-              REPORT ↓
+              AKTUELLSTER REPORT ↓
             </a>
           )}
           {/* Account dropdown */}

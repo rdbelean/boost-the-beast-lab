@@ -1154,6 +1154,23 @@ function AnalyseContent() {
               </div>
             </div>
 
+            {/* Duration hint */}
+            <div
+              style={{
+                marginBottom: 28,
+                padding: "10px 14px",
+                background: "rgba(255,255,255,0.04)",
+                borderLeft: "2px solid rgba(255,255,255,0.12)",
+                fontSize: 12,
+                color: "#888",
+                fontFamily: "Helvetica, Arial, sans-serif",
+                letterSpacing: "0.01em",
+                lineHeight: 1.6,
+              }}
+            >
+              Dies kann einige Minuten dauern — dein Report wird gerade mit unserer wissenschaftlichen Datenbank abgeglichen.
+            </div>
+
             <div className={styles.loadingSteps} style={{ opacity: 0.7 }}>
               {LOADING_STEPS.map((step, i) => {
                 const threshold = ((i + 1) / LOADING_STEPS.length) * 100;
