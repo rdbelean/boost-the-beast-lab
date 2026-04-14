@@ -115,8 +115,9 @@ export default function ResultsPage() {
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [saveEmail, setSaveEmail] = useState("");
+  const [saveCode, setSaveCode] = useState("");
   const [saveSending, setSaveSending] = useState(false);
-  const [saveSent, setSaveSent] = useState(false);
+  const [saveStep, setSaveStep] = useState<"email" | "code">("email");
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // Check auth state once the results are loaded so we can decide whether to
@@ -137,21 +138,45 @@ export default function ResultsPage() {
     };
   }, []);
 
-  async function handleSaveMagicLink(e: React.FormEvent) {
+  async function handleSaveSendCode(e: React.FormEvent) {
     e.preventDefault();
     setSaveSending(true);
     setSaveError(null);
     try {
       const supabase = getSupabaseBrowserClient();
-      const redirectTo = `${window.location.origin}/auth/callback?next=/results`;
       const { error } = await supabase.auth.signInWithOtp({
         email: saveEmail,
-        options: { emailRedirectTo: redirectTo },
+        options: { shouldCreateUser: true },
       });
       if (error) throw error;
-      setSaveSent(true);
+      setSaveStep("code");
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Fehler beim Senden");
+    } finally {
+      setSaveSending(false);
+    }
+  }
+
+  async function handleSaveVerifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    setSaveSending(true);
+    setSaveError(null);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.auth.verifyOtp({
+        email: saveEmail,
+        token: saveCode.trim(),
+        type: "email",
+      });
+      if (error) throw error;
+      try {
+        await fetch("/api/auth/link", { method: "POST" });
+      } catch {
+        // Non-fatal
+      }
+      setIsLoggedIn(true);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Code ungültig");
     } finally {
       setSaveSending(false);
     }
@@ -320,104 +345,163 @@ export default function ResultsPage() {
             }}
           >
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, #E63222 0%, #ff6b4a 100%)" }} />
-            {saveSent ? (
-              <div style={{ textAlign: "center", padding: "12px 0" }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#22C55E", marginBottom: 6 }}>
-                  ✓ CHECK DEIN POSTFACH
+            <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+              <div style={{ flex: "1 1 280px" }}>
+                <div
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: "0.25em",
+                    color: "#E63222",
+                    fontWeight: 700,
+                    marginBottom: 6,
+                  }}
+                >
+                  REPORT SICHERN
                 </div>
-                <div style={{ fontSize: 13, color: "#ccc" }}>
-                  Login-Link an <strong style={{ color: "#fff" }}>{saveEmail}</strong> gesendet. Klick den Link → Report automatisch gespeichert.
+                <div style={{ fontSize: 17, fontWeight: 700, color: "#fff", marginBottom: 4 }}>
+                  {saveStep === "email"
+                    ? "Speichere deinen Report für später"
+                    : "6-stelligen Code eingeben"}
+                </div>
+                <div style={{ fontSize: 12, color: "#999", lineHeight: 1.5 }}>
+                  {saveStep === "email"
+                    ? "Account in 10 Sekunden erstellen — Report & PDFs jederzeit wieder abrufbar, auch von anderen Geräten."
+                    : `Code wurde an ${saveEmail} gesendet. Gib ihn hier ein.`}
                 </div>
               </div>
-            ) : (
-              <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
-                <div style={{ flex: "1 1 280px" }}>
-                  <div
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.25em",
-                      color: "#E63222",
-                      fontWeight: 700,
-                      marginBottom: 6,
-                    }}
-                  >
-                    REPORT SICHERN
-                  </div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: "#fff", marginBottom: 4 }}>
-                    Speichere deinen Report für später
-                  </div>
-                  <div style={{ fontSize: 12, color: "#999", lineHeight: 1.5 }}>
-                    Erstelle in 10 Sekunden einen Account — Report &amp; PDFs jederzeit wieder abrufbar, auch von anderen Geräten.
-                  </div>
-                </div>
-                <div style={{ flex: "1 1 340px", display: "flex", flexDirection: "column", gap: 8 }}>
-                  <form onSubmit={handleSaveMagicLink} style={{ display: "flex", gap: 8 }}>
-                    <input
-                      type="email"
-                      required
-                      placeholder="deine@email.de"
-                      value={saveEmail}
-                      onChange={(e) => setSaveEmail(e.target.value)}
-                      style={{
-                        flex: 1,
-                        padding: "12px 14px",
-                        background: "#0A0A0A",
-                        border: "1px solid #333",
-                        color: "#fff",
-                        fontSize: 13,
-                        outline: "none",
-                      }}
-                    />
+
+              <div style={{ flex: "1 1 340px", display: "flex", flexDirection: "column", gap: 8 }}>
+                {saveStep === "email" ? (
+                  <>
+                    <form onSubmit={handleSaveSendCode} style={{ display: "flex", gap: 8 }}>
+                      <input
+                        type="email"
+                        required
+                        placeholder="deine@email.de"
+                        value={saveEmail}
+                        onChange={(e) => setSaveEmail(e.target.value)}
+                        style={{
+                          flex: 1,
+                          padding: "12px 14px",
+                          background: "#0A0A0A",
+                          border: "1px solid #333",
+                          color: "#fff",
+                          fontSize: 13,
+                          outline: "none",
+                        }}
+                      />
+                      <button
+                        type="submit"
+                        disabled={saveSending || !saveEmail}
+                        style={{
+                          padding: "12px 18px",
+                          background: "#E63222",
+                          color: "#fff",
+                          border: "none",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: "0.12em",
+                          cursor: saveSending ? "wait" : "pointer",
+                          opacity: saveSending ? 0.6 : 1,
+                        }}
+                      >
+                        {saveSending ? "…" : "CODE SENDEN"}
+                      </button>
+                    </form>
                     <button
-                      type="submit"
-                      disabled={saveSending || !saveEmail}
+                      type="button"
+                      onClick={handleSaveGoogle}
+                      disabled={saveSending}
                       style={{
-                        padding: "12px 18px",
-                        background: "#E63222",
-                        color: "#fff",
+                        padding: "10px 14px",
+                        background: "#fff",
+                        color: "#1a1a1a",
                         border: "none",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: "0.12em",
+                        fontSize: 12,
+                        fontWeight: 600,
                         cursor: saveSending ? "wait" : "pointer",
-                        opacity: saveSending ? 0.6 : 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
                       }}
                     >
-                      {saveSending ? "…" : "LOGIN-LINK"}
+                      <svg width="14" height="14" viewBox="0 0 18 18">
+                        <path d="M17.64 9.20c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.79 2.73v2.27h2.9c1.69-1.56 2.67-3.86 2.67-6.64z" fill="#4285F4"/>
+                        <path d="M9 18c2.43 0 4.47-.81 5.96-2.17l-2.9-2.27c-.81.54-1.83.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.34C2.45 15.98 5.48 18 9 18z" fill="#34A853"/>
+                        <path d="M3.96 10.71c-.18-.54-.29-1.11-.29-1.71s.11-1.17.29-1.71V4.95H.96C.35 6.17 0 7.55 0 9s.35 2.83.96 4.05l3-2.34z" fill="#FBBC04"/>
+                        <path d="M9 3.58c1.32 0 2.51.45 3.44 1.34l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.45 2.02.96 4.95l3 2.34C4.67 5.17 6.66 3.58 9 3.58z" fill="#EA4335"/>
+                      </svg>
+                      Mit Google sichern
                     </button>
-                  </form>
-                  <button
-                    type="button"
-                    onClick={handleSaveGoogle}
-                    disabled={saveSending}
-                    style={{
-                      padding: "10px 14px",
-                      background: "#fff",
-                      color: "#1a1a1a",
-                      border: "none",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: saveSending ? "wait" : "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 18 18">
-                      <path d="M17.64 9.20c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.79 2.73v2.27h2.9c1.69-1.56 2.67-3.86 2.67-6.64z" fill="#4285F4"/>
-                      <path d="M9 18c2.43 0 4.47-.81 5.96-2.17l-2.9-2.27c-.81.54-1.83.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.34C2.45 15.98 5.48 18 9 18z" fill="#34A853"/>
-                      <path d="M3.96 10.71c-.18-.54-.29-1.11-.29-1.71s.11-1.17.29-1.71V4.95H.96C.35 6.17 0 7.55 0 9s.35 2.83.96 4.05l3-2.34z" fill="#FBBC04"/>
-                      <path d="M9 3.58c1.32 0 2.51.45 3.44 1.34l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.45 2.02.96 4.95l3 2.34C4.67 5.17 6.66 3.58 9 3.58z" fill="#EA4335"/>
-                    </svg>
-                    Mit Google sichern
-                  </button>
-                  {saveError && (
-                    <div style={{ fontSize: 11, color: "#E63222" }}>{saveError}</div>
-                  )}
-                </div>
+                  </>
+                ) : (
+                  <>
+                    <form onSubmit={handleSaveVerifyCode} style={{ display: "flex", gap: 8 }}>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        maxLength={6}
+                        required
+                        autoFocus
+                        placeholder="123456"
+                        value={saveCode}
+                        onChange={(e) => setSaveCode(e.target.value.replace(/\D/g, ""))}
+                        style={{
+                          flex: 1,
+                          padding: "12px 14px",
+                          background: "#0A0A0A",
+                          border: "1px solid #333",
+                          color: "#fff",
+                          fontSize: 18,
+                          letterSpacing: "0.3em",
+                          textAlign: "center",
+                          fontFamily: "'Oswald', sans-serif",
+                          outline: "none",
+                        }}
+                      />
+                      <button
+                        type="submit"
+                        disabled={saveSending || saveCode.length !== 6}
+                        style={{
+                          padding: "12px 18px",
+                          background: "#E63222",
+                          color: "#fff",
+                          border: "none",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: "0.12em",
+                          cursor: saveSending ? "wait" : "pointer",
+                          opacity: saveSending ? 0.6 : 1,
+                        }}
+                      >
+                        {saveSending ? "…" : "EINLOGGEN"}
+                      </button>
+                    </form>
+                    <button
+                      type="button"
+                      onClick={() => { setSaveStep("email"); setSaveCode(""); setSaveError(null); }}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#888",
+                        fontSize: 10,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        cursor: "pointer",
+                        padding: 4,
+                      }}
+                    >
+                      ← Andere E-Mail
+                    </button>
+                  </>
+                )}
+                {saveError && (
+                  <div style={{ fontSize: 11, color: "#E63222" }}>{saveError}</div>
+                )}
               </div>
-            )}
+            </div>
           </section>
         )}
 

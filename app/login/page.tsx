@@ -1,36 +1,66 @@
 "use client";
 import Link from "next/link";
 import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./login.module.css";
 import BackButton from "@/components/ui/BackButton";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function LoginContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/account";
   const errorParam = searchParams.get("error");
 
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [step, setStep] = useState<"email" | "code">("email");
   const [errorMsg, setErrorMsg] = useState<string | null>(errorParam);
 
-  async function handleMagicLink(e: React.FormEvent) {
+  async function handleSendCode(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
     try {
       const supabase = getSupabaseBrowserClient();
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+      // No emailRedirectTo — triggers OTP-code flow instead of magic link.
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: redirectTo },
+        options: { shouldCreateUser: true },
       });
       if (error) throw error;
-      setSent(true);
+      setStep("code");
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Login fehlgeschlagen");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleVerifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: code.trim(),
+        type: "email",
+      });
+      if (error) throw error;
+      // Session is set. Trigger backfill so existing email-keyed data is
+      // attached to the new auth user before we leave the page.
+      try {
+        await fetch("/api/auth/link", { method: "POST" });
+      } catch {
+        // Non-fatal — user is still logged in.
+      }
+      router.push(next);
+      router.refresh();
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Code ungültig");
     } finally {
       setLoading(false);
     }
@@ -72,7 +102,9 @@ function LoginContent() {
 
         <h1 className={styles.title}>LOGIN / ACCOUNT ERSTELLEN</h1>
         <p className={styles.subtitle}>
-          Melde dich passwortlos an — wir schicken dir einen Login-Link per E-Mail.
+          {step === "email"
+            ? "Melde dich passwortlos an — wir schicken dir einen 6-stelligen Code per E-Mail."
+            : `Code an ${email} gesendet. Prüfe dein Postfach.`}
         </p>
 
         {errorMsg && (
@@ -90,27 +122,7 @@ function LoginContent() {
           </div>
         )}
 
-        {sent ? (
-          <div
-            style={{
-              padding: "24px 20px",
-              background: "rgba(34,197,94,0.08)",
-              border: "1px solid rgba(34,197,94,0.3)",
-              color: "#22C55E",
-              textAlign: "center",
-              fontSize: 14,
-              lineHeight: 1.6,
-            }}
-          >
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>
-              ✓ CHECK DEIN POSTFACH
-            </div>
-            <div style={{ color: "#ccc" }}>
-              Wir haben dir einen Login-Link an <strong style={{ color: "#fff" }}>{email}</strong> geschickt.
-              Klick den Link um eingeloggt zu werden.
-            </div>
-          </div>
-        ) : (
+        {step === "email" ? (
           <>
             {/* Google OAuth */}
             <button
@@ -159,7 +171,7 @@ function LoginContent() {
               <div style={{ flex: 1, height: 1, background: "#333" }} />
             </div>
 
-            <form onSubmit={handleMagicLink} className={styles.form}>
+            <form onSubmit={handleSendCode} className={styles.form}>
               <div className={styles.field}>
                 <label className={styles.label}>E-MAIL</label>
                 <input
@@ -173,13 +185,62 @@ function LoginContent() {
               </div>
 
               <button type="submit" disabled={loading || !email} className={styles.btn}>
-                {loading ? "WIRD GESENDET…" : "LOGIN-LINK SENDEN →"}
+                {loading ? "WIRD GESENDET…" : "CODE SENDEN →"}
               </button>
             </form>
 
             <p style={{ fontSize: 11, color: "#666", textAlign: "center", marginTop: 16 }}>
-              Kein Passwort nötig · Sicherer Login-Link per E-Mail
+              Kein Passwort nötig · 6-stelliger Login-Code per E-Mail
             </p>
+          </>
+        ) : (
+          <>
+            <form onSubmit={handleVerifyCode} className={styles.form}>
+              <div className={styles.field}>
+                <label className={styles.label}>6-STELLIGER CODE</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                  className={styles.input}
+                  placeholder="123456"
+                  required
+                  autoFocus
+                  style={{
+                    fontSize: 24,
+                    letterSpacing: "0.4em",
+                    textAlign: "center",
+                    fontFamily: "'Oswald', sans-serif",
+                  }}
+                />
+              </div>
+
+              <button type="submit" disabled={loading || code.length !== 6} className={styles.btn}>
+                {loading ? "WIRD GEPRÜFT…" : "EINLOGGEN →"}
+              </button>
+            </form>
+
+            <button
+              type="button"
+              onClick={() => { setStep("email"); setCode(""); setErrorMsg(null); }}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#888",
+                fontSize: 11,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                marginTop: 16,
+                width: "100%",
+                padding: 8,
+              }}
+            >
+              ← Andere E-Mail verwenden
+            </button>
           </>
         )}
       </div>
