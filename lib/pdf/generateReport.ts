@@ -82,7 +82,7 @@ const ACCENT     = rgb(0.902, 0.196, 0.133);   // #E63222 — BTB red
 const BG_PAGE    = rgb(0.176, 0.176, 0.188);   // ~RGB(45,45,48) — warm dark grey
 const BG_CARD    = rgb(0.220, 0.220, 0.235);   // slightly lighter card
 const BG_INSET   = rgb(0.133, 0.133, 0.145);   // progress track / inset
-const BG_STAT    = rgb(0.110, 0.110, 0.122);   // stat box background
+const BG_STAT    = rgb(0.200, 0.200, 0.215);   // stat box — warm grey (matches page theme)
 const TXT_WHITE  = rgb(0.933, 0.929, 0.922);   // #EEECEA warm off-white
 const TXT_MUTED  = rgb(0.540, 0.533, 0.521);   // muted label text
 const BORDER_C   = rgb(0.267, 0.267, 0.290);   // subtle border
@@ -235,35 +235,35 @@ function scoreCard(
   x: number,
   topY: number,
   w: number,
-  h = 70,
+  h = 80,  // taller card for clean non-overlapping layout
 ): void {
   const col = scoreColor(score);
 
-  // Card bg + top colour bar
+  // Card bg + top colour bar (4pt)
   page.drawRectangle({ x, y: topY - h, width: w, height: h, color: BG_CARD });
-  page.drawRectangle({ x, y: topY - 5, width: w, height: 5, color: col });
+  page.drawRectangle({ x, y: topY - 4, width: w, height: 4, color: col });
 
-  // Label (below top bar)
+  // Label (6pt, below colour bar)
   page.drawText(tx(label).toUpperCase(), {
-    x: x + 9, y: topY - 19, size: 6, font: f.bold, color: TXT_MUTED,
+    x: x + 9, y: topY - 18, size: 6, font: f.bold, color: TXT_MUTED,
   });
 
-  // Score number
+  // Score number (24pt) — cap top at topY-18-17=topY-35, no overlap with label
   page.drawText(String(score), {
-    x: x + 9, y: topY - 44, size: 24, font: f.bold, color: col,
+    x: x + 9, y: topY - 42, size: 24, font: f.bold, color: col,
   });
 
-  // Band — bottom-right, clipped to card width
+  // Band — placed between score and progress bar
   const bStr = tx(band).toUpperCase();
   const bW = Math.min(f.reg.widthOfTextAtSize(bStr, 6), w - 12);
   page.drawText(bStr, {
-    x: x + w - 8 - bW, y: topY - h + 12, size: 6, font: f.reg, color: TXT_MUTED,
+    x: x + w - 8 - bW, y: topY - h + 28, size: 6, font: f.reg, color: TXT_MUTED,
   });
 
-  // Progress bar
+  // Progress bar near the bottom of the card (12pt from bottom)
   const barX = x + 9;
   const barW = w - 18;
-  const barY = topY - h + 26;
+  const barY = topY - h + 12;
   page.drawRectangle({ x: barX, y: barY, width: barW, height: 3, color: BG_INSET });
   page.drawRectangle({
     x: barX, y: barY,
@@ -429,7 +429,7 @@ function buildSummary(
   // Score grid — 5 cards
   const gap = 8;
   const cardW = (CW - 4 * gap) / 5;
-  const cardH = 70;
+  const cardH = 80;
   const entries: Array<[string, PdfScoreEntry]> = [
     ["ACTIVITY",  scores.activity],
     ["SLEEP",     scores.sleep],
@@ -500,14 +500,16 @@ function buildModule(
   const col = scoreColor(score);
 
   // ── Title row ─────────────────────────────────────────────────────────
-  // Title (left, 26pt) and score number (right, 42pt) share the same baseline.
+  // Title (26pt) at content start. Score number (42pt) shifted down 12pt so
+  // its cap top (baseline+30pt) clears the red separator line above.
   page.drawText(tx(title).toUpperCase(), { x: MX, y, size: 26, font: f.bold, color: TXT_WHITE });
   const sStr = String(score);
   const sW = f.bold.widthOfTextAtSize(sStr, 42);
-  page.drawText(sStr, { x: PW - MX - sW - 20, y, size: 42, font: f.bold, color: col });
-  page.drawText("/100", { x: PW - MX - 20, y: y + 6, size: 12, font: f.reg, color: TXT_MUTED });
+  const scoreY = y - 12;  // shift down: cap top = scoreY+30 = y+18, well below line
+  page.drawText(sStr, { x: PW - MX - sW - 20, y: scoreY, size: 42, font: f.bold, color: col });
+  page.drawText("/100", { x: PW - MX - 20, y: scoreY + 6, size: 12, font: f.reg, color: TXT_MUTED });
 
-  // Band label — well below the 26pt title (clear the descenders + gap)
+  // Band label — below the title baseline
   y -= 32;
   page.drawText(tx(band).toUpperCase(), { x: MX, y, size: 7.5, font: f.reg, color: TXT_MUTED });
 

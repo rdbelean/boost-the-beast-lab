@@ -870,3 +870,37 @@
   .successText { font-size: 14px; max-width: 100%; }
   .successHomeBtn { padding: 14px 28px; min-height: 48px; }
 }
+
+/* ── Tennis Easter Egg ─────────────────────────────────────────────────── */
+
+.tennisWrap {
+  position: relative;
+  height: 72px;
+  width: 100%;
+  margin-bottom: 2px;
+  overflow: visible;
+  user-select: none;
+}
+
+.tennisBall {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d4ed26;
+  box-shadow: 0 0 6px rgba(212,237,38,0.6);
+  animation: tennisBallMove 2.8s linear infinite;
+  z-index: 2;
+}
+
+@keyframes tennisBallMove {
+  0%   { left: 30px;               bottom: 16px; }
+  12%  { left: 26%;                bottom: 54px; }
+  25%  { left: 50%;                bottom: 22px; }
+  37%  { left: 74%;                bottom: 50px; }
+  50%  { left: calc(100% - 36px);  bottom: 16px; }
+  62%  { left: 74%;                bottom: 46px; }
+  75%  { left: 50%;                bottom: 19px; }
+  87%  { left: 26%;                bottom: 52px; }
+  100% { left: 30px;               bottom: 16px; }
+}

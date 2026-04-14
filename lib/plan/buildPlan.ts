@@ -94,6 +94,20 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>): Plan
           ],
           rationale: "8.000 Schritte/Tag ist der wissenschaftlich validierte Schwellenwert, ab dem signifikante Reduktionen der kardiovaskulären Sterblichkeit und Diabetes-Inzidenz nachweisbar sind (Paluch et al., JAMA Neurology, 2022). Die 5–10 % Steigerungsregel pro Monat basiert auf dem Prinzip der progressiven Überladung nach DeLorme (1945), bestätigt durch aktuelle Meta-Analysen: Überschreitung von 10 %/Woche erhöht das Verletzungsrisiko signifikant. Eine Neuanalyse alle 8 Wochen ist sinnvoll, weil sich kardiorespiratorische Fitness nach 6–8 Wochen konsistenten Trainings messbar verändert (Boule et al., Diabetologia, 2001).",
         },
+        {
+          heading: "Deine erste Woche — Start-Protokoll",
+          items: [
+            score < 40
+              ? "Tag 1–2: 2× 20 Min zügiges Gehen — kein Ehrgeiz, nur Gewohnheit aufbauen"
+              : "Tag 1–2: Ausdauer-Einheit 30 Min bei 65 % HFmax — Basislinie setzen",
+            "Tag 3: Erstes Krafttraining — 3 Übungen Ganzkörper (Squat, Push-up, Row), je 3×10",
+            "Tag 4: Aktive Pause — 20 Min Spaziergang, kein strukturiertes Training",
+            "Tag 5–6: Wiederholung Wochenschema — Ausdauer + Kraft alternierend",
+            "Tag 7: Ruhetag — Reflektiere: Was hat geklappt? Was anpassen?",
+            "Woche 2: Volumen um 10 % steigern (1 Satz mehr oder 5 Min länger)",
+          ],
+          rationale: "Der erste Schritt ist der schwierigste: Habit-Formation-Forschung zeigt, dass eine neue Gewohnheit im Schnitt 66 Tage braucht, bis sie automatisch wird (Lally et al., 2010). Der Schlüssel in Woche 1 ist nicht maximale Leistung, sondern Konsistenz. 'Minimum Effective Dose' — das kleinste Training, das noch Adaptation erzeugt — ist in der ersten Woche die klügste Strategie. Das verhindert übermäßigen Muskelkater (DOMS), der zu Ausfall in Woche 2 führt. Jede erfolgreiche Einheit baut Selbstwirksamkeit auf, den stärksten Prädiktor für langfristige Trainingscompliance (Bandura, 1997).",
+        },
       ],
     };
   }
@@ -149,6 +163,18 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>): Plan
           ],
           rationale: "Selbst-Monitoring der Ernährung ist eine der am besten belegten Verhaltensinterventionen: eine Meta-Analyse von 15 RCTs zeigt, dass Ernährungs-Tracking das Gewichtsverlust-Outcome durchschnittlich verdoppelt (Burke et al., Journal of the Academy of Nutrition and Dietetics, 2011). Wöchentliche Gewichtsmessung (statt täglich) reduziert die Variabilität durch Wassereinlagerungen und gibt ein stabileres Signal. Das 0,5–1 kg/Woche-Ziel sichert, dass die Gewichtsabnahme primär aus Fettgewebe stammt — schnellerer Verlust erhöht den Muskelabbau-Anteil messbar (Stiegler & Cunliffe, Sports Medicine, 2006).",
         },
+        {
+          heading: "Deine erste Woche — Ernährungs-Reset",
+          items: [
+            "Tag 1: Kühlschrank-Audit — Zuckerhaltige Getränke & Ultra-Processed Food entfernen",
+            "Tag 2: Erster Tracking-Tag — alles was du isst, in einer App (MyFitnessPal o.ä.) notieren",
+            "Tag 3–4: Proteinziel testen — zu jeder Mahlzeit bewusst eine Proteinquelle hinzufügen",
+            "Tag 5: Wasserflasche (1,5 L) morgens füllen — Ziel: leer bis 18:00 Uhr",
+            "Tag 6–7: Meal Prep — 2 Mahlzeiten für die nächste Woche vorkochen",
+            "Woche 2: Makro-Tracking aktivieren — Protein-Ziel: 1,6 g/kg täglich erreichen",
+          ],
+          rationale: "Ernährungsumstellungen scheitern in 90 % der Fälle an fehlender Umgebungsgestaltung, nicht an mangelnder Motivation (Wansink & Sobal, 2007). Der Kühlschrank-Audit in Woche 1 nutzt das Prinzip der 'Friction Reduction': wenn Junkfood nicht verfügbar ist, wird es nicht gegessen. Meal Prep reduziert Entscheidungsermüdung ('decision fatigue') — je mehr Mahlzeitenentscheidungen täglich getroffen werden, desto schlechter werden sie (Baumeister et al., 2000). Das Protein-Tracking in Woche 2 ist der wichtigste Ernährungs-Hebel: ausreichend Protein erhöht die Sättigung, schützt Muskelmasse beim Kaloriendefizit und aktiviert Thermogenese (+20–30 % Energieverbrauch vs. Kohlenhydrate).",
+        },
       ],
     };
   }
@@ -202,6 +228,18 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>): Plan
           ],
           rationale: "Der Ruhetag ist keine Schwäche — er ist physiologisch notwendig: ohne regelmäßige Entlastung steigt der Cortisolspiegel chronisch an (Overtraining Syndrome, Kreher & Schwartz, 2012), was Schlaf, Immunfunktion und Leistungsfähigkeit dauerhaft verschlechtert. Die Deload-Woche alle 4–6 Wochen ist ein Konzept aus dem Periodisierungsmodell — das Trainingsvolumen zu reduzieren erlaubt vollständige neuronale und strukturelle Anpassung, was nach der Deload-Woche oft zu einem \"Supercompensation Bounce\" führt (Zatsiorsky & Kraemer, 2006). Tägliches Schlaf-Tracking über 14 Tage deckt Muster auf, die für Einzeltage unsichtbar sind — z. B. systematisch schlechterer Schlaf nach Alkohol, späten Mahlzeiten oder hoher Trainingslast.",
         },
+        {
+          heading: "Deine erste Woche — Sleep Protocol",
+          items: [
+            "Heute: Schlafenszeit festlegen (z.B. 23:00) und Wecker für selbe Zeit morgen setzen",
+            "Ab sofort: Koffein nach 14:00 Uhr streichen — 7 Tage testen",
+            "Tag 2: Schlafzimmer-Check — Verdunklung, Temperatur (16–18 °C), Geräte laden außerhalb",
+            "Tag 3–7: 30 Min vor Schlaf: kein Bildschirm — Ersatz: Buch, leichtes Stretching, Journaling",
+            "Täglich: Schlafqualität morgens auf einer 1–10-Skala notieren",
+            "Nach 7 Tagen: Durchschnitt berechnen — unter 6 bedeutet: weitere Hygiene-Optimierung",
+          ],
+          rationale: "Sleep hygiene interventions sind die evidenzbasierte Erstbehandlung bei Schlafproblemen (CBT-I, kognitive Verhaltenstherapie für Insomnie) — vor jeder Medikation. Der wichtigste Einzel-Faktor ist die konsistente Aufstehzeit: Sie ankert den circadianen Rhythmus. Das Koffein-Experiment über 7 Tage ist aufschlussreich: viele Menschen unterschätzen die Halbwertszeit (5–7 h) und trinken effektiv bis 23:00 Uhr aktives Koffein. Die 30-Min-Bildschirmpause reduziert blaues Licht (460–490 nm), das die Melatonin-Suppression um bis zu 85 % verursachen kann (Harvard Medical School, 2012). Nach 7 Tagen konsistenter Schlafzeit ist die subjektive Schlafqualität nachweislich verbessert.",
+        },
       ],
     };
   }
@@ -253,6 +291,18 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>): Plan
           "KEIN intensives Training bei akutem Stress >8/10 — erhöht Verletzungsrisiko",
         ],
         rationale: "Aerobe Ausdauerbelastung bei 65–75 % der maximalen Herzfrequenz (\"Fatburning Zone\") erhöht die Stressresistenz durch drei Mechanismen: (1) Ausschüttung von Beta-Endorphinen und BDNF (Brain-Derived Neurotrophic Factor, \"Dünger für Nervenzellen\"), (2) HPA-Achsen-Desensitivierung durch wiederholten moderaten Cortisol-Anstieg mit Erholung, (3) Erhöhung der HRV als Marker besserer vegetativer Stressregulation (Blumenthal et al., JAMA Psychiatry, 1999). Yoga kombiniert Bewegung, Atemkontrolle und Achtsamkeit — Meta-Analysen zeigen Verbesserungen der Stresswerte vergleichbar mit kognitiver Verhaltenstherapie (Cramer et al., Depression and Anxiety, 2013). Hochintensives Training bei akutem Stress erhöht den Cortisolspiegel additiv — das Verletzungsrisiko steigt durch verminderte Konzentration und erhöhte Muskelspannung.",
+      },
+      {
+        heading: "Deine erste Woche — Daily Reset",
+        items: [
+          "Morgen 1: 4-7-8-Atemübung direkt nach dem Aufwachen — 4 Zyklen (< 2 Minuten)",
+          "Tag 1–3: Mittagspause ohne Bildschirm und Handy — auch nur 10 Min zählen",
+          "Tag 2: 20 Min in der Natur (Park, Wald, Grünfläche) — ohne Kopfhörer, ohne Handy",
+          "Ab Tag 3: Abendritual einführen — To-do-Liste für morgen schreiben vor dem Schlafen",
+          "Tag 4–7: Täglich Stress-Level morgens und abends auf 1–10 notieren",
+          "Nach 7 Tagen: Muster analysieren — Was erhöht deinen Stress? Was senkt ihn?",
+        ],
+        rationale: "Die erste Woche eines Stress-Programms ist entscheidend für die Compliance: Kleine, sofort spürbare Effekte (wie die 4-7-8-Atemübung) erzeugen Selbstwirksamkeit und Motivation weiterzumachen. Stresstagebücher (Stress-Monitoring) nutzen den Effekt des 'Observer Effect': allein das Beobachten und Aufschreiben von Stressreaktionen reduziert ihre Intensität, weil die kognitive Verarbeitung den präfrontalen Kortex aktiviert und die Amygdala dämpft (Lieberman et al., Psychological Science, 2007). Das Erkennen persönlicher Stressoren nach 7 Tagen ermöglicht gezielte Interventionen statt generischer Ratschläge.",
       },
     ],
   };

@@ -184,9 +184,6 @@ export default function PlanPage() {
         ))}
 
         <div className={styles.actions}>
-          <button onClick={() => openPlanAsPDF(plan)} className={styles.btnPrimary} style={{ background: plan.color }}>
-            PLAN ALS PDF HERUNTERLADEN
-          </button>
           <Link href="/results" className={styles.btnSecondary}>
             ← ZURÜCK ZUM REPORT
           </Link>

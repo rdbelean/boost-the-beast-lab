@@ -287,6 +287,51 @@ function drawBlock(
   return startY - bh - 12;
 }
 
+// ── Key takeaways card ─────────────────────────────────────────────────────
+// Renders a compact "4 wichtigste Maßnahmen" summary card to fill remaining space.
+
+function drawKeyTakeaways(
+  page: PDFPage,
+  plan: PlanPdfInput,
+  f: F,
+  accentColor: Color,
+  startY: number,
+): number {
+  const actions = plan.blocks.map((b) => b.items[0]).filter(Boolean);
+  if (actions.length === 0) return startY;
+
+  const innerW = CW - 28;
+  const itemsH = actions.reduce(
+    (acc, item) => acc + textH(item, f.bold, 9, innerW - 16, 1.5) + 8,
+    0,
+  );
+  const boxH = Math.max(90, itemsH + 52);
+
+  // Card background + top accent bar
+  page.drawRectangle({ x: MX, y: startY - boxH, width: CW, height: boxH, color: BG_INSET });
+  page.drawRectangle({ x: MX, y: startY - 5, width: CW, height: 5, color: accentColor });
+
+  // Heading
+  page.drawText("DEINE WICHTIGSTEN MASSNAHMEN", {
+    x: MX + 14, y: startY - 19, size: 7, font: f.bold, color: accentColor,
+  });
+  page.drawLine({
+    start: { x: MX + 14, y: startY - 27 },
+    end: { x: MX + CW - 14, y: startY - 27 },
+    thickness: 0.5, color: BORDER_C,
+  });
+
+  let itemY = startY - 41;
+  for (let i = 0; i < actions.length; i++) {
+    const num = String(i + 1);
+    page.drawText(num, { x: MX + 14, y: itemY, size: 8, font: f.bold, color: accentColor });
+    itemY = drawW(page, actions[i], MX + 28, itemY, innerW - 16, f.bold, 9, TXT_WHITE, 1.5);
+    itemY -= 8;
+  }
+
+  return startY - boxH - 10;
+}
+
 // ── Content pages ──────────────────────────────────────────────────────────
 
 function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color, f: F, today: string): void {
@@ -314,11 +359,19 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
     y = drawBlock(page, block, f, accentColor, y);
   }
 
-  // Source box at the bottom
+  // Key takeaways card — fills remaining whitespace with a numbered action list
+  const srcInnerW = CW - 28;
+  const srcH = plan.source ? Math.max(44, textH(plan.source, f.reg, 8.5, srcInnerW, 1.5) + 28) : 0;
+  const minSpaceNeeded = 100 + (plan.source ? srcH + 12 : 0);
+
+  if (y > minSpaceNeeded + 65) {
+    y -= 8;
+    y = drawKeyTakeaways(page, plan, f, accentColor, y);
+  }
+
+  // Source box
   if (plan.source && y > 100) {
     y -= 4;
-    const srcInnerW = CW - 28;
-    const srcH = Math.max(44, textH(plan.source, f.reg, 8.5, srcInnerW, 1.5) + 28);
     page.drawRectangle({ x: MX, y: y - srcH, width: CW, height: srcH, color: BG_INSET });
     page.drawText("WISSENSCHAFTLICHE BASIS", { x: MX + 12, y: y - 14, size: 6, font: f.bold, color: TXT_MUTED });
     drawW(page, plan.source, MX + 12, y - 28, srcInnerW, f.reg, 8.5, TXT_MUTED, 1.5);
