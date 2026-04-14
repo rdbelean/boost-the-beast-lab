@@ -78,7 +78,7 @@ export default function Products() {
             {/* Right */}
             <div className={`${styles.cardRight} ${styles.cardRightHighlight}`}>
               <div className={`${styles.price} ${styles.priceAccent}`}>
-                €199<span style={{ fontSize: "0.55em", verticalAlign: "super" }}>,99</span>
+                €39<span style={{ fontSize: "0.55em", verticalAlign: "super" }}>,90</span>
               </div>
               <div className={styles.priceSub}>einmalig</div>
 
