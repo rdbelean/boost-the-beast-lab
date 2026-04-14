@@ -73,7 +73,7 @@ function buildHtml(downloadUrl: string, scores: ScoreSummary): string {
             Dieser Report enthält ausschließlich modellbasierte Performance-Insights auf Basis deiner selbstberichteten Daten. <strong style="color:#a0a0aa">Keine medizinische Diagnose.</strong> Kein Ersatz für ärztliche Beratung.
           </p>
           <p style="font-size:10px;color:#6b6b72;margin:16px 0 0 0">
-            BOOST THE BEAST LAB · lab@boostthebeast.com<br/>
+            BOOST THE BEAST LAB · info@boostthebeast.com<br/>
             <a href="${downloadUrl}&unsubscribe=1" style="color:#6b6b72;text-decoration:underline">Abmelden</a>
           </p>
         </td></tr>
@@ -91,7 +91,7 @@ export async function sendReportEmail(
   scores: ScoreSummary,
 ): Promise<void> {
   const fromAddress =
-    process.env.RESEND_FROM_EMAIL ?? "BOOST THE BEAST LAB <lab@boostthebeast.com>";
+    process.env.RESEND_FROM_EMAIL ?? "BOOST THE BEAST LAB <info@boostthebeast.com>";
 
   const resend = getResend();
   const { error } = await resend.emails.send({

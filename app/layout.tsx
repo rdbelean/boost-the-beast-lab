@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://boostthebeast-lab.com"),
   title: "BOOST THE BEAST LAB – Performance Intelligence System",
   description:
     "Performance Diagnostik auf wissenschaftlichem Niveau. Analysiere Metabolismus, Recovery, Aktivität und Stress – ohne Labor, ohne Wartezeit.",
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
     title: "BOOST THE BEAST LAB",
     description: "Dein Körper. Deine Daten. Dein Level.",
     type: "website",
+    url: "https://boostthebeast-lab.com",
   },
 };
 

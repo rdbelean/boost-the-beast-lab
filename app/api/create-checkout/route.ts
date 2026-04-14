@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: null });
     }
 
-    const origin = req.headers.get("origin") ?? "https://boost-the-beast-lab.vercel.app";
+    const origin = req.headers.get("origin") ?? "https://boostthebeast-lab.com";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
