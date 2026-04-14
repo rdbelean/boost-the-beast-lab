@@ -492,12 +492,6 @@ function buildCover(
     thickness: 0.5, color: BORDER_C,
   });
   page.drawText(today, { x: MX, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
-  // Truncate email line so it never overflows the right margin
-  const confFull = `VERTRAULICH - NUR FUER ${tx(user.email).toUpperCase()}`;
-  const confLines = wrapLines(confFull, f.reg, 6, CW);
-  page.drawText(confLines[0] ?? confFull, {
-    x: MX, y: fy - 14, size: 6, font: f.reg, color: TXT_MUTED,
-  });
 }
 
 // ── Page 2: Summary ────────────────────────────────────────────────────────
