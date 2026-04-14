@@ -5,44 +5,16 @@ import { useParams } from "next/navigation";
 import styles from "./plan.module.css";
 
 async function openPlanAsPDF(plan: PlanContent) {
-  try {
-    const res = await fetch("/api/plan/pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan }),
-    });
-    if (!res.ok) throw new Error("PDF generation failed");
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    // Open in new tab — browser shows native PDF viewer with download button
-    window.open(url, "_blank");
-    // Revoke after a short delay to allow the tab to load the blob
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  } catch {
-    // Fallback: open html2canvas screenshot as PDF in new tab
-    const content = document.getElementById("plan-content");
-    if (!content) return;
-    const { default: html2canvas } = await import("html2canvas");
-    const { jsPDF } = await import("jspdf");
-    const canvas = await html2canvas(content, { scale: 2, useCORS: true, backgroundColor: "#0D0D0D" });
-    const imgData = canvas.toDataURL("image/jpeg", 0.92);
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const pageW = pdf.internal.pageSize.getWidth();
-    const pageH = pdf.internal.pageSize.getHeight();
-    const imgH = (canvas.height * pageW) / canvas.width;
-    let remaining = imgH;
-    let placed = 0;
-    while (remaining > 0) {
-      pdf.addImage(imgData, "JPEG", 0, -placed, pageW, imgH);
-      remaining -= pageH;
-      placed += pageH;
-      if (remaining > 0) pdf.addPage();
-    }
-    const pdfBlob = pdf.output("blob");
-    const url = URL.createObjectURL(pdfBlob);
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  }
+  const res = await fetch("/api/plan/pdf", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ plan }),
+  });
+  if (!res.ok) throw new Error("PDF generation failed");
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank");
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 /* ─── Plan definitions ───────────────────────────────────────── */

@@ -961,14 +961,23 @@ export async function POST(req: NextRequest) {
 
       if (uploadErr) {
         console.warn(
-          `[report/generate] Supabase Storage upload failed (${uploadErr.message}) — falling back to public/test-reports`,
+          `[report/generate] Supabase Storage upload failed (${uploadErr.message}) — falling back`,
         );
-        const publicDir = path.join(process.cwd(), "public", "test-reports");
-        await mkdir(publicDir, { recursive: true });
-        const localPath = path.join(publicDir, fileName);
-        await writeFile(localPath, Buffer.from(pdfBuffer));
-        const origin = req.nextUrl.origin;
-        downloadUrl = `${origin}/test-reports/${fileName}`;
+        try {
+          // Try local filesystem first (works in dev, not on Vercel)
+          const publicDir = path.join(process.cwd(), "public", "test-reports");
+          await mkdir(publicDir, { recursive: true });
+          const localPath = path.join(publicDir, fileName);
+          await writeFile(localPath, Buffer.from(pdfBuffer));
+          const origin = req.nextUrl.origin;
+          downloadUrl = `${origin}/test-reports/${fileName}`;
+        } catch {
+          // Vercel read-only filesystem — embed as base64 data URL so the
+          // client can still open the PDF in the browser immediately.
+          console.warn("[report/generate] filesystem write failed — using base64 data URL");
+          const b64 = Buffer.from(pdfBuffer).toString("base64");
+          downloadUrl = `data:application/pdf;base64,${b64}`;
+        }
       } else {
         const { data: signed, error: signErr } = await supabase.storage
           .from(STORAGE_BUCKET)

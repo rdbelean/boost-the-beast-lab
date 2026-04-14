@@ -1,8 +1,8 @@
-// Server-side plan PDF generation via Puppeteer.
-// Light-themed, professional A4 layout matching Boost The Beast Lab brand.
+// Server-side plan PDF generation via pdf-lib.
+// Pure JavaScript — zero native dependencies, works reliably on Vercel.
+// Dark warm-grey theme matching the main Performance Intelligence Report.
 
-import puppeteer, { type Browser } from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import { PDFDocument, rgb, StandardFonts, type PDFPage, type PDFFont, type Color } from "pdf-lib";
 
 export interface PlanBlock { heading: string; items: string[] }
 export interface PlanPdfInput {
@@ -13,373 +13,302 @@ export interface PlanPdfInput {
   blocks: PlanBlock[];
 }
 
-// ── Puppeteer bootstrap (shared with generateReport) ────────────────────────
+// ── Page dimensions ────────────────────────────────────────────────────────
 
-const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const PW = 595.28;
+const PH = 841.89;
+const MX = 48;
+const CW = PW - MX * 2;
 
-const LOCAL_CHROME_PATHS = [
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-  "/usr/bin/google-chrome-stable",
-  "/usr/bin/google-chrome",
-  "/usr/bin/chromium-browser",
-  "/usr/bin/chromium",
-];
+// ── Colour palette (matches generateReport.ts) ────────────────────────────
 
-async function resolveChromium(): Promise<{ executablePath: string; args: string[] }> {
-  if (IS_SERVERLESS) {
-    return { executablePath: await chromium.executablePath(), args: chromium.args };
-  }
-  const { access } = await import("node:fs/promises");
-  for (const p of LOCAL_CHROME_PATHS) {
-    try {
-      await access(p);
-      return { executablePath: p, args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"] };
-    } catch { /* try next */ }
-  }
-  throw new Error("No Chrome/Chromium found. Install Google Chrome to generate PDFs.");
+const BG_COVER  = rgb(0.051, 0.051, 0.055);
+const BG_PAGE   = rgb(0.176, 0.176, 0.188);
+const BG_CARD   = rgb(0.220, 0.220, 0.235);
+const BG_INSET  = rgb(0.133, 0.133, 0.145);
+const ACCENT    = rgb(0.902, 0.196, 0.133);
+const TXT_WHITE = rgb(0.933, 0.929, 0.922);
+const TXT_MUTED = rgb(0.540, 0.533, 0.521);
+const BORDER_C  = rgb(0.267, 0.267, 0.290);
+
+function hexToRgb(hex: string): Color {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16) / 255;
+  const g = parseInt(h.slice(2, 4), 16) / 255;
+  const b = parseInt(h.slice(4, 6), 16) / 255;
+  return rgb(r, g, b);
 }
 
-function esc(s: string | undefined | null): string {
-  if (!s) return "";
-  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+// ── Text utilities ─────────────────────────────────────────────────────────
+
+function safe(s: string | undefined | null): string {
+  return s ? String(s) : "";
 }
 
-// ── HTML Template ────────────────────────────────────────────────────────────
-
-function buildPlanHtml(plan: PlanPdfInput): string {
-  const today = new Date().toLocaleDateString("de-DE", { year: "numeric", month: "long", day: "numeric" });
-  const accentColor = plan.color || "#E63222";
-
-  const blockHtml = plan.blocks.map((block) => `
-    <div class="block">
-      <div class="block-heading" style="border-left-color:${accentColor}">${esc(block.heading)}</div>
-      <ul class="block-list">
-        ${block.items.map((item) => `
-          <li class="block-item">
-            <span class="bullet" style="color:${accentColor}">▸</span>
-            <span>${esc(item)}</span>
-          </li>
-        `).join("")}
-      </ul>
-    </div>
-  `).join("");
-
-  return `<!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8"/>
-<style>
-  @page { size: A4; margin: 0; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    background: #F4F3F0;
-    color: #111111;
-    font-family: Helvetica, Arial, sans-serif;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* ── Cover ──────────────────────────────────── */
-  .cover {
-    width: 210mm;
-    min-height: 297mm;
-    background: #111111;
-    color: #FFFFFF;
-    padding: 0;
-    page-break-after: always;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-  .cover-top-bar {
-    height: 6px;
-    background: ${accentColor};
-    width: 100%;
-  }
-  .cover-inner {
-    padding: 24mm 22mm 22mm;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .cover-brand {
-    font-size: 11px;
-    letter-spacing: 0.35em;
-    color: #FFFFFF;
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-  .cover-brand-sub {
-    font-size: 8px;
-    letter-spacing: 0.22em;
-    color: ${accentColor};
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-  .cover-plan-type {
-    display: inline-block;
-    margin-top: 60mm;
-    font-size: 9px;
-    letter-spacing: 0.3em;
-    color: ${accentColor};
-    text-transform: uppercase;
-    border: 1px solid ${accentColor};
-    padding: 5px 12px;
-    font-weight: 600;
-  }
-  .cover-title {
-    margin-top: 18px;
-    font-size: 56px;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    line-height: 1.0;
-    color: #FFFFFF;
-    text-transform: uppercase;
-  }
-  .cover-subtitle {
-    margin-top: 20px;
-    font-size: 15px;
-    color: #AAAAAA;
-    line-height: 1.5;
-    max-width: 140mm;
-  }
-  .cover-footer {
-    margin-top: auto;
-    padding-top: 18mm;
-    border-top: 1px solid #2A2A2A;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    color: #555;
-    text-transform: uppercase;
-  }
-
-  /* ── Content pages ────────────────────────── */
-  .content-page {
-    width: 210mm;
-    min-height: 297mm;
-    background: #F4F3F0;
-    padding: 18mm 20mm 18mm;
-    page-break-after: always;
-    position: relative;
-  }
-  .content-page:last-child { page-break-after: auto; }
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 10px;
-    border-bottom: 2px solid ${accentColor};
-    margin-bottom: 22px;
-  }
-  .page-header-brand {
-    font-size: 9px;
-    letter-spacing: 0.3em;
-    color: #888;
-    text-transform: uppercase;
-  }
-  .page-header-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    color: ${accentColor};
-    text-transform: uppercase;
-  }
-
-  /* ── Blocks ───────────────────────────────── */
-  .block {
-    margin-bottom: 18px;
-    background: #FFFFFF;
-    border: 1px solid #E2E0DB;
-    border-radius: 2px;
-    padding: 14px 16px;
-    break-inside: avoid;
-  }
-  .block-heading {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #333;
-    margin-bottom: 10px;
-    padding-left: 10px;
-    border-left: 3px solid ${accentColor};
-  }
-  .block-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .block-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    font-size: 11px;
-    line-height: 1.6;
-    color: #222;
-  }
-  .bullet {
-    flex-shrink: 0;
-    font-size: 10px;
-    margin-top: 2px;
-    font-weight: 700;
-  }
-
-  /* ── Source / disclaimer ──────────────────── */
-  .source-box {
-    margin-top: 16px;
-    padding: 10px 14px;
-    background: #ECEAE5;
-    border-radius: 2px;
-    font-size: 9px;
-    color: #666;
-    letter-spacing: 0.04em;
-    line-height: 1.5;
-    break-inside: avoid;
-  }
-  .source-label {
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #888;
-    margin-bottom: 3px;
-    font-size: 8px;
-  }
-
-  .footer-note {
-    position: absolute;
-    bottom: 12mm;
-    left: 20mm;
-    right: 20mm;
-    font-size: 8px;
-    color: #AAA;
-    letter-spacing: 0.06em;
-    border-top: 1px solid #E2E0DB;
-    padding-top: 6px;
-    display: flex;
-    justify-content: space-between;
-  }
-</style>
-</head>
-<body>
-
-<!-- COVER -->
-<div class="cover">
-  <div class="cover-top-bar"></div>
-  <div class="cover-inner">
-    <div class="cover-brand">BOOST THE BEAST LAB</div>
-    <div class="cover-brand-sub">PERFORMANCE LAB</div>
-    <div class="cover-plan-type">INDIVIDUELLER PLAN</div>
-    <div class="cover-title">${esc(plan.title)}</div>
-    <div class="cover-subtitle">${esc(plan.subtitle)}</div>
-    <div class="cover-footer">
-      <span>${esc(today)}</span>
-      <span>BOOST THE BEAST LAB · PERFORMANCE LAB</span>
-    </div>
-  </div>
-</div>
-
-<!-- CONTENT PAGES — split blocks across pages -->
-${buildContentPages(plan, accentColor, today)}
-
-</body>
-</html>`;
+function tx(s: string | undefined | null): string {
+  return safe(s)
+    .replace(/[\u2014\u2013]/g, "-")
+    .replace(/\u2026/g, "...")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/\u2192/g, "->")
+    .replace(/\u2022/g, "-")
+    .replace(/[\u2265\u2264]/g, "")
+    .replace(/[^\x00-\xFF]/g, "");
 }
 
-function buildContentPages(plan: PlanPdfInput, accentColor: string, today: string): string {
-  // Group blocks: first 3 on page 1, remaining blocks on page 2
-  const page1Blocks = plan.blocks.slice(0, 3);
-  const page2Blocks = plan.blocks.slice(3);
-
-  function pageHeader() {
-    return `
-      <div class="page-header">
-        <div class="page-header-brand">BOOST THE BEAST LAB</div>
-        <div class="page-header-title">${esc(plan.title)}</div>
-      </div>
-    `;
+function wrapLines(text: string, font: PDFFont, size: number, maxW: number): string[] {
+  const result: string[] = [];
+  const sanitised = tx(text);
+  if (!sanitised.trim()) return result;
+  for (const para of sanitised.split("\n")) {
+    if (!para.trim()) { result.push(""); continue; }
+    let line = "";
+    for (const word of para.split(" ")) {
+      const test = line ? `${line} ${word}` : word;
+      if (font.widthOfTextAtSize(test, size) > maxW && line) {
+        result.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    }
+    if (line) result.push(line);
   }
-
-  function renderBlocks(blocks: PlanBlock[]) {
-    return blocks.map((block) => `
-      <div class="block">
-        <div class="block-heading" style="border-left-color:${accentColor}">${esc(block.heading)}</div>
-        <ul class="block-list">
-          ${block.items.map((item) => `
-            <li class="block-item">
-              <span class="bullet" style="color:${accentColor}">▸</span>
-              <span>${esc(item)}</span>
-            </li>
-          `).join("")}
-        </ul>
-      </div>
-    `).join("");
-  }
-
-  let pages = `
-    <div class="content-page">
-      ${pageHeader()}
-      ${renderBlocks(page1Blocks)}
-      ${page2Blocks.length === 0 ? `
-        <div class="source-box">
-          <div class="source-label">Wissenschaftliche Basis</div>
-          ${esc(plan.source)}
-        </div>
-      ` : ""}
-      <div class="footer-note">
-        <span>PERFORMANCE LAB · Kein Ersatz für medizinische Beratung</span>
-        <span>${esc(today)}</span>
-      </div>
-    </div>
-  `;
-
-  if (page2Blocks.length > 0) {
-    pages += `
-      <div class="content-page">
-        ${pageHeader()}
-        ${renderBlocks(page2Blocks)}
-        <div class="source-box">
-          <div class="source-label">Wissenschaftliche Basis</div>
-          ${esc(plan.source)}
-        </div>
-        <div class="footer-note">
-          <span>PERFORMANCE LAB · Kein Ersatz für medizinische Beratung</span>
-          <span>${esc(today)}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  return pages;
+  return result;
 }
 
-// ── Main export ──────────────────────────────────────────────────────────────
+function drawW(
+  page: PDFPage,
+  text: string,
+  x: number,
+  y: number,
+  maxW: number,
+  font: PDFFont,
+  size: number,
+  color: Color,
+  lhMul = 1.6,
+): number {
+  if (!text || !tx(text).trim()) return y;
+  const lh = size * lhMul;
+  for (const line of wrapLines(text, font, size, maxW)) {
+    if (y < 52) break;
+    page.drawText(line, { x, y, size, font, color });
+    y -= lh;
+  }
+  return y;
+}
+
+function textH(text: string, font: PDFFont, size: number, maxW: number, lhMul = 1.6): number {
+  if (!text || !tx(text).trim()) return 0;
+  return wrapLines(text, font, size, maxW).length * size * lhMul;
+}
+
+// ── Drawing primitives ─────────────────────────────────────────────────────
+
+interface F { reg: PDFFont; bold: PDFFont }
+
+function fillBg(page: PDFPage, color: Color): void {
+  page.drawRectangle({ x: 0, y: 0, width: PW, height: PH, color });
+}
+
+function topBar(page: PDFPage, color: Color, h = 5): void {
+  page.drawRectangle({ x: 0, y: PH - h, width: PW, height: h, color });
+}
+
+function pageChrome(page: PDFPage, f: F, _planTitle: string, accentColor: Color, today: string): number {
+  fillBg(page, BG_PAGE);
+  topBar(page, accentColor);
+
+  const headerY = PH - 44;
+  page.drawText("BOOST THE BEAST LAB", { x: MX, y: headerY, size: 7, font: f.bold, color: TXT_MUTED });
+  const tw = f.reg.widthOfTextAtSize(today, 7);
+  page.drawText(today, { x: PW - MX - tw, y: headerY, size: 7, font: f.reg, color: TXT_MUTED });
+
+  const lineY = headerY - 12;
+  page.drawLine({
+    start: { x: MX, y: lineY },
+    end: { x: PW - MX, y: lineY },
+    thickness: 1.5, color: accentColor,
+  });
+
+  return lineY - 26;
+}
+
+function pageFooter(page: PDFPage, f: F, today: string): void {
+  const fy = 32;
+  page.drawLine({ start: { x: MX, y: fy + 13 }, end: { x: PW - MX, y: fy + 13 }, thickness: 0.5, color: BORDER_C });
+  page.drawText("PERFORMANCE LAB  |  Kein Ersatz fuer medizinische Beratung", { x: MX, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
+  const tw = f.reg.widthOfTextAtSize(today, 7);
+  page.drawText(today, { x: PW - MX - tw, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
+}
+
+// ── Cover page ─────────────────────────────────────────────────────────────
+
+function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color, f: F, today: string): void {
+  const page = doc.addPage([PW, PH]);
+  fillBg(page, BG_COVER);
+  topBar(page, accentColor, 6);
+
+  let y = PH - 54;
+  page.drawText("BOOST THE BEAST LAB", { x: MX, y, size: 10, font: f.bold, color: TXT_WHITE });
+  y -= 16;
+  page.drawText("PERFORMANCE LAB", { x: MX, y, size: 7, font: f.reg, color: accentColor });
+
+  // Badge
+  y -= 56;
+  const badgeTxt = "INDIVIDUELLER PLAN";
+  const badgeW = f.bold.widthOfTextAtSize(badgeTxt, 7) + 24;
+  page.drawRectangle({ x: MX, y: y - 5, width: badgeW, height: 20, color: BG_INSET });
+  page.drawRectangle({ x: MX, y: y + 14, width: badgeW, height: 2, color: accentColor });
+  page.drawText(badgeTxt, { x: MX + 12, y: y, size: 7, font: f.bold, color: accentColor });
+
+  // Title — needs enough clearance below badge (44pt caps + descenders)
+  y -= 52;
+  const titleLines = wrapLines(tx(plan.title), f.bold, 44, CW * 0.8);
+  for (const line of titleLines) {
+    page.drawText(line, { x: MX, y, size: 44, font: f.bold, color: TXT_WHITE });
+    y -= 52;
+  }
+
+  // Subtitle
+  y -= 4;
+  y = drawW(page, plan.subtitle, MX, y, CW * 0.70, f.reg, 11, rgb(0.560, 0.553, 0.541));
+
+  // Footer divider + date
+  const fy = 50;
+  page.drawLine({ start: { x: MX, y: fy + 16 }, end: { x: PW - MX, y: fy + 16 }, thickness: 0.5, color: rgb(0.165, 0.165, 0.165) });
+  page.drawText(today, { x: MX, y: fy, size: 7, font: f.reg, color: rgb(0.333, 0.333, 0.333) });
+  page.drawText("BOOST THE BEAST LAB · PERFORMANCE LAB", { x: MX, y: fy - 12, size: 6, font: f.reg, color: rgb(0.267, 0.267, 0.267) });
+}
+
+// ── Block rendering helper ─────────────────────────────────────────────────
+// Draws a single block (heading + items) and returns new y.
+
+function drawBlock(
+  page: PDFPage,
+  block: PlanBlock,
+  f: F,
+  accentColor: Color,
+  startY: number,
+): number {
+  const innerW = CW - 26;  // 3px left bar + 12px gap + 11px right pad
+
+  // Estimate total block height
+  const headingH = 20;
+  const itemsH = block.items.reduce(
+    (acc, item) => acc + textH(item, f.reg, 9.5, innerW - 12, 1.55) + 2,
+    0,
+  );
+  const boxH = Math.max(50, headingH + itemsH + 28);
+
+  let y = startY;
+
+  // Card background + left accent bar
+  page.drawRectangle({ x: MX, y: y - boxH, width: CW, height: boxH, color: BG_CARD });
+  page.drawRectangle({ x: MX, y: y - boxH, width: 3, height: boxH, color: accentColor });
+
+  // Heading
+  const headY = y - 16;
+  page.drawText(tx(block.heading).toUpperCase(), {
+    x: MX + 14, y: headY, size: 7.5, font: f.bold, color: accentColor,
+  });
+
+  // Separator line under heading
+  page.drawLine({
+    start: { x: MX + 14, y: headY - 8 },
+    end: { x: MX + CW - 8, y: headY - 8 },
+    thickness: 0.5, color: BORDER_C,
+  });
+
+  // Items
+  let itemY = headY - 20;
+  for (const item of block.items) {
+    if (itemY < 60) break;
+    // Bullet
+    page.drawText("-", { x: MX + 14, y: itemY, size: 8, font: f.bold, color: accentColor });
+    // Text
+    itemY = drawW(page, item, MX + 26, itemY, innerW - 12, f.reg, 9.5, TXT_WHITE, 1.55);
+    itemY -= 3;
+  }
+
+  return y - boxH - 12;  // 12pt gap between blocks
+}
+
+// ── Content pages ──────────────────────────────────────────────────────────
+
+function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color, f: F, today: string): void {
+  let page = doc.addPage([PW, PH]);
+  let y = pageChrome(page, f, plan.title, accentColor, today);
+
+  // Page title
+  page.drawText(tx(plan.title).toUpperCase(), { x: MX, y, size: 22, font: f.bold, color: TXT_WHITE });
+  y -= 28;
+  page.drawText(tx(plan.subtitle), { x: MX, y, size: 9, font: f.reg, color: TXT_MUTED });
+  y -= 22;
+
+  for (let i = 0; i < plan.blocks.length; i++) {
+    const block = plan.blocks[i];
+    const innerW = CW - 26;
+    const headingH = 20;
+    const itemsH = block.items.reduce(
+      (acc, item) => acc + textH(item, f.reg, 9.5, innerW - 12, 1.55) + 2,
+      0,
+    );
+    const blockH = Math.max(50, headingH + itemsH + 28) + 12;
+
+    // Not enough space: start a new page
+    const footerClearance = 65;
+    if (y - blockH < footerClearance) {
+      pageFooter(page, f, today);
+      page = doc.addPage([PW, PH]);
+      y = pageChrome(page, f, plan.title, accentColor, today);
+      // Continuation header
+      page.drawText(tx(plan.title).toUpperCase(), { x: MX, y, size: 18, font: f.bold, color: TXT_WHITE });
+      y -= 26;
+    }
+
+    y = drawBlock(page, block, f, accentColor, y);
+  }
+
+  // Source box
+  if (plan.source && y > 100) {
+    y -= 4;
+    const srcInnerW = CW - 28;
+    const srcH = Math.max(44, textH(plan.source, f.reg, 8.5, srcInnerW, 1.5) + 28);
+    page.drawRectangle({ x: MX, y: y - srcH, width: CW, height: srcH, color: BG_INSET });
+    page.drawText("WISSENSCHAFTLICHE BASIS", { x: MX + 12, y: y - 14, size: 6, font: f.bold, color: TXT_MUTED });
+    drawW(page, plan.source, MX + 12, y - 28, srcInnerW, f.reg, 8.5, TXT_MUTED, 1.5);
+  }
+
+  pageFooter(page, f, today);
+}
+
+// ── Main export ────────────────────────────────────────────────────────────
 
 export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
-  const html = buildPlanHtml(plan);
-  const { executablePath, args } = await resolveChromium();
+  const today = new Date().toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
-  let browser: Browser | null = null;
-  try {
-    browser = await puppeteer.launch({
-      executablePath,
-      args,
-      headless: true,
-    });
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
-    const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 },
-    });
-    return pdf as unknown as Uint8Array;
-  } finally {
-    if (browser) await browser.close().catch(() => {});
-  }
+  const accentColor = (() => {
+    try { return hexToRgb(plan.color); } catch { return ACCENT; }
+  })();
+
+  const doc = await PDFDocument.create();
+  const reg  = await doc.embedFont(StandardFonts.Helvetica);
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const f: F = { reg, bold };
+
+  doc.setTitle(`BTB ${tx(plan.title)}`);
+  doc.setAuthor("BOOST THE BEAST LAB");
+  doc.setCreationDate(new Date());
+
+  buildPlanCover(doc, plan, accentColor, f, today);
+  buildPlanContent(doc, plan, accentColor, f, today);
+
+  const bytes = await doc.save();
+  return new Uint8Array(bytes);
 }

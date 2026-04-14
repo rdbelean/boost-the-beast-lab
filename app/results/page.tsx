@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import styles from "./results.module.css";
-import { UpsellGrid } from "@/components/results/UpsellGrid";
 
 /* ─── Animated Counter ──────────────────────────────────────── */
 function useCountUp(target: number, duration = 1600) {
@@ -100,7 +99,6 @@ interface ResultsData {
 export default function ResultsPage() {
   const [scores, setScores] = useState<ResultsData | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [parentSessionId, setParentSessionId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -113,7 +111,6 @@ export default function ResultsPage() {
       const data = JSON.parse(raw);
       setScores(data.scores);
       setDownloadUrl(data.downloadUrl ?? null);
-      setParentSessionId(data.parentSessionId ?? null);
     } catch {
       setError("Ergebnisse konnten nicht geladen werden.");
     }
@@ -422,9 +419,6 @@ export default function ResultsPage() {
             Beschwerden konsultieren Sie bitte einen Arzt. Kein Medizinprodukt i.S.d. MDR.
           </p>
         </section>
-
-        {/* ─── ONE-CLICK PLAN UPSELLS ──────────────────── */}
-        <UpsellGrid parentSessionId={parentSessionId} />
 
         {/* ─── LAB UPSELL ──────────────────────────────── */}
         <section className={styles.upsellSection}>
