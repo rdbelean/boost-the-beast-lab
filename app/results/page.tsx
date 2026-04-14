@@ -142,14 +142,24 @@ export default function ResultsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ assessmentId }),
       });
-      const data = await res.json();
+      // Read raw text first — the server can return non-JSON on lambda crash
+      const rawText = await res.text();
+      let data: { downloadUrl?: string; error?: string } | null = null;
+      try {
+        data = JSON.parse(rawText) as { downloadUrl?: string; error?: string };
+      } catch {
+        // Not JSON — surface the raw text so we can see the actual error
+        setPdfError(
+          `Server-Fehler (${res.status}): ${rawText.slice(0, 300) || "leere Antwort"}`,
+        );
+        return;
+      }
       if (!res.ok) {
         setPdfError(data?.error ?? `Fehler ${res.status}`);
         return;
       }
-      if (data.downloadUrl) {
+      if (data?.downloadUrl) {
         setDownloadUrl(data.downloadUrl);
-        // persist so refresh still has it
         const raw = sessionStorage.getItem("btb_results");
         if (raw) {
           try {

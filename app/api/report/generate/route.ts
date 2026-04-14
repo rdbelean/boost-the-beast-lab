@@ -710,26 +710,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing assessmentId or demoContext" }, { status: 400 });
   }
 
-  const supabase = getSupabaseServiceClient();
+  // Top-level try/catch wrapping EVERYTHING so lambda never crashes with
+  // a raw "An error occurred" plain-text response — always return JSON.
+  let supabase: ReturnType<typeof getSupabaseServiceClient>;
+  try {
+    supabase = getSupabaseServiceClient();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[report/generate] supabase init failed", msg);
+    return NextResponse.json({ error: `Supabase init: ${msg}` }, { status: 500 });
+  }
 
-  const { data: jobRow } = await supabase
-    .from("report_jobs")
-    .select("id")
-    .eq("assessment_id", assessmentId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const jobId = jobRow?.id as string | undefined;
-  if (jobId) {
-    await supabase
+  let jobId: string | undefined;
+  try {
+    const { data: jobRow } = await supabase
       .from("report_jobs")
-      .update({
-        status: "processing",
-        started_at: new Date().toISOString(),
-        prompt_version: PROMPT_VERSION,
-      })
-      .eq("id", jobId);
+      .select("id")
+      .eq("assessment_id", assessmentId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    jobId = jobRow?.id as string | undefined;
+    if (jobId) {
+      await supabase
+        .from("report_jobs")
+        .update({
+          status: "processing",
+          started_at: new Date().toISOString(),
+          prompt_version: PROMPT_VERSION,
+        })
+        .eq("id", jobId);
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[report/generate] job setup failed", msg);
+    return NextResponse.json({ error: `Job setup: ${msg}` }, { status: 500 });
   }
 
   try {
