@@ -100,10 +100,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
-  // ── Offline Demo Mode: skip DB + PDF when Supabase is not configured ──
-  // Returns scores immediately (no Claude, no PDF, no email). This keeps the
-  // analyse flow working on Vercel even if env vars are partially missing or
-  // Puppeteer (which requires a local Chromium) isn't available.
+  // ── Offline Demo Mode: run scoring + PDF without Supabase ──
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
     const scoringInputs: FullAssessmentInputs = {
       age: body.age,
@@ -134,11 +131,50 @@ export async function POST(req: NextRequest) {
       stress: { stress_level_1_10: body.stress_level_1_10 },
     };
     const result = runFullScoring(scoringInputs);
+
+    // Forward to report/generate via demoContext to produce the PDF.
+    let downloadUrl: string | null = null;
+    try {
+      const demoContext = {
+        reportType: body.reportType,
+        user: {
+          email: body.email,
+          age: body.age,
+          gender: body.gender,
+          height_cm: body.height_cm,
+          weight_kg: body.weight_kg,
+        },
+        result,
+        sleepDurationHours: body.sleep_duration_hours,
+        sleep_quality_label: body.sleep_quality as string,
+        wakeup_frequency_label: body.wakeups as string,
+        morning_recovery_1_10: body.recovery_1_10,
+        stress_level_1_10: body.stress_level_1_10,
+        meals_per_day: body.meals_per_day,
+        water_litres: body.water_litres,
+        sitting_hours_per_day: body.sitting_hours,
+        fruit_veg_label: body.fruit_veg as string,
+        standing_hours_per_day: body.standing_hours_per_day,
+      };
+      const origin = req.nextUrl.origin;
+      const genRes = await fetch(`${origin}/api/report/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ demoContext }),
+      });
+      if (genRes.ok) {
+        const genJson = await genRes.json();
+        downloadUrl = genJson.downloadUrl ?? null;
+      }
+    } catch {
+      // PDF generation is best-effort in demo mode — scores are always returned.
+    }
+
     return NextResponse.json({
       success: true,
       assessmentId: null,
       scores: result,
-      downloadUrl: null,
+      downloadUrl,
       testMode: true,
     });
   }
