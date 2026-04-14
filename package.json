@@ -11,6 +11,7 @@
     "@anthropic-ai/sdk": "^0.82.0",
     "@sparticuz/chromium": "^147.0.0",
     "@stripe/stripe-js": "^9.0.1",
+    "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.0",
     "framer-motion": "^12.38.0",
     "html2canvas": "^1.4.1",

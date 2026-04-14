@@ -1,334 +1,144 @@
-"use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import styles from "./account.module.css";
 import BackButton from "@/components/ui/BackButton";
+import { getSupabaseServerClient, getSupabaseServiceClient } from "@/lib/supabase/server";
+import AccountView, { type AccountReport } from "./AccountView";
 
-/* ─── Demo data (newest first) ──────────────────────────────── */
-const DEMO_REPORTS = [
-  {
-    id: "rpt-20260312",
-    date: "12. März 2026",
-    overall: 61,
-    band: "GUT",
-    scores: { activity: 58, sleep: 67, vo2max: 55, metabolic: 62, stress: 63 },
-  },
-  {
-    id: "rpt-20260215",
-    date: "15. Feb. 2026",
-    overall: 54,
-    band: "MITTEL",
-    scores: { activity: 49, sleep: 60, vo2max: 48, metabolic: 57, stress: 56 },
-  },
-  {
-    id: "rpt-20260110",
-    date: "10. Jan. 2026",
-    overall: 47,
-    band: "MITTEL",
-    scores: { activity: 41, sleep: 52, vo2max: 44, metabolic: 51, stress: 49 },
-  },
-];
+export const dynamic = "force-dynamic";
 
-const SCORE_DEFS = [
-  { key: "activity" as const,  label: "ACTIVITY",  color: "#E63222" },
-  { key: "sleep" as const,     label: "SLEEP",     color: "#3B82F6" },
-  { key: "vo2max" as const,    label: "VO2MAX",    color: "#8B5CF6" },
-  { key: "metabolic" as const, label: "METABOLIC", color: "#F59E0B" },
-  { key: "stress" as const,    label: "STRESS",    color: "#22C55E" },
-];
+export default async function AccountPage() {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-function bandColor(score: number) {
-  if (score >= 70) return "#22C55E";
-  if (score >= 40) return "#F59E0B";
-  return "#E63222";
-}
+  if (!user) {
+    redirect("/login?next=/account");
+  }
 
-/* ─── Comparison row: shows old → new with arrow + delta ─────── */
-function CompareRow({
-  label,
-  color,
-  current,
-  previous,
-}: {
-  label: string;
-  color: string;
-  current: number;
-  previous: number | null;
-}) {
-  const delta = previous !== null ? current - previous : null;
-  const improved = delta !== null && delta > 0;
-  const declined = delta !== null && delta < 0;
+  const svc = getSupabaseServiceClient();
 
-  return (
-    <div className={styles.compareRow}>
-      <div className={styles.compareLabel}>{label}</div>
+  // 1. Resolve all `users` rows linked to this auth account (linked via
+  //    auth_user_id, OR matched by email for pre-link legacy rows).
+  const { data: userRows } = await svc
+    .from("users")
+    .select("id, email")
+    .or(`auth_user_id.eq.${user.id},email.eq.${user.email}`);
 
-      {/* Bar */}
-      <div className={styles.compareBarWrap}>
-        <div
-          className={styles.compareBarFill}
-          style={{ width: `${current}%`, background: color }}
-        />
-        {previous !== null && (
-          <div
-            className={styles.compareBarPrev}
-            style={{ width: `${previous}%` }}
-          />
-        )}
-      </div>
+  const userIds = (userRows ?? []).map((u) => u.id);
 
-      {/* Scores */}
-      <div className={styles.compareScores}>
-        {/* Old score (crossed out, gray) */}
-        {previous !== null && (
-          <span className={styles.compareOld}>{previous}</span>
-        )}
-        {previous !== null && (
-          <span className={styles.compareArrowMid}>→</span>
-        )}
-        {/* New score */}
-        <span className={styles.compareNew} style={{ color: bandColor(current) }}>
-          {current}
-        </span>
-        {/* Arrow + delta */}
-        {delta !== null && (
-          <span
-            className={
-              improved
-                ? styles.compareDeltaPos
-                : declined
-                ? styles.compareDeltaNeg
-                : styles.compareDeltaZero
-            }
-          >
-            {improved ? "↑" : declined ? "↓" : "→"}
-            {delta > 0 ? `+${delta}` : delta}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
+  // 2. Fetch assessments for those user_ids (most recent first).
+  const { data: assessments } = userIds.length
+    ? await svc
+        .from("assessments")
+        .select("id, created_at")
+        .in("user_id", userIds)
+        .order("created_at", { ascending: false })
+    : { data: [] };
 
-/* ─── Page ──────────────────────────────────────────────────── */
-export default function AccountPage() {
-  const router = useRouter();
-  const latest = DEMO_REPORTS[0];
-  const oldest = DEMO_REPORTS[DEMO_REPORTS.length - 1];
+  const assessmentIds = (assessments ?? []).map((a) => a.id);
+
+  // 3. Scores + artifacts for those assessments.
+  const [scoresRes, artifactsRes] = assessmentIds.length
+    ? await Promise.all([
+        svc.from("scores").select("assessment_id, score_code, score_value, band").in("assessment_id", assessmentIds),
+        svc.from("report_artifacts").select("assessment_id, file_url").in("assessment_id", assessmentIds),
+      ])
+    : [{ data: [] }, { data: [] }];
+
+  const scoresByAssessment = new Map<string, Record<string, number>>();
+  const bandByAssessment = new Map<string, string>();
+  for (const s of scoresRes.data ?? []) {
+    const map = scoresByAssessment.get(s.assessment_id) ?? {};
+    map[s.score_code] = Number(s.score_value);
+    scoresByAssessment.set(s.assessment_id, map);
+    if (s.score_code === "overall" && s.band) bandByAssessment.set(s.assessment_id, s.band);
+  }
+
+  const artifactByAssessment = new Map<string, string>();
+  for (const a of artifactsRes.data ?? []) {
+    if (!artifactByAssessment.has(a.assessment_id)) {
+      artifactByAssessment.set(a.assessment_id, a.file_url);
+    }
+  }
+
+  const reports: AccountReport[] = (assessments ?? []).map((a) => {
+    const s = scoresByAssessment.get(a.id) ?? {};
+    return {
+      id: a.id,
+      date: new Date(a.created_at).toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+      overall: Math.round(s.overall ?? 0),
+      band: bandByAssessment.get(a.id) ?? "",
+      scores: {
+        activity: Math.round(s.activity ?? 0),
+        sleep: Math.round(s.sleep ?? 0),
+        vo2max: Math.round(s.vo2max ?? 0),
+        metabolic: Math.round(s.metabolic ?? 0),
+        stress: Math.round(s.stress ?? 0),
+      },
+      pdfUrl: artifactByAssessment.get(a.id) ?? null,
+    };
+  });
 
   return (
     <div className={styles.page}>
       <BackButton />
-
       <div className={styles.container}>
-
-        {/* ─── Header ────────────────────────────────────── */}
         <div className={styles.accountHeader}>
           <div>
             <div className={styles.accountTag}>MEIN ACCOUNT</div>
             <h1 className={styles.accountTitle}>REPORT-HISTORIE</h1>
             <p className={styles.accountSub}>
-              Alle deine bisherigen Performance-Analysen auf einen Blick.
+              Eingeloggt als <strong style={{ color: "#fff" }}>{user.email}</strong>
             </p>
           </div>
-          <button className={styles.newAnalysisBtn} onClick={() => router.push("/kaufen")}>
+          <Link href="/kaufen" className={styles.newAnalysisBtn}>
             NEUE ANALYSE →
-          </button>
+          </Link>
         </div>
 
-        <div className={styles.demoNotice}>
-          Demo-Modus — Beispiel-Reports zur Veranschaulichung
-        </div>
-
-        {/* ─── Gesamtfortschritt ────────────────────────── */}
-        {DEMO_REPORTS.length >= 2 && (
-          <section className={styles.progressSection}>
-            <div className={styles.progressHeader}>
-              <span className={styles.progressTitle}>GESAMTFORTSCHRITT</span>
-              <span className={styles.progressRange}>{oldest.date} → {latest.date}</span>
+        {reports.length === 0 ? (
+          <div
+            style={{
+              padding: "40px 32px",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid #333",
+              textAlign: "center",
+              color: "#999",
+            }}
+          >
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 12 }}>
+              NOCH KEINE REPORTS
             </div>
-
-            {/* Overall highlight */}
-            <div className={styles.overallBanner}>
-              <div className={styles.overallBannerLeft}>
-                <div className={styles.overallBannerLabel}>OVERALL PERFORMANCE SCORE</div>
-                <div className={styles.overallBannerRow}>
-                  <span className={styles.overallOld}>{oldest.overall}</span>
-                  <span className={styles.overallBannerArrow}>→</span>
-                  <span className={styles.overallNew} style={{ color: bandColor(latest.overall) }}>
-                    {latest.overall}
-                  </span>
-                  <span className={latest.overall > oldest.overall ? styles.overallDeltaPos : styles.overallDeltaNeg}>
-                    {latest.overall > oldest.overall ? "↑" : "↓"}
-                    {latest.overall > oldest.overall ? `+${latest.overall - oldest.overall}` : latest.overall - oldest.overall}
-                  </span>
-                </div>
-              </div>
-              <div className={styles.overallBannerRight}>
-                <div className={styles.overallPctLabel}>VERBESSERUNG</div>
-                <div className={styles.overallPct} style={{ color: "#22C55E" }}>
-                  +{Math.round(((latest.overall - oldest.overall) / oldest.overall) * 100)}%
-                </div>
-              </div>
-            </div>
-
-            {/* Sub-score comparison table */}
-            <div className={styles.compareTable}>
-              <div className={styles.compareTableHeader}>
-                <span></span>
-                <span></span>
-                <div className={styles.compareTableHeadScores}>
-                  <span className={styles.compareTableHeadOld}>{oldest.date}</span>
-                  <span></span>
-                  <span className={styles.compareTableHeadNew}>{latest.date}</span>
-                  <span className={styles.compareTableHeadDelta}>DIFF</span>
-                </div>
-              </div>
-              {SCORE_DEFS.map((def) => (
-                <CompareRow
-                  key={def.key}
-                  label={def.label}
-                  color={def.color}
-                  current={latest.scores[def.key]}
-                  previous={oldest.scores[def.key]}
-                />
-              ))}
-            </div>
-          </section>
+            <p style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>
+              Sobald du deine erste Analyse durchführst, landet sie hier automatisch.
+            </p>
+            <Link href="/kaufen" className={styles.newAnalysisBtn}>
+              ERSTE ANALYSE STARTEN →
+            </Link>
+          </div>
+        ) : (
+          <AccountView reports={reports} />
         )}
 
-        {/* ─── Report list ────────────────────────────────── */}
-        <div className={styles.reportListHeader}>
-          <span>ALLE ANALYSEN</span>
-          <span className={styles.reportCount}>{DEMO_REPORTS.length} Reports</span>
-        </div>
-
-        <div className={styles.reportList}>
-          {DEMO_REPORTS.map((report, i) => {
-            const prev = DEMO_REPORTS[i + 1] ?? null;
-            const overallColor = bandColor(report.overall);
-            const overallDelta = prev ? report.overall - prev.overall : null;
-
-            return (
-              <div key={report.id} className={styles.reportCard} style={{ animationDelay: `${i * 0.08}s` }}>
-
-                {/* ── Top row ─────────────────────────────── */}
-                <div className={styles.reportCardTop}>
-                  <div className={styles.reportMeta}>
-                    <span className={styles.reportDate}>{report.date}</span>
-                    <span className={styles.reportId}>{report.id}</span>
-                  </div>
-                  <div className={styles.reportOverall}>
-                    {prev && (
-                      <span className={styles.overallPrevScore}>{prev.overall}</span>
-                    )}
-                    {prev && <span className={styles.overallSep}>→</span>}
-                    <span className={styles.reportScore} style={{ color: overallColor }}>
-                      {report.overall}
-                    </span>
-                    <span className={styles.reportScoreMax}>/100</span>
-                    <span
-                      className={styles.reportBand}
-                      style={{ color: overallColor, borderColor: overallColor, background: `${overallColor}18` }}
-                    >
-                      {report.band}
-                    </span>
-                    {overallDelta !== null && (
-                      <span
-                        className={
-                          overallDelta > 0
-                            ? styles.compareDeltaPos
-                            : overallDelta < 0
-                            ? styles.compareDeltaNeg
-                            : styles.compareDeltaZero
-                        }
-                      >
-                        {overallDelta > 0 ? "↑" : overallDelta < 0 ? "↓" : "→"}
-                        {overallDelta > 0 ? `+${overallDelta}` : overallDelta}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* ── Sub-score comparison ─────────────────── */}
-                <div className={styles.subScoreList}>
-                  {SCORE_DEFS.map((def) => {
-                    const current = report.scores[def.key];
-                    const prevScore = prev?.scores[def.key] ?? null;
-                    const delta = prevScore !== null ? current - prevScore : null;
-                    return (
-                      <div key={def.key} className={styles.subScoreRow}>
-                        <span className={styles.subScoreRowLabel}>{def.label}</span>
-                        <div className={styles.subScoreBarTrack}>
-                          <div
-                            className={styles.subScoreBarFill}
-                            style={{ width: `${current}%`, background: def.color }}
-                          />
-                          {prevScore !== null && (
-                            <div
-                              className={styles.subScoreBarPrev}
-                              style={{ width: `${prevScore}%` }}
-                            />
-                          )}
-                        </div>
-                        <div className={styles.subScoreRowRight}>
-                          {prevScore !== null && (
-                            <span className={styles.subScoreOld}>{prevScore}</span>
-                          )}
-                          {prevScore !== null && (
-                            <span className={styles.subScoreSep}>→</span>
-                          )}
-                          <span
-                            className={styles.subScoreCurrent}
-                            style={{ color: bandColor(current) }}
-                          >
-                            {current}
-                          </span>
-                          {delta !== null && (
-                            <span
-                              className={
-                                delta > 0
-                                  ? styles.compareDeltaPos
-                                  : delta < 0
-                                  ? styles.compareDeltaNeg
-                                  : styles.compareDeltaZero
-                              }
-                            >
-                              {delta > 0 ? "↑" : delta < 0 ? "↓" : "→"}
-                              {delta > 0 ? `+${delta}` : delta}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* ── Actions ─────────────────────────────── */}
-                <div className={styles.reportActions}>
-                  <button className={styles.viewBtn} disabled title="Bald verfügbar">
-                    REPORT ANSEHEN
-                  </button>
-                  <button className={styles.pdfBtn} disabled title="Bald verfügbar">
-                    PDF ↓
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className={styles.emptyHint}>
-          Zukünftige Analysen werden hier automatisch gespeichert.
-        </div>
-
         <div className={styles.cta}>
-          <Link href="/kaufen" className={styles.ctaBtn}>
-            NEUE ANALYSE STARTEN →
-          </Link>
           <Link href="/" className={styles.ctaSecondary}>
             ← STARTSEITE
           </Link>
+          <form action="/api/auth/logout" method="post" style={{ display: "inline" }}>
+            <button
+              type="submit"
+              className={styles.ctaSecondary}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
+            >
+              LOGOUT
+            </button>
+          </form>
         </div>
       </div>
     </div>

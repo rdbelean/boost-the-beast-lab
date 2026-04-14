@@ -186,3 +186,37 @@ ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS parent_session_id TEXT;
 CREATE INDEX IF NOT EXISTS idx_paid_sessions_stripe_id ON paid_sessions(stripe_session_id);
 ALTER TABLE paid_sessions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "service_role_all" ON paid_sessions FOR ALL USING (true);
+
+-- =====================================================================
+-- AUTH LINKING (added when Supabase Auth was wired up)
+-- =====================================================================
+-- Link existing email-keyed rows to Supabase auth users. auth_user_id is
+-- populated by /auth/callback + /api/auth/link after a successful login.
+ALTER TABLE users         ADD COLUMN IF NOT EXISTS auth_user_id UUID REFERENCES auth.users(id);
+ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS auth_user_id UUID REFERENCES auth.users(id);
+CREATE INDEX IF NOT EXISTS idx_users_auth_user_id         ON users(auth_user_id);
+CREATE INDEX IF NOT EXISTS idx_paid_sessions_auth_user_id ON paid_sessions(auth_user_id);
+
+-- Authenticated read policies (service_role_all still applies for writes).
+DO $$ BEGIN
+  CREATE POLICY "users_read_own" ON users FOR SELECT
+    USING (auth.uid() = auth_user_id);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "paid_sessions_read_own" ON paid_sessions FOR SELECT
+    USING (auth.uid() = auth_user_id);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "assessments_read_own" ON assessments FOR SELECT
+    USING (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()));
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "report_artifacts_read_own" ON report_artifacts FOR SELECT
+    USING (assessment_id IN (
+      SELECT id FROM assessments
+      WHERE user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid())
+    ));
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;

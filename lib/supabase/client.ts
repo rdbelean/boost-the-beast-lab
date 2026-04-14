@@ -1,6 +1,8 @@
-// Browser-side Supabase client. Safe to import in Client Components.
-// Uses the public anon key — RLS must be enforced for any user-facing data.
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+// Browser-side Supabase client with cookie-based session persistence.
+// Safe to import in Client Components. Uses @supabase/ssr so the session
+// cookies are readable from Server Components + API route handlers.
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 let browserClient: SupabaseClient | null = null;
 
@@ -16,8 +18,6 @@ export function getSupabaseBrowserClient(): SupabaseClient {
     );
   }
 
-  browserClient = createClient(url, anonKey, {
-    auth: { persistSession: false },
-  });
+  browserClient = createBrowserClient(url, anonKey);
   return browserClient;
 }

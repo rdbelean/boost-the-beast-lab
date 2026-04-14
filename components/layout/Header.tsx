@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "@/app/landing.module.css";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function Header() {
   const router = useRouter();
@@ -10,7 +11,24 @@ export default function Header() {
   const [hasReport, setHasReport] = useState(false);
   const [reportUrl, setReportUrl] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Subscribe to Supabase auth state so the dropdown reflects login status.
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!cancelled) setUserEmail(data.user?.email ?? null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user?.email ?? null);
+    });
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const ids = ["how-it-works", "products"];
@@ -98,7 +116,7 @@ export default function Header() {
               onClick={() => setDropdownOpen((o) => !o)}
               aria-expanded={dropdownOpen}
             >
-              MEIN ACCOUNT
+              {userEmail ? userEmail.split("@")[0].toUpperCase() : "MEIN ACCOUNT"}
               <span className={`${styles.accountDropdownChevron}${dropdownOpen ? ` ${styles.accountDropdownChevronOpen}` : ""}`}>
                 ▾
               </span>
@@ -111,20 +129,36 @@ export default function Header() {
                 >
                   Neue Analyse starten →
                 </button>
-                <Link
-                  href="/account"
-                  className={styles.accountDropdownItem}
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Meine Reports einsehen
-                </Link>
-                <Link
-                  href="/login"
-                  className={styles.accountDropdownItem}
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Login / Account erstellen
-                </Link>
+                {userEmail ? (
+                  <>
+                    <Link
+                      href="/account"
+                      className={styles.accountDropdownItem}
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      Meine Reports einsehen
+                    </Link>
+                    <button
+                      className={styles.accountDropdownItem}
+                      onClick={async () => {
+                        setDropdownOpen(false);
+                        const supabase = getSupabaseBrowserClient();
+                        await supabase.auth.signOut();
+                        router.push("/");
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    className={styles.accountDropdownItem}
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Login / Account erstellen
+                  </Link>
+                )}
               </div>
             )}
           </div>
