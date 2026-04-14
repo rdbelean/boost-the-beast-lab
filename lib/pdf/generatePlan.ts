@@ -46,11 +46,11 @@ function hexToRgb(hex: string): Color {
 
 // Urgency label derived from score (matches web urgencyLabel() helper)
 function urgencyInfo(score: number): { text: string; color: Color } {
-  if (score <= 30) return { text: "KRITISCH",             color: rgb(0.902, 0.196, 0.133) };
-  if (score <= 50) return { text: "HANDLUNGSBEDARF",      color: rgb(0.945, 0.620, 0.031) };
-  if (score <= 70) return { text: "OPTIMIERUNGSPOTENZIAL",color: rgb(0.918, 0.702, 0.071) };
-  if (score <= 85) return { text: "FEINTUNING",           color: rgb(0.133, 0.773, 0.369) };
-  return                 { text: "TOP-LEVEL",             color: rgb(0.086, 0.639, 0.290) };
+  if (score <= 30) return { text: "KRITISCH",             color: rgb(0.863, 0.149, 0.149) };
+  if (score <= 50) return { text: "HANDLUNGSBEDARF",      color: rgb(0.706, 0.325, 0.035) };
+  if (score <= 70) return { text: "OPTIMIERUNGSPOTENZIAL",color: rgb(0.631, 0.631, 0.667) };
+  if (score <= 85) return { text: "FEINTUNING",           color: rgb(0.302, 0.486, 0.059) };
+  return                 { text: "TOP-LEVEL",             color: rgb(0.082, 0.502, 0.239) };
 }
 
 // ── Text utilities ─────────────────────────────────────────────────────────

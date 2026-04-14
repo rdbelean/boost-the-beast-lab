@@ -28,11 +28,11 @@ function AnimNum({ target }: { target: number }) {
 
 /* ─── Urgency label ─────────────────────────────────────────── */
 function urgencyLabel(score: number): { text: string; color: string } {
-  if (score <= 30) return { text: "KRITISCH",              color: "#E63222" };
-  if (score <= 50) return { text: "HANDLUNGSBEDARF",       color: "#F59E0B" };
-  if (score <= 70) return { text: "OPTIMIERUNGSPOTENZIAL", color: "#D4B800" };
-  if (score <= 85) return { text: "FEINTUNING",            color: "#22C55E" };
-  return                 { text: "TOP-LEVEL",              color: "#15A34A" };
+  if (score <= 30) return { text: "KRITISCH",              color: "#DC2626" };
+  if (score <= 50) return { text: "HANDLUNGSBEDARF",       color: "#B45309" };
+  if (score <= 70) return { text: "OPTIMIERUNGSPOTENZIAL", color: "#A1A1AA" };
+  if (score <= 85) return { text: "FEINTUNING",            color: "#4D7C0F" };
+  return                 { text: "TOP-LEVEL",              color: "#15803D" };
 }
 
 /* ─── Color helpers ─────────────────────────────────────────── */
