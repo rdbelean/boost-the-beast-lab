@@ -75,6 +75,9 @@ const PW = 595.28;   // A4 width  (points)
 const PH = 841.89;   // A4 height (points)
 const MX = 52;       // horizontal margin
 const CW = PW - MX * 2; // content width ≈ 491 pt
+// Hard content-bottom floor — nothing may be drawn below this y.
+// Footer line sits at y=45, text at y=32; CB=80 gives a 35pt clear gap.
+const CB = 80;
 
 // ── Colour palette ─────────────────────────────────────────────────────────
 
@@ -153,7 +156,7 @@ function drawW(
   if (!text || !tx(text).trim()) return y;
   const lh = size * lhMul;
   for (const line of wrapLines(text, font, size, maxW)) {
-    if (y < 80) break;  // respect footer zone (line 45pt, text 32pt, safe at 80)
+    if (y < CB) break;  // respect hard content-bottom floor
     page.drawText(line, { x, y, size, font, color });
     y -= lh;
   }
@@ -293,9 +296,14 @@ function infoBox(
 ): number {
   if (!text || !tx(text).trim()) return topY;
 
+  // Hard floor: box bottom must not go below CB.
+  const maxH = topY - CB;
+  if (maxH < 30) return topY;   // not enough room — skip this box entirely
+
   const innerW = w - 32;   // text width: 16pt left (3pt bar + 13pt gap) + 16pt right
   const bodyPx = textH(text, f.reg, fontSize, innerW, lhMul);
-  const boxH = Math.max(50, bodyPx + overhead);
+  // Clamp so the rectangle never extends past CB.
+  const boxH = Math.min(Math.max(50, bodyPx + overhead), maxH);
 
   // Background + left bar
   page.drawRectangle({ x, y: topY - boxH, width: w, height: boxH, color: BG_CARD });
@@ -306,7 +314,7 @@ function infoBox(
     x: x + 16, y: topY - 16, size: 6, font: f.bold, color: barColor,
   });
 
-  // Body text
+  // Body text — drawW stops at CB automatically
   drawW(page, text, x + 16, topY - bodyOffset, innerW, f.reg, fontSize, TXT_WHITE, lhMul);
 
   return topY - boxH - gap;
@@ -325,6 +333,9 @@ function statBoxes(
   const gap = 10;
   const boxW = (CW - (metrics.length - 1) * gap) / metrics.length;
   const boxH = 52;
+
+  // Hard floor: skip stat boxes entirely if they would overlap the footer zone.
+  if (topY - boxH < CB) return;
 
   for (let i = 0; i < metrics.length; i++) {
     const [key, val] = metrics[i];
@@ -379,6 +390,13 @@ const LAYOUT_TIGHT: ModuleLayout = {
   bodySize: 9, findingSize: 9, boxSize: 9,
   lhBody: 1.45, lhBox: 1.35,
   sectionGap: 6, boxOverhead: 32, boxGap: 5, bodyOffset: 24,
+};
+// 4th-tier backstop for extremely long AI-generated text.
+// CB-clamping in infoBox/statBoxes is the final safety net below this.
+const LAYOUT_MICRO: ModuleLayout = {
+  bodySize: 8.5, findingSize: 8.5, boxSize: 8.5,
+  lhBody: 1.35, lhBox: 1.3,
+  sectionGap: 4, boxOverhead: 26, boxGap: 4, bodyOffset: 22,
 };
 
 /** Estimate total content height below the fixed header block. */
@@ -545,15 +563,17 @@ function buildSummary(
 
   y -= ovH + 14;
 
-  // Top priority box
+  // Top priority box — clamp to CB so it never overlaps the footer
   const prioTH = textH(content.top_priority, f.bold, 10, CW - 26, 1.65);
-  const prioH = Math.max(56, prioTH + 42);
-  page.drawRectangle({ x: MX, y: y - prioH, width: CW, height: prioH, color: BG_CARD });
-  page.drawRectangle({ x: MX, y: y - 5, width: CW, height: 5, color: ACCENT });
-  page.drawText("TOP PRIORITAET", {
-    x: MX + 16, y: y - 19, size: 7, font: f.bold, color: ACCENT,
-  });
-  drawW(page, content.top_priority, MX + 16, y - 33, CW - 32, f.bold, 10, TXT_WHITE, 1.65);
+  const prioH = Math.min(Math.max(56, prioTH + 42), Math.max(0, y - CB));
+  if (prioH >= 30) {
+    page.drawRectangle({ x: MX, y: y - prioH, width: CW, height: prioH, color: BG_CARD });
+    page.drawRectangle({ x: MX, y: y - 5, width: CW, height: 5, color: ACCENT });
+    page.drawText("TOP PRIORITAET", {
+      x: MX + 16, y: y - 19, size: 7, font: f.bold, color: ACCENT,
+    });
+    drawW(page, content.top_priority, MX + 16, y - 33, CW - 32, f.bold, 10, TXT_WHITE, 1.65);
+  }
 
   pageFooter(page, f, today);
 }
@@ -570,14 +590,16 @@ function buildModule(
   f: F,
   today: string,
 ): void {
-  // Available height below the fixed header block (≈72pt) down to SAFE_Y (80pt).
-  // pageChrome → y ≈ 760; fixed header consumes 72pt → content starts ≈ 688.
-  // 688 - 80 = 608pt budget.
-  const AVAIL = 608;
+  // Available height below the fixed header block (≈72pt) down to CB (80pt).
+  // pageChrome → y ≈ 759.89; fixed header consumes 72pt → content starts ≈ 687.89.
+  // 687.89 - 80 = 607.89pt → AVAIL set conservatively at 590 to absorb float drift
+  // and leave headroom for the CB-clamp backstop in infoBox/statBoxes.
+  const AVAIL = 590;
   const L =
     moduleContentH(mod, metrics, f, LAYOUT_NORMAL)  <= AVAIL ? LAYOUT_NORMAL  :
     moduleContentH(mod, metrics, f, LAYOUT_COMPACT) <= AVAIL ? LAYOUT_COMPACT :
-    LAYOUT_TIGHT;
+    moduleContentH(mod, metrics, f, LAYOUT_TIGHT)   <= AVAIL ? LAYOUT_TIGHT   :
+    LAYOUT_MICRO;
 
   const page = doc.addPage([PW, PH]);
   let y = pageChrome(page, f, today);
