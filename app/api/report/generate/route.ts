@@ -16,7 +16,9 @@ import {
 } from "@/lib/scoring/index";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Vercel Pro allows up to 300s. Claude Opus + 8k tokens regularly crosses
+// 90–120s, so we need the full runway.
+export const maxDuration = 300;
 
 const PROMPT_VERSION = "btb_report_v3.0.0";
 const STORAGE_BUCKET = "Reports";
