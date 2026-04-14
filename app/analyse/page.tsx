@@ -1075,36 +1075,10 @@ function AnalyseContent() {
               DEIN REPORT<br />WIRD ERSTELLT.
             </div>
 
-            {/* Tennis Easter Egg */}
-            <div className={styles.tennisWrap}>
-              {/* Left stickman */}
-              <svg width="36" height="60" style={{ position: "absolute", left: 0, bottom: 0 }}>
-                <circle cx="18" cy="8" r="6" stroke="#888" strokeWidth="1.5" fill="none"/>
-                <line x1="18" y1="14" x2="18" y2="38" stroke="#888" strokeWidth="1.5"/>
-                <line x1="18" y1="24" x2="4"  y2="32" stroke="#888" strokeWidth="1.5"/>
-                <line x1="18" y1="24" x2="34" y2="16" stroke="#E63222" strokeWidth="1.5"/>
-                <ellipse cx="36" cy="13" rx="4" ry="5" stroke="#E63222" strokeWidth="1.3" fill="none"/>
-                <line x1="18" y1="38" x2="8"  y2="56" stroke="#888" strokeWidth="1.5"/>
-                <line x1="18" y1="38" x2="28" y2="56" stroke="#888" strokeWidth="1.5"/>
-              </svg>
-              {/* Right stickman (mirrored) */}
-              <svg width="36" height="60" style={{ position: "absolute", right: 0, bottom: 0, transform: "scaleX(-1)" }}>
-                <circle cx="18" cy="8" r="6" stroke="#888" strokeWidth="1.5" fill="none"/>
-                <line x1="18" y1="14" x2="18" y2="38" stroke="#888" strokeWidth="1.5"/>
-                <line x1="18" y1="24" x2="4"  y2="32" stroke="#888" strokeWidth="1.5"/>
-                <line x1="18" y1="24" x2="34" y2="16" stroke="#E63222" strokeWidth="1.5"/>
-                <ellipse cx="36" cy="13" rx="4" ry="5" stroke="#E63222" strokeWidth="1.3" fill="none"/>
-                <line x1="18" y1="38" x2="8"  y2="56" stroke="#888" strokeWidth="1.5"/>
-                <line x1="18" y1="38" x2="28" y2="56" stroke="#888" strokeWidth="1.5"/>
-              </svg>
-              {/* Ball */}
-              <div className={styles.tennisBall} />
-            </div>
-
             {/* Progress bar */}
             <div
               style={{
-                marginTop: 4,
+                marginTop: 36,
                 marginBottom: 24,
                 fontFamily: "'Oswald', sans-serif",
               }}
