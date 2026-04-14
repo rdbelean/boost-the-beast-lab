@@ -376,27 +376,32 @@ interface ModuleLayout {
   bodyOffset: number;   // pt below boxTop where body text begins
 }
 
+// bodyOffset: distance from box top (topY) to body-text baseline.
+// Label is drawn at topY-16 (6pt). For a visible ~9pt gap between label
+// descenders and body ascenders, bodyOffset must be ≥ 34 regardless of tier.
+// boxOverhead = bodyOffset + bottom_padding — keeps bottom padding constant
+// when bodyOffset changes (bottom_pad = overhead - bodyOffset).
 const LAYOUT_NORMAL: ModuleLayout = {
   bodySize: 10, findingSize: 10.5, boxSize: 9.5,
   lhBody: 1.65, lhBox: 1.5,
-  sectionGap: 14, boxOverhead: 44, boxGap: 10, bodyOffset: 32,
+  sectionGap: 14, boxOverhead: 46, boxGap: 10, bodyOffset: 34,  // bottom_pad=12
 };
 const LAYOUT_COMPACT: ModuleLayout = {
   bodySize: 9, findingSize: 9.5, boxSize: 9,
   lhBody: 1.5, lhBox: 1.4,
-  sectionGap: 10, boxOverhead: 38, boxGap: 8, bodyOffset: 28,
+  sectionGap: 10, boxOverhead: 44, boxGap: 8, bodyOffset: 34,   // bottom_pad=10
 };
 const LAYOUT_TIGHT: ModuleLayout = {
   bodySize: 9, findingSize: 9, boxSize: 9,
   lhBody: 1.45, lhBox: 1.35,
-  sectionGap: 6, boxOverhead: 32, boxGap: 5, bodyOffset: 24,
+  sectionGap: 6, boxOverhead: 42, boxGap: 5, bodyOffset: 34,    // bottom_pad=8
 };
 // 4th-tier backstop for extremely long AI-generated text.
 // CB-clamping in infoBox/statBoxes is the final safety net below this.
 const LAYOUT_MICRO: ModuleLayout = {
   bodySize: 8.5, findingSize: 8.5, boxSize: 8.5,
   lhBody: 1.35, lhBox: 1.3,
-  sectionGap: 4, boxOverhead: 26, boxGap: 4, bodyOffset: 22,
+  sectionGap: 4, boxOverhead: 38, boxGap: 4, bodyOffset: 34,    // bottom_pad=4
 };
 
 /** Estimate total content height below the fixed header block. */
@@ -410,12 +415,13 @@ function moduleContentH(
   let h = 0;
 
   if (mod.score_context) {
-    h += 15 + textH(mod.score_context, f.reg, L.bodySize, CW, L.lhBody) + L.sectionGap;
+    // 15 (secLabel) + 4 (label-to-text gap) + textH + sectionGap
+    h += 15 + 4 + textH(mod.score_context, f.reg, L.bodySize, CW, L.lhBody) + L.sectionGap;
   }
 
   const finding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
   if (finding) {
-    h += 15 + textH(finding, f.bold, L.findingSize, CW, L.lhBody) + L.sectionGap;
+    h += 15 + 4 + textH(finding, f.bold, L.findingSize, CW, L.lhBody) + L.sectionGap;
   }
 
   const systemic = mod.systemic_connection ?? mod.systemic_impact ?? "";
@@ -619,6 +625,7 @@ function buildModule(
   // ── EINORDNUNG ────────────────────────────────────────────────────────
   if (mod.score_context) {
     y = secLabel(page, "EINORDNUNG", f, MX, y);
+    y -= 4;  // gap between heading and body text (~9pt visual clearance)
     y = drawW(page, mod.score_context, MX, y, CW, f.reg, L.bodySize, TXT_WHITE, L.lhBody);
     y -= L.sectionGap;
   }
@@ -627,6 +634,7 @@ function buildModule(
   const finding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
   if (finding) {
     y = secLabel(page, "HAUPTBEFUND", f, MX, y);
+    y -= 4;  // gap between heading and body text
     y = drawW(page, finding, MX, y, CW, f.bold, L.findingSize, TXT_WHITE, L.lhBody);
     y -= L.sectionGap;
   }
