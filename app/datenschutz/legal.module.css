@@ -14,7 +14,7 @@
 
 .backRow {
   align-self: flex-start;
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -35,7 +35,7 @@
 }
 .logoText {
   display: block;
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 0.12em;
@@ -44,7 +44,7 @@
 }
 .logoSub {
   display: block;
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-weight: 500;
   font-size: 9px;
   letter-spacing: 0.2em;
@@ -54,7 +54,7 @@
 }
 
 .title {
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-weight: 700;
   font-size: 40px;
   letter-spacing: 0.04em;
@@ -70,7 +70,7 @@
 }
 
 .sectionTitle {
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 0.2em;
@@ -80,7 +80,7 @@
 }
 
 .subSectionTitle {
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.15em;
@@ -90,7 +90,7 @@
 }
 
 .text {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   line-height: 1.75;
   color: rgba(255, 255, 255, 0.75);
@@ -107,7 +107,7 @@
 .list {
   margin: 0;
   padding-left: 20px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   line-height: 1.75;
   color: rgba(255, 255, 255, 0.75);
@@ -121,5 +121,3 @@
     font-size: 30px;
   }
 }
-</content>
-</invoke>

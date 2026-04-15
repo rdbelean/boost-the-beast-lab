@@ -234,7 +234,7 @@ function LoginContent() {
                     fontSize: 24,
                     letterSpacing: "0.4em",
                     textAlign: "center",
-                    fontFamily: "'Oswald', sans-serif",
+                    fontFamily: "var(--font-oswald), sans-serif",
                   }}
                 />
               </div>

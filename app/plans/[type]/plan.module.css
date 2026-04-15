@@ -3,7 +3,7 @@
   min-height: 100vh;
   background: #0D0D0D;
   color: #fff;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-inter), sans-serif;
 }
 
 /* ─── Header ─────────────────────────────────────────────────── */
@@ -22,7 +22,7 @@
 }
 
 .backLink {
-  font-family: "Oswald", sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -37,14 +37,14 @@
 }
 
 .headerTitle {
-  font-family: "Oswald", sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.15em;
 }
 
 .printBtn {
-  font-family: "Oswald", sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -78,7 +78,7 @@
 
 .tag {
   display: inline-block;
-  font-family: "Oswald", sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -88,7 +88,7 @@
 }
 
 .title {
-  font-family: "Oswald", sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -119,7 +119,7 @@
 }
 
 .blockHeading {
-  font-family: "Oswald", sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.15em;
@@ -161,7 +161,7 @@
 }
 
 .btnPrimary {
-  font-family: "Oswald", sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -177,7 +177,7 @@
 }
 
 .btnSecondary {
-  font-family: "Oswald", sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 0.8rem;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -230,7 +230,7 @@
 }
 
 .loadingText {
-  font-family: "Oswald", sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.2em;

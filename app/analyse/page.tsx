@@ -1102,7 +1102,7 @@ function AnalyseContent() {
               style={{
                 marginTop: 36,
                 marginBottom: 24,
-                fontFamily: "'Oswald', sans-serif",
+                fontFamily: "var(--font-oswald), sans-serif",
               }}
             >
               <div

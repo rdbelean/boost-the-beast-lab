@@ -86,7 +86,7 @@ function RadarChart({ scores }: { scores: RadarScores }) {
       <polygon points={dataPath} fill="rgba(230,50,34,0.15)" stroke="#E63222" strokeWidth="2" />
       {dataPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="5" fill="#E63222" stroke="#fff" strokeWidth="2" />)}
       {labelPts.map((p, i) => (
-        <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" fill="var(--text-secondary)" fontFamily="'Oswald', sans-serif" fontSize="11" letterSpacing="0.08em">
+        <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" fill="var(--text-secondary)" fontFamily="var(--font-oswald), sans-serif" fontSize="11" letterSpacing="0.08em">
           {p.label.toUpperCase()}
         </text>
       ))}
@@ -457,7 +457,7 @@ export default function ResultsPage() {
                           fontSize: 18,
                           letterSpacing: "0.3em",
                           textAlign: "center",
-                          fontFamily: "'Oswald', sans-serif",
+                          fontFamily: "var(--font-oswald), sans-serif",
                           outline: "none",
                         }}
                       />

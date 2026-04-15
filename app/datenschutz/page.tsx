@@ -23,185 +23,226 @@ export default function DatenschutzPage() {
           </div>
         </Link>
 
-        <h1 className={styles.title}>DATENSCHUTZ</h1>
+        <h1 className={styles.title}>DATENSCHUTZERKLÄRUNG</h1>
+
+        <p className={styles.text}>
+          Diese Datenschutzerklärung informiert dich darüber, wie wir personenbezogene Daten bei der Nutzung von boostthebeast-lab.com verarbeiten. Rechtsgrundlage ist die Datenschutz-Grundverordnung (DSGVO) sowie das Bundesdatenschutzgesetz (BDSG) und das TDDDG.
+        </p>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Allgemeiner Hinweis und Pflichtinformationen</h2>
-
-          <h3 className={styles.subSectionTitle}>Benennung der verantwortlichen Stelle</h3>
+          <h2 className={styles.sectionTitle}>1. Verantwortlicher</h2>
           <p className={styles.text}>
-            Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:
+            Verantwortlich für die Datenverarbeitung auf dieser Website ist:
           </p>
           <p className={styles.text}>
-            Boost the Beast – Personal Training{"\n"}
             Marco Colella{"\n"}
-            Marc-Chagall-Straße 104{"\n"}
-            40477 Düsseldorf
+            BOOST THE BEAST® TRAINING{"\n"}
+            Friedrichstraße 102{"\n"}
+            40217 Düsseldorf{"\n"}
+            Deutschland
           </p>
           <p className={styles.text}>
-            Die verantwortliche Stelle entscheidet allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten (z.B. Namen, Kontaktdaten o. Ä.).
-          </p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Widerruf Ihrer Einwilligung zur Datenverarbeitung</h2>
-          <p className={styles.text}>
-            Nur mit Ihrer ausdrücklichen Einwilligung sind einige Vorgänge der Datenverarbeitung möglich. Ein Widerruf Ihrer bereits erteilten Einwilligung ist jederzeit möglich. Für den Widerruf genügt eine formlose Mitteilung per E-Mail. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Datenverarbeitung bleibt vom Widerruf unberührt.
+            Telefon: 0162 2538172{"\n"}
+            E-Mail: <a href="mailto:info@boostthebeast.com">info@boostthebeast.com</a>
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Recht auf Beschwerde bei der zuständigen Aufsichtsbehörde</h2>
+          <h2 className={styles.sectionTitle}>2. Zuständige Aufsichtsbehörde</h2>
           <p className={styles.text}>
-            Als Betroffener steht Ihnen im Falle eines datenschutzrechtlichen Verstoßes ein Beschwerderecht bei der zuständigen Aufsichtsbehörde zu. Zuständige Aufsichtsbehörde bezüglich datenschutzrechtlicher Fragen ist der Landesdatenschutzbeauftragte des Bundeslandes, in dem sich der Sitz unseres Unternehmens befindet. Der folgende Link stellt eine Liste der Datenschutzbeauftragten sowie deren Kontaktdaten bereit:{" "}
-            <a href="https://www.bfdi.bund.de/DE/Infothek/Anschriften_Links/anschriften_links-node.html" target="_blank" rel="noopener noreferrer">
-              https://www.bfdi.bund.de/DE/Infothek/Anschriften_Links/anschriften_links-node.html
+            Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen{"\n"}
+            Kavalleriestraße 2–4{"\n"}
+            40213 Düsseldorf{"\n"}
+            Telefon: 0211 38424-0{"\n"}
+            E-Mail: poststelle@ldi.nrw.de{"\n"}
+            Web:{" "}
+            <a href="https://www.ldi.nrw.de" target="_blank" rel="noopener noreferrer">
+              https://www.ldi.nrw.de
+            </a>
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>3. Deine Rechte als betroffene Person</h2>
+          <p className={styles.text}>
+            Du hast jederzeit das Recht auf:
+          </p>
+          <ul className={styles.list}>
+            <li>Auskunft über die zu deiner Person gespeicherten Daten (Art. 15 DSGVO)</li>
+            <li>Berichtigung unrichtiger Daten (Art. 16 DSGVO)</li>
+            <li>Löschung deiner Daten (Art. 17 DSGVO)</li>
+            <li>Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+            <li>Datenübertragbarkeit (Art. 20 DSGVO)</li>
+            <li>Widerspruch gegen die Verarbeitung, insbesondere gegen Direktwerbung (Art. 21 DSGVO)</li>
+            <li>Widerruf einer erteilten Einwilligung mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)</li>
+            <li>Beschwerde bei einer Aufsichtsbehörde (Art. 77 DSGVO)</li>
+          </ul>
+          <p className={styles.text}>
+            Zur Ausübung deiner Rechte genügt eine formlose E-Mail an{" "}
+            <a href="mailto:info@boostthebeast.com">info@boostthebeast.com</a>. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Verarbeitung bleibt unberührt.
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>4. Zugriffsdaten und Server-Logs</h2>
+          <p className={styles.text}>
+            Beim Aufruf unserer Website übermittelt dein Browser automatisch technische Informationen an unseren Hosting-Anbieter. Dabei werden folgende Daten kurzfristig in Server-Logs verarbeitet:
+          </p>
+          <ul className={styles.list}>
+            <li>IP-Adresse des anfragenden Geräts</li>
+            <li>Datum und Uhrzeit der Anfrage</li>
+            <li>Name und URL der abgerufenen Datei</li>
+            <li>Übertragene Datenmenge und HTTP-Status</li>
+            <li>Browser-Typ und Betriebssystem</li>
+            <li>Referrer-URL</li>
+          </ul>
+          <p className={styles.text}>
+            Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt im stabilen, sicheren Betrieb der Website und der Abwehr von Missbrauch. Die Daten werden nach spätestens 7 Tagen gelöscht, soweit nicht ein konkreter Sicherheitsvorfall eine längere Aufbewahrung erfordert.
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>5. Cookies und vergleichbare Technologien</h2>
+          <p className={styles.text}>
+            Wir setzen ausschließlich <strong>technisch notwendige Cookies</strong> ein, die für den Betrieb der Website und deine eingeloggte Sitzung erforderlich sind. Dazu gehören insbesondere die Supabase-Authentifizierungs-Cookies (z.&nbsp;B. <code>sb-&lt;projekt&gt;-auth-token</code>, <code>sb-&lt;projekt&gt;-refresh-token</code>), mit denen dein Login über Seitenaufrufe hinweg erhalten bleibt.
+          </p>
+          <p className={styles.text}>
+            Für diese technisch notwendigen Cookies ist nach § 25 Abs. 2 Nr. 2 TDDDG keine Einwilligung erforderlich. Tracking-, Marketing- oder Analyse-Cookies setzen wir nicht ein. Rechtsgrundlage für die Verarbeitung ist Art. 6 Abs. 1 lit. b DSGVO (Vertragsdurchführung).
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>6. Registrierung und Login (Supabase)</h2>
+          <p className={styles.text}>
+            Für die Nutzung deines Accounts kannst du dich per E-Mail und Einmal-Code (OTP) anmelden. Hierbei verarbeiten wir deine E-Mail-Adresse sowie die zugehörigen Authentifizierungs-Token.
+          </p>
+          <p className={styles.text}>
+            Auftragsverarbeiter für Authentifizierung, Datenbank und Dateispeicher ist Supabase, Inc. (970 Toa Payoh North #07-04, Singapur 318992), die Daten innerhalb der von uns konfigurierten Region in eigenen bzw. angemieteten Rechenzentren verarbeitet. Mit Supabase besteht ein Auftragsverarbeitungsvertrag nach Art. 28 DSGVO. Soweit personenbezogene Daten in ein Drittland außerhalb der EU übermittelt werden, erfolgt dies auf Grundlage der EU-Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO).
+          </p>
+          <p className={styles.text}>
+            Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragsanbahnung und -erfüllung). Die Account-Daten werden bis zum Widerruf bzw. bis zur Löschung deines Accounts gespeichert.
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>7. Fitness- und Assessment-Daten</h2>
+          <p className={styles.text}>
+            Im Rahmen des Performance-Assessments erhebst du folgende Angaben freiwillig selbst und übermittelst sie an uns:
+          </p>
+          <ul className={styles.list}>
+            <li>Alter, Geschlecht, Größe, Körpergewicht</li>
+            <li>Angaben zu körperlicher Aktivität (Häufigkeit, Intensität, Dauer)</li>
+            <li>Angaben zu Schlaf, Regeneration und subjektivem Wohlbefinden</li>
+            <li>Angaben zu Ernährung, Sitzzeiten und Flüssigkeitszufuhr</li>
+            <li>Angaben zu Stressempfinden und allgemeinem Befinden</li>
+          </ul>
+          <p className={styles.text}>
+            Diese Daten werden ausschließlich zur Berechnung deiner individuellen Performance-Scores und zur Erstellung deines persönlichen Reports verwendet. Sie dienen <strong>nicht</strong> der medizinischen Diagnose und ersetzen keinen Arztbesuch.
+          </p>
+          <p className={styles.text}>
+            Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung). Soweit einzelne dieser Angaben als Gesundheitsdaten im Sinne des Art. 9 Abs. 1 DSGVO einzuordnen sind, erfolgt die Verarbeitung zusätzlich auf Grundlage deiner ausdrücklichen Einwilligung nach Art. 9 Abs. 2 lit. a DSGVO, die du jederzeit mit Wirkung für die Zukunft widerrufen kannst.
+          </p>
+          <p className={styles.text}>
+            Deine Assessment-Daten werden gespeichert, solange du sie für deinen Report benötigst, längstens jedoch bis zum Widerruf oder zur Löschung deines Accounts.
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>8. KI-gestützte Report-Erstellung (Anthropic)</h2>
+          <p className={styles.text}>
+            Für die Generierung deines individuellen Performance-Reports übermitteln wir deine Assessment-Daten (pseudonymisiert, ohne Klarnamen) an die Claude-API von Anthropic, PBC, 548 Market St, PMB 90375, San Francisco, CA 94104, USA.
+          </p>
+          <p className={styles.text}>
+            Anthropic verarbeitet die Daten ausschließlich zur Generierung des Antwort-Textes und nutzt sie vertraglich nicht zum Training eigener Modelle. Die Übermittlung in die USA erfolgt auf Grundlage der EU-Standardvertragsklauseln gemäß Art. 46 Abs. 2 lit. c DSGVO; Anthropic ist nach dem EU-US Data Privacy Framework zertifiziert.
+          </p>
+          <p className={styles.text}>
+            <strong>Kein Art. 22 DSGVO:</strong> Der generierte Report ist ein informatives Hilfsmittel. Er entfaltet dir gegenüber keine rechtliche Wirkung und stellt keine automatisierte Einzelentscheidung im Sinne des Art. 22 DSGVO dar.
+          </p>
+          <p className={styles.text}>
+            Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) sowie – für den Drittlandtransfer – Art. 49 Abs. 1 lit. a DSGVO (deine ausdrückliche Einwilligung) in Verbindung mit Art. 46 DSGVO (Standardvertragsklauseln).
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>9. Zahlungsabwicklung (Stripe)</h2>
+          <p className={styles.text}>
+            Für die Abwicklung von Zahlungen nutzen wir Stripe Payments Europe, Ltd., 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Irland. Beim Checkout wirst du auf eine von Stripe gehostete Zahlungsseite weitergeleitet. Deine Zahlungsdaten (z.&nbsp;B. Kreditkartennummer) gibst du ausschließlich bei Stripe ein; wir erhalten diese Daten zu keinem Zeitpunkt.
+          </p>
+          <p className={styles.text}>
+            Von Stripe erhalten wir nach Abschluss einer Transaktion lediglich folgende Informationen, die wir zur Buchhaltung und zur Zuordnung deines Kaufs speichern: Stripe-Session-ID, Stripe-Customer-ID, Zahlungsmittel-ID, Betrag, Währung sowie die von dir angegebene E-Mail-Adresse.
+          </p>
+          <p className={styles.text}>
+            Weitere Informationen zum Datenschutz bei Stripe findest du unter{" "}
+            <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer">
+              https://stripe.com/de/privacy
             </a>
             .
           </p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Recht auf Datenübertragbarkeit</h2>
           <p className={styles.text}>
-            Ihnen steht das Recht zu, Daten, die wir auf Grundlage Ihrer Einwilligung oder in Erfüllung eines Vertrags automatisiert verarbeiten, an sich oder an Dritte aushändigen zu lassen. Die Bereitstellung erfolgt in einem maschinenlesbaren Format. Sofern Sie die direkte Übertragung der Daten an einen anderen Verantwortlichen verlangen, erfolgt dies nur, soweit es technisch machbar ist.
+            Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung). Zahlungs- und Rechnungsdaten werden zur Erfüllung handels- und steuerrechtlicher Aufbewahrungspflichten (§ 257 HGB, § 147 AO) bis zu 10 Jahre gespeichert.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Recht auf Auskunft, Berichtigung, Sperrung, Löschung</h2>
+          <h2 className={styles.sectionTitle}>10. Versand deines Reports per E-Mail (Resend)</h2>
           <p className={styles.text}>
-            Sie haben jederzeit im Rahmen der geltenden gesetzlichen Bestimmungen das Recht auf unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten, Herkunft der Daten, deren Empfänger und den Zweck der Datenverarbeitung und ggf. ein Recht auf Berichtigung, Sperrung oder Löschung dieser Daten. Diesbezüglich und auch zu weiteren Fragen zum Thema personenbezogene Daten können Sie sich jederzeit über die im Impressum aufgeführten Kontaktmöglichkeiten an uns wenden.
+            Für den Versand deines Performance-Reports und für transaktionale System-E-Mails (z.&nbsp;B. Login-Codes) nutzen wir den E-Mail-Dienst Resend, Inc., 2261 Market Street #5039, San Francisco, CA 94114, USA. Dabei werden deine E-Mail-Adresse und der Inhalt der jeweiligen Nachricht an Resend übermittelt.
+          </p>
+          <p className={styles.text}>
+            Die Übermittlung in die USA erfolgt auf Grundlage der EU-Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO). Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Analyse-Tools und Tools von Drittanbietern</h2>
+          <h2 className={styles.sectionTitle}>11. Hosting (Vercel)</h2>
           <p className={styles.text}>
-            Beim Besuch unserer Website kann Ihr Surf-Verhalten statistisch ausgewertet werden. Das geschieht vor allem mit Cookies und mit sogenannten Analyseprogrammen. Die Analyse Ihres Surf-Verhaltens erfolgt in der Regel anonym; das Surf-Verhalten kann nicht zu Ihnen zurückverfolgt werden. Sie können dieser Analyse widersprechen oder sie durch die Nichtbenutzung bestimmter Tools verhindern. Detaillierte Informationen dazu finden Sie in der folgenden Datenschutzerklärung.
+            Unsere Website wird bei Vercel Inc., 440 N Barranca Avenue #4133, Covina, CA 91723, USA gehostet. Vercel verarbeitet die unter Punkt 4 genannten Zugriffsdaten in unserem Auftrag. Die Auslieferung erfolgt soweit möglich über europäische Edge-Knoten.
           </p>
           <p className={styles.text}>
-            Sie können dieser Analyse widersprechen. Über die Widerspruchsmöglichkeiten werden wir Sie in dieser Datenschutzerklärung informieren.
+            Mit Vercel besteht ein Auftragsverarbeitungsvertrag nach Art. 28 DSGVO. Für die Übermittlung in die USA gelten die EU-Standardvertragsklauseln nach Art. 46 Abs. 2 lit. c DSGVO. Weitere Informationen:{" "}
+            <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">
+              https://vercel.com/legal/privacy-policy
+            </a>
+            .
+          </p>
+          <p className={styles.text}>
+            Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem performanten und sicheren Webauftritt).
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Server-Log-Dateien</h2>
+          <h2 className={styles.sectionTitle}>12. Schriftarten</h2>
           <p className={styles.text}>
-            In Server-Log-Dateien erhebt und speichert der Provider der Website automatisch Informationen, die Ihr Browser automatisch an uns übermittelt. Dies sind:
+            Die auf dieser Website verwendeten Schriftarten (Oswald, Inter, JetBrains Mono) werden lokal über unseren eigenen Server ausgeliefert (Self-Hosting via <code>next/font</code>). Es erfolgt <strong>keine</strong> Verbindung zu Google- oder anderen Drittanbieter-Servern für die Schrift-Auslieferung; insbesondere werden keine IP-Adressen an Google übermittelt.
           </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>13. Speicherdauer – Übersicht</h2>
           <ul className={styles.list}>
-            <li>Browsertyp und Browserversion</li>
-            <li>Verwendetes Betriebssystem</li>
-            <li>Referrer URL</li>
-            <li>Hostname des zugreifenden Rechners</li>
-            <li>Uhrzeit der Serveranfrage</li>
-            <li>IP-Adresse</li>
+            <li>Server-Log-Dateien: max. 7 Tage</li>
+            <li>Account-Daten (E-Mail, Authentifizierung): bis zum Widerruf / Löschung des Accounts</li>
+            <li>Assessment- und Score-Daten: bis zum Widerruf / Löschung des Accounts</li>
+            <li>Zahlungs- und Rechnungsdaten: 10 Jahre (§ 257 HGB, § 147 AO)</li>
+            <li>Auth-Session-Cookies: bis zum Logout oder Ablauf der Sitzung</li>
           </ul>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>14. SSL-/TLS-Verschlüsselung</h2>
           <p className={styles.text}>
-            Es findet keine Zusammenführung dieser Daten mit anderen Datenquellen statt. Grundlage der Datenverarbeitung bildet Art. 6 Abs. 1 lit. b DSGVO, der die Verarbeitung von Daten zur Erfüllung eines Vertrags oder vorvertraglicher Maßnahmen gestattet.
+            Zum Schutz der Übertragung vertraulicher Inhalte nutzen wir eine SSL-/TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennst du an der Zeichenfolge „https://" in der Adresszeile deines Browsers und am Schloss-Symbol.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Kontaktformular</h2>
+          <h2 className={styles.sectionTitle}>15. Aktualität dieser Datenschutzerklärung</h2>
           <p className={styles.text}>
-            Per Kontaktformular übermittelte Daten werden einschließlich Ihrer Kontaktdaten gespeichert, um Ihre Anfrage bearbeiten zu können oder um für Anschlussfragen bereitzustehen. Eine Weitergabe dieser Daten findet ohne Ihre Einwilligung nicht statt.
+            Diese Datenschutzerklärung kann angepasst werden, wenn sich Rechtslage, Technik oder unsere Datenverarbeitungen ändern. Die jeweils aktuelle Fassung ist auf dieser Seite abrufbar.
           </p>
           <p className={styles.text}>
-            Die Verarbeitung der in das Kontaktformular eingegebenen Daten erfolgt ausschließlich auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Ein Widerruf Ihrer bereits erteilten Einwilligung ist jederzeit möglich. Für den Widerruf genügt eine formlose Mitteilung per E-Mail. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Datenverarbeitungsvorgänge bleibt vom Widerruf unberührt.
+            Stand: April 2026
           </p>
-          <p className={styles.text}>
-            Über das Kontaktformular übermittelte Daten verbleiben bei uns, bis Sie uns zur Löschung auffordern, Ihre Einwilligung zur Speicherung widerrufen oder keine Notwendigkeit der Datenspeicherung mehr besteht. Zwingende gesetzliche Bestimmungen – insbesondere Aufbewahrungsfristen – bleiben unberührt.
-          </p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>SSL- bzw. TLS-Verschlüsselung</h2>
-          <p className={styles.text}>
-            Aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte, die Sie an uns als Seitenbetreiber senden, nutzt unsere Website eine SSL- bzw. TLS-Verschlüsselung. Damit sind Daten, die Sie über diese Website übermitteln, für Dritte nicht mitlesbar. Sie erkennen eine verschlüsselte Verbindung an der „https://" Adresszeile Ihres Browsers und am Schloss-Symbol in der Browserzeile.
-          </p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Cookies</h2>
-
-          <h3 className={styles.subSectionTitle}>Verwendung von Scriptbibliotheken (Google Webfonts)</h3>
-          <p className={styles.text}>
-            Um unsere Inhalte browserübergreifend korrekt und grafisch ansprechend darzustellen, verwenden wir auf dieser Website Scriptbibliotheken und Schriftbibliotheken wie z. B. Google Webfonts (
-            <a href="https://www.google.com/webfonts/" target="_blank" rel="noopener noreferrer">https://www.google.com/webfonts/</a>
-            ). Google Webfonts werden zur Vermeidung mehrfachen Ladens in den Cache Ihres Browsers übertragen. Falls der Browser die Google Webfonts nicht unterstützt oder den Zugriff unterbindet, werden Inhalte in einer Standardschrift angezeigt.
-          </p>
-          <p className={styles.text}>
-            Der Aufruf von Scriptbibliotheken oder Schriftbibliotheken löst automatisch eine Verbindung zum Betreiber der Bibliothek aus. Dabei ist es theoretisch möglich – aktuell allerdings auch unklar ob und ggf. zu welchen Zwecken – dass Betreiber entsprechender Bibliotheken Daten erheben.
-          </p>
-          <p className={styles.text}>
-            Die Datenschutzrichtlinie des Bibliothekbetreibers Google finden Sie hier:{" "}
-            <a href="https://www.google.com/policies/privacy/" target="_blank" rel="noopener noreferrer">https://www.google.com/policies/privacy/</a>
-          </p>
-          <p className={styles.text}>Quelle: Datenschutzerklärungs-Generator der activeMind AG.</p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Verwendung von Google Maps</h2>
-          <p className={styles.text}>
-            Diese Webseite verwendet Google Maps API, um geographische Informationen visuell darzustellen. Bei der Nutzung von Google Maps werden von Google auch Daten über die Nutzung der Kartenfunktionen durch Besucher erhoben, verarbeitet und genutzt. Nähere Informationen über die Datenverarbeitung durch Google können Sie den Google-Datenschutzhinweisen entnehmen. Dort können Sie im Datenschutzcenter auch Ihre persönlichen Datenschutz-Einstellungen verändern.
-          </p>
-          <p className={styles.text}>
-            Ausführliche Anleitungen zur Verwaltung der eigenen Daten im Zusammenhang mit Google-Produkten finden Sie hier.
-          </p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Verwendung von Google Analytics</h2>
-          <p className={styles.text}>
-            Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Inc., 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA.
-          </p>
-          <p className={styles.text}>
-            Google Analytics verwendet so genannte „Cookies". Das sind Textdateien, die auf Ihrem Computer gespeichert werden und die eine Analyse der Benutzung der Website durch Sie ermöglichen. Die durch den Cookie erzeugten Informationen über Ihre Benutzung dieser Website werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.
-          </p>
-          <p className={styles.text}>
-            Die Speicherung von Google-Analytics-Cookies und die Nutzung dieses Analyse-Tools erfolgen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an der Analyse des Nutzerverhaltens, um sowohl sein Webangebot als auch seine Werbung zu optimieren.
-          </p>
-
-          <h3 className={styles.subSectionTitle}>IP Anonymisierung</h3>
-          <p className={styles.text}>
-            Wir haben auf dieser Website die Funktion IP-Anonymisierung aktiviert. Dadurch wird Ihre IP-Adresse von Google innerhalb von Mitgliedstaaten der Europäischen Union oder in anderen Vertragsstaaten des Abkommens über den Europäischen Wirtschaftsraum vor der Übermittlung in die USA gekürzt. Nur in Ausnahmefällen wird die volle IP-Adresse an einen Server von Google in den USA übertragen und dort gekürzt. Im Auftrag des Betreibers dieser Website wird Google diese Informationen benutzen, um Ihre Nutzung der Website auszuwerten, um Reports über die Websiteaktivitäten zusammenzustellen und um weitere mit der Websitenutzung und der Internetnutzung verbundene Dienstleistungen gegenüber dem Websitebetreiber zu erbringen. Die im Rahmen von Google Analytics von Ihrem Browser übermittelte IP-Adresse wird nicht mit anderen Daten von Google zusammengeführt.
-          </p>
-
-          <h3 className={styles.subSectionTitle}>Browser Plugin</h3>
-          <p className={styles.text}>
-            Sie können die Speicherung der Cookies durch eine entsprechende Einstellung Ihrer Browser-Software verhindern; wir weisen Sie jedoch darauf hin, dass Sie in diesem Fall gegebenenfalls nicht sämtliche Funktionen dieser Website vollumfänglich werden nutzen können. Sie können darüber hinaus die Erfassung der durch den Cookie erzeugten und auf Ihre Nutzung der Website bezogenen Daten (inkl. Ihrer IP-Adresse) an Google sowie die Verarbeitung dieser Daten durch Google verhindern, indem Sie das unter dem folgenden Link verfügbare Browser-Plugin herunterladen und installieren:{" "}
-            <a href="https://tools.google.com/dlpage/gaoptout?hl=de" target="_blank" rel="noopener noreferrer">https://tools.google.com/dlpage/gaoptout?hl=de</a>
-            .
-          </p>
-
-          <h3 className={styles.subSectionTitle}>Widerspruch gegen Datenerfassung</h3>
-          <p className={styles.text}>
-            Sie können die Erfassung Ihrer Daten durch Google Analytics verhindern, indem Sie auf folgenden Link klicken. Es wird ein Opt-Out-Cookie gesetzt, der die Erfassung Ihrer Daten bei zukünftigen Besuchen dieser Website verhindert: Google Analytics deaktivieren.
-          </p>
-          <p className={styles.text}>
-            Mehr Informationen zum Umgang mit Nutzerdaten bei Google Analytics finden Sie in der Datenschutzerklärung von Google:{" "}
-            <a href="https://support.google.com/analytics/answer/6004245?hl=de" target="_blank" rel="noopener noreferrer">https://support.google.com/analytics/answer/6004245?hl=de</a>
-            .
-          </p>
-
-          <h3 className={styles.subSectionTitle}>Auftragsverarbeitung</h3>
-          <p className={styles.text}>
-            Wir haben mit Google einen Vertrag zur Auftragsverarbeitung abgeschlossen und setzen die strengen Vorgaben der deutschen Datenschutzbehörden bei der Nutzung von Google Analytics vollständig um.
-          </p>
-
-          <h3 className={styles.subSectionTitle}>Demografische Merkmale bei Google Analytics</h3>
-          <p className={styles.text}>
-            Diese Website nutzt die Funktion „demografische Merkmale" von Google Analytics. Dadurch können Berichte erstellt werden, die Aussagen zu Alter, Geschlecht und Interessen der Seitenbesucher enthalten. Diese Daten stammen aus interessenbezogener Werbung von Google sowie aus Besucherdaten von Drittanbietern. Diese Daten können keiner bestimmten Person zugeordnet werden. Sie können diese Funktion jederzeit über die Anzeigeneinstellungen in Ihrem Google-Konto deaktivieren oder die Erfassung Ihrer Daten durch Google Analytics wie im Punkt „Widerspruch gegen Datenerfassung" dargestellt generell untersagen.
-          </p>
-
-          <h3 className={styles.subSectionTitle}>Speicherdauer</h3>
-          <p className={styles.text}>
-            Bei Google gespeicherte Daten auf Nutzer- und Ereignisebene, die mit Cookies, Nutzerkennungen (z. B. User ID) oder Werbe-IDs (z. B. DoubleClick-Cookies, Android-Werbe-ID) verknüpft sind, werden nach 14 Monaten anonymisiert bzw. gelöscht. Details hierzu ersehen Sie unter folgendem Link:{" "}
-            <a href="https://support.google.com/analytics/answer/7667196?hl=de" target="_blank" rel="noopener noreferrer">https://support.google.com/analytics/answer/7667196?hl=de</a>
-          </p>
-          <p className={styles.text}>Quelle: Datenschutzerklärungs-Generator der activeMind AG.</p>
         </section>
       </div>
     </div>

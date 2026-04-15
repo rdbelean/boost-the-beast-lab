@@ -9,7 +9,7 @@ const style: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: "6px",
-  fontFamily: "'Oswald', sans-serif",
+  fontFamily: "var(--font-oswald), sans-serif",
   fontWeight: 600,
   fontSize: "11px",
   letterSpacing: "0.12em",

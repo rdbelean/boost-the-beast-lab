@@ -128,7 +128,7 @@ export default function PlanPage() {
           {/* Score + urgency label */}
           {plan.score != null && (
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-              <span style={{ fontSize: 28, fontWeight: 700, color: plan.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.04em" }}>
+              <span style={{ fontSize: 28, fontWeight: 700, color: plan.color, fontFamily: "var(--font-oswald), sans-serif", letterSpacing: "0.04em" }}>
                 {plan.score}<span style={{ fontSize: 14, fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>/100</span>
               </span>
               {urgency && (
@@ -141,7 +141,7 @@ export default function PlanPage() {
                   background: `${urgency.color}18`,
                   padding: "3px 10px",
                   borderRadius: 2,
-                  fontFamily: "'Oswald', sans-serif",
+                  fontFamily: "var(--font-oswald), sans-serif",
                 }}>
                   {urgency.text}
                 </span>
@@ -172,7 +172,7 @@ export default function PlanPage() {
                 borderLeft: `2px solid rgba(255,255,255,0.12)`,
                 borderRadius: "0 4px 4px 0",
               }}>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginBottom: 6, fontFamily: "'Oswald', sans-serif" }}>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginBottom: 6, fontFamily: "var(--font-oswald), sans-serif" }}>
                   WISSENSCHAFTLICHE EINORDNUNG
                 </div>
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.65, margin: 0 }}>

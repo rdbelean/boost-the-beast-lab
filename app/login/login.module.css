@@ -28,7 +28,7 @@
 }
 .logoText {
   display: block;
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 0.12em;
@@ -37,7 +37,7 @@
 }
 .logoSub {
   display: block;
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-weight: 400;
   font-size: 9px;
   letter-spacing: 0.2em;
@@ -45,7 +45,7 @@
 }
 
 .title {
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-weight: 700;
   font-size: 22px;
   letter-spacing: 0.06em;
@@ -56,7 +56,7 @@
 }
 
 .subtitle {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 13px;
   color: var(--text-secondary, rgba(255,255,255,0.45));
   margin: -12px 0 0;
@@ -76,7 +76,7 @@
 }
 
 .label {
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-size: 10px;
   letter-spacing: 0.14em;
   color: var(--text-secondary, rgba(255,255,255,0.45));
@@ -88,7 +88,7 @@
   border: 1px solid var(--border, rgba(255,255,255,0.1));
   border-radius: 2px;
   padding: 12px 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   color: #fff;
   outline: none;
@@ -108,7 +108,7 @@
   border: none;
   border-radius: 2px;
   padding: 14px 24px;
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-oswald), sans-serif;
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.1em;
@@ -131,7 +131,7 @@
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 2px;
   padding: 12px 24px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 12px;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
@@ -143,7 +143,7 @@
 }
 
 .demoHint {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 11px;
   color: rgba(255,255,255,0.2);
   text-align: center;

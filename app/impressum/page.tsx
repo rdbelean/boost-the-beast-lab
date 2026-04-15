@@ -26,12 +26,13 @@ export default function ImpressumPage() {
         <h1 className={styles.title}>IMPRESSUM</h1>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Anbieterkennzeichnung</h2>
+          <h2 className={styles.sectionTitle}>Angaben gemäß § 5 DDG</h2>
           <p className={styles.text}>
             Marco Colella{"\n"}
             Performance & Personal Trainer{"\n"}
             Friedrichstraße 102{"\n"}
-            40217 Düsseldorf
+            40217 Düsseldorf{"\n"}
+            Deutschland
           </p>
           <p className={styles.text}>
             BOOST THE BEAST® TRAINING{"\n"}
@@ -41,67 +42,67 @@ export default function ImpressumPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Kontaktdaten</h2>
+          <h2 className={styles.sectionTitle}>Kontakt</h2>
           <p className={styles.text}>
-            Tel: 0162 2538172{"\n"}
+            Telefon: 0162 2538172{"\n"}
             E-Mail: <a href="mailto:info@boostthebeast.com">info@boostthebeast.com</a>
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Inhaltlich verantwortlich</h2>
-          <p className={styles.text}>Marco Colella</p>
-        </section>
-
-        <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Umsatzsteuer-ID</h2>
-          <p className={styles.text}>DE301741428</p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Fotografie</h2>
           <p className={styles.text}>
-            Dominique Vasget, dominique-photography.de{"\n"}
-            dreamstime.com
+            Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:{"\n"}
+            DE301741428
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Konzeption & Gestaltung</h2>
-          <p className={styles.text}>burkert ideenreich</p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Redaktionelle Betreuung</h2>
-          <p className={styles.text}>Webdesign Viersen by Weis Digital</p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Haftungsbeschränkung</h2>
+          <h2 className={styles.sectionTitle}>Redaktionell verantwortlich gemäß § 18 Abs. 2 MStV</h2>
           <p className={styles.text}>
-            Die Inhalte dieser Website werden mit größter Sorgfalt recherchiert und erstellt. Dennoch kann ich keine Haftung für die Richtigkeit, Vollständigkeit und Aktualität der bereit gestellten Informationen übernehmen. Die Informationen sind insbesondere auch allgemeiner Art und stellen keine Rechtsberatung im Einzelfall dar. Eine Entfernung oder Sperrung dieser Inhalte erfolgt umgehend ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung. Eine Haftung ist erst ab dem Zeitpunkt der Kenntniserlangung möglich.
+            Marco Colella{"\n"}
+            Friedrichstraße 102{"\n"}
+            40217 Düsseldorf
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Externe Links</h2>
+          <h2 className={styles.sectionTitle}>EU-Streitschlichtung</h2>
           <p className={styles.text}>
-            Diese Website enthält Verknüpfungen zu Websites Dritter („externe Links“). Diese Websites unterliegen der Haftung der jeweiligen Betreiber. Bei erstmaliger Verknüpfung waren keine Rechtsverstöße ersichtlich. Ich habe keinerlei Einfluss auf die aktuelle und zukünftige Gestaltung und auf die Inhalte der verknüpften Seiten. Das Setzen von externen Links bedeutet nicht, dass ich mir die hinter dem Verweis oder Link liegenden Inhalte zu Eigen mache. Eine ständige Kontrolle dieser externen Links ist für mich ohne konkrete Hinweise auf Rechtsverstöße nicht zumutbar. Bei Kenntnis von Rechtsverstößen werden jedoch derartige externe Links unverzüglich gelöscht.
+            Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{" "}
+            <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">
+              https://ec.europa.eu/consumers/odr
+            </a>
+            .{"\n"}
+            Unsere E-Mail-Adresse findest du oben im Impressum.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Urheberschutz</h2>
+          <h2 className={styles.sectionTitle}>Verbraucherstreitbeilegung / Universalschlichtungsstelle</h2>
           <p className={styles.text}>
-            Alle auf der Webseite befindlichen Inhalte unterliegen dem Urheberrecht und anderen Gesetzen zum Schutz geistigen Eigentums. Diese dürfen weder zu privaten noch zu kommerziellen Zwecken kopiert, verbreitet, verändert oder Dritten zugänglich gemacht werden.
+            Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Copyright</h2>
+          <h2 className={styles.sectionTitle}>Haftung für Inhalte</h2>
           <p className={styles.text}>
-            Texte, Bilder und andere auf dieser Website veröffentlichte Daten unterliegen – sofern nicht anders gekennzeichnet – dem Copyright von Marco Colella.{"\n"}
-            Jede Verbreitung, Übermittlung und Wiedergabe ist ohne schriftliche Genehmigung von Marco Colella untersagt.
+            Die Inhalte dieser Website werden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden entsprechender Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Haftung für Links</h2>
+          <p className={styles.text}>
+            Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Urheberrecht</h2>
+          <p className={styles.text}>
+            Die durch den Seitenbetreiber erstellten Inhalte und Werke auf dieser Website unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.
           </p>
         </section>
       </div>
