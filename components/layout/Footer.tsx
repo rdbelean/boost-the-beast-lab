@@ -27,11 +27,12 @@ export default function Footer() {
               <div>
                 <span className={styles.footerColTitle}>LEGAL</span>
                 <ul className={styles.footerColList}>
-                  {["Impressum", "Datenschutz", "AGB"].map((item) => (
-                    <li key={item}>
-                      <a href="#" className={styles.footerLink}>{item}</a>
-                    </li>
-                  ))}
+                  <li>
+                    <a href="/impressum" className={styles.footerLink}>Impressum</a>
+                  </li>
+                  <li>
+                    <a href="/datenschutz" className={styles.footerLink}>Datenschutz</a>
+                  </li>
                 </ul>
               </div>
               <div>
