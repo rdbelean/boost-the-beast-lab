@@ -67,7 +67,7 @@
 .logoText {
   font-family: var(--font-oswald), sans-serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 16px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: #fff;
@@ -77,7 +77,7 @@
 .logoSub {
   font-family: var(--font-oswald), sans-serif;
   font-weight: 400;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--accent);
