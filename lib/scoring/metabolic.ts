@@ -39,7 +39,7 @@ export type BMICategory =
 
 export type MetabolicBand = "low" | "moderate" | "good" | "excellent";
 
-export type FruitVegLevel = "none" | "low" | "moderate" | "optimal";
+export type FruitVegLevel = "none" | "low" | "moderate" | "good" | "optimal";
 
 export interface MetabolicInputs {
   height_cm: number;
@@ -93,15 +93,17 @@ function sittingScore(hours: number): number {
 function fruitVegScore(level: FruitVegLevel): number {
   switch (level) {
     case "none":
-      return 0;
+      return 5;
     case "low":
-      return 40;
+      return 35;
     case "moderate":
-      return 75;
+      return 65;
+    case "good":
+      return 85;
     case "optimal":
       return 100;
     default:
-      return 0;
+      return 5;
   }
 }
 

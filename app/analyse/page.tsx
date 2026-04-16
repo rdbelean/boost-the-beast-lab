@@ -125,11 +125,11 @@ const GENDER_MAP: Record<string, "male" | "female" | "diverse"> = {
   divers: "diverse",
 };
 
-const FRUIT_VEG_MAP: Record<string, "none" | "low" | "moderate" | "optimal"> = {
+const FRUIT_VEG_MAP: Record<string, "none" | "low" | "moderate" | "good" | "optimal"> = {
   "fast-jede": "optimal",
-  "meiste": "moderate",
-  "haelfte": "low",
-  "selten": "none",
+  "meiste": "good",
+  "haelfte": "moderate",
+  "selten": "low",
   "kaum": "none",
 };
 

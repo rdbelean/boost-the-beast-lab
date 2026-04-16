@@ -357,9 +357,10 @@ const WAKEUP_LABEL: Record<string, string> = {
 };
 
 const FRUIT_VEG_LABEL: Record<string, string> = {
-  none: "eher selten bis kaum (0–7 Mahlzeiten/Woche)",
-  low: "ca. Hälfte der Mahlzeiten (8–11/Woche)",
-  moderate: "meisten Mahlzeiten (12–17/Woche)",
+  none: "kaum bis gar nicht (0–2 Mahlzeiten/Woche)",
+  low: "eher selten (3–7 Mahlzeiten/Woche)",
+  moderate: "ca. Hälfte der Mahlzeiten (8–11/Woche)",
+  good: "meisten Mahlzeiten (12–17/Woche)",
   optimal: "fast jeder Mahlzeit (18–21/Woche)",
 };
 
