@@ -104,7 +104,7 @@ export default function Header() {
 
         {/* Actions */}
         <div className={styles.headerActions}>
-          {hasReport && reportUrl && (
+          {userEmail && hasReport && reportUrl && (
             <a href={reportUrl} target="_blank" rel="noopener noreferrer" className={styles.headerCtaSecondary}>
               AKTUELLSTER REPORT ↓
             </a>
