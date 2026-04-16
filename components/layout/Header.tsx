@@ -119,6 +119,12 @@ export default function Header() {
               AKTUELLSTER REPORT ↓
             </a>
           )}
+          {/* Token indicator — only when logged in */}
+          {userEmail && tokenCount !== null && (
+            <span className={tokenCount > 0 ? styles.tokenIndicator : styles.tokenIndicatorEmpty}>
+              {tokenCount > 0 ? `${tokenCount} ANALYSE${tokenCount === 1 ? "" : "N"} FREI` : "KEINE ANALYSEN"}
+            </span>
+          )}
           {/* Account dropdown */}
           <div className={styles.accountDropdown} ref={dropdownRef}>
             <button
@@ -127,9 +133,6 @@ export default function Header() {
               aria-expanded={dropdownOpen}
             >
               {userEmail ? userEmail.split("@")[0].toUpperCase() : "MEIN ACCOUNT"}
-              {userEmail && tokenCount !== null && tokenCount > 0 && (
-                <span className={styles.tokenBadge}>{tokenCount}</span>
-              )}
               <span className={`${styles.accountDropdownChevron}${dropdownOpen ? ` ${styles.accountDropdownChevronOpen}` : ""}`}>
                 ▾
               </span>
