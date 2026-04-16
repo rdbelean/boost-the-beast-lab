@@ -1112,7 +1112,6 @@ function AnalyseContent() {
         <div className={styles.loadingOverlay}>
           <div className={styles.loadingInner}>
             <div className={styles.loadingLabel}>
-              <span className={styles.loadingSpinner} />
               BOOST THE BEAST LAB · WISSENSCHAFTLICHE DATENBANK WIRD ABGEGLICHEN
             </div>
             <div className={styles.loadingTitle}>
