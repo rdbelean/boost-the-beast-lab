@@ -12,11 +12,7 @@ export default function ImpressumPage() {
         <Link href="/" className={styles.backRow}>← HOME</Link>
 
         <Link href="/" className={styles.logo}>
-          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-            <path d="M16 1L29.5 8.5V23.5L16 31L2.5 23.5V8.5L16 1Z"
-              fill="#2D0A06" stroke="#E63222" strokeWidth="1.5" />
-            <path d="M13 22l3-12 3 12h-2.5v4h-1v-4H13z" fill="#E63222" />
-          </svg>
+          <img src="/logo-white.svg" width={28} height={28} alt="" aria-hidden="true" style={{ objectFit: "contain" }} />
           <div>
             <span className={styles.logoText}>BOOST THE BEAST</span>
             <span className={styles.logoSub}>PERFORMANCE LAB</span>

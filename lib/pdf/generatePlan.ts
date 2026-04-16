@@ -168,10 +168,16 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
 
   let y = PH - 54;
 
-  // Brand header
-  page.drawText("BOOST THE BEAST LAB", { x: MX, y, size: 10, font: f.bold, color: TXT_WHITE });
+  // Brand header — icon + text side by side
+  page.drawSvgPath("M16 1L29.5 8.5V23.5L16 31L2.5 23.5V8.5L16 1Z", {
+    x: MX, y: y + 2, scale: 0.72, color: accentColor,
+  });
+  page.drawSvgPath("M13 22l3-12 3 12h-2.5v4h-1v-4H13z", {
+    x: MX, y: y + 2, scale: 0.72, color: rgb(1, 1, 1),
+  });
+  page.drawText("BOOST THE BEAST LAB", { x: MX + 26, y, size: 10, font: f.bold, color: TXT_WHITE });
   y -= 16;
-  page.drawText("PERFORMANCE LAB", { x: MX, y, size: 7, font: f.reg, color: accentColor });
+  page.drawText("PERFORMANCE LAB", { x: MX + 26, y, size: 7, font: f.reg, color: accentColor });
 
   // "INDIVIDUELLER PLAN" badge
   y -= 56;
