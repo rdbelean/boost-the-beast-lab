@@ -196,6 +196,22 @@
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(230, 50, 34, 0.4);
 }
+.tokenBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #E63222;
+  color: #fff;
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  margin-left: 4px;
+}
 .accountDropdownChevron {
   display: inline-block;
   transition: transform 0.2s;

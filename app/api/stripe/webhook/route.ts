@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
+import { creditTokensForSession } from "@/lib/tokens";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -81,6 +82,16 @@ export async function POST(req: NextRequest) {
       if (error) {
         console.error("[stripe/webhook] db insert failed", error);
         return NextResponse.json({ error: "DB error" }, { status: 500 });
+      }
+
+      // Credit analyse tokens — idempotent, safe to retry
+      if (email && productId) {
+        try {
+          await creditTokensForSession(supabase, session.id, email, productId);
+        } catch (err) {
+          console.error("[stripe/webhook] token credit failed", err);
+          // Non-fatal: tokens can be credited via the verify fallback
+        }
       }
     } catch (err) {
       console.error("[stripe/webhook] handler error", err);

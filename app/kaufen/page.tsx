@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./kaufen.module.css";
 
@@ -24,6 +25,12 @@ const features = [
 
 export default function KaufenPage() {
   const router = useRouter();
+  const [noTokens, setNoTokens] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setNoTokens(params.get("reason") === "no-tokens");
+  }, []);
 
   async function handleBuy() {
     try {
@@ -56,6 +63,20 @@ export default function KaufenPage() {
             <span className={styles.logoSub}>PERFORMANCE LAB</span>
           </div>
         </Link>
+
+        {noTokens && (
+          <div style={{
+            background: "rgba(230,50,34,0.1)",
+            border: "1px solid #E63222",
+            color: "#ff8a80",
+            padding: "14px 18px",
+            fontSize: 13,
+            marginBottom: 20,
+            lineHeight: 1.5,
+          }}>
+            Du hast keine Analyse-Tokens mehr. Kaufe die Complete Analysis für weitere Analysen.
+          </div>
+        )}
 
         <div className={styles.card}>
           {/* Tag */}

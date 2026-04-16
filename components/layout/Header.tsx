@@ -12,6 +12,7 @@ export default function Header() {
   const [reportUrl, setReportUrl] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [tokenCount, setTokenCount] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Subscribe to Supabase auth state so the dropdown reflects login status.
@@ -29,6 +30,18 @@ export default function Header() {
       sub.subscription.unsubscribe();
     };
   }, []);
+
+  // Fetch token count whenever auth state changes
+  useEffect(() => {
+    if (!userEmail) {
+      setTokenCount(null);
+      return;
+    }
+    fetch("/api/tokens")
+      .then((r) => r.json())
+      .then((d) => setTokenCount(d.tokens ?? 0))
+      .catch(() => setTokenCount(null));
+  }, [userEmail]);
 
   useEffect(() => {
     const ids = ["how-it-works", "products"];
@@ -114,6 +127,9 @@ export default function Header() {
               aria-expanded={dropdownOpen}
             >
               {userEmail ? userEmail.split("@")[0].toUpperCase() : "MEIN ACCOUNT"}
+              {userEmail && tokenCount !== null && tokenCount > 0 && (
+                <span className={styles.tokenBadge}>{tokenCount}</span>
+              )}
               <span className={`${styles.accountDropdownChevron}${dropdownOpen ? ` ${styles.accountDropdownChevronOpen}` : ""}`}>
                 ▾
               </span>

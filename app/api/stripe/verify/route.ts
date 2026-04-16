@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
+import { creditTokensForSession } from "@/lib/tokens";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -43,6 +44,20 @@ export async function GET(req: NextRequest) {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     const paid = session.payment_status === "paid" || session.status === "complete";
     const productId = session.metadata?.productId ?? null;
+
+    // Credit tokens via direct Stripe path (handles race where webhook hasn't fired yet)
+    if (paid && productId) {
+      const email =
+        session.customer_details?.email ?? session.customer_email ?? null;
+      if (email) {
+        try {
+          const supabase = getSupabaseServiceClient();
+          await creditTokensForSession(supabase, sessionId, email, productId);
+        } catch {
+          // Non-fatal
+        }
+      }
+    }
 
     return NextResponse.json({ paid, productId });
   } catch (err) {

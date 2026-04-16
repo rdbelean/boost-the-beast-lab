@@ -278,30 +278,39 @@ function AnalyseContent() {
   const preselectedProduct = searchParams.get("product") ?? "complete-analysis";
   const sessionId = searchParams.get("session_id");
   const [paymentChecked, setPaymentChecked] = useState(false);
+  // "session" = fresh Stripe payment; "token" = returning user spending a pre-existing token
+  const [accessMode, setAccessMode] = useState<"session" | "token" | null>(null);
 
   useEffect(() => {
-    if (!sessionId) {
-      router.replace("/kaufen");
-      return;
-    }
     let cancelled = false;
     (async () => {
+      // Case 1: fresh payment via session_id
+      if (sessionId) {
+        try {
+          const res = await fetch(`/api/stripe/verify?session_id=${encodeURIComponent(sessionId)}`);
+          const data = await res.json();
+          if (!cancelled && data.paid) {
+            setPaymentChecked(true);
+            setAccessMode("session");
+            return;
+          }
+        } catch { /* fall through to token check */ }
+      }
+
+      // Case 2: returning user with a pre-existing token
       try {
-        const res = await fetch(`/api/stripe/verify?session_id=${encodeURIComponent(sessionId)}`);
-        const data = await res.json();
-        if (cancelled) return;
-        if (!data.paid) {
-          router.replace("/kaufen");
+        const tokRes = await fetch("/api/tokens");
+        const tokData = await tokRes.json();
+        if (!cancelled && (tokData.tokens ?? 0) > 0) {
+          setPaymentChecked(true);
+          setAccessMode("token");
           return;
         }
-        setPaymentChecked(true);
-      } catch {
-        if (!cancelled) router.replace("/kaufen");
-      }
+      } catch { /* fall through */ }
+
+      if (!cancelled) router.replace("/kaufen?reason=no-tokens");
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [sessionId, router]);
 
   const [form, setForm] = useState<FormData>({
@@ -454,6 +463,18 @@ function AnalyseContent() {
 
     try {
       setErrorMsg(null);
+
+      // Deduct 1 token before starting the analysis.
+      // - "token" mode: user is spending a pre-existing token → must succeed.
+      // - "session" mode: fresh payment → best-effort (tokens may not be credited
+      //   yet if the Stripe webhook is still in flight).
+      const tokRes = await fetch("/api/tokens", { method: "POST" });
+      if (!tokRes.ok && accessMode === "token") {
+        setLoading(false);
+        router.replace("/kaufen?reason=no-tokens");
+        return;
+      }
+
       const payload = buildAssessmentPayload(form);
 
       // ── Step 1: /api/assessment — scoring only (fast, ~2-4s) ────────────
