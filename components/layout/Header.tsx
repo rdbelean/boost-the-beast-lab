@@ -89,7 +89,7 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" className={styles.logo}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-white.svg" width={32} height={32} alt="" aria-hidden="true" style={{ objectFit: "contain" }} />
+          <img src="/logo-white.svg" width={71} height={44} alt="" aria-hidden="true" style={{ objectFit: "contain" }} />
           <div>
             <span className={styles.logoText}>BOOST THE BEAST</span>
             <span className={styles.logoSub}>PERFORMANCE LAB</span>

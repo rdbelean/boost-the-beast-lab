@@ -17,7 +17,7 @@ export default function Footer() {
           <div className={styles.footerContent}>
             <div className={styles.footerBrand}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-white.svg" width={48} height={48} alt="" aria-hidden="true" style={{ objectFit: "contain", marginBottom: 8 }} />
+              <img src="/logo-white.svg" width={103} height={64} alt="" aria-hidden="true" style={{ objectFit: "contain", marginBottom: 8 }} />
               <span className={styles.footerBrandName}>BOOST THE BEAST</span>
               <span className={styles.footerBrandSub}>PERFORMANCE LAB</span>
               <p className={styles.footerBrandDesc}>

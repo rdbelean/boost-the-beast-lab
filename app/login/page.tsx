@@ -89,7 +89,7 @@ function LoginContent() {
       <BackButton />
       <div className={styles.card}>
         <Link href="/" className={styles.logo}>
-          <img src="/logo-white.svg" width={28} height={28} alt="" aria-hidden="true" style={{ objectFit: "contain" }} />
+          <img src="/logo-white.svg" width={58} height={36} alt="" aria-hidden="true" style={{ objectFit: "contain" }} />
           <div>
             <span className={styles.logoText}>BOOST THE BEAST</span>
             <span className={styles.logoSub}>PERFORMANCE LAB</span>
