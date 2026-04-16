@@ -357,10 +357,10 @@ const WAKEUP_LABEL: Record<string, string> = {
 };
 
 const FRUIT_VEG_LABEL: Record<string, string> = {
-  none: "kaum / keine",
-  low: "wenig (1–2 Portionen/Tag)",
-  moderate: "moderat (3–4 Portionen/Tag)",
-  optimal: "optimal (5+ Portionen/Tag)",
+  none: "eher selten bis kaum (0–7 Mahlzeiten/Woche)",
+  low: "ca. Hälfte der Mahlzeiten (8–11/Woche)",
+  moderate: "meisten Mahlzeiten (12–17/Woche)",
+  optimal: "fast jeder Mahlzeit (18–21/Woche)",
 };
 
 export interface PremiumPromptContext {

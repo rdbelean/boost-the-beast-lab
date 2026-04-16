@@ -126,10 +126,11 @@ const GENDER_MAP: Record<string, "male" | "female" | "diverse"> = {
 };
 
 const FRUIT_VEG_MAP: Record<string, "none" | "low" | "moderate" | "optimal"> = {
-  keine: "none",
-  wenig: "low",
-  moderat: "moderate",
-  optimal: "optimal",
+  "fast-jede": "optimal",
+  "meiste": "moderate",
+  "haelfte": "low",
+  "selten": "none",
+  "kaum": "none",
 };
 
 const SLEEP_QUALITY_MAP: Record<string, "sehr_gut" | "gut" | "mittel" | "schlecht"> = {
@@ -308,7 +309,7 @@ function AnalyseContent() {
     geschlecht: "maennlich",
     groesse: 178,
     gewicht: 78,
-    obstGemuese: "moderat",
+    obstGemuese: "haelfte",
     trainingsfreq: "3-4x",
     trainingsart: "kraft",
     moderateDauer: "30-60",
@@ -749,17 +750,18 @@ function AnalyseContent() {
                 />
               </div>
 
-              {/* Q4b: Obst & Gemüse */}
+              {/* Q4b: Obst & Gemüse pro Woche */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>OBST & GEMÜSE PRO TAG</span>
+                <span className={styles.questionLabel}>GEMÜSE ODER OBST PRO WOCHE</span>
                 <RadioGroup
                   value={form.obstGemuese}
                   onChange={(v) => set("obstGemuese", v as string)}
                   options={[
-                    { label: "Keine", value: "keine" },
-                    { label: "Wenig (1–2 Portionen)", value: "wenig" },
-                    { label: "Moderat (3–4 Portionen)", value: "moderat" },
-                    { label: "Optimal (5+ Portionen)", value: "optimal" },
+                    { label: "Bei fast jeder Mahlzeit (18–21 pro Woche)", value: "fast-jede" },
+                    { label: "Bei den meisten Mahlzeiten (12–17 pro Woche)", value: "meiste" },
+                    { label: "Bei ungefähr der Hälfte (8–11 pro Woche)", value: "haelfte" },
+                    { label: "Eher selten (3–7 pro Woche)", value: "selten" },
+                    { label: "Kaum bis gar nicht (0–2 pro Woche)", value: "kaum" },
                   ]}
                 />
               </div>
