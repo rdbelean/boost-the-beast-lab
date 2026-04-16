@@ -9,7 +9,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/kaufen";
+  const next = searchParams.get("next") ?? "/";
   const errorParam = searchParams.get("error");
 
   const [email, setEmail] = useState("");
