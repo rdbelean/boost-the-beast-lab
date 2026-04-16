@@ -280,8 +280,7 @@ function AnalyseContent() {
 
   useEffect(() => {
     if (!sessionId) {
-      // No session_id present — allow dev skip flow (kaufen has a demo skip button)
-      setPaymentChecked(true);
+      router.replace("/kaufen");
       return;
     }
     let cancelled = false;

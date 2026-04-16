@@ -92,12 +92,6 @@ export default function KaufenPage() {
             JETZT KAUFEN →
           </button>
 
-          <button
-            onClick={() => router.push("/analyse?product=complete-analysis")}
-            className={styles.btnSkip}
-          >
-            Skip (Demo — ohne Bezahlung weiter)
-          </button>
         </div>
 
         <p className={styles.disclaimer}>

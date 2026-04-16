@@ -102,26 +102,6 @@ function LoginContent() {
 
         <h1 className={styles.title}>LOGIN / ACCOUNT ERSTELLEN</h1>
 
-        {/* Demo skip */}
-        <div style={{ textAlign: "center", marginBottom: 8 }}>
-          <button
-            type="button"
-            onClick={() => router.push(next)}
-            style={{
-              background: "none",
-              border: "1px solid #333",
-              color: "#666",
-              fontSize: 11,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              cursor: "pointer",
-              padding: "6px 14px",
-              borderRadius: 2,
-            }}
-          >
-            Demo: Überspringen →
-          </button>
-        </div>
         <p className={styles.subtitle}>
           {step === "email"
             ? "Melde dich passwortlos an — wir schicken dir einen 6-stelligen Code per E-Mail."
