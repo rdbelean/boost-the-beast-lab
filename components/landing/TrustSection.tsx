@@ -15,23 +15,25 @@ const items = [
     ),
   },
   {
-    title: "UNTER 5 MINUTEN",
-    text: "KI-generiertes Ergebnis in unter 5 Minuten. Sofort verfügbar.",
+    title: "DATENBANK-GESTÜTZTE ANALYSE",
+    text: "Deine Ergebnisse werden mit über 10.000 wissenschaftlichen Datenpunkten aus internationalen Studien abgeglichen.",
     icon: (
       <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-        <circle cx="18" cy="18" r="14" stroke="#E63222" strokeWidth="1.5"/>
-        <path d="M18 10v8l5 2.5" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <ellipse cx="18" cy="10" rx="11" ry="4.5" stroke="#E63222" strokeWidth="1.5"/>
+        <path d="M7 10v6c0 2.5 5 4.5 11 4.5s11-2 11-4.5v-6" stroke="#E63222" strokeWidth="1.5"/>
+        <path d="M7 16v6c0 2.5 5 4.5 11 4.5s11-2 11-4.5v-6" stroke="#E63222" strokeWidth="1.5"/>
       </svg>
     ),
   },
   {
-    title: "PREMIUM PDF",
-    text: "Lab-Quality Report. Personalisiert, professionell, druckfertig.",
+    title: "5 PERFORMANCE-DIMENSIONEN",
+    text: "Metabolismus, Recovery, Aktivität, VO2max und Stress — jede Dimension einzeln analysiert und bewertet.",
     icon: (
       <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-        <path d="M10 4h14l9 9v19H10V4z" stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round"/>
-        <path d="M24 4v9h9" stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round"/>
-        <path d="M14 18h8M14 24h8M14 30h5" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round"/>
+        <polygon points="18,4 32,12 32,24 18,32 4,24 4,12" stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round"/>
+        <line x1="18" y1="4" x2="18" y2="32" stroke="#E63222" strokeWidth="1" strokeDasharray="2 2"/>
+        <line x1="4" y1="12" x2="32" y2="24" stroke="#E63222" strokeWidth="1" strokeDasharray="2 2"/>
+        <line x1="4" y1="24" x2="32" y2="12" stroke="#E63222" strokeWidth="1" strokeDasharray="2 2"/>
       </svg>
     ),
   },
