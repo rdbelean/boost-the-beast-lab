@@ -8,6 +8,7 @@ import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";
 import CustomSelect from "@/components/analyse/CustomSelect";
 import { buildPlan, type PlanType, type PlanBlock } from "@/lib/plan/buildPlan";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 // ── Plan bundle cached in sessionStorage ─────────────────
 interface PlanBundle {
@@ -321,8 +322,18 @@ function AnalyseContent() {
     stresslevel: "moderat",
     mahlzeitenPlan: "kein",
     selectedProduct: preselectedProduct,
-    email: "demo@boostthebeast.com",
+    email: "",
   });
+
+  // Pre-populate email from the authenticated user session.
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email) {
+        setForm((prev) => ({ ...prev, email: data.user!.email! }));
+      }
+    });
+  }, []);
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -470,6 +481,12 @@ function AnalyseContent() {
       }
       // Scoring done — 15% cap
       setProgressCap(15);
+
+      // Backfill auth_user_id on the users row that was just created/upserted
+      // by /api/assessment so the account page can find this report immediately.
+      if (json?.assessmentId) {
+        fetch("/api/auth/link", { method: "POST" }).catch(() => {/* non-fatal */});
+      }
 
       const scores = json?.scores;
 
