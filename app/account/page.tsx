@@ -47,13 +47,17 @@ export default async function AccountPage() {
       ])
     : [{ data: [] }, { data: [] }];
 
+  // Score codes saved by /api/assessment: "activity_score", "sleep_score",
+  // "vo2max_score", "metabolic_score", "stress_score", "overall_score".
   const scoresByAssessment = new Map<string, Record<string, number>>();
   const bandByAssessment = new Map<string, string>();
+  const assessmentsWithScores = new Set<string>();
   for (const s of scoresRes.data ?? []) {
     const map = scoresByAssessment.get(s.assessment_id) ?? {};
     map[s.score_code] = Number(s.score_value);
     scoresByAssessment.set(s.assessment_id, map);
-    if (s.score_code === "overall" && s.band) bandByAssessment.set(s.assessment_id, s.band);
+    assessmentsWithScores.add(s.assessment_id);
+    if (s.score_code === "overall_score" && s.band) bandByAssessment.set(s.assessment_id, s.band);
   }
 
   const artifactByAssessment = new Map<string, string>();
@@ -63,27 +67,30 @@ export default async function AccountPage() {
     }
   }
 
-  const reports: AccountReport[] = (assessments ?? []).map((a) => {
-    const s = scoresByAssessment.get(a.id) ?? {};
-    return {
-      id: a.id,
-      date: new Date(a.created_at).toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
-      overall: Math.round(s.overall ?? 0),
-      band: bandByAssessment.get(a.id) ?? "",
-      scores: {
-        activity: Math.round(s.activity ?? 0),
-        sleep: Math.round(s.sleep ?? 0),
-        vo2max: Math.round(s.vo2max ?? 0),
-        metabolic: Math.round(s.metabolic ?? 0),
-        stress: Math.round(s.stress ?? 0),
-      },
-      pdfUrl: artifactByAssessment.get(a.id) ?? null,
-    };
-  });
+  // Only include assessments that have score rows (filters out null/dummy entries).
+  const reports: AccountReport[] = (assessments ?? [])
+    .filter((a) => assessmentsWithScores.has(a.id))
+    .map((a) => {
+      const s = scoresByAssessment.get(a.id) ?? {};
+      return {
+        id: a.id,
+        date: new Date(a.created_at).toLocaleDateString("de-DE", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }),
+        overall: Math.round(s.overall_score ?? 0),
+        band: bandByAssessment.get(a.id) ?? "",
+        scores: {
+          activity: Math.round(s.activity_score ?? 0),
+          sleep: Math.round(s.sleep_score ?? 0),
+          vo2max: Math.round(s.vo2max_score ?? 0),
+          metabolic: Math.round(s.metabolic_score ?? 0),
+          stress: Math.round(s.stress_score ?? 0),
+        },
+        pdfUrl: artifactByAssessment.get(a.id) ?? null,
+      };
+    });
 
   return (
     <div className={styles.page}>
