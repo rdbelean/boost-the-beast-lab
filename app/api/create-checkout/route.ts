@@ -10,11 +10,6 @@ function getStripe() {
 }
 
 const PRODUCTS: Record<string, { name: string; price: number; description: string }> = {
-  "follow-up": {
-    name: "Follow-Up Performance Analyse",
-    price: 1990,
-    description: "Fortschrittsanalyse — neue Scores, neuer Report und Vergleich mit vorherigen Analysen",
-  },
   metabolic: {
     name: "Metabolic Performance Score",
     price: 2900,
@@ -86,19 +81,17 @@ export async function POST(req: NextRequest) {
       line_items: [
         productId === "complete-analysis" && process.env.STRIPE_PRICE_ID
           ? { price: process.env.STRIPE_PRICE_ID, quantity: 1 }
-          : productId === "follow-up"
-            ? { price: process.env.STRIPE_FOLLOW_UP_PRICE_ID ?? "price_1TMkOT76I9Y68D65tcmW9yS6", quantity: 1 }
-            : {
-                price_data: {
-                  currency: "eur",
-                  unit_amount: product.price,
-                  product_data: {
-                    name: product.name,
-                    description: product.description,
-                  },
+          : {
+              price_data: {
+                currency: "eur",
+                unit_amount: product.price,
+                product_data: {
+                  name: product.name,
+                  description: product.description,
                 },
-                quantity: 1,
               },
+              quantity: 1,
+            },
       ],
       allow_promotion_codes: true,
       metadata: {

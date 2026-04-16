@@ -12,7 +12,6 @@ export default function Header() {
   const [reportUrl, setReportUrl] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [tokenCount, setTokenCount] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Subscribe to Supabase auth state so the dropdown reflects login status.
@@ -30,18 +29,6 @@ export default function Header() {
       sub.subscription.unsubscribe();
     };
   }, []);
-
-  // Fetch token count whenever auth state changes
-  useEffect(() => {
-    if (!userEmail) {
-      setTokenCount(null);
-      return;
-    }
-    fetch("/api/tokens")
-      .then((r) => r.json())
-      .then((d) => setTokenCount(d.tokens ?? 0))
-      .catch(() => setTokenCount(null));
-  }, [userEmail]);
 
   useEffect(() => {
     const ids = ["how-it-works", "products"];
@@ -118,12 +105,6 @@ export default function Header() {
             <a href={reportUrl} target="_blank" rel="noopener noreferrer" className={styles.headerCtaSecondary}>
               AKTUELLSTER REPORT ↓
             </a>
-          )}
-          {/* Token indicator — only when logged in */}
-          {userEmail && tokenCount !== null && (
-            <span className={tokenCount > 0 ? styles.tokenIndicator : styles.tokenIndicatorEmpty}>
-              {tokenCount > 0 ? `${tokenCount} ANALYSE${tokenCount === 1 ? "" : "N"} FREI` : "KEINE ANALYSEN"}
-            </span>
           )}
           {/* Account dropdown */}
           <div className={styles.accountDropdown} ref={dropdownRef}>

@@ -168,8 +168,6 @@
   .accountDropdownBtn { padding: 9px 14px; }
   /* Prevent dropdown menu from overflowing viewport edge */
   .accountDropdownMenu { max-width: calc(100vw - 24px); }
-  /* Shrink token indicator on mobile */
-  .tokenIndicator, .tokenIndicatorEmpty { font-size: 9px; padding: 3px 6px; }
 }
 
 /* ─── ACCOUNT DROPDOWN ──────────────────────────────────────── */
@@ -197,28 +195,6 @@
 .accountDropdownBtn:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(230, 50, 34, 0.4);
-}
-.tokenIndicator {
-  font-family: var(--font-oswald), sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: #E63222;
-  border: 1px solid rgba(230, 50, 34, 0.5);
-  border-radius: 4px;
-  padding: 4px 8px;
-  white-space: nowrap;
-}
-.tokenIndicatorEmpty {
-  font-family: var(--font-oswald), sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: #555;
-  border: 1px solid #333;
-  border-radius: 4px;
-  padding: 4px 8px;
-  white-space: nowrap;
 }
 .accountDropdownChevron {
   display: inline-block;
