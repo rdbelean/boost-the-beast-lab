@@ -990,12 +990,8 @@ export async function POST(req: NextRequest) {
 
         if (uploadErr) throw uploadErr;
 
-        const { data: signed, error: signErr } = await supabase.storage
-          .from(STORAGE_BUCKET)
-          .createSignedUrl(storagePath, 60 * 60 * 24 * 30);
-
-        if (signErr) throw signErr;
-        downloadUrl = signed.signedUrl;
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? req.nextUrl.origin;
+        downloadUrl = `${appUrl}/api/report/download/${assessmentId}`;
       } catch (storageErr) {
         const storageMsg = storageErr instanceof Error ? storageErr.message : String(storageErr);
         console.warn(`[report/generate] Supabase Storage failed (${storageMsg}) — trying fs fallback`);

@@ -2,7 +2,8 @@
 // Pure JavaScript — zero native dependencies, works reliably on Vercel.
 // Dark warm-grey theme matching the main Performance Intelligence Report.
 
-import { PDFDocument, rgb, StandardFonts, type PDFPage, type PDFFont, type Color } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
+import { LOGO_WHITE_PNG_BASE64 } from "./logo";
 
 export interface PlanBlock {
   heading: string;
@@ -152,14 +153,14 @@ function pageChrome(page: PDFPage, f: F, accentColor: Color, today: string): num
 function pageFooter(page: PDFPage, f: F, today: string): void {
   const fy = 32;
   page.drawLine({ start: { x: MX, y: fy + 13 }, end: { x: PW - MX, y: fy + 13 }, thickness: 0.5, color: BORDER_C });
-  page.drawText("PERFORMANCE LAB  |  Kein Ersatz fuer medizinische Beratung", { x: MX, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
+  page.drawText("PERFORMANCE LAB  |  Kein Ersatz für medizinische Beratung", { x: MX, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
   const tw = f.reg.widthOfTextAtSize(today, 7);
   page.drawText(today, { x: PW - MX - tw, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
 }
 
 // ── Cover page ─────────────────────────────────────────────────────────────
 
-function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color, f: F, today: string): void {
+function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color, f: F, today: string, logo: PDFImage): void {
   const page = doc.addPage([PW, PH]);
 
   // Warm grey background — same as content pages (no more near-black cover)
@@ -168,16 +169,14 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
 
   let y = PH - 54;
 
-  // Brand header — icon + text side by side
-  page.drawSvgPath("M16 1L29.5 8.5V23.5L16 31L2.5 23.5V8.5L16 1Z", {
-    x: MX, y: y + 2, scale: 0.72, color: accentColor,
-  });
-  page.drawSvgPath("M13 22l3-12 3 12h-2.5v4h-1v-4H13z", {
-    x: MX, y: y + 2, scale: 0.72, color: rgb(1, 1, 1),
-  });
-  page.drawText("BOOST THE BEAST LAB", { x: MX + 26, y, size: 10, font: f.bold, color: TXT_WHITE });
+  // Brand header — logo + text side by side
+  const logoH = 26;
+  const logoW = logoH * (logo.width / logo.height);
+  page.drawImage(logo, { x: MX, y: y - 16, width: logoW, height: logoH });
+  const textX = MX + logoW + 8;
+  page.drawText("BOOST THE BEAST LAB", { x: textX, y, size: 10, font: f.bold, color: TXT_WHITE });
   y -= 16;
-  page.drawText("PERFORMANCE LAB", { x: MX + 26, y, size: 7, font: f.reg, color: accentColor });
+  page.drawText("PERFORMANCE LAB", { x: textX, y, size: 7, font: f.reg, color: accentColor });
 
   // "INDIVIDUELLER PLAN" badge
   y -= 56;
@@ -428,11 +427,14 @@ export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const f: F = { reg, bold };
 
+  const logoBytes = Buffer.from(LOGO_WHITE_PNG_BASE64, "base64");
+  const logo = await doc.embedPng(logoBytes);
+
   doc.setTitle(`BTB ${tx(plan.title)}`);
   doc.setAuthor("BOOST THE BEAST LAB");
   doc.setCreationDate(new Date());
 
-  buildPlanCover(doc, plan, accentColor, f, today);
+  buildPlanCover(doc, plan, accentColor, f, today, logo);
   buildPlanContent(doc, plan, accentColor, f, today);
 
   const bytes = await doc.save();

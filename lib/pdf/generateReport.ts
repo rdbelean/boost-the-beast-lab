@@ -1,7 +1,8 @@
 // Server-side PDF generation via pdf-lib (pure JavaScript).
 // No native dependencies — works reliably on Vercel serverless functions.
 
-import { PDFDocument, rgb, StandardFonts, type PDFPage, type PDFFont, type Color } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
+import { LOGO_WHITE_PNG_BASE64 } from "./logo";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -214,7 +215,7 @@ function pageFooter(page: PDFPage, f: F, today: string): void {
     end: { x: PW - MX, y: fy + 13 },
     thickness: 0.5, color: BORDER_C,
   });
-  page.drawText("PERFORMANCE LAB  |  Kein Ersatz fuer medizinische Beratung", {
+  page.drawText("PERFORMANCE LAB  |  Kein Ersatz für medizinische Beratung", {
     x: MX, y: fy, size: 7, font: f.reg, color: TXT_MUTED,
   });
   const tw = f.reg.widthOfTextAtSize(today, 7);
@@ -456,6 +457,7 @@ function buildCover(
   user: PdfUserProfile,
   f: F,
   today: string,
+  logo: PDFImage,
 ): void {
   const page = doc.addPage([PW, PH]);
   fillBg(page, BG_PAGE);
@@ -463,16 +465,14 @@ function buildCover(
 
   let y = PH - 54;
 
-  // Brand header — icon + text side by side
-  page.drawSvgPath("M16 1L29.5 8.5V23.5L16 31L2.5 23.5V8.5L16 1Z", {
-    x: MX, y: y + 2, scale: 0.72, color: rgb(0.902, 0.196, 0.133),
-  });
-  page.drawSvgPath("M13 22l3-12 3 12h-2.5v4h-1v-4H13z", {
-    x: MX, y: y + 2, scale: 0.72, color: rgb(1, 1, 1),
-  });
-  page.drawText("BOOST THE BEAST LAB", { x: MX + 26, y, size: 10, font: f.bold, color: TXT_WHITE });
+  // Brand header — logo + text side by side
+  const logoH = 26;
+  const logoW = logoH * (logo.width / logo.height);
+  page.drawImage(logo, { x: MX, y: y - 16, width: logoW, height: logoH });
+  const textX = MX + logoW + 8;
+  page.drawText("BOOST THE BEAST LAB", { x: textX, y, size: 10, font: f.bold, color: TXT_WHITE });
   y -= 16;
-  page.drawText("PERFORMANCE LAB", { x: MX + 26, y, size: 7, font: f.reg, color: ACCENT });
+  page.drawText("PERFORMANCE LAB", { x: textX, y, size: 7, font: f.reg, color: ACCENT });
 
   // Hero title
   y -= 64;
@@ -580,7 +580,7 @@ function buildSummary(
   if (prioH >= 30) {
     page.drawRectangle({ x: MX, y: y - prioH, width: CW, height: prioH, color: BG_CARD });
     page.drawRectangle({ x: MX, y: y - 5, width: CW, height: 5, color: ACCENT });
-    page.drawText("TOP PRIORITAET", {
+    page.drawText("TOP PRIORITÄT", {
       x: MX + 16, y: y - 19, size: 7, font: f.bold, color: ACCENT,
     });
     drawW(page, content.top_priority, MX + 16, y - 33, CW - 32, f.bold, 10, TXT_WHITE, 1.65);
@@ -661,7 +661,7 @@ function buildModule(
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
   if (mod.recommendation && tx(mod.recommendation).trim()) {
-    y = infoBox(page, "NAECHSTER SCHRITT", mod.recommendation, f, MX, y, CW, SC_GREEN,
+    y = infoBox(page, "NÄCHSTER SCHRITT", mod.recommendation, f, MX, y, CW, SC_GREEN,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
 
@@ -692,7 +692,7 @@ function buildDisclaimer(
   y -= 30;
   page.drawText("KEINE MEDIZINISCHE DIAGNOSE", { x: MX, y, size: 14, font: f.bold, color: ACCENT });
   y -= 24;
-  page.drawText("PERFORMANCE-INSIGHTS  |  KEIN ERSATZ FUER AERZTLICHE BERATUNG", {
+  page.drawText("PERFORMANCE-INSIGHTS  |  KEIN ERSATZ FÜR ÄRZTLICHE BERATUNG", {
     x: MX, y, size: 7.5, font: f.bold, color: TXT_MUTED,
   });
   y -= 30;
@@ -706,14 +706,14 @@ function buildDisclaimer(
 
   y = drawW(
     page,
-    "Alle Angaben basieren auf selbstberichteten Daten und modellbasierten Berechnungen nach IPAQ, NSF/AASM, WHO und ACSM Leitlinien. VO2max ist eine algorithmische Schaetzung nach dem Jackson Non-Exercise Prediction Model. Dieses Dokument stellt keine Heilaussagen dar und ist kein Medizinprodukt im Sinne der MDR.",
+    "Alle Angaben basieren auf selbstberichteten Daten und modellbasierten Berechnungen nach IPAQ, NSF/AASM, WHO und ACSM Leitlinien. VO2max ist eine algorithmische Schätzung nach dem Jackson Non-Exercise Prediction Model. Dieses Dokument stellt keine Heilaussagen dar und ist kein Medizinprodukt im Sinne der MDR.",
     MX, y, CW, f.reg, 10.5, TXT_WHITE, 1.75,
   );
   y -= 20;
 
   y = drawW(
     page,
-    "Dieser Report wurde auf Basis wissenschaftlicher Scoring-Modelle erstellt. Er ersetzt keine aerztliche Untersuchung, keine Labordiagnostik und keine individualisierte medizinische Beratung. Wende dich bei gesundheitlichen Beschwerden oder spezifischen Fragen an einen qualifizierten Arzt oder Therapeuten.",
+    "Dieser Report wurde auf Basis wissenschaftlicher Scoring-Modelle erstellt. Er ersetzt keine ärztliche Untersuchung, keine Labordiagnostik und keine individualisierte medizinische Beratung. Wende dich bei gesundheitlichen Beschwerden oder spezifischen Fragen an einen qualifizierten Arzt oder Therapeuten.",
     MX, y, CW, f.reg, 10.5, TXT_WHITE, 1.75,
   );
   y -= 36;
@@ -744,12 +744,15 @@ export async function generatePDF(
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const f: F = { reg, bold };
 
+  const logoBytes = Buffer.from(LOGO_WHITE_PNG_BASE64, "base64");
+  const logo = await doc.embedPng(logoBytes);
+
   doc.setTitle("BTB Performance Intelligence Report");
   doc.setAuthor("BOOST THE BEAST LAB");
   doc.setCreationDate(new Date());
 
   // Page 1 — Cover
-  buildCover(doc, content, scores, user, f, today);
+  buildCover(doc, content, scores, user, f, today, logo);
 
   // Page 2 — Summary / Gesamtbild
   buildSummary(doc, content, scores, user, f, today);
@@ -781,7 +784,7 @@ export async function generatePDF(
   buildModule(doc, "VO2MAX", scores.vo2max.score, scores.vo2max.band,
     content.modules.vo2max,
     [
-      ["Geschaetzter VO2max", `${scores.vo2max.estimated} ml/kg/min`],
+      ["Geschätzter VO2max", `${scores.vo2max.estimated} ml/kg/min`],
       ["Fitness-Level", tx(scores.vo2max.band).toUpperCase()],
     ],
     f, today,
