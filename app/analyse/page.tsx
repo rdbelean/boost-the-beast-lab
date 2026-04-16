@@ -1215,21 +1215,33 @@ function AnalyseContent() {
               Dies kann einige Minuten dauern — dein Report wird gerade mit unserer wissenschaftlichen Datenbank abgeglichen.
             </div>
 
-            <div className={styles.loadingSteps} style={{ opacity: 0.7 }}>
-              {LOADING_STEPS.map((step, i) => {
-                const threshold = ((i + 1) / LOADING_STEPS.length) * 100;
-                const isDone = loadingProgress >= threshold;
-                return (
-                  <div
-                    key={i}
-                    className={`${styles.loadingStep} ${styles.stepVisible} ${isDone ? styles.stepDone : ""}`}
-                  >
-                    <span className={styles.loadingStepIcon}>{isDone ? "✓" : i + 1}</span>
-                    {step}
+            {/* Active step indicator — shows one step at a time */}
+            {(() => {
+              const activeIndex = Math.min(
+                Math.floor((loadingProgress / 100) * LOADING_STEPS.length),
+                LOADING_STEPS.length - 1,
+              );
+              return (
+                <div className={styles.activeStepWrap}>
+                  <div className={styles.activeStepCounter}>
+                    Schritt {activeIndex + 1} / {LOADING_STEPS.length}
                   </div>
-                );
-              })}
-            </div>
+                  <div className={styles.activeStepDots}>
+                    {LOADING_STEPS.map((_, i) => (
+                      <span
+                        key={i}
+                        className={`${styles.activeStepDot} ${
+                          i < activeIndex ? styles.dotDone : i === activeIndex ? styles.dotActive : ""
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div key={activeIndex} className={styles.activeStepText}>
+                    {LOADING_STEPS[activeIndex]}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}

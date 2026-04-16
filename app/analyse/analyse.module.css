@@ -702,34 +702,49 @@
   margin-bottom: 48px;
   line-height: 1.05;
 }
-.loadingSteps { display: flex; flex-direction: column; gap: 16px; text-align: left; }
-.loadingStep {
+/* Active-step indicator (single step shown at a time) */
+.activeStepWrap {
+  text-align: center;
+}
+.activeStepCounter {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 16px;
+}
+.activeStepDots {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.activeStepDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  transition: background 0.4s, transform 0.4s;
+}
+.activeStepDot.dotDone {
+  background: var(--success);
+}
+.activeStepDot.dotActive {
+  background: var(--accent);
+  transform: scale(1.3);
+  box-shadow: 0 0 8px rgba(230,50,34,0.5);
+}
+.activeStepText {
   font-family: var(--font-inter), sans-serif;
   font-size: 15px;
-  color: #2a2a30;
-  opacity: 1;
-  transition: color 0.5s;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.5;
+  animation: stepFadeIn 0.5s ease-out;
 }
-.loadingStep.stepVisible { color: #2a2a30; }
-.loadingStep.stepDone { color: var(--success); }
-.loadingStepIcon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 11px;
-  transition: border-color 0.3s, background 0.3s;
-}
-.loadingStep.stepDone .loadingStepIcon {
-  border-color: var(--success);
-  background: rgba(34, 197, 94, 0.12);
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── SUCCESS SCREEN ────────────────────────────────────────── */
@@ -862,7 +877,9 @@
   /* Loading */
   .loadingOverlay { padding: 24px; }
   .loadingTitle { font-size: clamp(22px, 6vw, 36px); }
-  .loadingStep { font-size: 14px; }
+  .activeStepText { font-size: 13px; }
+  .activeStepDots { gap: 4px; }
+  .activeStepDot { width: 6px; height: 6px; }
 
   /* Success */
   .successOverlay { padding: 24px; }
