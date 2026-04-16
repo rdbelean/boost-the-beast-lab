@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Oswald, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import CookieBanner from "@/components/CookieBanner";
 
 const oswald = Oswald({
   subsets: ["latin"],
@@ -46,7 +47,10 @@ export default function RootLayout({
       lang="de"
       className={`h-full ${oswald.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-full flex flex-col antialiased">{children}</body>
+      <body className="min-h-full flex flex-col antialiased">
+        {children}
+        <CookieBanner />
+      </body>
     </html>
   );
 }

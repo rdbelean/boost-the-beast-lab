@@ -33,6 +33,9 @@ export default function Footer() {
                   <li>
                     <a href="/datenschutz" className={styles.footerLink}>Datenschutz</a>
                   </li>
+                  <li>
+                    <a href="/cookies" className={styles.footerLink}>Cookie-Richtlinie</a>
+                  </li>
                 </ul>
               </div>
               <div>
