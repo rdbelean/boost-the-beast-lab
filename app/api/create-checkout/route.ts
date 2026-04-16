@@ -79,17 +79,19 @@ export async function POST(req: NextRequest) {
         description: product.name,
       },
       line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            unit_amount: product.price,
-            product_data: {
-              name: product.name,
-              description: product.description,
+        process.env.STRIPE_PRICE_ID && productId === "complete-analysis"
+          ? { price: process.env.STRIPE_PRICE_ID, quantity: 1 }
+          : {
+              price_data: {
+                currency: "eur",
+                unit_amount: product.price,
+                product_data: {
+                  name: product.name,
+                  description: product.description,
+                },
+              },
+              quantity: 1,
             },
-          },
-          quantity: 1,
-        },
       ],
       allow_promotion_codes: true,
       metadata: {
