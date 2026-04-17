@@ -5,6 +5,7 @@ import path from "node:path";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { generatePDF, type PdfReportContent } from "@/lib/pdf/generateReport";
 import { sendReportEmail } from "@/lib/email/sendReport";
+import type { Locale } from "@/lib/supabase/types";
 import {
   runFullScoring,
   type FullScoringResult,
@@ -190,6 +191,61 @@ JSON-STRUKTUR:
   "prognose_30_days": string,
   "disclaimer": "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik. VO2max ist eine algorithmische Schätzung — keine Labormessung."
 }`;
+
+// Per-locale disclaimer text that Claude MUST echo verbatim in the
+// `disclaimer` field of its JSON output. Keeping it here lets the PDF
+// generator pick the same wording without re-reading messages/*.json.
+const DISCLAIMER: Record<Locale, string> = {
+  de: "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik. VO2max ist eine algorithmische Schätzung — keine Labormessung.",
+  en: "All statements are model-based performance insights from self-reported data. Not a substitute for medical diagnostics. VO2max is an algorithmic estimate — not a lab measurement.",
+  it: "Tutte le indicazioni sono insight di performance basati su modelli da dati auto-riportati. Non sostituiscono la diagnostica medica. Il VO2max è una stima algoritmica — non una misurazione di laboratorio.",
+};
+
+// Language directive appended to SYSTEM_PROMPT per request. Claude is
+// strong enough to read the German system prompt and output in the
+// requested language — validated on claude-sonnet-4-6 internally. The
+// locale-specific tone instructions below prevent the EN/IT variants
+// from drifting into bland translator-tone.
+const LANGUAGE_DIRECTIVES: Record<Locale, string> = {
+  de: "",
+  en: `
+
+OUTPUT LANGUAGE OVERRIDE — CRITICAL:
+All user-facing text in the JSON (headline, executive_summary, every module field, top_priority, systemic_connections_overview, prognose_30_days, disclaimer) MUST be written in English. Keep JSON keys in English.
+
+TONE for English output:
+- Direct, imperative, concise — elite-coach voice, not wellness-blog.
+- Scientifically grounded. Assume reader knows VO2max, HRV, HPA-axis.
+- No motivational filler, no hedging, no emojis.
+- Use contractions sparingly — this is a premium report, not a text message.
+- BANNED PHRASES: "it is important that", "you should try to", "remember to", "don't forget to", "it may be helpful to". Replace with direct statements + reasoning.
+
+The "disclaimer" field MUST be exactly:
+"${/* filled at request time */""}"`,
+  it: `
+
+OUTPUT LANGUAGE OVERRIDE — CRITICO:
+Tutto il testo rivolto all'utente nel JSON (headline, executive_summary, ogni campo dei moduli, top_priority, systemic_connections_overview, prognose_30_days, disclaimer) DEVE essere scritto in italiano. Le chiavi JSON restano in inglese.
+
+TONO per l'output italiano:
+- Diretto, imperativo, conciso — voce da coach d'élite, non da blog wellness.
+- Rigoroso scientificamente. Presumi che il lettore conosca VO2max, HRV, asse HPA.
+- Nessun riempitivo motivazionale, nessuna titubanza, nessuna emoji.
+- Usa la forma "tu" informale (mai "Lei").
+- FRASI VIETATE: "è importante che", "dovresti cercare di", "ricordati di", "potrebbe essere utile". Sostituisci con affermazioni dirette + motivazione.
+
+Il campo "disclaimer" DEVE essere esattamente:
+"${/* filled at request time */""}"`,
+};
+
+function buildSystemPromptForLocale(locale: Locale): string {
+  if (locale === "de") return SYSTEM_PROMPT;
+  // Swap the placeholder disclaimer string into the directive so Claude
+  // echoes back the exact locale-specific wording that the PDF and
+  // in-prompt instructions both expect.
+  const directive = LANGUAGE_DIRECTIVES[locale].replace(/""/g, `"${DISCLAIMER[locale]}"`);
+  return SYSTEM_PROMPT + directive;
+}
 
 let anthropicClient: Anthropic | null = null;
 function getAnthropic(): Anthropic {
@@ -791,10 +847,15 @@ export async function POST(req: NextRequest) {
     // 1. Load assessment, user, scores, metrics, responses.
     const { data: assessment, error: aErr } = await supabase
       .from("assessments")
-      .select("id, report_type, user_id, data_sources")
+      .select("id, report_type, user_id, data_sources, locale")
       .eq("id", assessmentId)
       .single();
     if (aErr) throw aErr;
+
+    const locale: Locale =
+      assessment.locale === "en" || assessment.locale === "it"
+        ? assessment.locale
+        : "de";
 
     const { data: user, error: uErr } = await supabase
       .from("users")
@@ -979,7 +1040,7 @@ export async function POST(req: NextRequest) {
       const message = await anthropic.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 16000,
-        system: SYSTEM_PROMPT,
+        system: buildSystemPromptForLocale(locale),
         messages: [{ role: "user", content: userPrompt }],
       });
 
@@ -1058,6 +1119,7 @@ export async function POST(req: NextRequest) {
           bmi,
           bmi_category: bmiCategory,
         },
+        locale,
       );
     } catch (pdfErr) {
       const pdfErrMsg = pdfErr instanceof Error ? pdfErr.message : String(pdfErr);
@@ -1121,7 +1183,7 @@ export async function POST(req: NextRequest) {
           vo2max: vo2ScoreNum,
           metabolic: metabolicScore,
           stress: stressScore,
-        });
+        }, locale);
       } catch (emailErr) {
         console.error("[report/generate] email delivery failed", emailErr);
         // Non-fatal — PDF is still persisted and linked.

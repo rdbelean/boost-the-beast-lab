@@ -3,6 +3,119 @@
 
 import { PDFDocument, rgb, StandardFonts, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
 import { LOGO_WHITE_PNG_BASE64 } from "./logo";
+import type { Locale } from "@/lib/supabase/types";
+
+// Single-invocation state for the locale. `generatePDF` sets this at entry
+// so internal helpers (pageFooter, buildCover, etc.) can read localized
+// labels without threading `locale` through every signature. Fine for
+// Vercel serverless (one invocation per request, no concurrent mutation).
+let currentLocale: Locale = "de";
+
+// Localized labels used by the PDF generator. Claude-generated narrative
+// is already in the target language when the caller provides `locale`;
+// this table handles only the STRUCTURAL PDF chrome (section headers,
+// metric key names, legal page, footer strip).
+const PDF_LABELS: Record<Locale, {
+  footerStrip: string;
+  legalTitle: string;
+  legalAccent: string;
+  legalSub: string;
+  overallIndex: string;
+  gesamtbild: string;
+  topPriority: string;
+  metKey: string;
+  trainingDaysKey: string;
+  sittingKey: string;
+  sleepDuration: string;
+  sleepDurationValue: (h: number) => string;
+  recoveryScore: string;
+  vo2Estimated: string;
+  fitnessLevel: string;
+  bmiKey: string;
+  bmiCategory: string;
+  stressBand: string;
+  actionNeed: string;
+  actionHigh: string;
+  actionModerate: string;
+  actionLow: string;
+  dateLocale: string;
+}> = {
+  de: {
+    footerStrip: "PERFORMANCE LAB  |  Kein Ersatz für medizinische Beratung",
+    legalTitle: "RECHTLICHER HINWEIS",
+    legalAccent: "KEINE MEDIZINISCHE DIAGNOSE",
+    legalSub: "PERFORMANCE-INSIGHTS  |  KEIN ERSATZ FÜR ÄRZTLICHE BERATUNG",
+    overallIndex: "OVERALL PERFORMANCE INDEX",
+    gesamtbild: "GESAMTBILD",
+    topPriority: "TOP PRIORITÄT",
+    metKey: "MET-Minuten / Woche",
+    trainingDaysKey: "Trainingstage / Woche",
+    sittingKey: "Sitzzeit / Tag",
+    sleepDuration: "Schlafdauer",
+    sleepDurationValue: (h) => `${h} h / Nacht`,
+    recoveryScore: "Recovery Score",
+    vo2Estimated: "Geschätzter VO2max",
+    fitnessLevel: "Fitness-Level",
+    bmiKey: "BMI",
+    bmiCategory: "Kategorie",
+    stressBand: "Stressband",
+    actionNeed: "Handlungsbedarf",
+    actionHigh: "HOCH",
+    actionModerate: "MODERAT",
+    actionLow: "GERING",
+    dateLocale: "de-DE",
+  },
+  en: {
+    footerStrip: "PERFORMANCE LAB  |  Not a substitute for medical advice",
+    legalTitle: "LEGAL NOTICE",
+    legalAccent: "NOT A MEDICAL DIAGNOSIS",
+    legalSub: "PERFORMANCE INSIGHTS  |  NOT A SUBSTITUTE FOR MEDICAL ADVICE",
+    overallIndex: "OVERALL PERFORMANCE INDEX",
+    gesamtbild: "BIG PICTURE",
+    topPriority: "TOP PRIORITY",
+    metKey: "MET minutes / week",
+    trainingDaysKey: "Training days / week",
+    sittingKey: "Sitting time / day",
+    sleepDuration: "Sleep duration",
+    sleepDurationValue: (h) => `${h} h / night`,
+    recoveryScore: "Recovery Score",
+    vo2Estimated: "Estimated VO2max",
+    fitnessLevel: "Fitness level",
+    bmiKey: "BMI",
+    bmiCategory: "Category",
+    stressBand: "Stress band",
+    actionNeed: "Action needed",
+    actionHigh: "HIGH",
+    actionModerate: "MODERATE",
+    actionLow: "LOW",
+    dateLocale: "en-GB",
+  },
+  it: {
+    footerStrip: "PERFORMANCE LAB  |  Non sostituisce la consulenza medica",
+    legalTitle: "AVVISO LEGALE",
+    legalAccent: "NON È UNA DIAGNOSI MEDICA",
+    legalSub: "PERFORMANCE INSIGHT  |  NON SOSTITUISCE LA CONSULENZA MEDICA",
+    overallIndex: "OVERALL PERFORMANCE INDEX",
+    gesamtbild: "QUADRO GENERALE",
+    topPriority: "PRIORITÀ PRINCIPALE",
+    metKey: "MET-minuti / settimana",
+    trainingDaysKey: "Giorni di allenamento / settimana",
+    sittingKey: "Tempo seduto / giorno",
+    sleepDuration: "Durata del sonno",
+    sleepDurationValue: (h) => `${h} h / notte`,
+    recoveryScore: "Recovery Score",
+    vo2Estimated: "VO2max stimato",
+    fitnessLevel: "Livello di fitness",
+    bmiKey: "BMI",
+    bmiCategory: "Categoria",
+    stressBand: "Band dello stress",
+    actionNeed: "Azione richiesta",
+    actionHigh: "ALTA",
+    actionModerate: "MODERATA",
+    actionLow: "BASSA",
+    dateLocale: "it-IT",
+  },
+};
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -215,7 +328,7 @@ function pageFooter(page: PDFPage, f: F, today: string): void {
     end: { x: PW - MX, y: fy + 13 },
     thickness: 0.5, color: BORDER_C,
   });
-  page.drawText("PERFORMANCE LAB  |  Kein Ersatz für medizinische Beratung", {
+  page.drawText(PDF_LABELS[currentLocale].footerStrip, {
     x: MX, y: fy, size: 7, font: f.reg, color: TXT_MUTED,
   });
   const tw = f.reg.widthOfTextAtSize(today, 7);
@@ -525,7 +638,7 @@ function buildSummary(
   let y = pageChrome(page, f, today);
 
   // Section heading
-  y = secLabel(page, "GESAMTBILD", f, MX, y);
+  y = secLabel(page, PDF_LABELS[currentLocale].gesamtbild, f, MX, y);
 
   // Executive summary text
   y = drawW(page, content.executive_summary, MX, y, CW, f.reg, 10, TXT_WHITE, 1.65);
@@ -554,7 +667,7 @@ function buildSummary(
   page.drawRectangle({ x: MX, y: y - ovH, width: CW, height: ovH, color: BG_CARD });
   page.drawRectangle({ x: MX, y: y - ovH, width: 4, height: ovH, color: ACCENT });
 
-  page.drawText("OVERALL PERFORMANCE INDEX", {
+  page.drawText(PDF_LABELS[currentLocale].overallIndex, {
     x: MX + 16, y: y - 16, size: 7, font: f.bold, color: TXT_MUTED,
   });
   page.drawText(String(scores.overall.score), {
@@ -580,7 +693,7 @@ function buildSummary(
   if (prioH >= 30) {
     page.drawRectangle({ x: MX, y: y - prioH, width: CW, height: prioH, color: BG_CARD });
     page.drawRectangle({ x: MX, y: y - 5, width: CW, height: 5, color: ACCENT });
-    page.drawText("TOP PRIORITÄT", {
+    page.drawText(PDF_LABELS[currentLocale].topPriority, {
       x: MX + 16, y: y - 19, size: 7, font: f.bold, color: ACCENT,
     });
     drawW(page, content.top_priority, MX + 16, y - 33, CW - 32, f.bold, 10, TXT_WHITE, 1.65);
@@ -688,11 +801,11 @@ function buildDisclaimer(
   let y = pageChrome(page, f, today);
   y -= 28;
 
-  page.drawText("RECHTLICHER HINWEIS", { x: MX, y, size: 20, font: f.bold, color: TXT_WHITE });
+  page.drawText(PDF_LABELS[currentLocale].legalTitle, { x: MX, y, size: 20, font: f.bold, color: TXT_WHITE });
   y -= 30;
-  page.drawText("KEINE MEDIZINISCHE DIAGNOSE", { x: MX, y, size: 14, font: f.bold, color: ACCENT });
+  page.drawText(PDF_LABELS[currentLocale].legalAccent, { x: MX, y, size: 14, font: f.bold, color: ACCENT });
   y -= 24;
-  page.drawText("PERFORMANCE-INSIGHTS  |  KEIN ERSATZ FÜR ÄRZTLICHE BERATUNG", {
+  page.drawText(PDF_LABELS[currentLocale].legalSub, {
     x: MX, y, size: 7.5, font: f.bold, color: TXT_MUTED,
   });
   y -= 30;
@@ -732,8 +845,11 @@ export async function generatePDF(
   content: PdfReportContent,
   scores: PdfScores,
   user: PdfUserProfile,
+  locale: Locale = "de",
 ): Promise<Uint8Array> {
-  const today = new Date().toLocaleDateString("de-DE", {
+  currentLocale = locale;
+  const L = PDF_LABELS[locale];
+  const today = new Date().toLocaleDateString(L.dateLocale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -762,12 +878,12 @@ export async function generatePDF(
   buildModule(doc, "ACTIVITY", scores.activity.score, scores.activity.band,
     content.modules.activity,
     [
-      ["MET-Minuten / Woche", String(scores.total_met)],
+      [L.metKey, String(scores.total_met)],
       ...(scores.training_days != null
-        ? [["Trainingstage / Woche", String(scores.training_days)] as [string, string]]
+        ? [[L.trainingDaysKey, String(scores.training_days)] as [string, string]]
         : []),
       ...(scores.sitting_hours != null
-        ? [["Sitzzeit / Tag", `${scores.sitting_hours} h`] as [string, string]]
+        ? [[L.sittingKey, `${scores.sitting_hours} h`] as [string, string]]
         : []),
     ],
     f, today,
@@ -776,8 +892,8 @@ export async function generatePDF(
   buildModule(doc, "SLEEP", scores.sleep.score, scores.sleep.band,
     content.modules.sleep,
     [
-      ["Schlafdauer", `${scores.sleep_duration_hours} h / Nacht`],
-      ["Recovery Score", `${scores.recovery.score} / 100`],
+      [L.sleepDuration, L.sleepDurationValue(scores.sleep_duration_hours)],
+      [L.recoveryScore, `${scores.recovery.score} / 100`],
     ],
     f, today,
   );
@@ -785,8 +901,8 @@ export async function generatePDF(
   buildModule(doc, "VO2MAX", scores.vo2max.score, scores.vo2max.band,
     content.modules.vo2max,
     [
-      ["Geschätzter VO2max", `${scores.vo2max.estimated} ml/kg/min`],
-      ["Fitness-Level", tx(scores.vo2max.band).toUpperCase()],
+      [L.vo2Estimated, `${scores.vo2max.estimated} ml/kg/min`],
+      [L.fitnessLevel, tx(scores.vo2max.band).toUpperCase()],
     ],
     f, today,
   );
@@ -794,8 +910,8 @@ export async function generatePDF(
   buildModule(doc, "METABOLIC", scores.metabolic.score, scores.metabolic.band,
     content.modules.metabolic,
     [
-      ["BMI", `${user.bmi} kg/m2`],
-      ["Kategorie", tx(user.bmi_category)],
+      [L.bmiKey, `${user.bmi} kg/m2`],
+      [L.bmiCategory, tx(user.bmi_category)],
     ],
     f, today,
   );
@@ -803,9 +919,9 @@ export async function generatePDF(
   buildModule(doc, "STRESS", scores.stress.score, scores.stress.band,
     content.modules.stress,
     [
-      ["Stressband", tx(scores.stress.band).toUpperCase()],
-      ["Handlungsbedarf", scores.stress.score < 40 ? "HOCH" : scores.stress.score < 65 ? "MODERAT" : "GERING"],
-      ["Recovery Score", `${scores.recovery.score} / 100`],
+      [L.stressBand, tx(scores.stress.band).toUpperCase()],
+      [L.actionNeed, scores.stress.score < 40 ? L.actionHigh : scores.stress.score < 65 ? L.actionModerate : L.actionLow],
+      [L.recoveryScore, `${scores.recovery.score} / 100`],
     ],
     f, today,
   );
