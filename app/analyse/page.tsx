@@ -334,6 +334,41 @@ function AnalyseContent() {
     });
   }, []);
 
+  // ── Wearable prefill (from /analyse/prepare) ──────────────────────────
+  interface WearableSession {
+    uploadId: string;
+    source: "whoop" | "apple_health";
+    days_covered: number;
+    metrics: import("@/lib/wearable/types").WearableMetrics;
+  }
+  const [wearable, setWearable] = useState<WearableSession | null>(null);
+  const [prefilledFields, setPrefilledFields] = useState<
+    import("@/lib/wearable/formPrefill").PrefilledField[]
+  >([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const raw = sessionStorage.getItem("btb_wearable");
+        if (!raw) return;
+        const parsed = JSON.parse(raw) as WearableSession;
+        if (!parsed?.uploadId || !parsed.metrics) return;
+        const { computeFormPrefill } = await import("@/lib/wearable/formPrefill");
+        const { values, prefilledFields: fields } = computeFormPrefill(parsed.metrics);
+        if (cancelled) return;
+        setWearable(parsed);
+        setPrefilledFields(fields);
+        setForm((prev) => ({ ...prev, ...values }));
+      } catch {
+        /* ignore — prefill is best-effort */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -461,12 +496,15 @@ function AnalyseContent() {
       setErrorMsg(null);
 
       const payload = buildAssessmentPayload(form);
+      const payloadWithWearable = wearable
+        ? { ...payload, wearable_upload_id: wearable.uploadId }
+        : payload;
 
       // ── Step 1: /api/assessment — scoring only (fast, ~2-4s) ────────────
       const res = await fetch("/api/assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payloadWithWearable),
       });
       const json = await res.json().catch(() => null);
       if (!res.ok) {
@@ -671,6 +709,79 @@ function AnalyseContent() {
 
       <div className={styles.page}>
         <div className={styles.container}>
+
+          {/* ── Wearable Status Banner ────────────────── */}
+          {wearable && (
+            <div
+              style={{
+                padding: "14px 18px",
+                margin: "28px 0 0",
+                borderLeft: "3px solid var(--accent)",
+                background: "rgba(230, 50, 34, 0.06)",
+                borderRadius: 2,
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 14,
+                fontFamily: "var(--font-inter), sans-serif",
+                fontSize: 13,
+                lineHeight: 1.55,
+                color: "rgba(255,255,255,0.85)",
+              }}
+            >
+              <span
+                style={{
+                  flexShrink: 0,
+                  width: 22,
+                  height: 22,
+                  borderRadius: "50%",
+                  background: "var(--accent)",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              >
+                ✓
+              </span>
+              <div>
+                <strong style={{ color: "#fff", fontWeight: 600 }}>
+                  {wearable.source === "whoop" ? "WHOOP" : "Apple Health"}-Daten
+                  importiert
+                </strong>{" "}
+                ({wearable.days_covered} Tage gemessen). Folgende Felder
+                wurden aus deinen echten Daten vorausgefüllt — du kannst sie
+                trotzdem jederzeit ändern:{" "}
+                <span
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono), monospace",
+                    color: "var(--accent)",
+                    fontSize: 12,
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  {prefilledFields
+                    .map((f) =>
+                      f === "gewicht"
+                        ? "Gewicht"
+                        : f === "schlafdauer"
+                          ? "Schlafdauer"
+                          : f === "schlafqualitaet"
+                            ? "Schlafqualität"
+                            : f === "aufwachen"
+                              ? "Aufwachen"
+                              : f === "erholtGefuehl"
+                                ? "Erholung"
+                                : f === "schrittzahl"
+                                  ? "Schritte"
+                                  : f,
+                    )
+                    .join(" · ")}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* ── Hero Intro ─────────────────────────────── */}
           <section className={styles.heroSection}>

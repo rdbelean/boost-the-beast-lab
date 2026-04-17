@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
             "Mit Bestätigung stimmst du zu, dass Boost the Beast Lab deine Zahlungsdaten speichert und für zukünftige optionale Upsell-Käufe (Trainings- & Ernährungspläne) verwenden darf, die du auf der Ergebnisseite freigibst.",
         },
       },
-      success_url: `${origin}/analyse?product=${productId}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/analyse/prepare?product=${productId}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/kaufen`,
     });
 

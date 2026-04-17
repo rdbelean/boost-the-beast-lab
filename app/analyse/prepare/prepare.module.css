@@ -1,0 +1,368 @@
+/* ─── PAGE ──────────────────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  padding: 80px 24px 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* ─── HEADER ────────────────────────────────────────────────── */
+.label {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.headline {
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 52px);
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1.05;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.subtitle {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+/* ─── PRIVACY BANNER ────────────────────────────────────────── */
+.privacyBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 36px;
+  border-left: 3px solid var(--accent);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 2px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+}
+.privacyBanner strong {
+  color: #fff;
+  font-weight: 600;
+}
+.privacyBanner .shieldIcon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+/* ─── CARDS GRID ────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+@media (max-width: 820px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.card:hover { border-color: rgba(230, 50, 34, 0.5); transform: translateY(-2px); }
+.cardDisabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.cardDisabled:hover { border-color: var(--border); transform: none; }
+
+.logoBox {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.cardTitle {
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.cardDesc {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+.cardBadge {
+  display: inline-block;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  align-self: flex-start;
+}
+
+/* ─── TUTORIAL ACCORDION ────────────────────────────────────── */
+.tutorial {
+  margin-top: auto;
+}
+.tutorialToggle {
+  background: none;
+  border: none;
+  padding: 10px 0;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+.tutorialToggle:hover { color: #fff; }
+.chevron {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-style: normal;
+}
+.chevronOpen { transform: rotate(180deg); }
+
+.tutorialContent {
+  padding: 8px 0 14px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+.tutorialContent ol {
+  padding-left: 18px;
+  margin: 0;
+}
+.tutorialContent li {
+  margin-bottom: 4px;
+}
+.tutorialNote {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: rgba(245, 158, 11, 0.08);
+  border-left: 2px solid rgba(245, 158, 11, 0.5);
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(245, 158, 11, 0.85);
+}
+
+/* ─── UPLOAD ZONE ───────────────────────────────────────────── */
+.uploadZone {
+  border: 1.5px dashed var(--border);
+  border-radius: 4px;
+  padding: 16px 14px;
+  margin-top: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: rgba(255, 255, 255, 0.02);
+}
+.uploadZone:hover {
+  border-color: var(--accent);
+  background: rgba(230, 50, 34, 0.04);
+}
+.uploadZoneActive {
+  border-color: var(--accent);
+  background: rgba(230, 50, 34, 0.08);
+}
+.uploadLabel {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.uploadHint {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.uploadInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* ─── SKIP CARD BUTTON ──────────────────────────────────────── */
+.skipBtn {
+  margin-top: auto;
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.skipBtn:hover {
+  border-color: var(--accent);
+  background: rgba(230, 50, 34, 0.06);
+}
+
+/* ─── SKIP LINK (footer) ────────────────────────────────────── */
+.skipLink {
+  background: none;
+  border: none;
+  padding: 12px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin: 0 auto;
+  display: block;
+}
+.skipLink:hover { color: #fff; }
+
+/* ─── ERROR ─────────────────────────────────────────────────── */
+.errorMsg {
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid rgb(239, 68, 68);
+  border-radius: 2px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgb(252, 165, 165);
+}
+
+/* ─── PARSING OVERLAY ───────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 12, 0.96);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  backdrop-filter: blur(6px);
+}
+.overlayInner {
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+}
+.overlayLabel {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+.overlayTitle {
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 5vw, 36px);
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 28px;
+}
+.progressBar {
+  height: 4px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #E63222 0%, #ff6b4a 100%);
+  transition: width 200ms linear;
+}
+.progressText {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.overlayReassurance {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.overlayCancel {
+  background: none;
+  border: 1px solid var(--border);
+  padding: 10px 18px;
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 2px;
+}
+.overlayCancel:hover {
+  color: #fff;
+  border-color: #fff;
+}
