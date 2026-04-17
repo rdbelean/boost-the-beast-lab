@@ -83,6 +83,7 @@ export default async function AccountPage() {
           year: "numeric",
           timeZone: "Europe/Berlin",
         }),
+        isoDate: new Date(a.created_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" }),
         overall: Math.round(s.overall_score ?? 0),
         band: bandByAssessment.get(a.id) ?? "",
         scores: {

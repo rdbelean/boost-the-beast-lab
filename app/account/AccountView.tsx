@@ -4,6 +4,7 @@ import styles from "./account.module.css";
 export interface AccountReport {
   id: string;
   date: string;
+  isoDate: string;
   overall: number;
   band: string;
   scores: { activity: number; sleep: number; vo2max: number; metabolic: number; stress: number };
@@ -73,10 +74,10 @@ function CompareRow({
   );
 }
 
-function DownloadBtn({ url, label }: { url: string | null; label: string }) {
+function DownloadBtn({ url, label, filename }: { url: string | null; label: string; filename: string }) {
   if (url) {
     return (
-      <a href={url} download target="_blank" rel="noopener noreferrer" className={styles.pdfBtn}>
+      <a href={url} download={filename} target="_blank" rel="noopener noreferrer" className={styles.pdfBtn}>
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
           <path d="M5 1v6M2 7l3 2 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
@@ -257,11 +258,11 @@ export default function AccountView({ reports }: { reports: AccountReport[] }) {
               </div>
 
               <div className={styles.reportActions}>
-                <DownloadBtn url={report.pdfUrl} label="Performance Report" />
-                <DownloadBtn url={report.planUrls.activity}  label="Activity Plan" />
-                <DownloadBtn url={report.planUrls.metabolic} label="Metabolic Plan" />
-                <DownloadBtn url={report.planUrls.recovery}  label="Recovery Plan" />
-                <DownloadBtn url={report.planUrls.stress}    label="Stress Plan" />
+                <DownloadBtn url={report.pdfUrl}              label="Performance Report"    filename={`Performance-Report_${report.isoDate}.pdf`} />
+                <DownloadBtn url={report.planUrls.activity}   label="Activity Plan"         filename={`Activity-Plan_${report.isoDate}.pdf`} />
+                <DownloadBtn url={report.planUrls.metabolic}  label="Metabolic Plan"        filename={`Metabolic-Plan_${report.isoDate}.pdf`} />
+                <DownloadBtn url={report.planUrls.recovery}   label="Recovery Plan"         filename={`Recovery-Plan_${report.isoDate}.pdf`} />
+                <DownloadBtn url={report.planUrls.stress}     label="Stress Plan"           filename={`Stress-Lifestyle-Plan_${report.isoDate}.pdf`} />
               </div>
             </div>
           );

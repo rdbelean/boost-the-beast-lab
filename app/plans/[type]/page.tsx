@@ -5,29 +5,41 @@ import { useParams } from "next/navigation";
 import styles from "./plan.module.css";
 import { buildPlan, type PlanType, type PlanContent } from "@/lib/plan/buildPlan";
 
-async function openPlanAsPDF(plan: PlanContent, cachedPdfBase64?: string | null) {
-  // If we have a pre-generated PDF cached, open it immediately.
+const PLAN_FILENAMES: Record<string, string> = {
+  activity:  "Activity-Plan",
+  metabolic: "Metabolic-Plan",
+  recovery:  "Recovery-Plan",
+  stress:    "Stress-Lifestyle-Plan",
+};
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+async function openPlanAsPDF(plan: PlanContent, planType: string, cachedPdfBase64?: string | null) {
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" });
+  const prefix = PLAN_FILENAMES[planType] ?? "Plan";
+  const filename = `${prefix}_${today}.pdf`;
+
   if (cachedPdfBase64) {
     const byteChars = atob(cachedPdfBase64);
     const bytes = new Uint8Array(byteChars.length);
     for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
-    const blob = new Blob([bytes], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    downloadBlob(new Blob([bytes], { type: "application/pdf" }), filename);
     return;
   }
-  // Fallback: generate on demand.
   const res = await fetch("/api/plan/pdf", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ plan }),
   });
   if (!res.ok) throw new Error("PDF generation failed");
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  window.open(url, "_blank");
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  downloadBlob(await res.blob(), filename);
 }
 
 /* ─── Urgency label ──────────────────────────────────────── */
@@ -115,7 +127,7 @@ export default function PlanPage() {
       <div className={styles.header}>
         <Link href="/results" className={styles.backLink}>← ZURÜCK ZUM REPORT</Link>
         <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
-        <button onClick={() => openPlanAsPDF(plan, cachedPdfBase64)} className={styles.printBtn}>
+        <button onClick={() => openPlanAsPDF(plan, type, cachedPdfBase64)} className={styles.printBtn}>
           PDF DOWNLOAD ↓
         </button>
       </div>
