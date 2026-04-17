@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import styles from "./kaufen.module.css";
 
@@ -28,6 +28,7 @@ const FEATURE_KEYS = [
 export default function KaufenPage() {
   const t = useTranslations("kaufen");
   const tProducts = useTranslations("products");
+  const locale = useLocale();
   const router = useRouter();
   const [buying, setBuying] = useState(false);
 
@@ -37,7 +38,7 @@ export default function KaufenPage() {
       const res = await fetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: "complete-analysis" }),
+        body: JSON.stringify({ productId: "complete-analysis", locale }),
       });
       const { url } = await res.json();
       if (url) { window.location.href = url; return; }
