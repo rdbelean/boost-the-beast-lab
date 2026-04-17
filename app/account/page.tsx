@@ -4,6 +4,7 @@ import styles from "./account.module.css";
 import BackButton from "@/components/ui/BackButton";
 import { getSupabaseServerClient, getSupabaseServiceClient } from "@/lib/supabase/server";
 import AccountView, { type AccountReport } from "./AccountView";
+import WearablePanel, { type WearableUploadRow } from "./WearablePanel";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,16 @@ export default async function AccountPage() {
         svc.from("report_artifacts").select("assessment_id, file_url, file_type").in("assessment_id", assessmentIds),
       ])
     : [{ data: [] }, { data: [] }];
+
+  // 3b. Wearable uploads for those users.
+  const { data: wearableRows } = userIds.length
+    ? await svc
+        .from("wearable_uploads")
+        .select("id, source, window_start, window_end, days_covered, assessment_id, created_at")
+        .in("user_id", userIds)
+        .order("created_at", { ascending: false })
+    : { data: [] };
+  const wearableUploads = (wearableRows ?? []) as WearableUploadRow[];
 
   // Score codes saved by /api/assessment: "activity_score", "sleep_score",
   // "vo2max_score", "metabolic_score", "stress_score", "overall_score".
@@ -143,6 +154,8 @@ export default async function AccountPage() {
         ) : (
           <AccountView reports={reports} />
         )}
+
+        <WearablePanel uploads={wearableUploads} />
 
         <div className={styles.cta}>
           <Link href="/" className={styles.ctaSecondary}>

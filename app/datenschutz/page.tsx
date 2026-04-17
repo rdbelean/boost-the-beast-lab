@@ -144,7 +144,31 @@ export default function DatenschutzPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>8. KI-gestützte Report-Erstellung (Anthropic)</h2>
+          <h2 className={styles.sectionTitle}>8. Wearable-Daten-Import (optional)</h2>
+          <p className={styles.text}>
+            Wir bieten dir an, WHOOP- oder Apple-Health-Exportdateien in deine Analyse einfließen zu lassen, um deine Scores auf Basis tatsächlich gemessener Daten zu berechnen. Dieser Schritt ist <strong>rein optional</strong> — der Fragebogen funktioniert auch ohne Wearable vollumfänglich.
+          </p>
+          <p className={styles.text}>
+            <strong>Die ZIP-Datei verlässt dein Gerät zu keinem Zeitpunkt.</strong> Die Verarbeitung findet ausschließlich lokal in deinem Browser statt (JavaScript / Web Worker). An unsere Server werden ausschließlich anonymisierte Aggregate übertragen:
+          </p>
+          <ul className={styles.list}>
+            <li>Durchschnittswerte der letzten 30 Tage (z.&nbsp;B. Ø Schlafdauer, Ø Ruhepuls, Ø HRV, Ø Schritte)</li>
+            <li>Anzahl der Tage mit Messdaten im Auswertungszeitraum</li>
+            <li>Optional zuletzt gemessenes Körpergewicht und VO2max</li>
+          </ul>
+          <p className={styles.text}>
+            <strong>Nicht übertragen werden:</strong> die ZIP-Datei, einzelne Messpunkte, zeitliche Verläufe, Geräte-IDs oder Quell-Metadaten (sourceName, sourceVersion etc.).
+          </p>
+          <p className={styles.text}>
+            Speicherdauer: Die anonymisierten Aggregate werden gemeinsam mit deinem Report gespeichert (siehe Abschnitt 14). Du kannst die importierten Wearable-Aggregate jederzeit unabhängig vom Report unter &quot;Mein Konto → Wearable-Daten&quot; löschen.
+          </p>
+          <p className={styles.text}>
+            Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung), zusätzlich Art. 9 Abs. 2 lit. a DSGVO für Gesundheitsdaten. Der Import ist jederzeit mit Wirkung für die Zukunft widerrufbar. Auftragsverarbeiter: keine — die Verarbeitung findet ausschließlich in deinem Browser sowie auf unserem bestehenden Supabase-Backend (EU-Region) statt.
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>9. KI-gestützte Report-Erstellung (Anthropic)</h2>
           <p className={styles.text}>
             Für die Generierung deines individuellen Performance-Reports übermitteln wir deine Assessment-Daten (pseudonymisiert, ohne Klarnamen) an die Claude-API von Anthropic, PBC, 548 Market St, PMB 90375, San Francisco, CA 94104, USA.
           </p>
@@ -160,7 +184,7 @@ export default function DatenschutzPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>9. Zahlungsabwicklung (Stripe)</h2>
+          <h2 className={styles.sectionTitle}>10. Zahlungsabwicklung (Stripe)</h2>
           <p className={styles.text}>
             Für die Abwicklung von Zahlungen nutzen wir Stripe Payments Europe, Ltd., 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Irland. Beim Checkout wirst du auf eine von Stripe gehostete Zahlungsseite weitergeleitet. Deine Zahlungsdaten (z.&nbsp;B. Kreditkartennummer) gibst du ausschließlich bei Stripe ein; wir erhalten diese Daten zu keinem Zeitpunkt.
           </p>
@@ -180,7 +204,7 @@ export default function DatenschutzPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>10. Versand deines Reports per E-Mail (Resend)</h2>
+          <h2 className={styles.sectionTitle}>11. Versand deines Reports per E-Mail (Resend)</h2>
           <p className={styles.text}>
             Für den Versand deines Performance-Reports und für transaktionale System-E-Mails (z.&nbsp;B. Login-Codes) nutzen wir den E-Mail-Dienst Resend, Inc., 2261 Market Street #5039, San Francisco, CA 94114, USA. Dabei werden deine E-Mail-Adresse und der Inhalt der jeweiligen Nachricht an Resend übermittelt.
           </p>
@@ -190,7 +214,7 @@ export default function DatenschutzPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>11. Hosting (Vercel)</h2>
+          <h2 className={styles.sectionTitle}>12. Hosting (Vercel)</h2>
           <p className={styles.text}>
             Unsere Website wird bei Vercel Inc., 440 N Barranca Avenue #4133, Covina, CA 91723, USA gehostet. Vercel verarbeitet die unter Punkt 4 genannten Zugriffsdaten in unserem Auftrag. Die Auslieferung erfolgt soweit möglich über europäische Edge-Knoten.
           </p>
@@ -207,14 +231,14 @@ export default function DatenschutzPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>12. Schriftarten</h2>
+          <h2 className={styles.sectionTitle}>13. Schriftarten</h2>
           <p className={styles.text}>
             Die auf dieser Website verwendeten Schriftarten (Oswald, Inter, JetBrains Mono) werden lokal über unseren eigenen Server ausgeliefert (Self-Hosting via <code>next/font</code>). Es erfolgt <strong>keine</strong> Verbindung zu Google- oder anderen Drittanbieter-Servern für die Schrift-Auslieferung; insbesondere werden keine IP-Adressen an Google übermittelt.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>13. Speicherdauer – Übersicht</h2>
+          <h2 className={styles.sectionTitle}>14. Speicherdauer – Übersicht</h2>
           <ul className={styles.list}>
             <li>Server-Log-Dateien: max. 7 Tage</li>
             <li>Account-Daten (E-Mail, Authentifizierung): bis zum Widerruf / Löschung des Accounts</li>
@@ -225,14 +249,14 @@ export default function DatenschutzPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>14. SSL-/TLS-Verschlüsselung</h2>
+          <h2 className={styles.sectionTitle}>15. SSL-/TLS-Verschlüsselung</h2>
           <p className={styles.text}>
             Zum Schutz der Übertragung vertraulicher Inhalte nutzen wir eine SSL-/TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennst du an der Zeichenfolge „https://" in der Adresszeile deines Browsers und am Schloss-Symbol.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>15. Aktualität dieser Datenschutzerklärung</h2>
+          <h2 className={styles.sectionTitle}>16. Aktualität dieser Datenschutzerklärung</h2>
           <p className={styles.text}>
             Diese Datenschutzerklärung kann angepasst werden, wenn sich Rechtslage, Technik oder unsere Datenverarbeitungen ändern. Die jeweils aktuelle Fassung ist auf dieser Seite abrufbar.
           </p>
