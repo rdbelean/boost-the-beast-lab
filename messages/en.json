@@ -146,6 +146,38 @@
       }
     }
   },
+  "login": {
+    "title": "LOG IN / CREATE ACCOUNT",
+    "subtitle_email": "Passwordless login — we'll send a 6-digit code to your email.",
+    "subtitle_code": "Code sent to {email}. Check your inbox.",
+    "error_label": "Error:",
+    "error_send_failed": "Login failed",
+    "error_verify_failed": "Invalid code",
+    "error_google_failed": "Google login failed",
+    "google_button": "Continue with Google",
+    "separator_or": "OR BY EMAIL",
+    "email_label": "EMAIL",
+    "email_placeholder": "you@email.com",
+    "send_code_btn": "SEND CODE →",
+    "send_code_loading": "SENDING…",
+    "hint_passwordless": "No password needed · 6-digit login code by email",
+    "code_label": "6-DIGIT CODE",
+    "code_placeholder": "123456",
+    "verify_btn": "LOG IN →",
+    "verify_loading": "VERIFYING…",
+    "back_other_email": "← Use a different email"
+  },
+  "kaufen": {
+    "back_home": "← HOME",
+    "tag": "COMPLETE PACKAGE",
+    "title": "COMPLETE PERFORMANCE ANALYSIS",
+    "subtitle": "Your full performance report + personalized optimization and training plans.",
+    "price_sub": "one-time · no subscription",
+    "cta_buy": "BUY NOW →",
+    "cta_loading": "STARTING…",
+    "error_checkout": "Checkout could not be started. Please try again.",
+    "disclaimer": "Secure checkout · SSL-encrypted · One-time payment"
+  },
   "footer": {
     "claim": "MADE FOR ATHLETES. NOT FOR AVERAGE.",
     "brand_desc": "Performance insights at scientific level — calibrated to WHO & ACSM.",

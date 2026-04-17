@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import styles from "./kaufen.module.css";
 
@@ -9,20 +10,24 @@ const CheckIcon = () => (
   </svg>
 );
 
-const features = [
-  "Overall Performance Index (0–100)",
-  "Metabolic Performance Score",
-  "Recovery & Regeneration Score",
-  "Activity Performance Score",
-  "Stress & Lifestyle Score",
-  "VO2max Schätzung (ml/kg/min)",
-  "Individuelle Optimierungspläne",
-  "Individuelle Trainingspläne",
-  "30-Tage Performance Prognose",
-  "KI-generierter Premium PDF Report",
-];
+// Feature keys are shared with the landing page's products namespace so we
+// only translate the list once. Keep in sync with messages/*.json.
+const FEATURE_KEYS = [
+  "overall",
+  "metabolic",
+  "recovery",
+  "activity",
+  "stress",
+  "vo2max",
+  "optimization_plans",
+  "training_plans",
+  "forecast",
+  "pdf",
+] as const;
 
 export default function KaufenPage() {
+  const t = useTranslations("kaufen");
+  const tProducts = useTranslations("products");
   const router = useRouter();
   const [buying, setBuying] = useState(false);
 
@@ -38,7 +43,7 @@ export default function KaufenPage() {
       if (url) { window.location.href = url; return; }
       router.push("/analyse?product=complete-analysis");
     } catch {
-      alert("Checkout konnte nicht gestartet werden. Bitte erneut versuchen.");
+      alert(t("error_checkout"));
       setBuying(false);
     }
   }
@@ -46,7 +51,7 @@ export default function KaufenPage() {
   return (
     <div className={styles.page}>
       <div className={styles.inner}>
-        <Link href="/" className={styles.backRow}>← HOME</Link>
+        <Link href="/" className={styles.backRow}>{t("back_home")}</Link>
         <Link href="/" className={styles.logo}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-white.svg" width={58} height={36} alt="" aria-hidden="true" style={{ objectFit: "contain" }} />
@@ -57,27 +62,27 @@ export default function KaufenPage() {
         </Link>
 
         <div className={styles.card}>
-          <span className={styles.tag}>VOLLSTÄNDIGES PAKET</span>
-          <h2 className={styles.title}>COMPLETE PERFORMANCE ANALYSIS</h2>
+          <span className={styles.tag}>{t("tag")}</span>
+          <h2 className={styles.title}>{t("title")}</h2>
           <p className={styles.subtitle}>
-            Dein vollständiger Performance Report + individuelle Optimierungs- & Trainingspläne.
+            {t("subtitle")}
           </p>
           <ul className={styles.features}>
-            {features.map((f) => (
-              <li key={f} className={styles.featureItem}><CheckIcon />{f}</li>
+            {FEATURE_KEYS.map((key) => (
+              <li key={key} className={styles.featureItem}><CheckIcon />{tProducts(`features.${key}`)}</li>
             ))}
           </ul>
           <div className={styles.priceRow}>
             <div className={styles.price}>€39<span className={styles.priceCents}>,90</span></div>
-            <div className={styles.priceSub}>einmalig · kein Abo</div>
+            <div className={styles.priceSub}>{t("price_sub")}</div>
           </div>
           <button onClick={handleBuy} disabled={buying} className={styles.btnPrimary}>
-            {buying ? "WIRD GESTARTET…" : "JETZT KAUFEN →"}
+            {buying ? t("cta_loading") : t("cta_buy")}
           </button>
         </div>
 
         <p className={styles.disclaimer}>
-          Sicherer Checkout · SSL-verschlüsselt · Einmalige Zahlung
+          {t("disclaimer")}
         </p>
       </div>
     </div>

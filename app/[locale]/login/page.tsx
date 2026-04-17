@@ -1,12 +1,14 @@
 "use client";
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import styles from "./login.module.css";
 import BackButton from "@/components/ui/BackButton";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function LoginContent() {
+  const t = useTranslations("login");
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/";
@@ -24,7 +26,6 @@ function LoginContent() {
     setErrorMsg(null);
     try {
       const supabase = getSupabaseBrowserClient();
-      // No emailRedirectTo — triggers OTP-code flow instead of magic link.
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { shouldCreateUser: true },
@@ -32,7 +33,7 @@ function LoginContent() {
       if (error) throw error;
       setStep("code");
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Login fehlgeschlagen");
+      setErrorMsg(err instanceof Error ? err.message : t("error_send_failed"));
     } finally {
       setLoading(false);
     }
@@ -50,17 +51,15 @@ function LoginContent() {
         type: "email",
       });
       if (error) throw error;
-      // Session is set. Trigger backfill so existing email-keyed data is
-      // attached to the new auth user before we leave the page.
       try {
         await fetch("/api/auth/link", { method: "POST" });
       } catch {
-        // Non-fatal — user is still logged in.
+        // Non-fatal
       }
       router.push(next);
       router.refresh();
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Code ungültig");
+      setErrorMsg(err instanceof Error ? err.message : t("error_verify_failed"));
     } finally {
       setLoading(false);
     }
@@ -77,9 +76,8 @@ function LoginContent() {
         options: { redirectTo },
       });
       if (error) throw error;
-      // Browser redirects to Google — no further client code runs.
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Google-Login fehlgeschlagen");
+      setErrorMsg(err instanceof Error ? err.message : t("error_google_failed"));
       setLoading(false);
     }
   }
@@ -96,12 +94,10 @@ function LoginContent() {
           </div>
         </Link>
 
-        <h1 className={styles.title}>LOGIN / ACCOUNT ERSTELLEN</h1>
+        <h1 className={styles.title}>{t("title")}</h1>
 
         <p className={styles.subtitle}>
-          {step === "email"
-            ? "Melde dich passwortlos an — wir schicken dir einen 6-stelligen Code per E-Mail."
-            : `Code an ${email} gesendet. Prüfe dein Postfach.`}
+          {step === "email" ? t("subtitle_email") : t("subtitle_code", { email })}
         </p>
 
         {errorMsg && (
@@ -115,13 +111,12 @@ function LoginContent() {
               marginBottom: 18,
             }}
           >
-            <strong>Fehler:</strong> {errorMsg}
+            <strong>{t("error_label")}</strong> {errorMsg}
           </div>
         )}
 
         {step === "email" ? (
           <>
-            {/* Google OAuth */}
             <button
               type="button"
               onClick={handleGoogle}
@@ -149,7 +144,7 @@ function LoginContent() {
                 <path d="M3.96 10.71c-.18-.54-.29-1.11-.29-1.71s.11-1.17.29-1.71V4.95H.96C.35 6.17 0 7.55 0 9s.35 2.83.96 4.05l3-2.34z" fill="#FBBC04"/>
                 <path d="M9 3.58c1.32 0 2.51.45 3.44 1.34l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.45 2.02.96 4.95l3 2.34C4.67 5.17 6.66 3.58 9 3.58z" fill="#EA4335"/>
               </svg>
-              Weiter mit Google
+              {t("google_button")}
             </button>
 
             <div
@@ -164,37 +159,37 @@ function LoginContent() {
               }}
             >
               <div style={{ flex: 1, height: 1, background: "#333" }} />
-              ODER PER E-MAIL
+              {t("separator_or")}
               <div style={{ flex: 1, height: 1, background: "#333" }} />
             </div>
 
             <form onSubmit={handleSendCode} className={styles.form}>
               <div className={styles.field}>
-                <label className={styles.label}>E-MAIL</label>
+                <label className={styles.label}>{t("email_label")}</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={styles.input}
-                  placeholder="deine@email.de"
+                  placeholder={t("email_placeholder")}
                   required
                 />
               </div>
 
               <button type="submit" disabled={loading || !email} className={styles.btn}>
-                {loading ? "WIRD GESENDET…" : "CODE SENDEN →"}
+                {loading ? t("send_code_loading") : t("send_code_btn")}
               </button>
             </form>
 
             <p style={{ fontSize: 11, color: "#666", textAlign: "center", marginTop: 16 }}>
-              Kein Passwort nötig · 6-stelliger Login-Code per E-Mail
+              {t("hint_passwordless")}
             </p>
           </>
         ) : (
           <>
             <form onSubmit={handleVerifyCode} className={styles.form}>
               <div className={styles.field}>
-                <label className={styles.label}>6-STELLIGER CODE</label>
+                <label className={styles.label}>{t("code_label")}</label>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -203,7 +198,7 @@ function LoginContent() {
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                   className={styles.input}
-                  placeholder="123456"
+                  placeholder={t("code_placeholder")}
                   required
                   autoFocus
                   style={{
@@ -216,7 +211,7 @@ function LoginContent() {
               </div>
 
               <button type="submit" disabled={loading || code.length !== 6} className={styles.btn}>
-                {loading ? "WIRD GEPRÜFT…" : "EINLOGGEN →"}
+                {loading ? t("verify_loading") : t("verify_btn")}
               </button>
             </form>
 
@@ -236,7 +231,7 @@ function LoginContent() {
                 padding: 8,
               }}
             >
-              ← Andere E-Mail verwenden
+              {t("back_other_email")}
             </button>
           </>
         )}

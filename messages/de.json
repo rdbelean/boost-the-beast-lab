@@ -146,6 +146,38 @@
       }
     }
   },
+  "login": {
+    "title": "LOGIN / ACCOUNT ERSTELLEN",
+    "subtitle_email": "Melde dich passwortlos an — wir schicken dir einen 6-stelligen Code per E-Mail.",
+    "subtitle_code": "Code an {email} gesendet. Prüfe dein Postfach.",
+    "error_label": "Fehler:",
+    "error_send_failed": "Login fehlgeschlagen",
+    "error_verify_failed": "Code ungültig",
+    "error_google_failed": "Google-Login fehlgeschlagen",
+    "google_button": "Weiter mit Google",
+    "separator_or": "ODER PER E-MAIL",
+    "email_label": "E-MAIL",
+    "email_placeholder": "deine@email.de",
+    "send_code_btn": "CODE SENDEN →",
+    "send_code_loading": "WIRD GESENDET…",
+    "hint_passwordless": "Kein Passwort nötig · 6-stelliger Login-Code per E-Mail",
+    "code_label": "6-STELLIGER CODE",
+    "code_placeholder": "123456",
+    "verify_btn": "EINLOGGEN →",
+    "verify_loading": "WIRD GEPRÜFT…",
+    "back_other_email": "← Andere E-Mail verwenden"
+  },
+  "kaufen": {
+    "back_home": "← HOME",
+    "tag": "VOLLSTÄNDIGES PAKET",
+    "title": "COMPLETE PERFORMANCE ANALYSIS",
+    "subtitle": "Dein vollständiger Performance Report + individuelle Optimierungs- & Trainingspläne.",
+    "price_sub": "einmalig · kein Abo",
+    "cta_buy": "JETZT KAUFEN →",
+    "cta_loading": "WIRD GESTARTET…",
+    "error_checkout": "Checkout konnte nicht gestartet werden. Bitte erneut versuchen.",
+    "disclaimer": "Sicherer Checkout · SSL-verschlüsselt · Einmalige Zahlung"
+  },
   "footer": {
     "claim": "MADE FOR ATHLETES. NOT FOR AVERAGE.",
     "brand_desc": "Performance Insights auf wissenschaftlichem Niveau – kalibriert nach WHO & ACSM.",

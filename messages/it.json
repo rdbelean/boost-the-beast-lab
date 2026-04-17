@@ -146,6 +146,38 @@
       }
     }
   },
+  "login": {
+    "title": "ACCEDI / CREA ACCOUNT",
+    "subtitle_email": "Login senza password — ti inviamo un codice a 6 cifre via email.",
+    "subtitle_code": "Codice inviato a {email}. Controlla la tua casella.",
+    "error_label": "Errore:",
+    "error_send_failed": "Login non riuscito",
+    "error_verify_failed": "Codice non valido",
+    "error_google_failed": "Login con Google non riuscito",
+    "google_button": "Continua con Google",
+    "separator_or": "OPPURE VIA EMAIL",
+    "email_label": "EMAIL",
+    "email_placeholder": "tu@email.it",
+    "send_code_btn": "INVIA CODICE →",
+    "send_code_loading": "INVIO IN CORSO…",
+    "hint_passwordless": "Nessuna password necessaria · Codice di accesso a 6 cifre via email",
+    "code_label": "CODICE A 6 CIFRE",
+    "code_placeholder": "123456",
+    "verify_btn": "ACCEDI →",
+    "verify_loading": "VERIFICA IN CORSO…",
+    "back_other_email": "← Usa un'altra email"
+  },
+  "kaufen": {
+    "back_home": "← HOME",
+    "tag": "PACCHETTO COMPLETO",
+    "title": "COMPLETE PERFORMANCE ANALYSIS",
+    "subtitle": "Il tuo report completo sulla performance + piani personalizzati di ottimizzazione e allenamento.",
+    "price_sub": "pagamento unico · nessun abbonamento",
+    "cta_buy": "ACQUISTA ORA →",
+    "cta_loading": "AVVIO IN CORSO…",
+    "error_checkout": "Checkout non avviabile. Riprova.",
+    "disclaimer": "Checkout sicuro · Crittografia SSL · Pagamento unico"
+  },
   "footer": {
     "claim": "MADE FOR ATHLETES. NOT FOR AVERAGE.",
     "brand_desc": "Insight sulla performance a livello scientifico — calibrati secondo WHO e ACSM.",
