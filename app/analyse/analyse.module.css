@@ -125,6 +125,9 @@
 @media (max-width: 768px) {
   .container { padding: 0 20px; }
   .headerInner { padding: 0 20px; }
+  /* The absolute-centered step counter collides with the logo block
+     on mobile. Progress bar under the header already conveys progress. */
+  .stepIndicator { display: none; }
 }
 
 /* ─── HERO INTRO ────────────────────────────────────────────── */
