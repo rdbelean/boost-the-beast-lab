@@ -29,6 +29,31 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error;
 
+    // Delete plan artifacts for all other assessments of the same user.
+    // Plans are only kept for the most recent report — older ones are pruned on save.
+    const { data: ownerRow } = await supabase
+      .from("assessments")
+      .select("user_id")
+      .eq("id", assessmentId)
+      .single();
+
+    if (ownerRow?.user_id) {
+      const { data: others } = await supabase
+        .from("assessments")
+        .select("id")
+        .eq("user_id", ownerRow.user_id)
+        .neq("id", assessmentId);
+
+      const otherIds = (others ?? []).map((a: { id: string }) => a.id);
+      if (otherIds.length) {
+        await supabase
+          .from("report_artifacts")
+          .delete()
+          .in("assessment_id", otherIds)
+          .like("file_type", "plan_%");
+      }
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[plan/save]", err);

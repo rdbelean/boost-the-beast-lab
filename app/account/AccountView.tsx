@@ -74,7 +74,7 @@ function CompareRow({
   );
 }
 
-function DownloadBtn({ url, label, filename }: { url: string | null; label: string; filename: string }) {
+function DownloadBtn({ url, label, filename, disabledTitle }: { url: string | null; label: string; filename: string; disabledTitle?: string }) {
   if (url) {
     return (
       <a href={url} target="_blank" rel="noopener noreferrer" className={styles.pdfBtn}>
@@ -86,7 +86,7 @@ function DownloadBtn({ url, label, filename }: { url: string | null; label: stri
     );
   }
   return (
-    <span className={styles.pdfBtnDisabled} title="Nicht verfügbar">
+    <span className={styles.pdfBtnDisabled} title={disabledTitle ?? "Nicht verfügbar"}>
       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
         <path d="M5 1v6M2 7l3 2 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
@@ -258,11 +258,11 @@ export default function AccountView({ reports }: { reports: AccountReport[] }) {
               </div>
 
               <div className={styles.reportActions}>
-                <DownloadBtn url={report.pdfUrl}              label="Performance Report"    filename={`Performance-Report_${report.isoDate}.pdf`} />
-                <DownloadBtn url={report.planUrls.activity}   label="Activity Plan"         filename={`Activity-Plan_${report.isoDate}.pdf`} />
-                <DownloadBtn url={report.planUrls.metabolic}  label="Metabolic Plan"        filename={`Metabolic-Plan_${report.isoDate}.pdf`} />
-                <DownloadBtn url={report.planUrls.recovery}   label="Recovery Plan"         filename={`Recovery-Plan_${report.isoDate}.pdf`} />
-                <DownloadBtn url={report.planUrls.stress}     label="Stress Plan"           filename={`Stress-Lifestyle-Plan_${report.isoDate}.pdf`} />
+                <DownloadBtn url={report.pdfUrl}                          label="Performance Report" filename={`Performance-Report_${report.isoDate}.pdf`} />
+                <DownloadBtn url={i === 0 ? report.planUrls.activity  : null} label="Activity Plan"  filename={`Activity-Plan_${report.isoDate}.pdf`}         disabledTitle="Nur für aktuellsten Report verfügbar" />
+                <DownloadBtn url={i === 0 ? report.planUrls.metabolic : null} label="Metabolic Plan" filename={`Metabolic-Plan_${report.isoDate}.pdf`}        disabledTitle="Nur für aktuellsten Report verfügbar" />
+                <DownloadBtn url={i === 0 ? report.planUrls.recovery  : null} label="Recovery Plan"  filename={`Recovery-Plan_${report.isoDate}.pdf`}         disabledTitle="Nur für aktuellsten Report verfügbar" />
+                <DownloadBtn url={i === 0 ? report.planUrls.stress    : null} label="Stress Plan"    filename={`Stress-Lifestyle-Plan_${report.isoDate}.pdf`} disabledTitle="Nur für aktuellsten Report verfügbar" />
               </div>
             </div>
           );
