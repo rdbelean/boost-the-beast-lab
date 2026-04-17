@@ -3,6 +3,12 @@
     "locale": "it",
     "status": "landing-complete-other-pages-pending"
   },
+  "seo": {
+    "default_title": "BOOST THE BEAST LAB – Performance Intelligence System",
+    "default_description": "Diagnostica della performance a livello scientifico. Analizza metabolismo, recupero, attività e stress — niente laboratorio, niente attesa.",
+    "og_title": "BOOST THE BEAST LAB",
+    "og_description": "Il tuo corpo. I tuoi dati. Il tuo livello."
+  },
   "language_switcher": {
     "aria_label": "Cambia lingua"
   },

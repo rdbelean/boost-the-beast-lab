@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Oswald, Inter, JetBrains_Mono } from "next/font/google";
 import "../globals.css";
 import CookieBanner from "@/components/CookieBanner";
 import { routing } from "@/i18n/routing";
+
+const SITE_URL = "https://boostthebeast-lab.com";
 
 const oswald = Oswald({
   subsets: ["latin"],
@@ -28,18 +30,41 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://boostthebeast-lab.com"),
-  title: "BOOST THE BEAST LAB – Performance Intelligence System",
-  description:
-    "Performance Diagnostik auf wissenschaftlichem Niveau. Analysiere Metabolismus, Recovery, Aktivität und Stress – ohne Labor, ohne Wartezeit.",
-  openGraph: {
-    title: "BOOST THE BEAST LAB",
-    description: "Dein Körper. Deine Daten. Dein Level.",
-    type: "website",
-    url: "https://boostthebeast-lab.com",
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) {
+    return {
+      metadataBase: new URL(SITE_URL),
+    };
+  }
+  const t = await getTranslations({ locale, namespace: "seo" });
+  const alternates: Record<string, string> = {};
+  for (const loc of routing.locales) {
+    alternates[loc] = `/${loc}`;
+  }
+  alternates["x-default"] = `/${routing.defaultLocale}`;
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: t("default_title"),
+    description: t("default_description"),
+    alternates: {
+      canonical: `/${locale}`,
+      languages: alternates,
+    },
+    openGraph: {
+      title: t("og_title"),
+      description: t("og_description"),
+      type: "website",
+      url: `${SITE_URL}/${locale}`,
+      locale,
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
