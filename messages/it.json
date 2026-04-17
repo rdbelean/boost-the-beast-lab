@@ -146,6 +146,77 @@
       }
     }
   },
+  "analyse_prepare": {
+    "label": "OPZIONALE · DATI WEARABLE",
+    "headline": "Usa i tuoi dati reali.",
+    "subtitle": "Hai dati da WHOOP o Apple Health? Allora calcoliamo i tuoi punteggi in modo ancora più preciso. Salta questo passaggio se non hai un wearable — il questionario offre risultati solidi anche senza dati misurati.",
+    "privacy_banner": {
+      "strong": "I tuoi dati restano tuoi.",
+      "text": " Il file ZIP viene elaborato esclusivamente nel tuo browser. Al nostro server arrivano solo medie anonime — nessun punto di misurazione, nessuna serie temporale, nessun ID dispositivo."
+    },
+    "whoop": {
+      "title": "WHOOP",
+      "desc": "Carica il tuo ZIP di export WHOOP degli ultimi 30 giorni.",
+      "steps": [
+        "Apri l'app WHOOP",
+        "Profilo → Impostazioni → Data Export",
+        "Seleziona \"Last 90 days\" → Export",
+        "Riceverai un'email con il file ZIP",
+        "Carica lo ZIP qui"
+      ]
+    },
+    "apple": {
+      "title": "Apple Health",
+      "desc": "Carica il tuo Health Export dall'app Salute iOS — inclusi HRV, passi e VO2max.",
+      "steps": [
+        "Apri l'app Salute sul tuo iPhone",
+        "Tocca il tuo profilo (in alto a destra)",
+        "Scorri in basso → \"Esporta tutti i dati sanitari\"",
+        "Attendi 2-5 minuti (può richiedere più tempo)",
+        "Condividi il file ZIP con te stesso (AirDrop/email)",
+        "Caricalo qui"
+      ],
+      "note": "File grandi possibili (fino a 2 GB) — l'elaborazione può richiedere alcuni minuti e avviene interamente nel tuo browser."
+    },
+    "skip": {
+      "title": "Solo questionario",
+      "desc": "Nessun wearable? Nessun problema — il questionario offre punteggi precisi basati su metodi validati (WHO, IPAQ, NSF/AASM).",
+      "btn": "Continua senza wearable →",
+      "link": "Salta questo passaggio →"
+    },
+    "tutorial_toggle": "Istruzioni",
+    "upload_label": "Carica ZIP",
+    "upload_hint": "Clicca o trascina un file qui",
+    "parsing": {
+      "reading_zip": "Lettura dello ZIP...",
+      "streaming_apple": "Streaming dell'export Apple Health...",
+      "saving": "Salvataggio dati..."
+    },
+    "errors": {
+      "server": "Errore del server ({status})",
+      "unknown": "Errore sconosciuto durante l'analisi del file."
+    },
+    "overlay": {
+      "label": "DATI WEARABLE · ELABORATI LOCALMENTE",
+      "title_1": "I TUOI DATI",
+      "title_2": "SONO IN ANALISI.",
+      "reassurance": "Tutto avviene localmente nel tuo browser — lo ZIP non viene caricato, solo le medie.",
+      "cancel": "Annulla"
+    }
+  },
+  "results": {
+    "error_loading": "Impossibile caricare i risultati.",
+    "restart": "RICOMINCIA",
+    "back_home": "← HOME",
+    "new_analysis": "Nuova analisi",
+    "loading": "Caricamento risultati…",
+    "bands": {
+      "low": "CRITICO",
+      "moderate": "AZIONE RICHIESTA",
+      "high": "BUONO",
+      "very_high": "ECCELLENTE"
+    }
+  },
   "login": {
     "title": "ACCEDI / CREA ACCOUNT",
     "subtitle_email": "Login senza password — ti inviamo un codice a 6 cifre via email.",

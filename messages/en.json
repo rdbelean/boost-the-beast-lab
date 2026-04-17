@@ -146,6 +146,77 @@
       }
     }
   },
+  "analyse_prepare": {
+    "label": "OPTIONAL · WEARABLE DATA",
+    "headline": "Use your real data.",
+    "subtitle": "Do you have data from WHOOP or Apple Health? Then we'll calculate your scores even more precisely. Skip this step if you don't have a wearable — the questionnaire delivers strong results without measured data too.",
+    "privacy_banner": {
+      "strong": "Your data stays yours.",
+      "text": " The ZIP file is processed exclusively in your browser. Only anonymous averages reach our server — no measurement points, no time series, no device IDs."
+    },
+    "whoop": {
+      "title": "WHOOP",
+      "desc": "Upload your WHOOP export ZIP from the last 30 days.",
+      "steps": [
+        "Open the WHOOP app",
+        "Profile → Settings → Data Export",
+        "Select \"Last 90 days\" → Export",
+        "You'll receive an email with the ZIP file",
+        "Upload the ZIP here"
+      ]
+    },
+    "apple": {
+      "title": "Apple Health",
+      "desc": "Upload your Health Export from the iOS Health app — including HRV, steps, and VO2max.",
+      "steps": [
+        "Open the Health app on your iPhone",
+        "Tap your profile (top right)",
+        "Scroll down → \"Export All Health Data\"",
+        "Wait 2–5 minutes (can take longer)",
+        "Share the ZIP file with yourself (AirDrop/email)",
+        "Upload it here"
+      ],
+      "note": "Large files possible (up to 2 GB) — processing can take a few minutes and runs entirely in your browser."
+    },
+    "skip": {
+      "title": "Questionnaire Only",
+      "desc": "No wearable? No problem — the questionnaire delivers precise scores based on validated methods (WHO, IPAQ, NSF/AASM).",
+      "btn": "Continue without wearable →",
+      "link": "Skip this step →"
+    },
+    "tutorial_toggle": "Instructions",
+    "upload_label": "Upload ZIP",
+    "upload_hint": "Click or drag a file here",
+    "parsing": {
+      "reading_zip": "Reading ZIP...",
+      "streaming_apple": "Streaming Apple Health export...",
+      "saving": "Saving data..."
+    },
+    "errors": {
+      "server": "Server error ({status})",
+      "unknown": "Unknown error while parsing the file."
+    },
+    "overlay": {
+      "label": "WEARABLE DATA · PROCESSED LOCALLY",
+      "title_1": "YOUR DATA",
+      "title_2": "IS BEING ANALYZED.",
+      "reassurance": "Everything runs locally in your browser — the ZIP is not uploaded, only the averages.",
+      "cancel": "Cancel"
+    }
+  },
+  "results": {
+    "error_loading": "Results could not be loaded.",
+    "restart": "START OVER",
+    "back_home": "← HOME",
+    "new_analysis": "New analysis",
+    "loading": "Loading results…",
+    "bands": {
+      "low": "CRITICAL",
+      "moderate": "ACTION NEEDED",
+      "high": "GOOD",
+      "very_high": "EXCELLENT"
+    }
+  },
   "login": {
     "title": "LOG IN / CREATE ACCOUNT",
     "subtitle_email": "Passwordless login — we'll send a 6-digit code to your email.",

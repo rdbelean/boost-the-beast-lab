@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import styles from "./prepare.module.css";
 import { parseWhoopZip, WhoopParseError } from "@/lib/wearable/whoop/parser";
@@ -12,6 +13,7 @@ import {
 import type { WearableParseResult } from "@/lib/wearable/types";
 
 function PrepareContent() {
+  const t = useTranslations("analyse_prepare");
   const router = useRouter();
   const params = useSearchParams();
   const sessionId = params.get("session_id");
@@ -23,12 +25,11 @@ function PrepareContent() {
   const [appleOpen, setAppleOpen] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [parsingLabel, setParsingLabel] = useState("Datei wird gelesen...");
+  const [parsingLabel, setParsingLabel] = useState(t("parsing.reading_zip"));
 
   const whoopInputRef = useRef<HTMLInputElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Stripe verify — same guard as /analyse to prevent deep-links without payment.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -64,7 +65,6 @@ function PrepareContent() {
   }
 
   async function handleSkip() {
-    // Clear any stale wearable state from a prior attempt.
     try {
       sessionStorage.removeItem("btb_wearable");
     } catch {
@@ -80,7 +80,7 @@ function PrepareContent() {
     setErrorMsg(null);
     setParsing(true);
     setProgress(5);
-    setParsingLabel("ZIP wird gelesen...");
+    setParsingLabel(t("parsing.reading_zip"));
 
     abortRef.current = new AbortController();
     const signal = abortRef.current.signal;
@@ -98,8 +98,7 @@ function PrepareContent() {
           clearInterval(rampTimer);
         }
       } else {
-        // Apple Health — worker parses with real progress events.
-        setParsingLabel("Apple Health Export wird gestreamt...");
+        setParsingLabel(t("parsing.streaming_apple"));
         result = await parseAppleHealthZip(file, {
           signal,
           onProgress: (pct) => {
@@ -111,7 +110,7 @@ function PrepareContent() {
       if (signal.aborted) return;
 
       setProgress(85);
-      setParsingLabel("Daten werden gespeichert...");
+      setParsingLabel(t("parsing.saving"));
 
       const persistRes = await fetch("/api/wearable/persist", {
         method: "POST",
@@ -125,14 +124,12 @@ function PrepareContent() {
       } | null;
       if (!persistRes.ok || !persistJson?.uploadId) {
         throw new Error(
-          persistJson?.error ?? `Server-Fehler (${persistRes.status})`,
+          persistJson?.error ?? t("errors.server", { status: persistRes.status }),
         );
       }
 
       setProgress(100);
 
-      // Stash parse result + uploadId in sessionStorage so /analyse can
-      // hydrate prefills and badges without re-fetching.
       try {
         sessionStorage.setItem(
           "btb_wearable",
@@ -158,7 +155,7 @@ function PrepareContent() {
           ? err.message
           : err instanceof Error
             ? err.message
-            : "Unbekannter Fehler beim Parsen der Datei.";
+            : t("errors.unknown");
       setErrorMsg(msg);
       setParsing(false);
       setProgress(0);
@@ -175,20 +172,20 @@ function PrepareContent() {
   }
 
   if (!paymentChecked) {
-    return null; // loading guard — redirect is in flight
+    return null;
   }
+
+  // Steps arrays come from the messages file — cast because next-intl returns
+  // unknown for raw() lookups.
+  const whoopSteps = t.raw("whoop.steps") as string[];
+  const appleSteps = t.raw("apple.steps") as string[];
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <div className={styles.label}>OPTIONAL · WEARABLE DATEN</div>
-        <h1 className={styles.headline}>Nutze deine echten Daten.</h1>
-        <p className={styles.subtitle}>
-          Hast du Daten von WHOOP oder Apple Health? Dann berechnen wir deine
-          Scores noch präziser. Überspringe diesen Schritt, wenn du keine
-          Wearables hast — der Fragebogen liefert auch ohne Messdaten starke
-          Ergebnisse.
-        </p>
+        <div className={styles.label}>{t("label")}</div>
+        <h1 className={styles.headline}>{t("headline")}</h1>
+        <p className={styles.subtitle}>{t("subtitle")}</p>
 
         <div className={styles.privacyBanner}>
           <svg
@@ -203,10 +200,8 @@ function PrepareContent() {
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
           <div>
-            <strong>Deine Daten bleiben bei dir.</strong> Die ZIP-Datei wird
-            ausschließlich in deinem Browser verarbeitet. An unseren Server
-            wandern nur anonyme Durchschnittswerte — keine Messpunkte, kein
-            Zeitverlauf, keine Geräte-IDs.
+            <strong>{t("privacy_banner.strong")}</strong>
+            {t("privacy_banner.text")}
           </div>
         </div>
 
@@ -218,25 +213,12 @@ function PrepareContent() {
             <div className={styles.logoBox} aria-hidden>
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                 <circle cx="16" cy="16" r="12" stroke="#E63222" strokeWidth="1.5" />
-                <path
-                  d="M9 13l2.4 7 2.4-5.5L16.2 20l2.4-7"
-                  stroke="#E63222"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M18.2 13l2.4 7"
-                  stroke="#E63222"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
+                <path d="M9 13l2.4 7 2.4-5.5L16.2 20l2.4-7" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M18.2 13l2.4 7" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </div>
-            <div className={styles.cardTitle}>WHOOP</div>
-            <div className={styles.cardDesc}>
-              Upload deines WHOOP Export-ZIP der letzten 30 Tage.
-            </div>
+            <div className={styles.cardTitle}>{t("whoop.title")}</div>
+            <div className={styles.cardDesc}>{t("whoop.desc")}</div>
 
             <div className={styles.tutorial}>
               <button
@@ -244,19 +226,13 @@ function PrepareContent() {
                 onClick={() => setWhoopOpen((v) => !v)}
                 aria-expanded={whoopOpen}
               >
-                <span className={`${styles.chevron} ${whoopOpen ? styles.chevronOpen : ""}`}>
-                  ▾
-                </span>
-                Anleitung
+                <span className={`${styles.chevron} ${whoopOpen ? styles.chevronOpen : ""}`}>▾</span>
+                {t("tutorial_toggle")}
               </button>
               {whoopOpen && (
                 <div className={styles.tutorialContent}>
                   <ol>
-                    <li>Öffne die WHOOP App</li>
-                    <li>Profil → Einstellungen → Data Export</li>
-                    <li>Wähle &quot;Last 90 days&quot; → Export</li>
-                    <li>Du bekommst eine E-Mail mit der ZIP-Datei</li>
-                    <li>Lade die ZIP hier hoch</li>
+                    {whoopSteps.map((step) => <li key={step}>{step}</li>)}
                   </ol>
                 </div>
               )}
@@ -278,10 +254,8 @@ function PrepareContent() {
                 if (file) handleWhoopFile(file);
               }}
             >
-              <div className={styles.uploadLabel}>ZIP hochladen</div>
-              <div className={styles.uploadHint}>
-                Klicken oder Datei hierher ziehen
-              </div>
+              <div className={styles.uploadLabel}>{t("upload_label")}</div>
+              <div className={styles.uploadHint}>{t("upload_hint")}</div>
               <input
                 ref={whoopInputRef}
                 type="file"
@@ -300,26 +274,12 @@ function PrepareContent() {
           <div className={styles.card}>
             <div className={styles.logoBox} aria-hidden>
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path
-                  d="M16 26s-9-5.5-9-12.5A5.5 5.5 0 0 1 16 10a5.5 5.5 0 0 1 9 3.5C25 20.5 16 26 16 26z"
-                  stroke="#E63222"
-                  strokeWidth="1.5"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M10 16h3l1.5-3 2.5 6 1.5-3h4"
-                  stroke="#E63222"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <path d="M16 26s-9-5.5-9-12.5A5.5 5.5 0 0 1 16 10a5.5 5.5 0 0 1 9 3.5C25 20.5 16 26 16 26z" stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round" />
+                <path d="M10 16h3l1.5-3 2.5 6 1.5-3h4" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <div className={styles.cardTitle}>Apple Health</div>
-            <div className={styles.cardDesc}>
-              Upload deines Health Export aus der iOS Health App — inklusive
-              HRV, Schritte und VO2max.
-            </div>
+            <div className={styles.cardTitle}>{t("apple.title")}</div>
+            <div className={styles.cardDesc}>{t("apple.desc")}</div>
 
             <div className={styles.tutorial}>
               <button
@@ -327,25 +287,15 @@ function PrepareContent() {
                 onClick={() => setAppleOpen((v) => !v)}
                 aria-expanded={appleOpen}
               >
-                <span className={`${styles.chevron} ${appleOpen ? styles.chevronOpen : ""}`}>
-                  ▾
-                </span>
-                Anleitung
+                <span className={`${styles.chevron} ${appleOpen ? styles.chevronOpen : ""}`}>▾</span>
+                {t("tutorial_toggle")}
               </button>
               {appleOpen && (
                 <div className={styles.tutorialContent}>
                   <ol>
-                    <li>Öffne die Health App auf deinem iPhone</li>
-                    <li>Tippe dein Profil (oben rechts)</li>
-                    <li>Scroll runter → &quot;Alle Gesundheitsdaten exportieren&quot;</li>
-                    <li>Warte 2-5 Minuten (kann länger dauern)</li>
-                    <li>Teile die ZIP-Datei mit dir selbst (AirDrop/E-Mail)</li>
-                    <li>Lade sie hier hoch</li>
+                    {appleSteps.map((step) => <li key={step}>{step}</li>)}
                   </ol>
-                  <div className={styles.tutorialNote}>
-                    Große Dateien möglich (bis 2 GB) — die Verarbeitung kann
-                    einige Minuten dauern und läuft komplett in deinem Browser.
-                  </div>
+                  <div className={styles.tutorialNote}>{t("apple.note")}</div>
                 </div>
               )}
             </div>
@@ -366,10 +316,8 @@ function PrepareContent() {
                 if (file) handleAppleFile(file);
               }}
             >
-              <div className={styles.uploadLabel}>ZIP hochladen</div>
-              <div className={styles.uploadHint}>
-                Klicken oder Datei hierher ziehen
-              </div>
+              <div className={styles.uploadLabel}>{t("upload_label")}</div>
+              <div className={styles.uploadHint}>{t("upload_hint")}</div>
               <input
                 type="file"
                 accept=".zip,application/zip"
@@ -387,45 +335,26 @@ function PrepareContent() {
           <div className={styles.card}>
             <div className={styles.logoBox} aria-hidden>
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path
-                  d="M6 9h16M6 16h16M6 23h10"
-                  stroke="#E63222"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
+                <path d="M6 9h16M6 16h16M6 23h10" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" />
                 <circle cx="23" cy="23" r="3" stroke="#E63222" strokeWidth="1.5" />
-                <path
-                  d="M23 21v2l1.3 1.3"
-                  stroke="#E63222"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <path d="M23 21v2l1.3 1.3" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <div className={styles.cardTitle}>Nur Fragebogen</div>
-            <div className={styles.cardDesc}>
-              Kein Wearable? Kein Problem — der Fragebogen liefert auch
-              präzise Scores auf Basis validierter Methoden (WHO, IPAQ,
-              NSF/AASM).
-            </div>
-            <button className={styles.skipBtn} onClick={handleSkip}>
-              Ohne Wearable fortfahren →
-            </button>
+            <div className={styles.cardTitle}>{t("skip.title")}</div>
+            <div className={styles.cardDesc}>{t("skip.desc")}</div>
+            <button className={styles.skipBtn} onClick={handleSkip}>{t("skip.btn")}</button>
           </div>
         </div>
 
-        <button className={styles.skipLink} onClick={handleSkip}>
-          Diesen Schritt überspringen →
-        </button>
+        <button className={styles.skipLink} onClick={handleSkip}>{t("skip.link")}</button>
       </div>
 
       {parsing && (
         <div className={styles.overlay}>
           <div className={styles.overlayInner}>
-            <div className={styles.overlayLabel}>WEARABLE-DATEN · LOKAL VERARBEITET</div>
+            <div className={styles.overlayLabel}>{t("overlay.label")}</div>
             <div className={styles.overlayTitle}>
-              DEINE DATEN<br />WERDEN ANALYSIERT.
+              {t("overlay.title_1")}<br />{t("overlay.title_2")}
             </div>
             <div className={styles.progressBar}>
               <div
@@ -436,12 +365,9 @@ function PrepareContent() {
             <div className={styles.progressText}>
               {Math.floor(progress)}% · {parsingLabel}
             </div>
-            <div className={styles.overlayReassurance}>
-              Alles läuft lokal in deinem Browser — die ZIP wird nicht
-              hochgeladen, nur die Durchschnittswerte.
-            </div>
+            <div className={styles.overlayReassurance}>{t("overlay.reassurance")}</div>
             <button className={styles.overlayCancel} onClick={handleCancel}>
-              Abbrechen
+              {t("overlay.cancel")}
             </button>
           </div>
         </div>
