@@ -1,6 +1,163 @@
 {
   "_meta": {
     "locale": "de",
-    "status": "scaffold-only-strings-will-be-extracted-in-teil-3"
+    "status": "landing-complete-other-pages-pending"
+  },
+  "language_switcher": {
+    "aria_label": "Sprache wechseln"
+  },
+  "header": {
+    "nav": {
+      "how_it_works": "WIE ES FUNKTIONIERT",
+      "packages": "PAKETE"
+    },
+    "latest_report_cta": "AKTUELLSTER REPORT ↓",
+    "account_dropdown": {
+      "account": "MEIN ACCOUNT",
+      "new_analysis": "Neue Analyse starten →",
+      "reports": "Meine Reports einsehen",
+      "logout": "Logout",
+      "login": "Login / Account erstellen"
+    }
+  },
+  "hero": {
+    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
+    "headline_1": "DEIN KÖRPER.",
+    "headline_2": "DEINE DATEN.",
+    "headline_3": "DEIN LEVEL.",
+    "subtitle": "Performance Diagnostik auf wissenschaftlichem Niveau — ohne Labor, ohne Wartezeit.",
+    "cta_primary": "ANALYSE STARTEN",
+    "cta_secondary": "WIE ES FUNKTIONIERT",
+    "stats": {
+      "questions": "FRAGEN",
+      "scores": "SCORES",
+      "deep_analysis": "TIEFGEHENDE AUSWERTUNG",
+      "evidence_database": "EVIDENZBASIERTE DATENBANK"
+    },
+    "scroll": "SCROLL"
+  },
+  "trust": {
+    "evidence": {
+      "title": "EVIDENZBASIERT",
+      "text": "Basierend auf WHO & ACSM Richtlinien. Wissenschaftlich kalibriert."
+    },
+    "database": {
+      "title": "DATENBANK-GESTÜTZTE ANALYSE",
+      "text": "Deine Ergebnisse werden mit über 10.000 wissenschaftlichen Datenpunkten aus internationalen Studien abgeglichen."
+    },
+    "dimensions": {
+      "title": "5 PERFORMANCE-DIMENSIONEN",
+      "text": "Metabolismus, Recovery, Aktivität, VO2max und Stress — jede Dimension einzeln analysiert und bewertet."
+    },
+    "no_doctor": {
+      "title": "KEIN ARZTTERMIN",
+      "text": "Kein Labor, kein Wartezimmer. Performance Insights — sofort."
+    }
+  },
+  "how": {
+    "section_label": "DER PROZESS",
+    "section_title": "SO FUNKTIONIERT'S",
+    "steps": {
+      "package": {
+        "tag": "PAKET WÄHLEN",
+        "title": "DEIN PERFORMANCE-PAKET",
+        "text": "Wähle deinen vollständigen Performance Report inkl. individueller Optimierungs- & Trainingspläne — einmalig, kein Abo."
+      },
+      "signup": {
+        "tag": "ANMELDEN",
+        "title": "ACCOUNT ERSTELLEN",
+        "text": "Erstelle deinen sicheren Account mit E-Mail & Passwort — damit dein Report dauerhaft gespeichert und jederzeit abrufbar ist."
+      },
+      "protocol": {
+        "tag": "ANALYSE-PROTOKOLL",
+        "title": "20 WISSENSCHAFTLICHE FRAGEN",
+        "text": "Beantworte präzise Fragen zu Schlaf, Training, Ernährung, Stress und Körperdaten — kalibriert nach WHO & ACSM Richtlinien."
+      },
+      "report": {
+        "tag": "REPORT",
+        "title": "DEIN PERSONALISIERTER REPORT",
+        "text": "Dein Performance Report mit Fitnessscore, Einzelanalysen und individuellen Optimierungsplänen — sofort als Premium PDF verfügbar."
+      }
+    }
+  },
+  "products": {
+    "section_label": "DEIN PAKET",
+    "section_title": "COMPLETE PERFORMANCE ANALYSIS",
+    "card_tag": "VOLLSTÄNDIGES PAKET",
+    "card_name": "COMPLETE PERFORMANCE ANALYSIS",
+    "card_question": "Dein vollständiger Performance Report + individuelle Optimierungs- & Trainingspläne.",
+    "features": {
+      "overall": "Overall Performance Index (0–100)",
+      "metabolic": "Metabolic Performance Score",
+      "recovery": "Recovery & Regeneration Score",
+      "activity": "Activity Performance Score",
+      "stress": "Stress & Lifestyle Score",
+      "vo2max": "VO2max Schätzung (ml/kg/min)",
+      "optimization_plans": "Individuelle Optimierungspläne",
+      "training_plans": "Individuelle Trainingspläne",
+      "forecast": "30-Tage Performance Prognose",
+      "pdf": "KI-generierter Premium PDF Report"
+    },
+    "price_sub": "einmalig",
+    "cta": "ANALYSE STARTEN →",
+    "trust_points": {
+      "instant_download": "Sofortiger Download",
+      "one_time": "Einmalig, kein Abo",
+      "pdf_included": "PDF inklusive"
+    }
+  },
+  "wearable": {
+    "optional_badge": "OPTIONAL · KEIN MUSS",
+    "section_label": "KOMPATIBLE GERÄTE",
+    "section_title_1": "DEINE DATEN. DEINE ANALYSE.",
+    "section_title_2": "NOCH PRÄZISER.",
+    "subtitle_before": "Die komplette Analyse funktioniert auch ",
+    "subtitle_strong": "ohne Wearable",
+    "subtitle_after": ". Wer eins hat, kann WHOOP oder Apple Health optional verbinden — als Add-on, um die Scores mit echten Daten zu schärfen.",
+    "card_pill": "ADD-ON",
+    "cards": {
+      "whoop": {
+        "title": "WHOOP",
+        "metrics": "Schlaf · Recovery · Strain · HRV",
+        "days": "30 Tage Daten"
+      },
+      "apple": {
+        "title": "APPLE HEALTH",
+        "metrics": "HRV · HF · Schritte · VO2max",
+        "days": "Direkt aus deinem iPhone"
+      }
+    },
+    "usps": {
+      "real_data": {
+        "title": "30 Tage echte Daten",
+        "sub": "Keine Momentaufnahme, sondern der Durchschnitt."
+      },
+      "precise": {
+        "title": "Präzisere Scores",
+        "sub": "Gemessen statt geschätzt."
+      },
+      "private": {
+        "title": "Daten bleiben bei dir",
+        "sub": "ZIP wird nur im Browser verarbeitet."
+      },
+      "optional": {
+        "title": "Kein Muss",
+        "sub": "Analyse funktioniert vollständig ohne Wearable."
+      }
+    }
+  },
+  "footer": {
+    "claim": "MADE FOR ATHLETES. NOT FOR AVERAGE.",
+    "brand_desc": "Performance Insights auf wissenschaftlichem Niveau – kalibriert nach WHO & ACSM.",
+    "col_legal": "LEGAL",
+    "col_contact": "KONTAKT",
+    "links": {
+      "imprint": "Impressum",
+      "privacy": "Datenschutz",
+      "cookies": "Cookie-Richtlinie"
+    },
+    "disclaimer": "Hinweis: Die Inhalte und Ergebnisse von Boost The Beast Lab dienen ausschließlich der allgemeinen Information und stellen keine medizinische Beratung, Diagnose oder Therapieempfehlung dar. Sie ersetzen in keinem Fall den Besuch bei einem Arzt, Heilpraktiker oder sonstigen medizinischen Fachpersonal. Bei gesundheitlichen Beschwerden oder Fragen zu Ihrer Gesundheit konsultieren Sie bitte immer einen Arzt. Die Nutzung der bereitgestellten Informationen erfolgt auf eigene Verantwortung.",
+    "copy": "© {year} Boost The Beast Lab. Alle Rechte vorbehalten.",
+    "copy_note": "Kein Medizinprodukt · Keine Heilkunde i.S.d. HeilprG"
   }
 }

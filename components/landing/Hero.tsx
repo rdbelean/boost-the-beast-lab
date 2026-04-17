@@ -1,27 +1,11 @@
 "use client";
 import { Link } from "@/i18n/navigation";
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 
-function countUp(el: HTMLElement, target: number, suffix: string, duration = 1500) {
-  const start = performance.now();
-  const step = (now: number) => {
-    const progress = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.round(eased * target) + suffix;
-    if (progress < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
-const stats = [
-  { target: 20,  suffix: "",   prefix: "",    label: "FRAGEN" },
-  { target: 5,   suffix: "",   prefix: "",    label: "SCORES" },
-  { target: 0,   suffix: "",   prefix: "",    label: "TIEFGEHENDE AUSWERTUNG", static: true },
-  { target: 0,   suffix: "",   prefix: "",    label: "EVIDENZBASIERTE DATENBANK", static: true },
-];
-
 export default function Hero() {
+  const t = useTranslations("hero");
   const statsRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
 
@@ -55,6 +39,13 @@ export default function Hero() {
     return () => obs.disconnect();
   }, []);
 
+  const stats = [
+    { target: 20, label: t("stats.questions") },
+    { target: 5, label: t("stats.scores") },
+    { target: 0, label: t("stats.deep_analysis"), static: true as const },
+    { target: 0, label: t("stats.evidence_database"), static: true as const },
+  ];
+
   return (
     <section className={styles.hero}>
       <div className={styles.heroNoise} aria-hidden />
@@ -64,37 +55,35 @@ export default function Hero() {
         {/* Eyebrow */}
         <div className={styles.eyebrow}>
           <span className={styles.eyebrowDot} aria-hidden />
-          <span className={styles.eyebrowText}>PERFORMANCE INTELLIGENCE SYSTEM</span>
+          <span className={styles.eyebrowText}>{t("eyebrow")}</span>
         </div>
 
         {/* Headline */}
         <h1 className={styles.headline}>
-          <span className={styles.headlineLine}>DEIN KÖRPER.</span>
-          <span className={styles.headlineLine}>DEINE DATEN.</span>
-          <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>DEIN LEVEL.</span>
+          <span className={styles.headlineLine}>{t("headline_1")}</span>
+          <span className={styles.headlineLine}>{t("headline_2")}</span>
+          <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>{t("headline_3")}</span>
         </h1>
 
         {/* Subtitle */}
-        <p className={styles.subtitle}>
-          Performance Diagnostik auf wissenschaftlichem Niveau — ohne Labor, ohne Wartezeit.
-        </p>
+        <p className={styles.subtitle}>{t("subtitle")}</p>
 
         {/* CTAs */}
         <div className={styles.ctaRow}>
           <a href="#products" className={styles.btnPrimary}>
-            ANALYSE STARTEN
+            {t("cta_primary")}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </a>
           <a href="#how-it-works" className={styles.btnSecondary}>
-            WIE ES FUNKTIONIERT
+            {t("cta_secondary")}
           </a>
         </div>
 
         {/* Stats */}
         <div className={styles.statsBar} ref={statsRef}>
-          {stats.map(({ target, suffix, prefix, label, static: isStatic }) => (
+          {stats.map(({ target, label, static: isStatic }) => (
             <div key={label} className={styles.statItem}>
               {isStatic ? (
                 <span className={styles.statValue} style={{ color: "var(--accent, #E63222)", fontSize: "20px" }}>
@@ -106,10 +95,10 @@ export default function Hero() {
                 <span
                   className={styles.statValue}
                   data-count={target}
-                  data-suffix={suffix}
-                  data-prefix={prefix}
+                  data-suffix=""
+                  data-prefix=""
                 >
-                  {prefix}0{suffix}
+                  0
                 </span>
               )}
               <span className={styles.statLabel}>{label}</span>
@@ -120,7 +109,7 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <div className={styles.scrollIndicator} aria-hidden>
-        <span className={styles.scrollText}>SCROLL</span>
+        <span className={styles.scrollText}>{t("scroll")}</span>
         <span className={styles.scrollArrow}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

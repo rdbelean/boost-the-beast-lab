@@ -1,14 +1,17 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "@/app/landing.module.css";
 
 export default function Footer() {
+  const t = useTranslations("footer");
+  const year = new Date().getFullYear();
   return (
     <>
       {/* Claim */}
       <div className={styles.footerClaim}>
         <div className={styles.footerClaimText}>
-          MADE FOR ATHLETES. NOT FOR AVERAGE.
+          {t("claim")}
         </div>
       </div>
 
@@ -22,27 +25,27 @@ export default function Footer() {
               <span className={styles.footerBrandName}>BOOST THE BEAST</span>
               <span className={styles.footerBrandSub}>PERFORMANCE LAB</span>
               <p className={styles.footerBrandDesc}>
-                Performance Insights auf wissenschaftlichem Niveau – kalibriert nach WHO &amp; ACSM.
+                {t("brand_desc")}
               </p>
             </div>
 
             <div className={styles.footerLinks}>
               <div>
-                <span className={styles.footerColTitle}>LEGAL</span>
+                <span className={styles.footerColTitle}>{t("col_legal")}</span>
                 <ul className={styles.footerColList}>
                   <li>
-                    <Link href="/impressum" className={styles.footerLink}>Impressum</Link>
+                    <Link href="/impressum" className={styles.footerLink}>{t("links.imprint")}</Link>
                   </li>
                   <li>
-                    <Link href="/datenschutz" className={styles.footerLink}>Datenschutz</Link>
+                    <Link href="/datenschutz" className={styles.footerLink}>{t("links.privacy")}</Link>
                   </li>
                   <li>
-                    <Link href="/cookies" className={styles.footerLink}>Cookie-Richtlinie</Link>
+                    <Link href="/cookies" className={styles.footerLink}>{t("links.cookies")}</Link>
                   </li>
                 </ul>
               </div>
               <div>
-                <span className={styles.footerColTitle}>KONTAKT</span>
+                <span className={styles.footerColTitle}>{t("col_contact")}</span>
                 <ul className={styles.footerColList}>
                   <li>
                     <a href="mailto:info@boostthebeast.com" className={styles.footerLink}>
@@ -57,20 +60,16 @@ export default function Footer() {
           {/* Legal Disclaimer */}
           <div className={styles.footerDisclaimer}>
             <p className={styles.footerDisclaimerText}>
-              Hinweis: Die Inhalte und Ergebnisse von Boost The Beast Lab dienen ausschließlich der allgemeinen Information
-              und stellen keine medizinische Beratung, Diagnose oder Therapieempfehlung dar. Sie ersetzen in keinem Fall
-              den Besuch bei einem Arzt, Heilpraktiker oder sonstigen medizinischen Fachpersonal. Bei gesundheitlichen
-              Beschwerden oder Fragen zu Ihrer Gesundheit konsultieren Sie bitte immer einen Arzt. Die Nutzung der
-              bereitgestellten Informationen erfolgt auf eigene Verantwortung.
+              {t("disclaimer")}
             </p>
           </div>
 
           <div className={styles.footerBottom}>
             <p className={styles.footerCopy}>
-              © {new Date().getFullYear()} Boost The Beast Lab. Alle Rechte vorbehalten.
+              {t("copy", { year })}
             </p>
             <p className={styles.footerCopy}>
-              Kein Medizinprodukt · Keine Heilkunde i.S.d. HeilprG
+              {t("copy_note")}
             </p>
           </div>
         </div>

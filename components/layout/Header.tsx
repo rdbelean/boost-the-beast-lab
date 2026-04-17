@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import styles from "@/app/landing.module.css";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Header() {
+  const t = useTranslations("header");
   const router = useRouter();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [hasReport, setHasReport] = useState(false);
@@ -86,8 +88,8 @@ export default function Header() {
         {/* Nav */}
         <nav className={styles.nav}>
           {[
-            { href: "/#how-it-works", label: "WIE ES FUNKTIONIERT", id: "how-it-works" },
-            { href: "/#products",     label: "PAKETE",              id: "products" },
+            { href: "/#how-it-works", label: t("nav.how_it_works"), id: "how-it-works" },
+            { href: "/#products",     label: t("nav.packages"),      id: "products" },
           ].map(({ href, label, id }) => (
             <Link
               key={id}
@@ -103,7 +105,7 @@ export default function Header() {
         <div className={styles.headerActions}>
           {userEmail && hasReport && reportUrl && (
             <a href={reportUrl} target="_blank" rel="noopener noreferrer" className={styles.headerCtaSecondary}>
-              AKTUELLSTER REPORT ↓
+              {t("latest_report_cta")}
             </a>
           )}
           <LanguageSwitcher />
@@ -114,7 +116,7 @@ export default function Header() {
               onClick={() => setDropdownOpen((o) => !o)}
               aria-expanded={dropdownOpen}
             >
-              {userEmail ? userEmail.split("@")[0].toUpperCase() : "MEIN ACCOUNT"}
+              {userEmail ? userEmail.split("@")[0].toUpperCase() : t("account_dropdown.account")}
               <span className={`${styles.accountDropdownChevron}${dropdownOpen ? ` ${styles.accountDropdownChevronOpen}` : ""}`}>
                 ▾
               </span>
@@ -125,7 +127,7 @@ export default function Header() {
                   className={styles.accountDropdownItem}
                   onClick={() => { setDropdownOpen(false); router.push("/kaufen"); }}
                 >
-                  Neue Analyse starten →
+                  {t("account_dropdown.new_analysis")}
                 </button>
                 {userEmail ? (
                   <>
@@ -134,7 +136,7 @@ export default function Header() {
                       className={styles.accountDropdownItem}
                       onClick={() => setDropdownOpen(false)}
                     >
-                      Meine Reports einsehen
+                      {t("account_dropdown.reports")}
                     </Link>
                     <button
                       className={styles.accountDropdownItem}
@@ -145,7 +147,7 @@ export default function Header() {
                         router.push("/");
                       }}
                     >
-                      Logout
+                      {t("account_dropdown.logout")}
                     </button>
                   </>
                 ) : (
@@ -154,7 +156,7 @@ export default function Header() {
                     className={styles.accountDropdownItem}
                     onClick={() => setDropdownOpen(false)}
                   >
-                    Login / Account erstellen
+                    {t("account_dropdown.login")}
                   </Link>
                 )}
               </div>

@@ -1,6 +1,163 @@
 {
   "_meta": {
     "locale": "en",
-    "status": "scaffold-only-strings-will-be-extracted-in-teil-3"
+    "status": "landing-complete-other-pages-pending"
+  },
+  "language_switcher": {
+    "aria_label": "Change language"
+  },
+  "header": {
+    "nav": {
+      "how_it_works": "HOW IT WORKS",
+      "packages": "PACKAGES"
+    },
+    "latest_report_cta": "LATEST REPORT ↓",
+    "account_dropdown": {
+      "account": "MY ACCOUNT",
+      "new_analysis": "Start new analysis →",
+      "reports": "View my reports",
+      "logout": "Logout",
+      "login": "Log in / Create account"
+    }
+  },
+  "hero": {
+    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
+    "headline_1": "YOUR BODY.",
+    "headline_2": "YOUR DATA.",
+    "headline_3": "YOUR LEVEL.",
+    "subtitle": "Performance diagnostics at scientific level — no lab, no waiting.",
+    "cta_primary": "START ANALYSIS",
+    "cta_secondary": "HOW IT WORKS",
+    "stats": {
+      "questions": "QUESTIONS",
+      "scores": "SCORES",
+      "deep_analysis": "DEEP ANALYSIS",
+      "evidence_database": "EVIDENCE-BASED DATABASE"
+    },
+    "scroll": "SCROLL"
+  },
+  "trust": {
+    "evidence": {
+      "title": "EVIDENCE-BASED",
+      "text": "Built on WHO & ACSM guidelines. Scientifically calibrated."
+    },
+    "database": {
+      "title": "DATABASE-BACKED ANALYSIS",
+      "text": "Your results are benchmarked against over 10,000 scientific data points from international studies."
+    },
+    "dimensions": {
+      "title": "5 PERFORMANCE DIMENSIONS",
+      "text": "Metabolism, recovery, activity, VO2max, and stress — every dimension analyzed and scored separately."
+    },
+    "no_doctor": {
+      "title": "NO DOCTOR'S APPOINTMENT",
+      "text": "No lab, no waiting room. Performance insights — instantly."
+    }
+  },
+  "how": {
+    "section_label": "THE PROCESS",
+    "section_title": "HOW IT WORKS",
+    "steps": {
+      "package": {
+        "tag": "CHOOSE PACKAGE",
+        "title": "YOUR PERFORMANCE PACKAGE",
+        "text": "Pick your full performance report with personalized optimization and training plans — one-time, no subscription."
+      },
+      "signup": {
+        "tag": "SIGN UP",
+        "title": "CREATE YOUR ACCOUNT",
+        "text": "Create a secure account with email and password — so your report stays saved and available anytime."
+      },
+      "protocol": {
+        "tag": "ANALYSIS PROTOCOL",
+        "title": "20 SCIENTIFIC QUESTIONS",
+        "text": "Answer precise questions on sleep, training, nutrition, stress, and body data — calibrated to WHO & ACSM guidelines."
+      },
+      "report": {
+        "tag": "REPORT",
+        "title": "YOUR PERSONALIZED REPORT",
+        "text": "Your performance report with fitness score, individual analyses, and custom optimization plans — instantly available as a premium PDF."
+      }
+    }
+  },
+  "products": {
+    "section_label": "YOUR PACKAGE",
+    "section_title": "COMPLETE PERFORMANCE ANALYSIS",
+    "card_tag": "COMPLETE PACKAGE",
+    "card_name": "COMPLETE PERFORMANCE ANALYSIS",
+    "card_question": "Your full performance report + personalized optimization and training plans.",
+    "features": {
+      "overall": "Overall Performance Index (0–100)",
+      "metabolic": "Metabolic Performance Score",
+      "recovery": "Recovery & Regeneration Score",
+      "activity": "Activity Performance Score",
+      "stress": "Stress & Lifestyle Score",
+      "vo2max": "VO2max estimate (ml/kg/min)",
+      "optimization_plans": "Personalized optimization plans",
+      "training_plans": "Personalized training plans",
+      "forecast": "30-day performance forecast",
+      "pdf": "AI-generated premium PDF report"
+    },
+    "price_sub": "one-time",
+    "cta": "START ANALYSIS →",
+    "trust_points": {
+      "instant_download": "Instant download",
+      "one_time": "One-time, no subscription",
+      "pdf_included": "PDF included"
+    }
+  },
+  "wearable": {
+    "optional_badge": "OPTIONAL · NOT REQUIRED",
+    "section_label": "COMPATIBLE DEVICES",
+    "section_title_1": "YOUR DATA. YOUR ANALYSIS.",
+    "section_title_2": "EVEN MORE PRECISE.",
+    "subtitle_before": "The complete analysis works perfectly ",
+    "subtitle_strong": "without a wearable",
+    "subtitle_after": ". If you own one, you can optionally connect WHOOP or Apple Health — as an add-on, to sharpen your scores with real data.",
+    "card_pill": "ADD-ON",
+    "cards": {
+      "whoop": {
+        "title": "WHOOP",
+        "metrics": "Sleep · Recovery · Strain · HRV",
+        "days": "30 days of data"
+      },
+      "apple": {
+        "title": "APPLE HEALTH",
+        "metrics": "HRV · HR · Steps · VO2max",
+        "days": "Straight from your iPhone"
+      }
+    },
+    "usps": {
+      "real_data": {
+        "title": "30 days of real data",
+        "sub": "Not a snapshot — the average."
+      },
+      "precise": {
+        "title": "Sharper scores",
+        "sub": "Measured, not estimated."
+      },
+      "private": {
+        "title": "Your data stays yours",
+        "sub": "ZIP is processed only in your browser."
+      },
+      "optional": {
+        "title": "Not required",
+        "sub": "Analysis works perfectly without a wearable."
+      }
+    }
+  },
+  "footer": {
+    "claim": "MADE FOR ATHLETES. NOT FOR AVERAGE.",
+    "brand_desc": "Performance insights at scientific level — calibrated to WHO & ACSM.",
+    "col_legal": "LEGAL",
+    "col_contact": "CONTACT",
+    "links": {
+      "imprint": "Imprint",
+      "privacy": "Privacy Policy",
+      "cookies": "Cookie Policy"
+    },
+    "disclaimer": "Disclaimer: The content and results from Boost The Beast Lab are provided for general information only and do not constitute medical advice, diagnosis, or treatment recommendations. They never replace a consultation with a physician, alternative practitioner, or other qualified medical professional. For any health concerns or questions regarding your health, always consult a physician. Use of the provided information is at your own risk.",
+    "copy": "© {year} Boost The Beast Lab. All rights reserved.",
+    "copy_note": "Not a medical device · Not healthcare per German HeilprG"
   }
 }

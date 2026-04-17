@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import styles from "@/app/landing.module.css";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -10,20 +11,23 @@ const CheckIcon = ({ color = "#22C55E" }: { color?: string }) => (
   </svg>
 );
 
-const features = [
-  "Overall Performance Index (0–100)",
-  "Metabolic Performance Score",
-  "Recovery & Regeneration Score",
-  "Activity Performance Score",
-  "Stress & Lifestyle Score",
-  "VO2max Schätzung (ml/kg/min)",
-  "Individuelle Optimierungspläne",
-  "Individuelle Trainingspläne",
-  "30-Tage Performance Prognose",
-  "KI-generierter Premium PDF Report",
-];
+const FEATURE_KEYS = [
+  "overall",
+  "metabolic",
+  "recovery",
+  "activity",
+  "stress",
+  "vo2max",
+  "optimization_plans",
+  "training_plans",
+  "forecast",
+  "pdf",
+] as const;
+
+const TRUST_KEYS = ["instant_download", "one_time", "pdf_included"] as const;
 
 export default function Products() {
+  const t = useTranslations("products");
   const cardRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -52,8 +56,8 @@ export default function Products() {
     <section id="products" className={styles.productsSection}>
       <div className={styles.container}>
         <div ref={headerRef} className={`${styles.productsHeader} ${styles.reveal}`}>
-          <p className={styles.sectionLabel}>DEIN PAKET</p>
-          <h2 className={styles.sectionTitle}>COMPLETE PERFORMANCE ANALYSIS</h2>
+          <p className={styles.sectionLabel}>{t("section_label")}</p>
+          <h2 className={styles.sectionTitle}>{t("section_title")}</h2>
         </div>
 
         <div className={styles.cardsStack}>
@@ -63,14 +67,14 @@ export default function Products() {
           >
             {/* Left */}
             <div className={styles.cardLeft}>
-              <span className={`${styles.cardTag} ${styles.cardTagHighlight}`}>VOLLSTÄNDIGES PAKET</span>
-              <h3 className={styles.cardName}>COMPLETE PERFORMANCE ANALYSIS</h3>
-              <p className={styles.cardQuestion}>Dein vollständiger Performance Report + individuelle Optimierungs- & Trainingspläne.</p>
+              <span className={`${styles.cardTag} ${styles.cardTagHighlight}`}>{t("card_tag")}</span>
+              <h3 className={styles.cardName}>{t("card_name")}</h3>
+              <p className={styles.cardQuestion}>{t("card_question")}</p>
               <div className={styles.featuresGrid}>
-                {features.map((f) => (
-                  <div key={f} className={styles.featureItem}>
+                {FEATURE_KEYS.map((key) => (
+                  <div key={key} className={styles.featureItem}>
                     <CheckIcon color="#E63222" />
-                    {f}
+                    {t(`features.${key}`)}
                   </div>
                 ))}
               </div>
@@ -81,7 +85,7 @@ export default function Products() {
               <div className={`${styles.price} ${styles.priceAccent}`}>
                 €39<span style={{ fontSize: "0.55em", verticalAlign: "super" }}>,90</span>
               </div>
-              <div className={styles.priceSub}>einmalig</div>
+              <div className={styles.priceSub}>{t("price_sub")}</div>
 
               <button
                 onClick={async () => {
@@ -91,14 +95,14 @@ export default function Products() {
                 }}
                 className={`${styles.cardBtn} ${styles.cardBtnPrimary}`}
               >
-                ANALYSE STARTEN →
+                {t("cta")}
               </button>
 
               <div className={styles.trustPoints}>
-                {["Sofortiger Download", "Einmalig, kein Abo", "PDF inklusive"].map((t) => (
-                  <div key={t} className={styles.trustPoint}>
+                {TRUST_KEYS.map((key) => (
+                  <div key={key} className={styles.trustPoint}>
                     <CheckIcon color="#22C55E" />
-                    {t}
+                    {t(`trust_points.${key}`)}
                   </div>
                 ))}
               </div>
