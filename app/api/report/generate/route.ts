@@ -20,7 +20,7 @@ export const runtime = "nodejs";
 // 90–120s, so we need the full runway.
 export const maxDuration = 300;
 
-const PROMPT_VERSION = "btb_report_v3.0.0";
+const PROMPT_VERSION = "btb_report_v3.1.0";
 const STORAGE_BUCKET = "Reports";
 
 function hasValidKey(key: string | undefined): boolean {
@@ -383,6 +383,12 @@ export interface PremiumPromptContext {
   training_days: number;
   training_intensity_label: string;
   daily_steps: number;
+  /** Data sources that fed this assessment — drives measured-vs-self-reported language. */
+  data_sources?: {
+    form: true;
+    whoop?: { days: number };
+    apple_health?: { days: number };
+  };
 }
 
 function trainingIntensityLabel(result: FullScoringResult): string {
@@ -405,13 +411,41 @@ function buildPremiumUserPrompt(ctx: PremiumPromptContext): string {
     ? interp.warnings.map((w) => `  • [${w.code}] ${w.text}`).join("\n")
     : "  (keine aktiven systemischen Warnungen)";
 
+  const ds = ctx.data_sources;
+  const hasWearable = !!(ds && (ds.whoop || ds.apple_health));
+  const wearableDays = ds?.whoop?.days ?? ds?.apple_health?.days ?? 0;
+
+  const datenquellenBlock = hasWearable
+    ? `
+═══════════════════════════════════════════════════════════
+DATENQUELLEN (wichtig für Formulierung)
+═══════════════════════════════════════════════════════════
+${ds?.whoop ? `- WHOOP: ${ds.whoop.days} Tage gemessen (Schlaf, Recovery, Strain, HRV, RHR)` : ""}
+${ds?.apple_health ? `- Apple Health: ${ds.apple_health.days} Tage gemessen (Schritte, HR, HRV${r.provenance.vo2max === "apple_health" ? ", VO2max" : ""}, Gewicht)` : ""}
+- Fragebogen: Ernährung, Stress, subjektive Wahrnehmungen
+
+SPRACHREGELN:
+- Bei GEMESSENEN Werten: "dein gemessener Ruhepuls von X bpm ...", "deine echten ${ds?.whoop ? "WHOOP-Daten" : "HRV-Daten"} zeigen ..."
+- Bei FRAGEBOGEN-Werten: "du gibst an ...", "nach deiner Selbsteinschätzung ..."
+- Nutze mindestens 3× die Formulierung "gemessen über ${wearableDays} Tage" im Report, um die Datenqualität zu würdigen.
+- Behaupte NIE, Stress, Ernährung oder Mahlzeiten seien gemessen — diese kommen aus dem Fragebogen.
+
+Provenance-Map (welche Scores basieren auf gemessenen vs. selbstberichteten Daten):
+  sleep_duration: ${r.provenance.sleep_duration}
+  sleep_efficiency: ${r.provenance.sleep_efficiency}
+  recovery: ${r.provenance.recovery}
+  activity: ${r.provenance.activity}
+  vo2max: ${r.provenance.vo2max}
+`
+    : "";
+
   return `Erstelle einen ausführlichen, persönlichen Performance Report für dieses Profil. Nutze alle Daten präzise. Mache den Report so spezifisch wie möglich — jeder Satz soll sich auf genau diese Person beziehen, nicht auf ein Template.
 
 REGELN:
 - Paraphrasiere die vorformulierten Interpretationen. Erfinde nichts.
 - Jeder Befund muss mindestens eine konkrete Zahl aus dem Input enthalten.
 - Aktive systemische Warnungen MÜSSEN prominent adressiert werden.
-- Pro Modul mindestens 15–20 Sätze insgesamt. Executive Summary + Top Priority besonders ausführlich.
+- Pro Modul mindestens 15–20 Sätze insgesamt. Executive Summary + Top Priority besonders ausführlich.${datenquellenBlock}
 
 ═══════════════════════════════════════════════════════════
 NUTZERPROFIL
@@ -555,6 +589,7 @@ interface DemoContext {
   sitting_hours_per_day?: number;
   training_days?: number;
   daily_steps?: number;
+  data_sources?: PremiumPromptContext["data_sources"];
 }
 
 function demoBand(score: number): string {
@@ -611,6 +646,7 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
       training_days: ctx.training_days ?? 0,
       training_intensity_label: trainingIntensityLabel(r),
       daily_steps: ctx.daily_steps ?? 0,
+      data_sources: ctx.data_sources,
     });
     const anthropic = getAnthropic();
     const message = await anthropic.messages.create({
@@ -755,7 +791,7 @@ export async function POST(req: NextRequest) {
     // 1. Load assessment, user, scores, metrics, responses.
     const { data: assessment, error: aErr } = await supabase
       .from("assessments")
-      .select("id, report_type, user_id")
+      .select("id, report_type, user_id, data_sources")
       .eq("id", assessmentId)
       .single();
     if (aErr) throw aErr;
@@ -823,6 +859,54 @@ export async function POST(req: NextRequest) {
       stress: { stress_level_1_10: num("stress_level_1_10", 5) },
     };
 
+    // Optional wearable overrides. `assessments.data_sources` is populated by
+    // /api/assessment when a wearable_upload_id was submitted; we look up the
+    // linked wearable_uploads row and build a WearableOverrides object.
+    const dataSources = assessment.data_sources as
+      | { form?: true; whoop?: { days: number; upload_id?: string }; apple_health?: { days: number; upload_id?: string } }
+      | null;
+    if (dataSources?.whoop || dataSources?.apple_health) {
+      const source = dataSources.whoop ? "whoop" : "apple_health";
+      const { data: wUp } = await supabase
+        .from("wearable_uploads")
+        .select("source, days_covered, metrics")
+        .eq("assessment_id", assessmentId)
+        .eq("source", source)
+        .maybeSingle();
+      if (wUp) {
+        const m = wUp.metrics as Record<string, Record<string, number> | undefined>;
+        reconstructed.wearable = {
+          source: wUp.source as "whoop" | "apple_health",
+          days_covered: wUp.days_covered,
+          sleep: m.sleep
+            ? {
+                duration_hours: m.sleep.avg_duration_hours,
+                efficiency_pct: m.sleep.avg_efficiency_pct,
+                wakeups_per_night: m.sleep.avg_wakeups,
+              }
+            : undefined,
+          recovery: m.recovery
+            ? {
+                whoop_recovery_0_100:
+                  wUp.source === "whoop" ? m.recovery.avg_score : undefined,
+                hrv_ms: m.recovery.avg_hrv_ms,
+                rhr_bpm: m.recovery.avg_rhr_bpm,
+              }
+            : undefined,
+          activity: m.activity
+            ? {
+                daily_steps: m.activity.avg_steps,
+                whoop_strain_0_21:
+                  wUp.source === "whoop" ? m.activity.avg_strain : undefined,
+                active_kcal: m.activity.avg_active_kcal,
+              }
+            : undefined,
+          vo2max: m.vo2max ? { measured_ml_kg_min: m.vo2max.last_value } : undefined,
+          body: m.body ? { weight_kg: m.body.last_weight_kg } : undefined,
+        };
+      }
+    }
+
     const result = runFullScoring(reconstructed);
     const sleepDuration = reconstructed.sleep.duration_hours;
     const standingHours = num(
@@ -858,6 +942,15 @@ export async function POST(req: NextRequest) {
       training_days: trainingDays,
       training_intensity_label: trainingIntensityLabel(result),
       daily_steps: num("schrittzahl", 0),
+      data_sources: dataSources
+        ? {
+            form: true,
+            whoop: dataSources.whoop ? { days: dataSources.whoop.days } : undefined,
+            apple_health: dataSources.apple_health
+              ? { days: dataSources.apple_health.days }
+              : undefined,
+          }
+        : undefined,
     });
 
     // Legacy bandings kept for PDF + downstream (PDF uses simple 0–100 bands).

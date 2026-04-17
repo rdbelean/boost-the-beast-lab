@@ -55,6 +55,8 @@ interface AssessmentRequestBody {
   sitting_hours: number;
   // Stress
   stress_level_1_10: number;
+  /** Optional: links a prior wearable upload (from /api/wearable/persist) into this assessment. */
+  wearable_upload_id?: string;
 }
 
 function bandForScore(score: number): ScoreBand {
@@ -249,7 +251,7 @@ export async function POST(req: NextRequest) {
 
     // 4. Persist raw responses.
     const responseRows = Object.entries(body)
-      .filter(([k]) => k !== "email" && k !== "reportType")
+      .filter(([k]) => k !== "email" && k !== "reportType" && k !== "wearable_upload_id")
       .map(([k, v]) => ({
         assessment_id: assessmentId,
         question_code: k,
@@ -258,6 +260,69 @@ export async function POST(req: NextRequest) {
       }));
     const { error: respErr } = await supabase.from("responses").insert(responseRows);
     if (respErr) throw respErr;
+
+    // 4b. Optional wearable upload — link to this assessment if present.
+    let wearableOverrides:
+      | NonNullable<FullAssessmentInputs["wearable"]>
+      | undefined;
+    if (body.wearable_upload_id) {
+      const { data: wUp } = await supabase
+        .from("wearable_uploads")
+        .select("id, source, days_covered, metrics")
+        .eq("id", body.wearable_upload_id)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (wUp) {
+        const m = wUp.metrics as Record<string, Record<string, number> | undefined>;
+        wearableOverrides = {
+          source: wUp.source as "whoop" | "apple_health",
+          days_covered: wUp.days_covered,
+          sleep: m.sleep
+            ? {
+                duration_hours: m.sleep.avg_duration_hours,
+                efficiency_pct: m.sleep.avg_efficiency_pct,
+                wakeups_per_night: m.sleep.avg_wakeups,
+              }
+            : undefined,
+          recovery: m.recovery
+            ? {
+                whoop_recovery_0_100:
+                  wUp.source === "whoop" ? m.recovery.avg_score : undefined,
+                hrv_ms: m.recovery.avg_hrv_ms,
+                rhr_bpm: m.recovery.avg_rhr_bpm,
+              }
+            : undefined,
+          activity: m.activity
+            ? {
+                daily_steps: m.activity.avg_steps,
+                whoop_strain_0_21:
+                  wUp.source === "whoop" ? m.activity.avg_strain : undefined,
+                active_kcal: m.activity.avg_active_kcal,
+              }
+            : undefined,
+          vo2max: m.vo2max
+            ? { measured_ml_kg_min: m.vo2max.last_value }
+            : undefined,
+          body: m.body ? { weight_kg: m.body.last_weight_kg } : undefined,
+        };
+
+        await supabase
+          .from("wearable_uploads")
+          .update({ assessment_id: assessmentId })
+          .eq("id", wUp.id);
+
+        const dsKey = wUp.source === "whoop" ? "whoop" : "apple_health";
+        await supabase
+          .from("assessments")
+          .update({
+            data_sources: {
+              form: true,
+              [dsKey]: { days: wUp.days_covered, upload_id: wUp.id },
+            },
+          })
+          .eq("id", assessmentId);
+      }
+    }
 
     // 5. Run scoring.
     const scoringInputs: FullAssessmentInputs = {
@@ -287,6 +352,7 @@ export async function POST(req: NextRequest) {
         fruit_veg: body.fruit_veg,
       },
       stress: { stress_level_1_10: body.stress_level_1_10 },
+      wearable: wearableOverrides,
     };
     const result = runFullScoring(scoringInputs);
 
