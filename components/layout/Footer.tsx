@@ -1,4 +1,5 @@
 "use client";
+import { Link } from "@/i18n/navigation";
 import styles from "@/app/landing.module.css";
 
 export default function Footer() {
@@ -30,13 +31,13 @@ export default function Footer() {
                 <span className={styles.footerColTitle}>LEGAL</span>
                 <ul className={styles.footerColList}>
                   <li>
-                    <a href="/impressum" className={styles.footerLink}>Impressum</a>
+                    <Link href="/impressum" className={styles.footerLink}>Impressum</Link>
                   </li>
                   <li>
-                    <a href="/datenschutz" className={styles.footerLink}>Datenschutz</a>
+                    <Link href="/datenschutz" className={styles.footerLink}>Datenschutz</Link>
                   </li>
                   <li>
-                    <a href="/cookies" className={styles.footerLink}>Cookie-Richtlinie</a>
+                    <Link href="/cookies" className={styles.footerLink}>Cookie-Richtlinie</Link>
                   </li>
                 </ul>
               </div>

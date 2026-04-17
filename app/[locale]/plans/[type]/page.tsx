@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 import styles from "./plan.module.css";
 import { buildPlan, type PlanType, type PlanContent } from "@/lib/plan/buildPlan";
 

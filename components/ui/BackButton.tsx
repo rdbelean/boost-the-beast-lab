@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 const style: React.CSSProperties = {
   position: "fixed",

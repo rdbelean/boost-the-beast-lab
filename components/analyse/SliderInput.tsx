@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useCallback } from "react";
-import styles from "@/app/analyse/analyse.module.css";
+import styles from "@/app/[locale]/analyse/analyse.module.css";
 
 interface SliderInputProps {
   label: string;

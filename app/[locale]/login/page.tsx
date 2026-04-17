@@ -1,7 +1,7 @@
 "use client";
-import Link from "next/link";
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import styles from "./login.module.css";
 import BackButton from "@/components/ui/BackButton";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";

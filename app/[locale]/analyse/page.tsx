@@ -1,7 +1,7 @@
 "use client";
-import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import styles from "./analyse.module.css";
 import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";

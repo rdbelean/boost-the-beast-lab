@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import styles from "./results.module.css";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 

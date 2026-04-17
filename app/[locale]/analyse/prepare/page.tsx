@@ -1,7 +1,8 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import styles from "./prepare.module.css";
 import { parseWhoopZip, WhoopParseError } from "@/lib/wearable/whoop/parser";
 import {

@@ -1,5 +1,5 @@
 "use client";
-import styles from "@/app/analyse/analyse.module.css";
+import styles from "@/app/[locale]/analyse/analyse.module.css";
 
 interface CustomSelectProps {
   label?: string;

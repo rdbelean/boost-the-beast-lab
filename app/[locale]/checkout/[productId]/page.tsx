@@ -1,7 +1,7 @@
 "use client";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { Link, useRouter } from "@/i18n/navigation";
 
 const PRODUCTS: Record<string, { name: string; price: number; features: string[]; tag?: string }> = {
   metabolic: {

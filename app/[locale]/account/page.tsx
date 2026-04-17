@@ -1,5 +1,8 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { hasLocale } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 import styles from "./account.module.css";
 import BackButton from "@/components/ui/BackButton";
 import { getSupabaseServerClient, getSupabaseServiceClient } from "@/lib/supabase/server";
@@ -8,14 +11,22 @@ import WearablePanel, { type WearableUploadRow } from "./WearablePanel";
 
 export const dynamic = "force-dynamic";
 
-export default async function AccountPage() {
+export default async function AccountPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
   const supabase = await getSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?next=/account");
+    redirect({ href: "/login?next=/account", locale });
+    return null;
   }
 
   const svc = getSupabaseServiceClient();
