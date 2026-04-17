@@ -81,6 +81,7 @@ export default async function AccountPage() {
           day: "2-digit",
           month: "short",
           year: "numeric",
+          timeZone: "Europe/Berlin",
         }),
         overall: Math.round(s.overall_score ?? 0),
         band: bandByAssessment.get(a.id) ?? "",

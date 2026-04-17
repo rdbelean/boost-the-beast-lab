@@ -650,14 +650,8 @@ function AnalyseContent() {
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link href="/" className={styles.logo}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L4 6.5V12C4 16.5 7.5 20.7 12 22C16.5 20.7 20 16.5 20 12V6.5L12 2Z"
-                stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round"/>
-            </svg>
-            <span>
-              <span className={styles.logoText}>BOOST THE BEAST</span>
-              <span className={styles.logoSub}>PERFORMANCE LAB</span>
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-white.svg" width={71} height={44} alt="" aria-hidden="true" style={{ objectFit: "contain" }} />
           </Link>
 
           <span className={styles.stepIndicator}>

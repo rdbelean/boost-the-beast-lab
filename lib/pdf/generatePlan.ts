@@ -416,6 +416,7 @@ export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "Europe/Berlin",
   });
 
   const accentColor = (() => {

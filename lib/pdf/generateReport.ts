@@ -737,6 +737,7 @@ export async function generatePDF(
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "Europe/Berlin",
   });
 
   const doc = await PDFDocument.create();
