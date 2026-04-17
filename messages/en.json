@@ -377,15 +377,102 @@
   },
   "results": {
     "error_loading": "Results could not be loaded.",
+    "error_title": "ERROR",
     "restart": "START OVER",
     "back_home": "← HOME",
     "new_analysis": "New analysis",
     "loading": "Loading results…",
-    "bands": {
-      "low": "CRITICAL",
-      "moderate": "ACTION NEEDED",
-      "high": "GOOD",
-      "very_high": "EXCELLENT"
+    "header_title": "BOOST THE BEAST LAB · PERFORMANCE REPORT",
+    "pdf_download": "PDF DOWNLOAD",
+    "pdf_generating": "GENERATING PDF…",
+    "pdf_generate": "GENERATE PDF NOW",
+    "pdf_error_no_assessment": "No assessment ID — please restart the analysis.",
+    "pdf_error_server": "Server error ({status}): {body}",
+    "pdf_error_empty": "empty response",
+    "pdf_error_generic": "Error {status}",
+    "pdf_error_no_url": "Server did not return a URL.",
+    "pdf_error_network": "Network error",
+    "save_banner": {
+      "label": "SAVE REPORT",
+      "title_email": "Save your report for later",
+      "title_code": "Enter the 6-digit code",
+      "desc_email": "Create an account in 10 seconds — access your report & PDFs any time from any device.",
+      "desc_code": "Code sent to {email}. Enter it here.",
+      "email_placeholder": "you@email.com",
+      "send_code": "SEND CODE",
+      "sending": "…",
+      "google_btn": "Save with Google",
+      "verify_btn": "LOG IN",
+      "back_other_email": "← Use a different email"
+    },
+    "hero_label": "YOUR RESULT",
+    "hero_title": "OVERALL PERFORMANCE SCORE",
+    "subscores_label": "SUBSCORES IN DETAIL",
+    "score_entries": {
+      "activity": { "label": "ACTIVITY PERFORMANCE", "desc": "{met} MET-min/week · IPAQ category: {category}" },
+      "sleep": { "label": "SLEEP & RECOVERY", "desc": "Sleep duration: {duration} · Quality: {quality}" },
+      "vo2max": { "label": "VO2MAX FITNESS", "desc": "Estimated VO2max: {vo2} ml/kg/min · Band: {band}" },
+      "metabolic": { "label": "METABOLIC HEALTH", "desc": "BMI: {bmi} ({category}) · Band: {band}" },
+      "stress": { "label": "STRESS & LIFESTYLE", "desc": "Stress band: {band}" }
+    },
+    "badges": { "good": "GOOD", "medium": "MEDIUM", "low": "LOW" },
+    "derived_metrics_label": "DERIVED METRICS",
+    "vo2max_card": {
+      "label": "VO2MAX ESTIMATE",
+      "desc": "Estimated maximum oxygen uptake based on age, BMI, and activity category. Model: Jackson Non-Exercise (1990)."
+    },
+    "bmi_card": {
+      "label": "BMI — BODY COMPOSITION",
+      "desc": "WHO classification of body composition. Optimal: 18.5–24.9 kg/m²."
+    },
+    "met_card": {
+      "label": "MET MINUTES PER WEEK",
+      "desc": "Total activity volume per IPAQ Short Form. Walking (3.3 MET) + Moderate (4.0 MET) + Vigorous (8.0 MET)."
+    },
+    "radar_label": "PERFORMANCE PROFILE",
+    "benchmark_label": "COMPARISON — YOUR SCORE VS. AVERAGE",
+    "benchmark_legend": {
+      "your_score": "YOUR SCORE",
+      "average": "AVERAGE"
+    },
+    "sleep_detail_label": "SLEEP & RECOVERY — DETAILED ANALYSIS",
+    "sleep_detail": {
+      "duration": { "label": "SLEEP DURATION", "desc": "Band: {band}" },
+      "quality": { "label": "SLEEP QUALITY", "desc": "Subjective rating (PSQI-adapted)" },
+      "wakeup": { "label": "WAKE-UPS", "desc": "Nighttime interruptions" },
+      "recovery": { "label": "RECOVERY", "desc": "Morning recovery feeling" }
+    },
+    "plans": {
+      "heading": "YOUR 4 PERSONALIZED PLANS",
+      "subtitle": "Personalized from your scores — included in your package. Each plan contains concrete protocols, weekly schedules, and scientific recommendations.",
+      "activity": { "label": "ACTIVITY PLAN", "desc": "Training volume, weekly schedule & progression per WHO/ACSM standard", "cta": "GO TO ACTIVITY PLAN" },
+      "metabolic": { "label": "METABOLIC PLAN", "desc": "Nutrition & hydration protocol per EFSA and DGE guidelines", "cta": "GO TO METABOLIC PLAN" },
+      "recovery": { "label": "RECOVERY PLAN", "desc": "Sleep hygiene, recovery protocol & weekly structure per NSF", "cta": "GO TO RECOVERY PLAN" },
+      "stress": { "label": "STRESS & LIFESTYLE PLAN", "desc": "Stress reduction, lifestyle optimization & sport as a stress tool", "cta": "GO TO STRESS PLAN" }
+    },
+    "urgency": {
+      "critical": "CRITICAL",
+      "action": "ACTION NEEDED",
+      "optimize": "ROOM TO OPTIMIZE",
+      "finetune": "FINE-TUNING",
+      "top": "TOP LEVEL"
+    },
+    "bottom_cta": {
+      "btn_download": "DOWNLOAD REPORT AS PDF",
+      "disclaimer": "Disclaimer: This report is provided for general information only and does not replace a physician's visit, medical diagnosis, or treatment recommendation. For any health concerns, please consult a physician. Not a medical device per MDR."
+    },
+    "upsell": {
+      "tag": "NEXT LEVEL",
+      "title": "READY FOR REAL LAB DIAGNOSTICS?",
+      "text": "Your performance report is based on scientific models — but the most precise measurement happens in the lab. Book a personal consultation and a real VO2max measurement with spiroergometry in Düsseldorf.",
+      "features": [
+        "Personal consultation with an expert",
+        "Precise VO2max measurement via spiroergometry",
+        "Personalized training & nutrition advice",
+        "On-site in Düsseldorf · real lab diagnostics"
+      ],
+      "btn": "BOOK APPOINTMENT →",
+      "note": "Personal consultation · Düsseldorf"
     }
   },
   "login": {

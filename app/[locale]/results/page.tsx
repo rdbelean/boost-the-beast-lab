@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "./results.module.css";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -28,12 +29,16 @@ function AnimNum({ target }: { target: number }) {
 }
 
 /* ─── Urgency label ─────────────────────────────────────────── */
-function urgencyLabel(score: number): { text: string; color: string } {
-  if (score <= 30) return { text: "KRITISCH",              color: "#DC2626" };
-  if (score <= 50) return { text: "HANDLUNGSBEDARF",       color: "#B45309" };
-  if (score <= 70) return { text: "OPTIMIERUNGSPOTENZIAL", color: "#A1A1AA" };
-  if (score <= 85) return { text: "FEINTUNING",            color: "#4D7C0F" };
-  return                 { text: "TOP-LEVEL",              color: "#15803D" };
+// Urgency buckets map score → (key, color). Translation happens at the
+// call site so the helper stays locale-agnostic (easier to reuse in
+// Server Components and PDFs later).
+type UrgencyKey = "critical" | "action" | "optimize" | "finetune" | "top";
+function urgencyBucket(score: number): { key: UrgencyKey; color: string } {
+  if (score <= 30) return { key: "critical", color: "#DC2626" };
+  if (score <= 50) return { key: "action",   color: "#B45309" };
+  if (score <= 70) return { key: "optimize", color: "#A1A1AA" };
+  if (score <= 85) return { key: "finetune", color: "#4D7C0F" };
+  return                 { key: "top",       color: "#15803D" };
 }
 
 /* ─── Color helpers ─────────────────────────────────────────── */
@@ -43,10 +48,11 @@ function scoreColor(score: number): string {
   return "#E63222";
 }
 
-function scoreBadge(score: number): string {
-  if (score >= 70) return "GUT";
-  if (score >= 40) return "MITTEL";
-  return "NIEDRIG";
+type BadgeKey = "good" | "medium" | "low";
+function scoreBadgeKey(score: number): BadgeKey {
+  if (score >= 70) return "good";
+  if (score >= 40) return "medium";
+  return "low";
 }
 
 /* ─── Radar Chart (SVG) ─────────────────────────────────────── */
@@ -107,6 +113,7 @@ interface ResultsData {
 
 /* ─── Main Results Dashboard ────────────────────────────────── */
 export default function ResultsPage() {
+  const t = useTranslations("results");
   const [scores, setScores] = useState<ResultsData | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
@@ -217,7 +224,7 @@ export default function ResultsPage() {
 
   async function retryPdfGeneration() {
     if (!assessmentId) {
-      setPdfError("Keine Assessment-ID — bitte Analyse neu starten.");
+      setPdfError(t("pdf_error_no_assessment"));
       return;
     }
     setPdfRetrying(true);
@@ -236,12 +243,15 @@ export default function ResultsPage() {
       } catch {
         // Not JSON — surface the raw text so we can see the actual error
         setPdfError(
-          `Server-Fehler (${res.status}): ${rawText.slice(0, 300) || "leere Antwort"}`,
+          t("pdf_error_server", {
+            status: res.status,
+            body: rawText.slice(0, 300) || t("pdf_error_empty"),
+          }),
         );
         return;
       }
       if (!res.ok) {
-        setPdfError(data?.error ?? `Fehler ${res.status}`);
+        setPdfError(data?.error ?? t("pdf_error_generic", { status: res.status }));
         return;
       }
       if (data?.downloadUrl) {
@@ -255,10 +265,10 @@ export default function ResultsPage() {
           } catch {}
         }
       } else {
-        setPdfError("Server lieferte keine URL zurück.");
+        setPdfError(t("pdf_error_no_url"));
       }
     } catch (err) {
-      setPdfError(err instanceof Error ? err.message : "Netzwerkfehler");
+      setPdfError(err instanceof Error ? err.message : t("pdf_error_network"));
     } finally {
       setPdfRetrying(false);
     }
@@ -268,9 +278,9 @@ export default function ResultsPage() {
     return (
       <div className={styles.errorScreen}>
         <div className={styles.errorInner}>
-          <div className={styles.errorTitle}>FEHLER</div>
+          <div className={styles.errorTitle}>{t("error_title")}</div>
           <p className={styles.errorText}>{error}</p>
-          <Link href="/analyse" className={styles.errorBtn}>NEU STARTEN</Link>
+          <Link href="/analyse" className={styles.errorBtn}>{t("restart")}</Link>
         </div>
       </div>
     );
@@ -282,11 +292,54 @@ export default function ResultsPage() {
   const labelColor = scoreColor(overall);
 
   const scoreEntries = [
-    { key: "activity", label: "ACTIVITY PERFORMANCE", color: "#E63222", score: scores.activity.activity_score_0_100, desc: `${scores.activity.total_met_minutes_week} MET-min/Woche · IPAQ Kategorie: ${scores.activity.activity_category}` },
-    { key: "sleep", label: "SLEEP & RECOVERY", color: "#3B82F6", score: scores.sleep.sleep_score_0_100, desc: `Schlafdauer: ${scores.sleep.sleep_duration_band} · Qualität: ${scores.sleep.sleep_band}` },
-    { key: "vo2max", label: "VO2MAX FITNESS", color: "#8B5CF6", score: scores.vo2max.fitness_score_0_100, desc: `Geschätzter VO2max: ${scores.vo2max.vo2max_estimated} ml/kg/min · Band: ${scores.vo2max.vo2max_band}` },
-    { key: "metabolic", label: "METABOLIC HEALTH", color: "#F59E0B", score: scores.metabolic.metabolic_score_0_100, desc: `BMI: ${scores.metabolic.bmi} (${scores.metabolic.bmi_category}) · Band: ${scores.metabolic.metabolic_band}` },
-    { key: "stress", label: "STRESS & LIFESTYLE", color: "#22C55E", score: scores.stress.stress_score_0_100, desc: `Stress-Band: ${scores.stress.stress_band}` },
+    {
+      key: "activity",
+      label: t("score_entries.activity.label"),
+      color: "#E63222",
+      score: scores.activity.activity_score_0_100,
+      desc: t("score_entries.activity.desc", {
+        met: scores.activity.total_met_minutes_week,
+        category: scores.activity.activity_category,
+      }),
+    },
+    {
+      key: "sleep",
+      label: t("score_entries.sleep.label"),
+      color: "#3B82F6",
+      score: scores.sleep.sleep_score_0_100,
+      desc: t("score_entries.sleep.desc", {
+        duration: scores.sleep.sleep_duration_band,
+        quality: scores.sleep.sleep_band,
+      }),
+    },
+    {
+      key: "vo2max",
+      label: t("score_entries.vo2max.label"),
+      color: "#8B5CF6",
+      score: scores.vo2max.fitness_score_0_100,
+      desc: t("score_entries.vo2max.desc", {
+        vo2: scores.vo2max.vo2max_estimated,
+        band: scores.vo2max.vo2max_band,
+      }),
+    },
+    {
+      key: "metabolic",
+      label: t("score_entries.metabolic.label"),
+      color: "#F59E0B",
+      score: scores.metabolic.metabolic_score_0_100,
+      desc: t("score_entries.metabolic.desc", {
+        bmi: scores.metabolic.bmi,
+        category: scores.metabolic.bmi_category,
+        band: scores.metabolic.metabolic_band,
+      }),
+    },
+    {
+      key: "stress",
+      label: t("score_entries.stress.label"),
+      color: "#22C55E",
+      score: scores.stress.stress_score_0_100,
+      desc: t("score_entries.stress.desc", { band: scores.stress.stress_band }),
+    },
   ];
 
   const benchmarks: Record<string, number> = { activity: 48, sleep: 55, vo2max: 45, metabolic: 58, stress: 52 };
@@ -308,13 +361,13 @@ export default function ResultsPage() {
     <div className={styles.page}>
       {/* Header */}
       <div className={styles.header}>
-        <Link href="/" className={styles.headerBtnSecondary}>← HOME</Link>
-        <div className={styles.headerTitle}>BOOST THE BEAST LAB · PERFORMANCE REPORT</div>
+        <Link href="/" className={styles.headerBtnSecondary}>{t("back_home")}</Link>
+        <div className={styles.headerTitle}>{t("header_title")}</div>
         <div className={styles.headerActions}>
-          <Link href="/analyse" className={`${styles.headerBtnSecondary} ${styles.hideOnMobile}`}>Neue Analyse</Link>
+          <Link href="/analyse" className={`${styles.headerBtnSecondary} ${styles.hideOnMobile}`}>{t("new_analysis")}</Link>
           {downloadUrl ? (
             <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className={styles.headerBtnPrimary}>
-              PDF DOWNLOAD
+              {t("pdf_download")}
             </a>
           ) : (
             <button
@@ -324,7 +377,7 @@ export default function ResultsPage() {
               style={{ opacity: pdfRetrying ? 0.5 : 1, cursor: pdfRetrying ? "wait" : "pointer" }}
               title={pdfError ?? undefined}
             >
-              {pdfRetrying ? "PDF WIRD GENERIERT…" : "PDF JETZT GENERIEREN"}
+              {pdfRetrying ? t("pdf_generating") : t("pdf_generate")}
             </button>
           )}
         </div>
@@ -356,17 +409,17 @@ export default function ResultsPage() {
                     marginBottom: 6,
                   }}
                 >
-                  REPORT SICHERN
+                  {t("save_banner.label")}
                 </div>
                 <div style={{ fontSize: 17, fontWeight: 700, color: "#fff", marginBottom: 4 }}>
                   {saveStep === "email"
-                    ? "Speichere deinen Report für später"
-                    : "6-stelligen Code eingeben"}
+                    ? t("save_banner.title_email")
+                    : t("save_banner.title_code")}
                 </div>
                 <div style={{ fontSize: 12, color: "#999", lineHeight: 1.5 }}>
                   {saveStep === "email"
-                    ? "Account in 10 Sekunden erstellen — Report & PDFs jederzeit wieder abrufbar, auch von anderen Geräten."
-                    : `Code wurde an ${saveEmail} gesendet. Gib ihn hier ein.`}
+                    ? t("save_banner.desc_email")
+                    : t("save_banner.desc_code", { email: saveEmail })}
                 </div>
               </div>
 
@@ -377,7 +430,7 @@ export default function ResultsPage() {
                       <input
                         type="email"
                         required
-                        placeholder="deine@email.de"
+                        placeholder={t("save_banner.email_placeholder")}
                         value={saveEmail}
                         onChange={(e) => setSaveEmail(e.target.value)}
                         style={{
@@ -405,7 +458,7 @@ export default function ResultsPage() {
                           opacity: saveSending ? 0.6 : 1,
                         }}
                       >
-                        {saveSending ? "…" : "CODE SENDEN"}
+                        {saveSending ? t("save_banner.sending") : t("save_banner.send_code")}
                       </button>
                     </form>
                     <button
@@ -432,7 +485,7 @@ export default function ResultsPage() {
                         <path d="M3.96 10.71c-.18-.54-.29-1.11-.29-1.71s.11-1.17.29-1.71V4.95H.96C.35 6.17 0 7.55 0 9s.35 2.83.96 4.05l3-2.34z" fill="#FBBC04"/>
                         <path d="M9 3.58c1.32 0 2.51.45 3.44 1.34l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.45 2.02.96 4.95l3 2.34C4.67 5.17 6.66 3.58 9 3.58z" fill="#EA4335"/>
                       </svg>
-                      Mit Google sichern
+                      {t("save_banner.google_btn")}
                     </button>
                   </>
                 ) : (
@@ -476,7 +529,7 @@ export default function ResultsPage() {
                           opacity: saveSending ? 0.6 : 1,
                         }}
                       >
-                        {saveSending ? "…" : "EINLOGGEN"}
+                        {saveSending ? t("save_banner.sending") : t("save_banner.verify_btn")}
                       </button>
                     </form>
                     <button
@@ -493,7 +546,7 @@ export default function ResultsPage() {
                         padding: 4,
                       }}
                     >
-                      ← Andere E-Mail
+                      {t("save_banner.back_other_email")}
                     </button>
                   </>
                 )}
@@ -507,8 +560,8 @@ export default function ResultsPage() {
 
         {/* ─── HERO: Overall Score ──────────────────────── */}
         <section className={styles.heroSection}>
-          <div className={styles.heroLabel}>DEIN ERGEBNIS</div>
-          <h1 className={styles.heroTitle}>OVERALL PERFORMANCE SCORE</h1>
+          <div className={styles.heroLabel}>{t("hero_label")}</div>
+          <h1 className={styles.heroTitle}>{t("hero_title")}</h1>
 
           <div className={styles.ringWrap}>
             <svg className={styles.ringBg} width="100%" height="100%" viewBox={`0 0 ${ringSize} ${ringSize}`}>
@@ -541,7 +594,7 @@ export default function ResultsPage() {
 
         {/* ─── SCORE CARDS ─────────────────────────────── */}
         <section className={styles.scoresSection}>
-          <div className={styles.sectionLabel}>SUBSCORES IM DETAIL</div>
+          <div className={styles.sectionLabel}>{t("subscores_label")}</div>
           <div className={styles.scoresGrid}>
             {scoreEntries.map((entry, i) => {
               const c = scoreColor(entry.score);
@@ -555,7 +608,7 @@ export default function ResultsPage() {
                       </div>
                     </div>
                     <div className={styles.scoreCardBadge} style={{ background: `${c}18`, color: c }}>
-                      {scoreBadge(entry.score)}
+                      {t(`badges.${scoreBadgeKey(entry.score)}`)}
                     </div>
                   </div>
                   <div className={styles.scoreCardBar}>
@@ -570,12 +623,12 @@ export default function ResultsPage() {
 
         {/* ─── DERIVED METRICS ──────────────────────────── */}
         <section className={styles.scoresSection}>
-          <div className={styles.sectionLabel}>DERIVED METRICS</div>
+          <div className={styles.sectionLabel}>{t("derived_metrics_label")}</div>
           <div className={styles.scoresGrid}>
             <div className={styles.scoreCard} style={{ animationDelay: "0.1s" }}>
               <div className={styles.scoreCardTop}>
                 <div>
-                  <div className={styles.scoreCardLabel}>VO2MAX SCHÄTZUNG</div>
+                  <div className={styles.scoreCardLabel}>{t("vo2max_card.label")}</div>
                   <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.vo2max.fitness_score_0_100) }}>
                     {scores.vo2max.vo2max_estimated}<span className={styles.scoreCardMax}> ml/kg/min</span>
                   </div>
@@ -585,14 +638,14 @@ export default function ResultsPage() {
                 </div>
               </div>
               <div className={styles.scoreCardDesc}>
-                Geschätzte maximale Sauerstoffaufnahme basierend auf Alter, BMI und Aktivitätskategorie. Modell: Jackson Non-Exercise (1990).
+                {t("vo2max_card.desc")}
               </div>
             </div>
 
             <div className={styles.scoreCard} style={{ animationDelay: "0.15s" }}>
               <div className={styles.scoreCardTop}>
                 <div>
-                  <div className={styles.scoreCardLabel}>BMI — KÖRPERKOMPOSITION</div>
+                  <div className={styles.scoreCardLabel}>{t("bmi_card.label")}</div>
                   <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.metabolic.metabolic_score_0_100) }}>
                     {scores.metabolic.bmi}<span className={styles.scoreCardMax}> kg/m²</span>
                   </div>
@@ -602,14 +655,14 @@ export default function ResultsPage() {
                 </div>
               </div>
               <div className={styles.scoreCardDesc}>
-                WHO-Klassifikation der Körperzusammensetzung. Optimal: 18.5–24.9 kg/m².
+                {t("bmi_card.desc")}
               </div>
             </div>
 
             <div className={styles.scoreCard} style={{ animationDelay: "0.2s" }}>
               <div className={styles.scoreCardTop}>
                 <div>
-                  <div className={styles.scoreCardLabel}>MET-MINUTEN PRO WOCHE</div>
+                  <div className={styles.scoreCardLabel}>{t("met_card.label")}</div>
                   <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.activity.activity_score_0_100) }}>
                     {scores.activity.total_met_minutes_week}<span className={styles.scoreCardMax}> MET-min</span>
                   </div>
@@ -619,7 +672,7 @@ export default function ResultsPage() {
                 </div>
               </div>
               <div className={styles.scoreCardDesc}>
-                Gesamtaktivitätsvolumen nach IPAQ Short Form. Walking (3.3 MET) + Moderate (4.0 MET) + Vigorous (8.0 MET).
+                {t("met_card.desc")}
               </div>
             </div>
           </div>
@@ -627,7 +680,7 @@ export default function ResultsPage() {
 
         {/* ─── RADAR CHART ─────────────────────────────── */}
         <section className={styles.radarSection}>
-          <div className={styles.sectionLabel}>PERFORMANCE PROFIL</div>
+          <div className={styles.sectionLabel}>{t("radar_label")}</div>
           <div className={styles.radarGrid}>
             <RadarChart scores={radarScores} />
             <div className={styles.radarMeta}>
@@ -644,7 +697,7 @@ export default function ResultsPage() {
 
         {/* ─── BENCHMARK COMPARISON ────────────────────── */}
         <section className={styles.benchmarkSection}>
-          <div className={styles.sectionLabel}>VERGLEICH — DEIN SCORE VS. DURCHSCHNITT</div>
+          <div className={styles.sectionLabel}>{t("benchmark_label")}</div>
           {scoreEntries.map((entry, i) => (
             <div key={entry.key} className={styles.benchmarkRow} style={{ animationDelay: `${i * 0.1}s` }}>
               <div className={styles.benchmarkLabel}>{entry.label}</div>
@@ -661,30 +714,30 @@ export default function ResultsPage() {
             </div>
           ))}
           <div className={styles.benchmarkLegend}>
-            <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "var(--accent)" }} />DEIN SCORE</div>
-            <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "rgba(255,255,255,0.15)" }} />DURCHSCHNITT</div>
+            <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "var(--accent)" }} />{t("benchmark_legend.your_score")}</div>
+            <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "rgba(255,255,255,0.15)" }} />{t("benchmark_legend.average")}</div>
           </div>
         </section>
 
         {/* ─── SLEEP DETAIL ────────────────────────────── */}
         <section className={styles.scoresSection}>
-          <div className={styles.sectionLabel}>SLEEP & RECOVERY — DETAILANALYSE</div>
+          <div className={styles.sectionLabel}>{t("sleep_detail_label")}</div>
           <div className={styles.scoresGrid}>
             {[
-              { label: "SCHLAFDAUER", score: scores.sleep.sleep_duration_score, desc: `Band: ${scores.sleep.sleep_duration_band}` },
-              { label: "SCHLAFQUALITÄT", score: scores.sleep.sleep_quality_score, desc: "Subjektive Bewertung (PSQI-adaptiert)" },
-              { label: "AUFWACHEN", score: scores.sleep.wakeup_score, desc: "Nächtliche Unterbrechungen" },
-              { label: "ERHOLUNG", score: scores.sleep.recovery_score, desc: "Morgens-Erholungsgefühl" },
+              { key: "duration", label: t("sleep_detail.duration.label"), score: scores.sleep.sleep_duration_score, desc: t("sleep_detail.duration.desc", { band: scores.sleep.sleep_duration_band }) },
+              { key: "quality", label: t("sleep_detail.quality.label"), score: scores.sleep.sleep_quality_score, desc: t("sleep_detail.quality.desc") },
+              { key: "wakeup", label: t("sleep_detail.wakeup.label"), score: scores.sleep.wakeup_score, desc: t("sleep_detail.wakeup.desc") },
+              { key: "recovery", label: t("sleep_detail.recovery.label"), score: scores.sleep.recovery_score, desc: t("sleep_detail.recovery.desc") },
             ].map((s, i) => {
               const c = scoreColor(s.score);
               return (
-                <div key={s.label} className={styles.scoreCard} style={{ animationDelay: `${i * 0.08}s` }}>
+                <div key={s.key} className={styles.scoreCard} style={{ animationDelay: `${i * 0.08}s` }}>
                   <div className={styles.scoreCardTop}>
                     <div>
                       <div className={styles.scoreCardLabel}>{s.label}</div>
                       <div className={styles.scoreCardValue} style={{ color: c }}>{s.score}<span className={styles.scoreCardMax}>/100</span></div>
                     </div>
-                    <div className={styles.scoreCardBadge} style={{ background: `${c}18`, color: c }}>{scoreBadge(s.score)}</div>
+                    <div className={styles.scoreCardBadge} style={{ background: `${c}18`, color: c }}>{t(`badges.${scoreBadgeKey(s.score)}`)}</div>
                   </div>
                   <div className={styles.scoreCardBar}>
                     <div className={styles.scoreCardBarFill} style={{ width: `${s.score}%`, background: c }} />
@@ -698,16 +751,16 @@ export default function ResultsPage() {
 
         {/* ─── INDIVIDUELLE PLÄNE ──────────────────────── */}
         <section className={styles.plansSection}>
-          <h2 className={styles.plansSectionHeading}>DEINE 4 INDIVIDUELLEN PLÄNE</h2>
+          <h2 className={styles.plansSectionHeading}>{t("plans.heading")}</h2>
           <p className={styles.plansSubtitle}>
-            Personalisiert auf Basis deiner Scores — inklusive in deinem Paket. Jeder Plan enthält konkrete Protokolle, Wochenpläne und wissenschaftliche Empfehlungen.
+            {t("plans.subtitle")}
           </p>
           <div className={styles.plansGrid}>
             {[
-              { type: "activity",  label: "ACTIVITY-PLAN",          color: "#E63222", score: scores.activity.activity_score_0_100,  desc: "Trainingsvolumen, Wochenplan & Progression nach WHO/ACSM-Standard", cta: "ZUM ACTIVITY-PLAN" },
-              { type: "metabolic", label: "METABOLIC-PLAN",         color: "#F59E0B", score: scores.metabolic.metabolic_score_0_100, desc: "Ernährungs- & Hydrations-Protokoll nach EFSA- und DGE-Richtlinien", cta: "ZUM METABOLIC-PLAN" },
-              { type: "recovery",  label: "RECOVERY-PLAN",          color: "#3B82F6", score: scores.sleep.sleep_score_0_100,         desc: "Schlaf-Hygiene, Regenerationsprotokoll & Wochenstruktur nach NSF", cta: "ZUM RECOVERY-PLAN" },
-              { type: "stress",    label: "STRESS & LIFESTYLE-PLAN", color: "#22C55E", score: scores.stress.stress_score_0_100,      desc: "Stressreduktion, Lifestyle-Optimierung & Sport als Stress-Tool", cta: "ZUM STRESS-PLAN" },
+              { type: "activity",  color: "#E63222", score: scores.activity.activity_score_0_100 },
+              { type: "metabolic", color: "#F59E0B", score: scores.metabolic.metabolic_score_0_100 },
+              { type: "recovery",  color: "#3B82F6", score: scores.sleep.sleep_score_0_100 },
+              { type: "stress",    color: "#22C55E", score: scores.stress.stress_score_0_100 },
             ].map((plan) => (
               <Link key={plan.type} href={`/plans/${plan.type}`} className={styles.planCard}>
                 <div className={styles.planCardAccent} style={{ background: plan.color }} />
@@ -716,17 +769,17 @@ export default function ResultsPage() {
                     <div className={styles.planCardScore} style={{ color: plan.color, marginBottom: 0 }}>
                       {plan.score}<span className={styles.planCardScoreSub}>/100</span>
                     </div>
-                    {(() => { const u = urgencyLabel(plan.score); return (
+                    {(() => { const u = urgencyBucket(plan.score); return (
                       <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: u.color, border: `1px solid ${u.color}`, background: `${u.color}18`, padding: "2px 7px", borderRadius: 2, whiteSpace: "nowrap" }}>
-                        {u.text}
+                        {t(`urgency.${u.key}`)}
                       </span>
                     ); })()}
                   </div>
-                  <div className={styles.planCardLabel}>{plan.label}</div>
-                  <div className={styles.planCardDesc}>{plan.desc}</div>
+                  <div className={styles.planCardLabel}>{t(`plans.${plan.type as "activity"|"metabolic"|"recovery"|"stress"}.label`)}</div>
+                  <div className={styles.planCardDesc}>{t(`plans.${plan.type as "activity"|"metabolic"|"recovery"|"stress"}.desc`)}</div>
                 </div>
                 <div className={styles.planCardCta} style={{ color: plan.color }}>
-                  <span>{plan.cta} →</span>
+                  <span>{t(`plans.${plan.type as "activity"|"metabolic"|"recovery"|"stress"}.cta`)} →</span>
                   <span className={styles.planCardArrow}>→</span>
                 </div>
               </Link>
@@ -739,7 +792,7 @@ export default function ResultsPage() {
           <div className={styles.ctaBtns}>
             {downloadUrl ? (
               <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className={styles.ctaBtnPrimary}>
-                REPORT ALS PDF HERUNTERLADEN
+                {t("bottom_cta.btn_download")}
               </a>
             ) : (
               <button
@@ -748,7 +801,7 @@ export default function ResultsPage() {
                 className={styles.ctaBtnPrimary}
                 style={{ opacity: pdfRetrying ? 0.5 : 1, cursor: pdfRetrying ? "wait" : "pointer" }}
               >
-                {pdfRetrying ? "PDF WIRD GENERIERT…" : "PDF JETZT GENERIEREN"}
+                {pdfRetrying ? t("pdf_generating") : t("pdf_generate")}
               </button>
             )}
           </div>
@@ -758,28 +811,19 @@ export default function ResultsPage() {
             </div>
           )}
           <p className={styles.ctaDisclaimer}>
-            Hinweis: Dieser Report dient ausschließlich der allgemeinen Information und ersetzt keinen
-            Arztbesuch, keine medizinische Diagnose oder Therapieempfehlung. Bei gesundheitlichen
-            Beschwerden konsultieren Sie bitte einen Arzt. Kein Medizinprodukt i.S.d. MDR.
+            {t("bottom_cta.disclaimer")}
           </p>
         </section>
 
         {/* ─── LAB UPSELL ──────────────────────────────── */}
         <section className={styles.upsellSection}>
-          <div className={styles.upsellTag}>NÄCHSTES LEVEL</div>
-          <h2 className={styles.upsellTitle}>BEREIT FÜR ECHTE LAB-DIAGNOSTIK?</h2>
+          <div className={styles.upsellTag}>{t("upsell.tag")}</div>
+          <h2 className={styles.upsellTitle}>{t("upsell.title")}</h2>
           <p className={styles.upsellText}>
-            Dein Performance Report basiert auf wissenschaftlichen Modellen — aber die präziseste Messung
-            findet im Labor statt. Hol dir eine persönliche Beratung und eine echte
-            VO2max-Messung mit Atemmaske (Spiroergometrie) in Düsseldorf.
+            {t("upsell.text")}
           </p>
           <div className={styles.upsellFeatures}>
-            {[
-              "Persönliches Beratungsgespräch mit einem Experten",
-              "Präzise VO2max-Messung mit Spiroergometrie",
-              "Individuelle Trainings- & Ernährungsberatung",
-              "Vor Ort in Düsseldorf · echte Lab-Diagnostik",
-            ].map((f) => (
+            {(t.raw("upsell.features") as string[]).map((f) => (
               <div key={f} className={styles.upsellFeatureItem}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
                   <path d="M2 7l3.5 3.5L12 3" stroke="#E63222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -789,9 +833,9 @@ export default function ResultsPage() {
             ))}
           </div>
           <a href="https://boostthebeast.com/" target="_blank" rel="noopener noreferrer" className={styles.upsellBtn}>
-            TERMIN BUCHEN →
+            {t("upsell.btn")}
           </a>
-          <p className={styles.upsellNote}>Persönliche Beratung · Düsseldorf</p>
+          <p className={styles.upsellNote}>{t("upsell.note")}</p>
         </section>
       </div>
     </div>

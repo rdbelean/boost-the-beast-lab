@@ -377,15 +377,102 @@
   },
   "results": {
     "error_loading": "Impossibile caricare i risultati.",
+    "error_title": "ERRORE",
     "restart": "RICOMINCIA",
     "back_home": "← HOME",
     "new_analysis": "Nuova analisi",
     "loading": "Caricamento risultati…",
-    "bands": {
-      "low": "CRITICO",
-      "moderate": "AZIONE RICHIESTA",
-      "high": "BUONO",
-      "very_high": "ECCELLENTE"
+    "header_title": "BOOST THE BEAST LAB · PERFORMANCE REPORT",
+    "pdf_download": "DOWNLOAD PDF",
+    "pdf_generating": "GENERAZIONE PDF…",
+    "pdf_generate": "GENERA PDF ORA",
+    "pdf_error_no_assessment": "Nessun ID di valutazione — riavvia l'analisi.",
+    "pdf_error_server": "Errore del server ({status}): {body}",
+    "pdf_error_empty": "risposta vuota",
+    "pdf_error_generic": "Errore {status}",
+    "pdf_error_no_url": "Il server non ha restituito un URL.",
+    "pdf_error_network": "Errore di rete",
+    "save_banner": {
+      "label": "SALVA REPORT",
+      "title_email": "Salva il tuo report per dopo",
+      "title_code": "Inserisci il codice a 6 cifre",
+      "desc_email": "Crea un account in 10 secondi — accedi al tuo report e ai PDF in qualsiasi momento, da qualsiasi dispositivo.",
+      "desc_code": "Codice inviato a {email}. Inseriscilo qui.",
+      "email_placeholder": "tu@email.it",
+      "send_code": "INVIA CODICE",
+      "sending": "…",
+      "google_btn": "Salva con Google",
+      "verify_btn": "ACCEDI",
+      "back_other_email": "← Usa un'altra email"
+    },
+    "hero_label": "IL TUO RISULTATO",
+    "hero_title": "OVERALL PERFORMANCE SCORE",
+    "subscores_label": "SUBSCORE IN DETTAGLIO",
+    "score_entries": {
+      "activity": { "label": "ACTIVITY PERFORMANCE", "desc": "{met} MET-min/settimana · Categoria IPAQ: {category}" },
+      "sleep": { "label": "SLEEP & RECOVERY", "desc": "Durata del sonno: {duration} · Qualità: {quality}" },
+      "vo2max": { "label": "VO2MAX FITNESS", "desc": "VO2max stimato: {vo2} ml/kg/min · Band: {band}" },
+      "metabolic": { "label": "METABOLIC HEALTH", "desc": "BMI: {bmi} ({category}) · Band: {band}" },
+      "stress": { "label": "STRESS & LIFESTYLE", "desc": "Band dello stress: {band}" }
+    },
+    "badges": { "good": "BUONO", "medium": "MEDIO", "low": "BASSO" },
+    "derived_metrics_label": "DERIVED METRICS",
+    "vo2max_card": {
+      "label": "STIMA VO2MAX",
+      "desc": "Consumo massimo di ossigeno stimato in base a età, BMI e categoria di attività. Modello: Jackson Non-Exercise (1990)."
+    },
+    "bmi_card": {
+      "label": "BMI — COMPOSIZIONE CORPOREA",
+      "desc": "Classificazione WHO della composizione corporea. Ottimale: 18.5–24.9 kg/m²."
+    },
+    "met_card": {
+      "label": "MET-MINUTI A SETTIMANA",
+      "desc": "Volume totale di attività secondo IPAQ Short Form. Walking (3.3 MET) + Moderate (4.0 MET) + Vigorous (8.0 MET)."
+    },
+    "radar_label": "PROFILO PERFORMANCE",
+    "benchmark_label": "CONFRONTO — IL TUO SCORE VS. LA MEDIA",
+    "benchmark_legend": {
+      "your_score": "IL TUO SCORE",
+      "average": "MEDIA"
+    },
+    "sleep_detail_label": "SLEEP & RECOVERY — ANALISI DETTAGLIATA",
+    "sleep_detail": {
+      "duration": { "label": "DURATA DEL SONNO", "desc": "Band: {band}" },
+      "quality": { "label": "QUALITÀ DEL SONNO", "desc": "Valutazione soggettiva (PSQI-adattata)" },
+      "wakeup": { "label": "RISVEGLI", "desc": "Interruzioni notturne" },
+      "recovery": { "label": "RECUPERO", "desc": "Sensazione di recupero al mattino" }
+    },
+    "plans": {
+      "heading": "I TUOI 4 PIANI PERSONALIZZATI",
+      "subtitle": "Personalizzati sui tuoi punteggi — inclusi nel tuo pacchetto. Ogni piano contiene protocolli concreti, piani settimanali e raccomandazioni scientifiche.",
+      "activity": { "label": "PIANO ACTIVITY", "desc": "Volume di allenamento, piano settimanale e progressione secondo standard WHO/ACSM", "cta": "VAI AL PIANO ACTIVITY" },
+      "metabolic": { "label": "PIANO METABOLIC", "desc": "Protocollo alimentazione e idratazione secondo linee guida EFSA e DGE", "cta": "VAI AL PIANO METABOLIC" },
+      "recovery": { "label": "PIANO RECOVERY", "desc": "Igiene del sonno, protocollo di recupero e struttura settimanale secondo NSF", "cta": "VAI AL PIANO RECOVERY" },
+      "stress": { "label": "PIANO STRESS & LIFESTYLE", "desc": "Riduzione dello stress, ottimizzazione del lifestyle e sport come strumento anti-stress", "cta": "VAI AL PIANO STRESS" }
+    },
+    "urgency": {
+      "critical": "CRITICO",
+      "action": "AZIONE RICHIESTA",
+      "optimize": "MARGINE DI OTTIMIZZAZIONE",
+      "finetune": "FINE-TUNING",
+      "top": "TOP LEVEL"
+    },
+    "bottom_cta": {
+      "btn_download": "SCARICA REPORT IN PDF",
+      "disclaimer": "Avvertenza: Questo report ha scopo puramente informativo e non sostituisce la visita da un medico, una diagnosi medica o una raccomandazione terapeutica. In caso di disturbi, consulta un medico. Non è un dispositivo medico ai sensi MDR."
+    },
+    "upsell": {
+      "tag": "LIVELLO SUCCESSIVO",
+      "title": "PRONTO PER LA VERA DIAGNOSTICA DI LABORATORIO?",
+      "text": "Il tuo performance report si basa su modelli scientifici — ma la misurazione più precisa avviene in laboratorio. Prenota una consulenza personale e una misurazione reale del VO2max con spirometria a Düsseldorf.",
+      "features": [
+        "Consulenza personale con un esperto",
+        "Misurazione precisa del VO2max con spirometria",
+        "Consulenza personalizzata su allenamento e nutrizione",
+        "In loco a Düsseldorf · diagnostica di laboratorio reale"
+      ],
+      "btn": "PRENOTA APPUNTAMENTO →",
+      "note": "Consulenza personale · Düsseldorf"
     }
   },
   "login": {
