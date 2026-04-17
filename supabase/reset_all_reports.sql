@@ -1,14 +1,17 @@
 -- =====================================================================
--- FULL RESET: Delete all report/assessment data
--- Keeps: users, paid_sessions, instrument_versions, model_versions
--- Deletes: assessments + everything that cascades from them
+-- FULL RESET: Alle Report-Daten löschen, Accounts behalten
+-- =====================================================================
+-- Behält:  users, paid_sessions, instrument_versions, model_versions
+-- Löscht:  assessments + alles was per CASCADE daran hängt
+--          + alle Dateien im Storage-Bucket "Reports"
 --
--- Run via: Supabase Dashboard → SQL Editor
+-- Ausführen: Supabase Dashboard → SQL Editor → Run
 -- =====================================================================
 
--- The cascade order is handled automatically by ON DELETE CASCADE,
--- but we truncate explicitly to avoid foreign-key ordering issues.
+-- 1. Storage-Objekte löschen (Bucket heißt "Reports" mit großem R)
+DELETE FROM storage.objects WHERE bucket_id = 'Reports';
 
+-- 2. Report-Tabellen leeren (CASCADE übernimmt responses, scores, etc.)
 TRUNCATE TABLE
   report_artifacts,
   report_jobs,
@@ -18,15 +21,12 @@ TRUNCATE TABLE
   assessments
 RESTART IDENTITY CASCADE;
 
--- If any storage objects exist in the "reports" bucket, delete them too.
--- Uncomment if you have Supabase Storage set up with a "reports" bucket:
--- DELETE FROM storage.objects WHERE bucket_id = 'reports';
-
--- Verify counts (should all be 0):
+-- 3. Kontrolle — alle Zahlen müssen 0 sein
 SELECT
-  (SELECT COUNT(*) FROM assessments)     AS assessments,
-  (SELECT COUNT(*) FROM scores)          AS scores,
+  (SELECT COUNT(*) FROM assessments)      AS assessments,
+  (SELECT COUNT(*) FROM scores)           AS scores,
+  (SELECT COUNT(*) FROM responses)        AS responses,
+  (SELECT COUNT(*) FROM derived_metrics)  AS derived_metrics,
+  (SELECT COUNT(*) FROM report_jobs)      AS report_jobs,
   (SELECT COUNT(*) FROM report_artifacts) AS report_artifacts,
-  (SELECT COUNT(*) FROM report_jobs)     AS report_jobs,
-  (SELECT COUNT(*) FROM responses)       AS responses,
-  (SELECT COUNT(*) FROM derived_metrics) AS derived_metrics;
+  (SELECT COUNT(*) FROM storage.objects WHERE bucket_id = 'Reports') AS storage_files;
