@@ -1,7 +1,7 @@
 import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
-  locales: ["de", "en", "it", "es", "fr"] as const,
+  locales: ["de", "en", "it"] as const,
   defaultLocale: "de",
   // "always" → every URL is prefixed (/de/..., /en/...). The bare "/" is
   // then handled by our proxy (proxy.ts) which runs Accept-Language
