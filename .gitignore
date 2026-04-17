@@ -40,6 +40,11 @@ yarn-error.log*
 # generated test-mode PDF reports
 public/test-reports/
 
+# wearable export fixtures (do not commit user health exports)
+Health*.zip
+export.zip
+/apple_health_export/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

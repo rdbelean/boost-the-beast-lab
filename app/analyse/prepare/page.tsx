@@ -215,7 +215,22 @@ function PrepareContent() {
           {/* ── WHOOP Card ──────────────────────────────────────────── */}
           <div className={styles.card}>
             <div className={styles.logoBox} aria-hidden>
-              W
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="16" r="12" stroke="#E63222" strokeWidth="1.5" />
+                <path
+                  d="M9 13l2.4 7 2.4-5.5L16.2 20l2.4-7"
+                  stroke="#E63222"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M18.2 13l2.4 7"
+                  stroke="#E63222"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
             <div className={styles.cardTitle}>WHOOP</div>
             <div className={styles.cardDesc}>
@@ -283,7 +298,21 @@ function PrepareContent() {
           {/* ── Apple Health Card ───────────────────────────────────── */}
           <div className={styles.card}>
             <div className={styles.logoBox} aria-hidden>
-
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path
+                  d="M16 26s-9-5.5-9-12.5A5.5 5.5 0 0 1 16 10a5.5 5.5 0 0 1 9 3.5C25 20.5 16 26 16 26z"
+                  stroke="#E63222"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M10 16h3l1.5-3 2.5 6 1.5-3h4"
+                  stroke="#E63222"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </div>
             <div className={styles.cardTitle}>Apple Health</div>
             <div className={styles.cardDesc}>
@@ -356,7 +385,22 @@ function PrepareContent() {
           {/* ── Skip Card ───────────────────────────────────────────── */}
           <div className={styles.card}>
             <div className={styles.logoBox} aria-hidden>
-              ✎
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path
+                  d="M6 9h16M6 16h16M6 23h10"
+                  stroke="#E63222"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <circle cx="23" cy="23" r="3" stroke="#E63222" strokeWidth="1.5" />
+                <path
+                  d="M23 21v2l1.3 1.3"
+                  stroke="#E63222"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </div>
             <div className={styles.cardTitle}>Nur Fragebogen</div>
             <div className={styles.cardDesc}>

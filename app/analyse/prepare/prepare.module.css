@@ -102,19 +102,15 @@
 .cardDisabled:hover { border-color: var(--border); transform: none; }
 
 .logoBox {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(230, 50, 34, 0.08);
+  border: 1px solid rgba(230, 50, 34, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 18px;
-  font-family: var(--font-oswald), sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  color: #fff;
-  letter-spacing: 0.05em;
 }
 
 .cardTitle {

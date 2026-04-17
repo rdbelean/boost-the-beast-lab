@@ -99,9 +99,16 @@ async function parseAppleHealth(file: File) {
     bodyMass: { lastValue: null as number | null, lastDate: 0 },
     // Sleep: accumulate per-night asleep minutes, then compute mean duration.
     sleepPerNight: new Map<string, number>(), // date (YYYY-MM-DD) → asleep minutes
+    // Any day that had at least one step/HR/HRV sample — used so
+    // day-wearers (no sleep tracking) still get a non-zero days_covered.
+    activeDays: new Set<string>(),
   };
 
-  const parser = sax.parser(false, {
+  // strict=true: Apple Health export.xml is well-formed and we MUST preserve
+  // tag casing. In non-strict mode sax uppercases tag names, so <Record>
+  // arrives as "RECORD" and all our Record-name checks silently miss every
+  // record, producing an empty aggregate.
+  const parser = sax.parser(true, {
     lowercase: false,
     trim: true,
     normalize: false,
@@ -135,31 +142,36 @@ async function parseAppleHealth(file: File) {
     if (!Number.isFinite(startMs) || startMs < cutoff) return;
 
     const value = valueStr != null ? Number(valueStr) : NaN;
+    const dayBucket = startDateStr.slice(0, 10);
 
     switch (type) {
       case APPLE_RECORD_TYPES.heartRate:
         if (Number.isFinite(value) && value > 0) {
           stats.heartRate.sum += value;
           stats.heartRate.count += 1;
+          stats.activeDays.add(dayBucket);
         }
         break;
       case APPLE_RECORD_TYPES.restingHeartRate:
         if (Number.isFinite(value) && value > 0) {
           stats.restingHeartRate.sum += value;
           stats.restingHeartRate.count += 1;
+          stats.activeDays.add(dayBucket);
         }
         break;
       case APPLE_RECORD_TYPES.hrvSdnn:
         if (Number.isFinite(value) && value > 0) {
-          // Apple HRV is in seconds (SDNN) → convert to ms.
-          stats.hrvSdnn.sum += value * 1000;
+          // Apple exports HRV SDNN already in ms (unit="ms" on the record).
+          stats.hrvSdnn.sum += value;
           stats.hrvSdnn.count += 1;
+          stats.activeDays.add(dayBucket);
         }
         break;
       case APPLE_RECORD_TYPES.stepCount:
         if (Number.isFinite(value) && value >= 0) {
           stats.steps.sum += value;
           stats.steps.count += 1;
+          stats.activeDays.add(dayBucket);
         }
         break;
       case APPLE_RECORD_TYPES.activeEnergyBurned:
@@ -268,10 +280,8 @@ async function parseAppleHealth(file: File) {
       ? validNights.reduce((s, [, min]) => s + min, 0) / validNights.length / 60
       : null;
 
-  const daysCovered = new Set<string>();
+  const daysCovered = new Set<string>(stats.activeDays);
   for (const [d] of validNights) daysCovered.add(d);
-  // Also add step/heart rate days
-  for (const s of sleepBuckets) daysCovered.add(s[0]);
 
   const days_covered = Math.min(30, daysCovered.size);
 
