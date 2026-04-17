@@ -8,6 +8,12 @@ export interface AccountReport {
   band: string;
   scores: { activity: number; sleep: number; vo2max: number; metabolic: number; stress: number };
   pdfUrl: string | null;
+  planUrls: {
+    activity: string | null;
+    metabolic: string | null;
+    recovery: string | null;
+    stress: string | null;
+  };
 }
 
 const SCORE_DEFS = [
@@ -64,6 +70,27 @@ function CompareRow({
         )}
       </div>
     </div>
+  );
+}
+
+function DownloadBtn({ url, label }: { url: string | null; label: string }) {
+  if (url) {
+    return (
+      <a href={url} download target="_blank" rel="noopener noreferrer" className={styles.pdfBtn}>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
+          <path d="M5 1v6M2 7l3 2 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        {label}
+      </a>
+    );
+  }
+  return (
+    <span className={styles.pdfBtnDisabled} title="Nicht verfügbar">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
+        <path d="M5 1v6M2 7l3 2 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      {label}
+    </span>
   );
 }
 
@@ -230,20 +257,11 @@ export default function AccountView({ reports }: { reports: AccountReport[] }) {
               </div>
 
               <div className={styles.reportActions}>
-                {report.pdfUrl ? (
-                  <a
-                    href={report.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.pdfBtn}
-                  >
-                    PDF ↓
-                  </a>
-                ) : (
-                  <button className={styles.pdfBtn} disabled title="Nicht verfügbar">
-                    PDF ↓
-                  </button>
-                )}
+                <DownloadBtn url={report.pdfUrl} label="Performance Report" />
+                <DownloadBtn url={report.planUrls.activity}  label="Activity Plan" />
+                <DownloadBtn url={report.planUrls.metabolic} label="Metabolic Plan" />
+                <DownloadBtn url={report.planUrls.recovery}  label="Recovery Plan" />
+                <DownloadBtn url={report.planUrls.stress}    label="Stress Plan" />
               </div>
             </div>
           );

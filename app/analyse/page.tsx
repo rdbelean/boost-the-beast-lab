@@ -570,6 +570,23 @@ function AnalyseContent() {
         if (r.bundle) plans[r.planType] = r.bundle;
       }
 
+      // Persist plan PDFs to DB so they appear in report history (fire-and-forget).
+      if (json?.assessmentId) {
+        for (const r of planResults) {
+          if (r.bundle?.pdfBase64) {
+            fetch("/api/plan/save", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                assessmentId: json.assessmentId,
+                planType: r.planType,
+                pdfBase64: r.bundle.pdfBase64,
+              }),
+            }).catch(() => {/* non-fatal */});
+          }
+        }
+      }
+
       // Finalize progress and route
       setProgressCap(100);
       setLoadingProgress(100);

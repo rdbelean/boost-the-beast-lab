@@ -43,7 +43,7 @@ export default async function AccountPage() {
   const [scoresRes, artifactsRes] = assessmentIds.length
     ? await Promise.all([
         svc.from("scores").select("assessment_id, score_code, score_value, band").in("assessment_id", assessmentIds),
-        svc.from("report_artifacts").select("assessment_id, file_url").in("assessment_id", assessmentIds),
+        svc.from("report_artifacts").select("assessment_id, file_url, file_type").in("assessment_id", assessmentIds),
       ])
     : [{ data: [] }, { data: [] }];
 
@@ -60,11 +60,13 @@ export default async function AccountPage() {
     if (s.score_code === "overall_score" && s.band) bandByAssessment.set(s.assessment_id, s.band);
   }
 
-  const artifactByAssessment = new Map<string, string>();
+  // Group all artifacts by assessment + file_type (first row wins per type).
+  const artifactsByAssessment = new Map<string, Record<string, string>>();
   for (const a of artifactsRes.data ?? []) {
-    if (!artifactByAssessment.has(a.assessment_id)) {
-      artifactByAssessment.set(a.assessment_id, a.file_url);
-    }
+    const map = artifactsByAssessment.get(a.assessment_id) ?? {};
+    const key = a.file_type ?? "pdf";
+    if (!map[key]) map[key] = a.file_url;
+    artifactsByAssessment.set(a.assessment_id, map);
   }
 
   // Only include assessments that have score rows (filters out null/dummy entries).
@@ -72,6 +74,7 @@ export default async function AccountPage() {
     .filter((a) => assessmentsWithScores.has(a.id))
     .map((a) => {
       const s = scoresByAssessment.get(a.id) ?? {};
+      const arts = artifactsByAssessment.get(a.id) ?? {};
       return {
         id: a.id,
         date: new Date(a.created_at).toLocaleDateString("de-DE", {
@@ -88,7 +91,13 @@ export default async function AccountPage() {
           metabolic: Math.round(s.metabolic_score ?? 0),
           stress: Math.round(s.stress_score ?? 0),
         },
-        pdfUrl: artifactByAssessment.get(a.id) ?? null,
+        pdfUrl: arts["pdf"] ?? null,
+        planUrls: {
+          activity: arts["plan_activity"] ?? null,
+          metabolic: arts["plan_metabolic"] ?? null,
+          recovery: arts["plan_recovery"] ?? null,
+          stress: arts["plan_stress"] ?? null,
+        },
       };
     });
 
