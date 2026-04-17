@@ -45,6 +45,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 }
 .logo {
   display: flex;
@@ -76,6 +77,10 @@
   font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--text-muted);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 .closeBtn {
   display: flex;

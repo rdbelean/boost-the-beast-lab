@@ -5,32 +5,18 @@ import { useParams } from "next/navigation";
 import styles from "./plan.module.css";
 import { buildPlan, type PlanType, type PlanContent } from "@/lib/plan/buildPlan";
 
-const PLAN_FILENAMES: Record<string, string> = {
-  activity:  "Activity-Plan",
-  metabolic: "Metabolic-Plan",
-  recovery:  "Recovery-Plan",
-  stress:    "Stress-Lifestyle-Plan",
-};
-
-function downloadBlob(blob: Blob, filename: string) {
+function openBlobInTab(blob: Blob) {
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
+  window.open(url, "_blank");
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
-async function openPlanAsPDF(plan: PlanContent, planType: string, cachedPdfBase64?: string | null) {
-  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" });
-  const prefix = PLAN_FILENAMES[planType] ?? "Plan";
-  const filename = `${prefix}_${today}.pdf`;
-
+async function openPlanAsPDF(plan: PlanContent, _planType: string, cachedPdfBase64?: string | null) {
   if (cachedPdfBase64) {
     const byteChars = atob(cachedPdfBase64);
     const bytes = new Uint8Array(byteChars.length);
     for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
-    downloadBlob(new Blob([bytes], { type: "application/pdf" }), filename);
+    openBlobInTab(new Blob([bytes], { type: "application/pdf" }));
     return;
   }
   const res = await fetch("/api/plan/pdf", {
@@ -39,7 +25,7 @@ async function openPlanAsPDF(plan: PlanContent, planType: string, cachedPdfBase6
     body: JSON.stringify({ plan }),
   });
   if (!res.ok) throw new Error("PDF generation failed");
-  downloadBlob(await res.blob(), filename);
+  openBlobInTab(await res.blob());
 }
 
 /* ─── Urgency label ──────────────────────────────────────── */

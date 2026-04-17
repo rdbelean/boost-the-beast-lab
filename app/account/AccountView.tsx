@@ -77,7 +77,7 @@ function CompareRow({
 function DownloadBtn({ url, label, filename }: { url: string | null; label: string; filename: string }) {
   if (url) {
     return (
-      <a href={url} download={filename} target="_blank" rel="noopener noreferrer" className={styles.pdfBtn}>
+      <a href={url} target="_blank" rel="noopener noreferrer" className={styles.pdfBtn}>
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
           <path d="M5 1v6M2 7l3 2 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>

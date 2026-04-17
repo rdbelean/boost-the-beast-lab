@@ -313,7 +313,7 @@ export default function ResultsPage() {
         <div className={styles.headerActions}>
           <Link href="/analyse" className={`${styles.headerBtnSecondary} ${styles.hideOnMobile}`}>Neue Analyse</Link>
           {downloadUrl ? (
-            <a href={downloadUrl} download={`Performance-Report_${new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" })}.pdf`} target="_blank" rel="noopener noreferrer" className={styles.headerBtnPrimary}>
+            <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className={styles.headerBtnPrimary}>
               PDF DOWNLOAD
             </a>
           ) : (
@@ -738,7 +738,7 @@ export default function ResultsPage() {
         <section className={styles.ctaSection}>
           <div className={styles.ctaBtns}>
             {downloadUrl ? (
-              <a href={downloadUrl} download={`Performance-Report_${new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" })}.pdf`} target="_blank" rel="noopener noreferrer" className={styles.ctaBtnPrimary}>
+              <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className={styles.ctaBtnPrimary}>
                 REPORT ALS PDF HERUNTERLADEN
               </a>
             ) : (
