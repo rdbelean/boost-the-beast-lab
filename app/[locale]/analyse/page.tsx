@@ -1,7 +1,8 @@
 "use client";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import styles from "./analyse.module.css";
 import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";
@@ -248,20 +249,8 @@ function buildAssessmentPayload(f: FormData) {
   };
 }
 
-const LOADING_STEPS = [
-  "Abgleich mit der wissenschaftlichen Referenzdatenbank des BTB Lab...",
-  "WHO & ACSM-Normwerte werden auf dein Profil angewendet...",
-  "Aktivitätsdaten werden mit internationalen Standards verglichen...",
-  "Leistungskategorien aus globalen Studiendaten zugeordnet...",
-  "Schlaf- & Recovery-Profil wird gegen NSF-Referenzwerte geprüft...",
-  "VO2max aus internationalen Fitness-Datenbanken kalkuliert...",
-  "Metabolisches Profil mit WHO-Klassifikationen abgeglichen...",
-  "Stress & Lifestyle-Muster werden wissenschaftlich ausgewertet...",
-  "Ganzheitlicher Performance Index über 6 Module berechnet...",
-  "BTB Lab erstellt deinen personalisierten Report...",
-  "Wissenschaftliche Befunde werden aufbereitet...",
-  "Dein persönlicher Report wird finalisiert...",
-];
+// LOADING_STEPS are now sourced from the messages JSON via t.raw() so each
+// locale can express the scientific-database copy naturally.
 
 /* ── Component ─────────────────────────────────────────── */
 export default function AnalysePage() {
@@ -273,6 +262,7 @@ export default function AnalysePage() {
 }
 
 function AnalyseContent() {
+  const t = useTranslations("analyse");
   const searchParams = useSearchParams();
   const router = useRouter();
   const preselectedProduct = searchParams.get("product") ?? "complete-analysis";
@@ -508,7 +498,7 @@ function AnalyseContent() {
       });
       const json = await res.json().catch(() => null);
       if (!res.ok) {
-        throw new Error(json?.error ?? `Server-Fehler (${res.status})`);
+        throw new Error(json?.error ?? t("submit.error_server", { status: res.status }));
       }
       if (json?.scores) {
         setAllScores(json.scores);
@@ -647,7 +637,7 @@ function AnalyseContent() {
       console.error("[analyse] submit failed", err);
       setLoading(false);
       setErrorMsg(
-        err instanceof Error ? err.message : "Ein unbekannter Fehler ist aufgetreten.",
+        err instanceof Error ? err.message : t("submit.error_unknown"),
       );
     }
   };
@@ -678,7 +668,7 @@ function AnalyseContent() {
             borderBottom: "1px solid rgba(0,0,0,0.15)",
           }}
         >
-          ⚠ DEMO MODUS — Analyse-Protokoll aktiv
+          {t("demo_banner")}
         </div>
       )}
 
@@ -695,7 +685,7 @@ function AnalyseContent() {
           </div>
 
           <span className={styles.stepIndicator}>
-            {answeredCount}/{totalQuestions} PROTOKOLL-FRAGEN
+            {t("step_counter", { answered: answeredCount, total: totalQuestions })}
           </span>
 
           <div style={{ width: 36 }} />
@@ -747,12 +737,11 @@ function AnalyseContent() {
               </span>
               <div>
                 <strong style={{ color: "#fff", fontWeight: 600 }}>
-                  {wearable.source === "whoop" ? "WHOOP" : "Apple Health"}-Daten
-                  importiert
-                </strong>{" "}
-                ({wearable.days_covered} Tage gemessen). Folgende Felder
-                wurden aus deinen echten Daten vorausgefüllt — du kannst sie
-                trotzdem jederzeit ändern:{" "}
+                  {t("wearable_banner.imported_label", {
+                    source: wearable.source === "whoop" ? "WHOOP" : "Apple Health",
+                  })}
+                </strong>
+                {t("wearable_banner.text", { days: wearable.days_covered })}
                 <span
                   style={{
                     fontFamily: "var(--font-jetbrains-mono), monospace",
@@ -762,21 +751,13 @@ function AnalyseContent() {
                   }}
                 >
                   {prefilledFields
-                    .map((f) =>
-                      f === "gewicht"
-                        ? "Gewicht"
-                        : f === "schlafdauer"
-                          ? "Schlafdauer"
-                          : f === "schlafqualitaet"
-                            ? "Schlafqualität"
-                            : f === "aufwachen"
-                              ? "Aufwachen"
-                              : f === "erholtGefuehl"
-                                ? "Erholung"
-                                : f === "schrittzahl"
-                                  ? "Schritte"
-                                  : f,
-                    )
+                    .map((f) => {
+                      try {
+                        return t(`wearable_banner.fields.${f}` as "wearable_banner.fields.gewicht");
+                      } catch {
+                        return f;
+                      }
+                    })
                     .join(" · ")}
                 </span>
               </div>
@@ -787,23 +768,22 @@ function AnalyseContent() {
           <section className={styles.heroSection}>
             <div className={styles.heroLabel}>
               <span className={styles.heroDot} />
-              ANALYSE-PROTOKOLL
+              {t("hero.label")}
             </div>
             <h1 className={styles.heroTitle}>
-              DEIN ANALYSE-<br />PROTOKOLL.
+              {t("hero.title_1")}<br />{t("hero.title_2")}
             </h1>
             <p className={styles.heroSubtitle}>
-              Beantworte 20 präzise Fragen zu Körper, Training, Schlaf und Lifestyle —
-              kalibriert nach WHO, ACSM & IPAQ Richtlinien. KI berechnet deine Scores.
+              {t("hero.subtitle")}
             </p>
             <div className={styles.heroStats}>
-              <span className={styles.heroStatItem}>20 FRAGEN</span>
+              <span className={styles.heroStatItem}>{t("hero.stat_questions")}</span>
               <span className={styles.heroStatDot} />
-              <span className={styles.heroStatItem}>5 SCORES</span>
+              <span className={styles.heroStatItem}>{t("hero.stat_scores")}</span>
               <span className={styles.heroStatDot} />
-              <span className={styles.heroStatItem}>TIEFGEHENDE AUSWERTUNG</span>
+              <span className={styles.heroStatItem}>{t("hero.stat_deep")}</span>
               <span className={styles.heroStatDot} />
-              <span className={styles.heroStatItem}>EVIDENZBASIERTE DATENBANK</span>
+              <span className={styles.heroStatItem}>{t("hero.stat_db")}</span>
             </div>
           </section>
 
@@ -820,8 +800,8 @@ function AnalyseContent() {
                   01
                 </span>
                 <div className={styles.categoryMeta}>
-                  <span className={styles.categoryLabel}>KATEGORIE</span>
-                  <h2 className={styles.categoryTitle}>KÖRPERDATEN & METABOLISMUS</h2>
+                  <span className={styles.categoryLabel}>{t("category_label")}</span>
+                  <h2 className={styles.categoryTitle}>{t("categories.1")}</h2>
                 </div>
               </div>
 
@@ -830,29 +810,29 @@ function AnalyseContent() {
                 className={styles.questionCard}
                 ref={(el) => { if (el) cardRefs.current[cardRefs.current.length] = el; nextCardRef(el); }}
               >
-                <span className={styles.questionLabel}>ALTER & GESCHLECHT</span>
+                <span className={styles.questionLabel}>{t("q.age_sex.label")}</span>
                 <div className={styles.questionGrid2}>
                   <div className={styles.inputWrap}>
-                    <span className={styles.inputLabel}>Alter</span>
+                    <span className={styles.inputLabel}>{t("q.age.input_label")}</span>
                     <input
                       type="number"
                       value={form.alter || ""}
                       min={14} max={80}
                       onChange={(e) => set("alter", Number(e.target.value))}
                       className={styles.numberInput}
-                      placeholder="28"
+                      placeholder={t("q.age.placeholder")}
                     />
-                    <span className={styles.inputUnit}>JAHRE</span>
+                    <span className={styles.inputUnit}>{t("q.age.unit")}</span>
                   </div>
                   <div className={styles.inputWrap}>
                     <CustomSelect
-                      label="Geschlecht"
+                      label={t("q.sex.label")}
                       value={form.geschlecht}
                       onChange={(v) => set("geschlecht", v)}
                       options={[
-                        { label: "Männlich", value: "maennlich" },
-                        { label: "Weiblich", value: "weiblich" },
-                        { label: "Divers", value: "divers" },
+                        { label: t("q.sex.maennlich"), value: "maennlich" },
+                        { label: t("q.sex.weiblich"), value: "weiblich" },
+                        { label: t("q.sex.divers"), value: "divers" },
                       ]}
                     />
                   </div>
@@ -861,9 +841,9 @@ function AnalyseContent() {
 
               {/* Q3: Größe */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>KÖRPERGRÖSSE</span>
+                <span className={styles.questionLabel}>{t("q.height.label")}</span>
                 <SliderInput
-                  label="Größe"
+                  label={t("q.height.input")}
                   value={form.groesse}
                   min={140} max={220}
                   unit=" cm"
@@ -873,9 +853,9 @@ function AnalyseContent() {
 
               {/* Q4: Gewicht */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>KÖRPERGEWICHT</span>
+                <span className={styles.questionLabel}>{t("q.weight.label")}</span>
                 <SliderInput
-                  label="Gewicht"
+                  label={t("q.weight.input")}
                   value={form.gewicht}
                   min={40} max={160}
                   unit=" kg"
@@ -885,16 +865,16 @@ function AnalyseContent() {
 
               {/* Q4b: Obst & Gemüse pro Woche */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>GEMÜSE ODER OBST PRO WOCHE</span>
+                <span className={styles.questionLabel}>{t("q.fruit_veg.label")}</span>
                 <RadioGroup
                   value={form.obstGemuese}
                   onChange={(v) => set("obstGemuese", v as string)}
                   options={[
-                    { label: "Bei fast jeder Mahlzeit (18–21 pro Woche)", value: "fast-jede" },
-                    { label: "Bei den meisten Mahlzeiten (12–17 pro Woche)", value: "meiste" },
-                    { label: "Bei ungefähr der Hälfte (8–11 pro Woche)", value: "haelfte" },
-                    { label: "Eher selten (3–7 pro Woche)", value: "selten" },
-                    { label: "Kaum bis gar nicht (0–2 pro Woche)", value: "kaum" },
+                    { label: t("q.fruit_veg.fast_jede"), value: "fast-jede" },
+                    { label: t("q.fruit_veg.meiste"), value: "meiste" },
+                    { label: t("q.fruit_veg.haelfte"), value: "haelfte" },
+                    { label: t("q.fruit_veg.selten"), value: "selten" },
+                    { label: t("q.fruit_veg.kaum"), value: "kaum" },
                   ]}
                 />
               </div>
@@ -910,110 +890,110 @@ function AnalyseContent() {
                   02
                 </span>
                 <div className={styles.categoryMeta}>
-                  <span className={styles.categoryLabel}>KATEGORIE</span>
-                  <h2 className={styles.categoryTitle}>AKTIVITÄT & TRAINING</h2>
+                  <span className={styles.categoryLabel}>{t("category_label")}</span>
+                  <h2 className={styles.categoryTitle}>{t("categories.2")}</h2>
                 </div>
               </div>
 
               {/* Q5: Trainingsfrequenz */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>TRAININGSFREQUENZ PRO WOCHE</span>
+                <span className={styles.questionLabel}>{t("q.training_freq.label")}</span>
                 <RadioGroup
                   value={form.trainingsfreq}
                   onChange={(v) => set("trainingsfreq", v as string)}
                   options={[
-                    { label: "Kein Sport", value: "keiner" },
-                    { label: "1–2×", value: "1-2x" },
-                    { label: "3–4×", value: "3-4x" },
-                    { label: "5–6×", value: "5-6x" },
-                    { label: "Täglich", value: "taeglich" },
+                    { label: t("q.training_freq.keiner"), value: "keiner" },
+                    { label: t("q.training_freq.1_2x"), value: "1-2x" },
+                    { label: t("q.training_freq.3_4x"), value: "3-4x" },
+                    { label: t("q.training_freq.5_6x"), value: "5-6x" },
+                    { label: t("q.training_freq.taeglich"), value: "taeglich" },
                   ]}
                 />
               </div>
 
               {/* Q6: Trainingsart */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>DOMINANTE TRAININGSART</span>
+                <span className={styles.questionLabel}>{t("q.training_type.label")}</span>
                 <RadioGroup
                   value={form.trainingsart}
                   onChange={(v) => set("trainingsart", v as string)}
                   options={[
-                    { label: "Krafttraining", value: "kraft" },
-                    { label: "Cardio", value: "cardio" },
-                    { label: "Kampfsport", value: "kampfsport" },
-                    { label: "Teamsport", value: "teamsport" },
-                    { label: "Yoga / Mobility", value: "yoga" },
-                    { label: "Gemischt", value: "gemischt" },
+                    { label: t("q.training_type.kraft"), value: "kraft" },
+                    { label: t("q.training_type.cardio"), value: "cardio" },
+                    { label: t("q.training_type.kampfsport"), value: "kampfsport" },
+                    { label: t("q.training_type.teamsport"), value: "teamsport" },
+                    { label: t("q.training_type.yoga"), value: "yoga" },
+                    { label: t("q.training_type.gemischt"), value: "gemischt" },
                   ]}
                 />
               </div>
 
               {/* Q6b: Moderate Trainingsdauer */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>MINUTEN PRO MODERATER TRAININGSEINHEIT</span>
+                <span className={styles.questionLabel}>{t("q.moderate_duration.label")}</span>
                 <RadioGroup
                   value={form.moderateDauer}
                   onChange={(v) => set("moderateDauer", v as string)}
                   options={[
-                    { label: "< 20 Min", value: "<20" },
-                    { label: "20–30 Min", value: "20-30" },
-                    { label: "30–60 Min", value: "30-60" },
-                    { label: "> 60 Min", value: ">60" },
+                    { label: t("q.duration_options.lt20"), value: "<20" },
+                    { label: t("q.duration_options.20_30"), value: "20-30" },
+                    { label: t("q.duration_options.30_60"), value: "30-60" },
+                    { label: t("q.duration_options.gt60"), value: ">60" },
                   ]}
                 />
               </div>
 
               {/* Q6c: Intensive Trainingsdauer */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>MINUTEN PRO INTENSIVER TRAININGSEINHEIT</span>
+                <span className={styles.questionLabel}>{t("q.intense_duration.label")}</span>
                 <RadioGroup
                   value={form.intensiveDauer}
                   onChange={(v) => set("intensiveDauer", v as string)}
                   options={[
-                    { label: "< 20 Min", value: "<20" },
-                    { label: "20–30 Min", value: "20-30" },
-                    { label: "30–60 Min", value: "30-60" },
-                    { label: "> 60 Min", value: ">60" },
+                    { label: t("q.duration_options.lt20"), value: "<20" },
+                    { label: t("q.duration_options.20_30"), value: "20-30" },
+                    { label: t("q.duration_options.30_60"), value: "30-60" },
+                    { label: t("q.duration_options.gt60"), value: ">60" },
                   ]}
                 />
               </div>
 
               {/* Q6d: Stunden auf den Beinen pro Tag */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>WIE VIELE STUNDEN PRO TAG BIST DU AUF DEN BEINEN?</span>
+                <span className={styles.questionLabel}>{t("q.standing_hours.label")}</span>
                 <span className={styles.questionSub ?? ""} style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
-                  Stehen, Gehen, Bewegen — alles außer Sitzen zählt
+                  {t("q.standing_hours.sub")}
                 </span>
                 <RadioGroup
                   value={form.stehzeit}
                   onChange={(v) => set("stehzeit", v as string)}
                   options={[
-                    { label: "< 2 Stunden", value: "<2" },
-                    { label: "2–4 Stunden", value: "2-4" },
-                    { label: "4–6 Stunden", value: "4-6" },
-                    { label: "> 6 Stunden", value: ">6" },
+                    { label: t("q.standing_hours.lt2"), value: "<2" },
+                    { label: t("q.standing_hours.2_4"), value: "2-4" },
+                    { label: t("q.standing_hours.4_6"), value: "4-6" },
+                    { label: t("q.standing_hours.gt6"), value: ">6" },
                   ]}
                 />
               </div>
 
               {/* Q7: Schrittzahl */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>TÄGLICHE SCHRITTZAHL (Durchschnitt)</span>
+                <span className={styles.questionLabel}>{t("q.steps_q.label")}</span>
                 <SliderInput
-                  label="Schritte pro Tag"
+                  label={t("q.steps_q.input")}
                   value={form.schrittzahl}
                   min={1000} max={20000}
                   step={500}
-                  unit=" Schritte"
+                  unit={t("q.steps_q.unit")}
                   onChange={(v) => set("schrittzahl", v)}
                 />
               </div>
 
               {/* Q8: Sitzzeit */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>TÄGLICHE SITZZEIT</span>
+                <span className={styles.questionLabel}>{t("q.sitting.label")}</span>
                 <SliderInput
-                  label="Stunden sitzen pro Tag"
+                  label={t("q.sitting.input")}
                   value={form.sitzzeit}
                   min={1} max={16}
                   unit=" h"
@@ -1032,16 +1012,16 @@ function AnalyseContent() {
                   03
                 </span>
                 <div className={styles.categoryMeta}>
-                  <span className={styles.categoryLabel}>KATEGORIE</span>
-                  <h2 className={styles.categoryTitle}>RECOVERY & REGENERATION</h2>
+                  <span className={styles.categoryLabel}>{t("category_label")}</span>
+                  <h2 className={styles.categoryTitle}>{t("categories.3")}</h2>
                 </div>
               </div>
 
               {/* Q9: Schlafdauer */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>DURCHSCHNITTLICHE SCHLAFDAUER</span>
+                <span className={styles.questionLabel}>{t("q.sleep_duration.label")}</span>
                 <SliderInput
-                  label="Stunden Schlaf pro Nacht"
+                  label={t("q.sleep_duration.input")}
                   value={form.schlafdauer}
                   min={3} max={12}
                   unit=" h"
@@ -1051,66 +1031,66 @@ function AnalyseContent() {
 
               {/* Q10: Schlafqualität */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>SUBJEKTIVE SCHLAFQUALITÄT</span>
+                <span className={styles.questionLabel}>{t("q.sleep_quality.label")}</span>
                 <RadioGroup
                   value={form.schlafqualitaet}
                   onChange={(v) => set("schlafqualitaet", v as string)}
                   options={[
-                    { label: "Sehr schlecht", value: "sehr-schlecht" },
-                    { label: "Schlecht", value: "schlecht" },
-                    { label: "Mittel", value: "mittel" },
-                    { label: "Gut", value: "gut" },
-                    { label: "Sehr gut", value: "sehr-gut" },
+                    { label: t("q.sleep_quality.sehr_schlecht"), value: "sehr-schlecht" },
+                    { label: t("q.sleep_quality.schlecht"), value: "schlecht" },
+                    { label: t("q.sleep_quality.mittel"), value: "mittel" },
+                    { label: t("q.sleep_quality.gut"), value: "gut" },
+                    { label: t("q.sleep_quality.sehr_gut"), value: "sehr-gut" },
                   ]}
                 />
               </div>
 
               {/* Q11: Aufwachen */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>HÄUFIGES AUFWACHEN IN DER NACHT</span>
+                <span className={styles.questionLabel}>{t("q.wakeup.label")}</span>
                 <RadioGroup
                   value={form.aufwachen}
                   onChange={(v) => set("aufwachen", v as string)}
                   options={[
-                    { label: "Nie", value: "nie" },
-                    { label: "Selten", value: "selten" },
-                    { label: "Manchmal", value: "manchmal" },
-                    { label: "Oft", value: "oft" },
-                    { label: "Jede Nacht", value: "jede-nacht" },
+                    { label: t("q.wakeup.nie"), value: "nie" },
+                    { label: t("q.wakeup.selten"), value: "selten" },
+                    { label: t("q.wakeup.manchmal"), value: "manchmal" },
+                    { label: t("q.wakeup.oft"), value: "oft" },
+                    { label: t("q.wakeup.jede_nacht"), value: "jede-nacht" },
                   ]}
                 />
               </div>
 
               {/* Q12: Erholt-Gefühl */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>FÜHLST DU DICH MORGENS ERHOLT?</span>
+                <span className={styles.questionLabel}>{t("q.rested.label")}</span>
                 <RadioGroup
                   value={form.erholtGefuehl}
                   onChange={(v) => set("erholtGefuehl", v as string)}
                   options={[
-                    { label: "Fast nie", value: "fast-nie" },
-                    { label: "Selten", value: "selten" },
-                    { label: "Manchmal", value: "manchmal" },
-                    { label: "Meistens", value: "meistens" },
-                    { label: "Immer", value: "immer" },
+                    { label: t("q.rested.fast_nie"), value: "fast-nie" },
+                    { label: t("q.rested.selten"), value: "selten" },
+                    { label: t("q.rested.manchmal"), value: "manchmal" },
+                    { label: t("q.rested.meistens"), value: "meistens" },
+                    { label: t("q.rested.immer"), value: "immer" },
                   ]}
                 />
               </div>
 
               {/* Q13: Bildschirmzeit vor dem Schlafen */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>BILDSCHIRMZEIT VOR DEM EINSCHLAFEN</span>
+                <span className={styles.questionLabel}>{t("q.screen_time.label")}</span>
                 <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
-                  Handy, Laptop, TV — wie lange vor dem Schlafen nutzt du noch Bildschirme?
+                  {t("q.screen_time.sub")}
                 </span>
                 <RadioGroup
                   value={form.bildschirmVorSchlaf}
                   onChange={(v) => set("bildschirmVorSchlaf", v as string)}
                   options={[
-                    { label: "Kein Bildschirm", value: "kein" },
-                    { label: "< 30 Minuten", value: "<30" },
-                    { label: "30–60 Minuten", value: "30-60" },
-                    { label: "> 60 Minuten", value: ">60" },
+                    { label: t("q.screen_time.kein"), value: "kein" },
+                    { label: t("q.screen_time.lt30"), value: "<30" },
+                    { label: t("q.screen_time.30_60"), value: "30-60" },
+                    { label: t("q.screen_time.gt60"), value: ">60" },
                   ]}
                 />
               </div>
@@ -1126,16 +1106,16 @@ function AnalyseContent() {
                   04
                 </span>
                 <div className={styles.categoryMeta}>
-                  <span className={styles.categoryLabel}>KATEGORIE</span>
-                  <h2 className={styles.categoryTitle}>ERNÄHRUNG, STRESS & LIFESTYLE</h2>
+                  <span className={styles.categoryLabel}>{t("category_label")}</span>
+                  <h2 className={styles.categoryTitle}>{t("categories.4")}</h2>
                 </div>
               </div>
 
               {/* Q13: Wasserkonsum */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>TÄGLICHER WASSERKONSUM</span>
+                <span className={styles.questionLabel}>{t("q.water.label")}</span>
                 <SliderInput
-                  label="Liter Wasser pro Tag"
+                  label={t("q.water.input")}
                   value={form.wasserkonsum}
                   min={0.5} max={5}
                   step={0.5}
@@ -1146,32 +1126,32 @@ function AnalyseContent() {
 
               {/* Q14: Stresslevel */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>ALLGEMEINES STRESSLEVEL</span>
+                <span className={styles.questionLabel}>{t("q.stress.label")}</span>
                 <RadioGroup
                   value={form.stresslevel}
                   onChange={(v) => set("stresslevel", v as string)}
                   options={[
-                    { label: "Sehr gering", value: "sehr-gering" },
-                    { label: "Gering", value: "gering" },
-                    { label: "Moderat", value: "moderat" },
-                    { label: "Hoch", value: "hoch" },
-                    { label: "Sehr hoch", value: "sehr-hoch" },
+                    { label: t("q.stress.sehr_gering"), value: "sehr-gering" },
+                    { label: t("q.stress.gering"), value: "gering" },
+                    { label: t("q.stress.moderat"), value: "moderat" },
+                    { label: t("q.stress.hoch"), value: "hoch" },
+                    { label: t("q.stress.sehr_hoch"), value: "sehr-hoch" },
                   ]}
                 />
               </div>
 
               {/* Q15: Mahlzeitenplan */}
               <div className={styles.questionCard} ref={nextCardRef}>
-                <span className={styles.questionLabel}>ERNÄHRUNGSSTRUKTUR</span>
+                <span className={styles.questionLabel}>{t("q.meals.label")}</span>
                 <RadioGroup
                   value={form.mahlzeitenPlan}
                   onChange={(v) => set("mahlzeitenPlan", v as string)}
                   options={[
-                    { label: "Kein Plan", value: "kein" },
-                    { label: "Intuitiv", value: "intuitiv" },
-                    { label: "Grob getrackt", value: "grob" },
-                    { label: "Makros getrackt", value: "makros" },
-                    { label: "Meal Prep", value: "meal-prep" },
+                    { label: t("q.meals.kein"), value: "kein" },
+                    { label: t("q.meals.intuitiv"), value: "intuitiv" },
+                    { label: t("q.meals.grob"), value: "grob" },
+                    { label: t("q.meals.makros"), value: "makros" },
+                    { label: t("q.meals.meal_prep"), value: "meal-prep" },
                   ]}
                 />
               </div>
@@ -1197,7 +1177,7 @@ function AnalyseContent() {
                     fontFamily: "Helvetica, Arial, sans-serif",
                   }}
                 >
-                  <strong style={{ color: "#E63222" }}>Fehler:</strong> {errorMsg}
+                  <strong style={{ color: "#E63222" }}>{t("submit.error_label")}</strong> {errorMsg}
                 </div>
               )}
               <button
@@ -1206,7 +1186,7 @@ function AnalyseContent() {
                 disabled={!canSubmit || loading}
                 className={`${styles.submitBtn} ${canSubmit ? styles.submitBtnEnabled : styles.submitBtnDisabled}`}
               >
-                {loading ? "WIRD VERARBEITET..." : "ANALYSE STARTEN →"}
+                {loading ? t("submit.loading") : t("submit.btn")}
                 {!loading && (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M3 8h10M8 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1224,10 +1204,10 @@ function AnalyseContent() {
         <div className={styles.loadingOverlay}>
           <div className={styles.loadingInner}>
             <div className={styles.loadingLabel}>
-              BOOST THE BEAST LAB · WISSENSCHAFTLICHE DATENBANK WIRD ABGEGLICHEN
+              {t("loading_overlay.label")}
             </div>
             <div className={styles.loadingTitle}>
-              DEIN REPORT<br />WIRD ERSTELLT.
+              {t("loading_overlay.title_1")}<br />{t("loading_overlay.title_2")}
             </div>
 
             {/* Progress bar */}
@@ -1255,7 +1235,7 @@ function AnalyseContent() {
                     fontWeight: 600,
                   }}
                 >
-                  Fortschritt
+                  {t("loading_overlay.progress_label")}
                 </div>
                 <div
                   style={{
@@ -1300,12 +1280,12 @@ function AnalyseContent() {
                 }}
               >
                 {loadingProgress < 15
-                  ? "Scores werden berechnet…"
+                  ? t("loading_overlay.step_scoring")
                   : loadingProgress < 60
-                  ? "Personalisierter Report wird erstellt…"
+                  ? t("loading_overlay.step_report")
                   : loadingProgress < 95
-                  ? "Optimierungspläne werden vorbereitet…"
-                  : "Alles bereit — wechsle zum Report…"}
+                  ? t("loading_overlay.step_plans")
+                  : t("loading_overlay.step_done")}
               </div>
             </div>
 
@@ -1323,22 +1303,26 @@ function AnalyseContent() {
                 lineHeight: 1.6,
               }}
             >
-              Dies kann einige Minuten dauern — dein Report wird gerade mit unserer wissenschaftlichen Datenbank abgeglichen.
+              {t("loading_overlay.duration_hint")}
             </div>
 
             {/* Active step indicator — shows one step at a time */}
             {(() => {
+              const loadingSteps = t.raw("loading_overlay.steps") as string[];
               const activeIndex = Math.min(
-                Math.floor((loadingProgress / 100) * LOADING_STEPS.length),
-                LOADING_STEPS.length - 1,
+                Math.floor((loadingProgress / 100) * loadingSteps.length),
+                loadingSteps.length - 1,
               );
               return (
                 <div className={styles.activeStepWrap}>
                   <div className={styles.activeStepCounter}>
-                    Schritt {activeIndex + 1} / {LOADING_STEPS.length}
+                    {t("loading_overlay.active_step_counter", {
+                      current: activeIndex + 1,
+                      total: loadingSteps.length,
+                    })}
                   </div>
                   <div className={styles.activeStepDots}>
-                    {LOADING_STEPS.map((_, i) => (
+                    {loadingSteps.map((_, i) => (
                       <span
                         key={i}
                         className={`${styles.activeStepDot} ${
@@ -1348,7 +1332,7 @@ function AnalyseContent() {
                     ))}
                   </div>
                   <div key={activeIndex} className={styles.activeStepText}>
-                    {LOADING_STEPS[activeIndex]}
+                    {loadingSteps[activeIndex]}
                   </div>
                 </div>
               );

@@ -146,6 +146,177 @@
       }
     }
   },
+  "analyse": {
+    "demo_banner": "⚠ MODALITÀ DEMO — Protocollo di analisi attivo",
+    "step_counter": "{answered}/{total} DOMANDE DEL PROTOCOLLO",
+    "wearable_banner": {
+      "imported_label": "Dati {source} importati",
+      "text": " ({days} giorni misurati). I seguenti campi sono stati precompilati dai tuoi dati reali — puoi comunque modificarli in qualsiasi momento: ",
+      "fields": {
+        "gewicht": "Peso",
+        "schlafdauer": "Durata del sonno",
+        "schlafqualitaet": "Qualità del sonno",
+        "aufwachen": "Risvegli",
+        "erholtGefuehl": "Recupero",
+        "schrittzahl": "Passi"
+      }
+    },
+    "hero": {
+      "label": "PROTOCOLLO DI ANALISI",
+      "title_1": "IL TUO PROTOCOLLO",
+      "title_2": "DI ANALISI.",
+      "subtitle": "Rispondi a 20 domande precise su corpo, allenamento, sonno e lifestyle — calibrate secondo le linee guida WHO, ACSM e IPAQ. L'IA calcola i tuoi punteggi.",
+      "stat_questions": "20 DOMANDE",
+      "stat_scores": "5 SCORE",
+      "stat_deep": "ANALISI APPROFONDITA",
+      "stat_db": "DATABASE BASATO SU EVIDENZA"
+    },
+    "category_label": "CATEGORIA",
+    "categories": {
+      "1": "DATI CORPOREI E METABOLISMO",
+      "2": "ATTIVITÀ E ALLENAMENTO",
+      "3": "RECUPERO E RIGENERAZIONE",
+      "4": "ALIMENTAZIONE, STRESS E LIFESTYLE"
+    },
+    "q": {
+      "age_sex": { "label": "ETÀ E SESSO" },
+      "age": { "input_label": "Età", "unit": "ANNI", "placeholder": "28" },
+      "sex": {
+        "label": "Sesso",
+        "maennlich": "Maschio",
+        "weiblich": "Femmina",
+        "divers": "Non binario"
+      },
+      "height": { "label": "ALTEZZA", "input": "Altezza" },
+      "weight": { "label": "PESO", "input": "Peso" },
+      "fruit_veg": {
+        "label": "VERDURA O FRUTTA A SETTIMANA",
+        "fast_jede": "A quasi ogni pasto (18–21 a settimana)",
+        "meiste": "Alla maggior parte dei pasti (12–17 a settimana)",
+        "haelfte": "A circa metà (8–11 a settimana)",
+        "selten": "Raramente (3–7 a settimana)",
+        "kaum": "Quasi mai o mai (0–2 a settimana)"
+      },
+      "training_freq": {
+        "label": "FREQUENZA DI ALLENAMENTO A SETTIMANA",
+        "keiner": "Nessuno sport",
+        "1_2x": "1–2×",
+        "3_4x": "3–4×",
+        "5_6x": "5–6×",
+        "taeglich": "Ogni giorno"
+      },
+      "training_type": {
+        "label": "TIPO DI ALLENAMENTO DOMINANTE",
+        "kraft": "Allenamento con pesi",
+        "cardio": "Cardio",
+        "kampfsport": "Sport da combattimento",
+        "teamsport": "Sport di squadra",
+        "yoga": "Yoga / Mobilità",
+        "gemischt": "Misto"
+      },
+      "moderate_duration": { "label": "MINUTI PER SESSIONE DI ALLENAMENTO MODERATA" },
+      "intense_duration": { "label": "MINUTI PER SESSIONE DI ALLENAMENTO INTENSA" },
+      "duration_options": {
+        "lt20": "< 20 min",
+        "20_30": "20–30 min",
+        "30_60": "30–60 min",
+        "gt60": "> 60 min"
+      },
+      "standing_hours": {
+        "label": "QUANTE ORE AL GIORNO SEI IN PIEDI?",
+        "sub": "In piedi, camminando, muovendoti — tutto tranne stare seduto conta",
+        "lt2": "< 2 ore",
+        "2_4": "2–4 ore",
+        "4_6": "4–6 ore",
+        "gt6": "> 6 ore"
+      },
+      "steps_q": { "label": "PASSI GIORNALIERI (media)", "input": "Passi al giorno", "unit": " passi" },
+      "sitting": { "label": "TEMPO SEDUTO GIORNALIERO", "input": "Ore seduto al giorno" },
+      "sleep_duration": { "label": "DURATA MEDIA DEL SONNO", "input": "Ore di sonno a notte" },
+      "sleep_quality": {
+        "label": "QUALITÀ SOGGETTIVA DEL SONNO",
+        "sehr_schlecht": "Molto scarsa",
+        "schlecht": "Scarsa",
+        "mittel": "Media",
+        "gut": "Buona",
+        "sehr_gut": "Molto buona"
+      },
+      "wakeup": {
+        "label": "RISVEGLI FREQUENTI DI NOTTE",
+        "nie": "Mai",
+        "selten": "Raramente",
+        "manchmal": "A volte",
+        "oft": "Spesso",
+        "jede_nacht": "Ogni notte"
+      },
+      "rested": {
+        "label": "TI SENTI RIPOSATO AL MATTINO?",
+        "fast_nie": "Quasi mai",
+        "selten": "Raramente",
+        "manchmal": "A volte",
+        "meistens": "Per lo più",
+        "immer": "Sempre"
+      },
+      "screen_time": {
+        "label": "TEMPO SCHERMO PRIMA DI DORMIRE",
+        "sub": "Telefono, laptop, TV — quanto tempo prima di dormire usi ancora schermi?",
+        "kein": "Nessuno schermo",
+        "lt30": "< 30 minuti",
+        "30_60": "30–60 minuti",
+        "gt60": "> 60 minuti"
+      },
+      "water": { "label": "CONSUMO GIORNALIERO DI ACQUA", "input": "Litri di acqua al giorno" },
+      "stress": {
+        "label": "LIVELLO DI STRESS GENERALE",
+        "sehr_gering": "Molto basso",
+        "gering": "Basso",
+        "moderat": "Moderato",
+        "hoch": "Alto",
+        "sehr_hoch": "Molto alto"
+      },
+      "meals": {
+        "label": "STRUTTURA ALIMENTARE",
+        "kein": "Nessun piano",
+        "intuitiv": "Intuitivo",
+        "grob": "Tracciato a grandi linee",
+        "makros": "Macros tracciati",
+        "meal_prep": "Meal prep"
+      }
+    },
+    "submit": {
+      "error_label": "Errore:",
+      "error_server": "Errore del server ({status})",
+      "error_unknown": "Si è verificato un errore sconosciuto.",
+      "btn": "AVVIA L'ANALISI →",
+      "loading": "IN ELABORAZIONE..."
+    },
+    "loading_overlay": {
+      "label": "BOOST THE BEAST LAB · CONFRONTO CON DATABASE SCIENTIFICO",
+      "title_1": "IL TUO REPORT",
+      "title_2": "È IN CREAZIONE.",
+      "progress_label": "Avanzamento",
+      "step_scoring": "Calcolo dei punteggi…",
+      "step_report": "Creazione del report personalizzato…",
+      "step_plans": "Preparazione dei piani di ottimizzazione…",
+      "step_done": "Tutto pronto — vai al report…",
+      "duration_hint": "Può richiedere qualche minuto — il tuo report viene confrontato in tempo reale con il nostro database scientifico.",
+      "active_step_counter": "Passo {current} / {total}",
+      "steps": [
+        "Confronto con il database scientifico di riferimento di BTB Lab...",
+        "Applicazione delle norme WHO e ACSM al tuo profilo...",
+        "Confronto dei dati di attività con gli standard internazionali...",
+        "Mappatura delle categorie di performance dai dati di studi globali...",
+        "Verifica del profilo di sonno e recupero rispetto ai valori di riferimento NSF...",
+        "Calcolo del VO2max dai database internazionali di fitness...",
+        "Confronto del profilo metabolico con le classificazioni WHO...",
+        "Analisi scientifica dei pattern di stress e lifestyle...",
+        "Calcolo dell'indice di performance olistico su 6 moduli...",
+        "BTB Lab sta generando il tuo report personalizzato...",
+        "Preparazione dei risultati scientifici...",
+        "Finalizzazione del tuo report personale..."
+      ]
+    }
+  },
   "analyse_prepare": {
     "label": "OPZIONALE · DATI WEARABLE",
     "headline": "Usa i tuoi dati reali.",
