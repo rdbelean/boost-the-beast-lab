@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./analyse.module.css";
-import BackButton from "@/components/ui/BackButton";
 import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";
 import CustomSelect from "@/components/analyse/CustomSelect";
@@ -396,10 +395,10 @@ function AnalyseContent() {
     });
   }, []);
 
-  // Block page refresh and back navigation while report is generating
+  // Block page refresh and back navigation for the entire questionnaire session.
+  // The user has paid to reach this page — they must complete the form.
+  // Protection lifts automatically when the page unmounts (redirect to /results).
   useEffect(() => {
-    if (!loading) return;
-
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "";
@@ -417,7 +416,7 @@ function AnalyseContent() {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [loading]);
+  }, []);
 
   // Trailing comma required in .tsx to disambiguate generic from JSX
   function set<K extends keyof FormData>(key: K, val: FormData[K]) {
@@ -626,7 +625,6 @@ function AnalyseContent() {
 
   return (
     <>
-      <BackButton />
       {isTestMode && (
         <div
           style={{
@@ -649,20 +647,20 @@ function AnalyseContent() {
       {/* ── Header ─────────────────────────────────────── */}
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Link href="/" className={styles.logo}>
+          <div className={styles.logo}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo-white.svg" width={71} height={44} alt="" aria-hidden="true" style={{ objectFit: "contain" }} />
-          </Link>
+            <span>
+              <span className={styles.logoText}>BOOST THE BEAST</span>
+              <span className={styles.logoSub}>PERFORMANCE LAB</span>
+            </span>
+          </div>
 
           <span className={styles.stepIndicator}>
             {answeredCount}/{totalQuestions} PROTOKOLL-FRAGEN
           </span>
 
-          <Link href="/" className={styles.closeBtn} aria-label="Schließen">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </Link>
+          <div style={{ width: 36 }} />
         </div>
       </header>
 
