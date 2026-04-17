@@ -24,6 +24,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "resend": "^6.10.0",
+    "sax": "^1.6.0",
     "stripe": "^21.0.1"
   },
   "devDependencies": {
@@ -32,6 +33,7 @@
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sax": "^1.2.7",
     "supabase": "^2.89.1",
     "tailwindcss": "^4",
     "typescript": "^5"

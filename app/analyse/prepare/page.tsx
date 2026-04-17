@@ -4,6 +4,10 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./prepare.module.css";
 import { parseWhoopZip, WhoopParseError } from "@/lib/wearable/whoop/parser";
+import {
+  parseAppleHealthZip,
+  AppleHealthParseError,
+} from "@/lib/wearable/apple/parser";
 import type { WearableParseResult } from "@/lib/wearable/types";
 
 function PrepareContent() {
@@ -68,7 +72,10 @@ function PrepareContent() {
     goToAnalyse();
   }
 
-  async function handleWhoopFile(file: File) {
+  async function runParse(
+    source: "whoop" | "apple_health",
+    file: File,
+  ) {
     setErrorMsg(null);
     setParsing(true);
     setProgress(5);
@@ -78,18 +85,26 @@ function PrepareContent() {
     const signal = abortRef.current.signal;
 
     try {
-      // Papa Parse runs fast — no progress events during parse, so we fake
-      // a short ramp to signal activity. Real file size proof: small ZIPs
-      // complete in <500ms.
-      const rampTimer = setInterval(() => {
-        setProgress((p) => Math.min(75, p + 3));
-      }, 120);
-
       let result: WearableParseResult;
-      try {
-        result = await parseWhoopZip(file);
-      } finally {
-        clearInterval(rampTimer);
+
+      if (source === "whoop") {
+        const rampTimer = setInterval(() => {
+          setProgress((p) => Math.min(75, p + 3));
+        }, 120);
+        try {
+          result = await parseWhoopZip(file);
+        } finally {
+          clearInterval(rampTimer);
+        }
+      } else {
+        // Apple Health — worker parses with real progress events.
+        setParsingLabel("Apple Health Export wird gestreamt...");
+        result = await parseAppleHealthZip(file, {
+          signal,
+          onProgress: (pct) => {
+            setProgress(Math.max(5, pct));
+          },
+        });
       }
 
       if (signal.aborted) return;
@@ -138,7 +153,7 @@ function PrepareContent() {
         return;
       }
       const msg =
-        err instanceof WhoopParseError
+        err instanceof WhoopParseError || err instanceof AppleHealthParseError
           ? err.message
           : err instanceof Error
             ? err.message
@@ -148,6 +163,9 @@ function PrepareContent() {
       setProgress(0);
     }
   }
+
+  const handleWhoopFile = (file: File) => runParse("whoop", file);
+  const handleAppleFile = (file: File) => runParse("apple_health", file);
 
   function handleCancel() {
     abortRef.current?.abort();
@@ -262,17 +280,17 @@ function PrepareContent() {
             </label>
           </div>
 
-          {/* ── Apple Health Card (coming soon in Step 6) ───────────── */}
-          <div className={`${styles.card} ${styles.cardDisabled}`}>
+          {/* ── Apple Health Card ───────────────────────────────────── */}
+          <div className={styles.card}>
             <div className={styles.logoBox} aria-hidden>
 
             </div>
-            <div className={styles.cardBadge}>Bald verfügbar</div>
             <div className={styles.cardTitle}>Apple Health</div>
             <div className={styles.cardDesc}>
               Upload deines Health Export aus der iOS Health App — inklusive
               HRV, Schritte und VO2max.
             </div>
+
             <div className={styles.tutorial}>
               <button
                 className={styles.tutorialToggle}
@@ -295,12 +313,44 @@ function PrepareContent() {
                     <li>Lade sie hier hoch</li>
                   </ol>
                   <div className={styles.tutorialNote}>
-                    Apple Health Import ist noch in der finalen Phase — wir
-                    informieren dich per E-Mail, sobald es verfügbar ist.
+                    Große Dateien möglich (bis 2 GB) — die Verarbeitung kann
+                    einige Minuten dauern und läuft komplett in deinem Browser.
                   </div>
                 </div>
               )}
             </div>
+
+            <label
+              className={styles.uploadZone}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.add(styles.uploadZoneActive);
+              }}
+              onDragLeave={(e) => {
+                e.currentTarget.classList.remove(styles.uploadZoneActive);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.remove(styles.uploadZoneActive);
+                const file = e.dataTransfer.files?.[0];
+                if (file) handleAppleFile(file);
+              }}
+            >
+              <div className={styles.uploadLabel}>ZIP hochladen</div>
+              <div className={styles.uploadHint}>
+                Klicken oder Datei hierher ziehen
+              </div>
+              <input
+                type="file"
+                accept=".zip,application/zip"
+                className={styles.uploadInput}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleAppleFile(file);
+                  e.target.value = "";
+                }}
+              />
+            </label>
           </div>
 
           {/* ── Skip Card ───────────────────────────────────────────── */}
@@ -328,7 +378,7 @@ function PrepareContent() {
       {parsing && (
         <div className={styles.overlay}>
           <div className={styles.overlayInner}>
-            <div className={styles.overlayLabel}>WHOOP-DATEN · LOKAL VERARBEITET</div>
+            <div className={styles.overlayLabel}>WEARABLE-DATEN · LOKAL VERARBEITET</div>
             <div className={styles.overlayTitle}>
               DEINE DATEN<br />WERDEN ANALYSIERT.
             </div>
