@@ -8,7 +8,7 @@ import {
   type SleepQualityLabel,
   type WakeupFrequency,
 } from "@/lib/scoring/index";
-import type { ReportType, ScoreBand } from "@/lib/supabase/types";
+import type { Locale, ReportType, ScoreBand } from "@/lib/supabase/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -57,6 +57,13 @@ interface AssessmentRequestBody {
   stress_level_1_10: number;
   /** Optional: links a prior wearable upload (from /api/wearable/persist) into this assessment. */
   wearable_upload_id?: string;
+  /** UI locale at submit time. Drives Claude report language, PDF labels,
+   *  and email copy. Defaults to "de" on the DB side if omitted. */
+  locale?: Locale;
+}
+
+function isLocale(v: unknown): v is Locale {
+  return v === "de" || v === "en" || v === "it";
 }
 
 function bandForScore(score: number): ScoreBand {
@@ -235,6 +242,7 @@ export async function POST(req: NextRequest) {
     // dedicated is_test_mode column — that keeps this endpoint working even
     // if the schema's is_test_mode migration hasn't been applied yet.
     const testMode = isTestMode();
+    const locale: Locale = isLocale(body.locale) ? body.locale : "de";
     const { data: assessment, error: assessmentErr } = await supabase
       .from("assessments")
       .insert({
@@ -243,6 +251,7 @@ export async function POST(req: NextRequest) {
         instrument_version_id: instrument?.id ?? null,
         status: "processing",
         report_type: body.reportType,
+        locale,
       })
       .select("id")
       .single();

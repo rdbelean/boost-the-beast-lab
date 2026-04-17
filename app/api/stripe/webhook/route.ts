@@ -42,6 +42,11 @@ export async function POST(req: NextRequest) {
     const productId = session.metadata?.productId ?? null;
     const email = session.customer_details?.email ?? session.customer_email ?? null;
     const amount = session.amount_total ?? 0;
+    const metaLocale = session.metadata?.locale;
+    const locale =
+      metaLocale === "de" || metaLocale === "en" || metaLocale === "it"
+        ? metaLocale
+        : null;
     const customerId =
       typeof session.customer === "string" ? session.customer : session.customer?.id ?? null;
 
@@ -75,6 +80,7 @@ export async function POST(req: NextRequest) {
           status: session.payment_status ?? "paid",
           customer_id: customerId,
           payment_method_id: paymentMethodId,
+          locale,
         },
         { onConflict: "stripe_session_id" },
       );

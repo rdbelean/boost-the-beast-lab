@@ -5,6 +5,10 @@ export type AssessmentStatus = "pending" | "processing" | "completed" | "failed"
 export type ReportType = "metabolic" | "recovery" | "complete";
 export type AnswerType = "number" | "select" | "radio" | "slider";
 export type ScoreBand = "low" | "moderate" | "high" | "very_high";
+// Mirrors i18n/routing.ts#routing.locales. Kept duplicated here so
+// non-UI code (API routes, PDF/email generators) can import this
+// without pulling in the next-intl runtime. Keep in sync.
+export type Locale = "de" | "en" | "it";
 
 // ─── Systemic warnings & assessment result envelope ────────────────────────
 // Mirrors lib/scoring/index.ts → FullScoringResult so the report pipeline has
@@ -77,6 +81,7 @@ export interface Assessment {
   instrument_version_id: string | null;
   status: AssessmentStatus;
   report_type: ReportType | null;
+  locale: Locale;
   created_at: string;
   completed_at: string | null;
 }

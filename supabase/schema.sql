@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS assessments (
 );
 -- Safety for existing installs that predate is_test_mode.
 ALTER TABLE assessments ADD COLUMN IF NOT EXISTS is_test_mode BOOLEAN DEFAULT false;
+-- i18n — see supabase/add_locale.sql for the full migration.
+ALTER TABLE assessments ADD COLUMN IF NOT EXISTS locale VARCHAR(5) NOT NULL DEFAULT 'de';
 
 -- FRAGEN KATALOG
 CREATE TABLE IF NOT EXISTS questions (
@@ -183,6 +185,8 @@ CREATE TABLE IF NOT EXISTS paid_sessions (
 ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS customer_id TEXT;
 ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS payment_method_id TEXT;
 ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS parent_session_id TEXT;
+-- i18n — see supabase/add_locale.sql.
+ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS locale VARCHAR(5);
 CREATE INDEX IF NOT EXISTS idx_paid_sessions_stripe_id ON paid_sessions(stripe_session_id);
 ALTER TABLE paid_sessions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "service_role_all" ON paid_sessions FOR ALL USING (true);
