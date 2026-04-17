@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { hasLocale } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import styles from "./account.module.css";
@@ -19,6 +19,7 @@ export default async function AccountPage({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "account" });
   const supabase = await getSupabaseServerClient();
   const {
     data: { user },
@@ -131,14 +132,14 @@ export default async function AccountPage({
       <div className={styles.container}>
         <div className={styles.accountHeader}>
           <div>
-            <div className={styles.accountTag}>MEIN ACCOUNT</div>
-            <h1 className={styles.accountTitle}>REPORT-HISTORIE</h1>
+            <div className={styles.accountTag}>{t("tag")}</div>
+            <h1 className={styles.accountTitle}>{t("title")}</h1>
             <p className={styles.accountSub}>
-              Eingeloggt als <strong style={{ color: "#fff" }}>{user.email}</strong>
+              {t("subtitle_loggedin_as")} <strong style={{ color: "#fff" }}>{user.email}</strong>
             </p>
           </div>
           <Link href="/kaufen" className={styles.newAnalysisBtn}>
-            NEUE ANALYSE →
+            {t("new_analysis_btn")}
           </Link>
         </div>
 
@@ -153,13 +154,13 @@ export default async function AccountPage({
             }}
           >
             <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 12 }}>
-              NOCH KEINE REPORTS
+              {t("empty_title")}
             </div>
             <p style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>
-              Sobald du deine erste Analyse durchführst, landet sie hier automatisch.
+              {t("empty_text")}
             </p>
             <Link href="/kaufen" className={styles.newAnalysisBtn}>
-              ERSTE ANALYSE STARTEN →
+              {t("empty_cta")}
             </Link>
           </div>
         ) : (
@@ -170,7 +171,7 @@ export default async function AccountPage({
 
         <div className={styles.cta}>
           <Link href="/" className={styles.ctaSecondary}>
-            ← STARTSEITE
+            {t("back_home")}
           </Link>
           <form action="/api/auth/logout" method="post" style={{ display: "inline" }}>
             <button
@@ -178,7 +179,7 @@ export default async function AccountPage({
               className={styles.ctaSecondary}
               style={{ background: "none", border: "none", cursor: "pointer" }}
             >
-              LOGOUT
+              {t("logout")}
             </button>
           </form>
         </div>

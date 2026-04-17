@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "./plan.module.css";
 import { buildPlan, type PlanType, type PlanContent } from "@/lib/plan/buildPlan";
@@ -28,18 +29,24 @@ async function openPlanAsPDF(plan: PlanContent, _planType: string, cachedPdfBase
   openBlobInTab(await res.blob());
 }
 
-/* ─── Urgency label ──────────────────────────────────────── */
-function urgencyLabel(score: number): { text: string; color: string } {
-  if (score <= 30) return { text: "KRITISCH",              color: "#DC2626" };
-  if (score <= 50) return { text: "HANDLUNGSBEDARF",       color: "#B45309" };
-  if (score <= 70) return { text: "OPTIMIERUNGSPOTENZIAL", color: "#A1A1AA" };
-  if (score <= 85) return { text: "FEINTUNING",            color: "#4D7C0F" };
-  return                 { text: "TOP-LEVEL",              color: "#15803D" };
+/* ─── Urgency bucket ─────────────────────────────────────── */
+// Mirrors the helper in /results — locale-agnostic keys + colors. The
+// label string itself comes from results.urgency.* so the two pages
+// stay synchronized.
+type UrgencyKey = "critical" | "action" | "optimize" | "finetune" | "top";
+function urgencyBucket(score: number): { key: UrgencyKey; color: string } {
+  if (score <= 30) return { key: "critical", color: "#DC2626" };
+  if (score <= 50) return { key: "action",   color: "#B45309" };
+  if (score <= 70) return { key: "optimize", color: "#A1A1AA" };
+  if (score <= 85) return { key: "finetune", color: "#4D7C0F" };
+  return                 { key: "top",       color: "#15803D" };
 }
 
 
 /* ─── Plan Page ─────────────────────────────────────────────── */
 export default function PlanPage() {
+  const t = useTranslations("plans_detail");
+  const tResults = useTranslations("results");
   const { type } = useParams() as { type: string };
   const [plan, setPlan] = useState<PlanContent | null>(null);
   const [cachedPdfBase64, setCachedPdfBase64] = useState<string | null>(null);
@@ -48,11 +55,11 @@ export default function PlanPage() {
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("btb_results");
-      if (!raw) { setError("Keine Analyse-Daten gefunden. Bitte starte die Analyse neu."); return; }
+      if (!raw) { setError(t("error_no_data")); return; }
       const data = JSON.parse(raw);
-      if (!data?.scores) { setError("Scores nicht verfügbar."); return; }
+      if (!data?.scores) { setError(t("error_no_scores")); return; }
       const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
-      if (!validTypes.includes(type as PlanType)) { setError("Unbekannter Plan-Typ."); return; }
+      if (!validTypes.includes(type as PlanType)) { setError(t("error_unknown_type")); return; }
 
       // 1. Check sessionStorage for a pre-generated plan (from /analyse)
       const cached = data.plans?.[type as PlanType];
@@ -84,15 +91,15 @@ export default function PlanPage() {
         })
         .catch(() => {});
     } catch {
-      setError("Plan konnte nicht geladen werden.");
+      setError(t("error_loading"));
     }
-  }, [type]);
+  }, [type, t]);
 
   if (error) return (
     <div className={styles.page}>
       <div className={styles.errorBox}>
         <p>{error}</p>
-        <Link href="/results" className={styles.backLink}>← Zurück zum Report</Link>
+        <Link href="/results" className={styles.backLink}>{t("back_to_report")}</Link>
       </div>
     </div>
   );
@@ -100,27 +107,27 @@ export default function PlanPage() {
   if (!plan) return (
     <div className={styles.page} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
       <div style={{ fontFamily: "Arial, sans-serif", fontSize: 13, letterSpacing: "0.1em", color: "#888", textTransform: "uppercase" }}>
-        Wird geladen…
+        {t("loading")}
       </div>
     </div>
   );
 
-  const urgency = plan.score != null ? urgencyLabel(plan.score) : null;
+  const urgency = plan.score != null ? urgencyBucket(plan.score) : null;
 
   return (
     <div className={styles.page}>
       {/* Header */}
       <div className={styles.header}>
-        <Link href="/results" className={styles.backLink}>← ZURÜCK ZUM REPORT</Link>
+        <Link href="/results" className={styles.backLink}>{t("back_to_report_upper")}</Link>
         <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
         <button onClick={() => openPlanAsPDF(plan, type, cachedPdfBase64)} className={styles.printBtn}>
-          PDF DOWNLOAD ↓
+          {t("pdf_download")}
         </button>
       </div>
 
       <div className={styles.container} id="plan-content">
         <div className={styles.hero}>
-          <span className={styles.tag} style={{ color: plan.color, borderColor: plan.color }}>INDIVIDUELLER PLAN</span>
+          <span className={styles.tag} style={{ color: plan.color, borderColor: plan.color }}>{t("tag")}</span>
           <h1 className={styles.title}>{plan.title}</h1>
 
           {/* Score + urgency label */}
@@ -141,7 +148,7 @@ export default function PlanPage() {
                   borderRadius: 2,
                   fontFamily: "var(--font-oswald), sans-serif",
                 }}>
-                  {urgency.text}
+                  {tResults(`urgency.${urgency.key}`)}
                 </span>
               )}
             </div>
@@ -171,7 +178,7 @@ export default function PlanPage() {
                 borderRadius: "0 4px 4px 0",
               }}>
                 <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginBottom: 6, fontFamily: "var(--font-oswald), sans-serif" }}>
-                  WISSENSCHAFTLICHE EINORDNUNG
+                  {t("rationale_label")}
                 </div>
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.65, margin: 0 }}>
                   {block.rationale}
@@ -183,13 +190,12 @@ export default function PlanPage() {
 
         <div className={styles.actions}>
           <Link href="/results" className={styles.btnSecondary}>
-            ← ZURÜCK ZUM REPORT
+            {t("back_to_report_upper")}
           </Link>
         </div>
 
         <p className={styles.disclaimer}>
-          Alle Empfehlungen basieren auf publizierten Leitlinien (WHO, ACSM, NSF, EFSA) und den individuell berechneten Scores.
-          Kein Ersatz für medizinische oder sportmedizinische Beratung.
+          {t("disclaimer")}
         </p>
       </div>
     </div>

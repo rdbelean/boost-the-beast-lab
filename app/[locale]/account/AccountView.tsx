@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import styles from "./account.module.css";
 
 export interface AccountReport {
@@ -92,7 +93,7 @@ function openDataUrl(dataUrl: string) {
   setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
 }
 
-function DownloadBtn({ url, label, filename, disabledTitle }: { url: string | null; label: string; filename: string; disabledTitle?: string }) {
+function DownloadBtn({ url, label, disabledTitle, fallbackTitle }: { url: string | null; label: string; filename?: string; disabledTitle?: string; fallbackTitle: string }) {
   if (url) {
     if (url.startsWith("data:")) {
       return (
@@ -110,7 +111,7 @@ function DownloadBtn({ url, label, filename, disabledTitle }: { url: string | nu
     );
   }
   return (
-    <span className={styles.pdfBtnDisabled} title={disabledTitle ?? "Nicht verfügbar"}>
+    <span className={styles.pdfBtnDisabled} title={disabledTitle ?? fallbackTitle}>
       {DOWNLOAD_ICON}
       {label}
     </span>
@@ -118,6 +119,7 @@ function DownloadBtn({ url, label, filename, disabledTitle }: { url: string | nu
 }
 
 export default function AccountView({ reports }: { reports: AccountReport[] }) {
+  const t = useTranslations("account");
   const latest = reports[0];
   const oldest = reports[reports.length - 1];
 
@@ -126,13 +128,13 @@ export default function AccountView({ reports }: { reports: AccountReport[] }) {
       {reports.length >= 2 && (
         <section className={styles.progressSection}>
           <div className={styles.progressHeader}>
-            <span className={styles.progressTitle}>GESAMTFORTSCHRITT</span>
+            <span className={styles.progressTitle}>{t("progress_title")}</span>
             <span className={styles.progressRange}>{oldest.date} → {latest.date}</span>
           </div>
 
           <div className={styles.overallBanner}>
             <div className={styles.overallBannerLeft}>
-              <div className={styles.overallBannerLabel}>OVERALL PERFORMANCE SCORE</div>
+              <div className={styles.overallBannerLabel}>{t("overall_banner_label")}</div>
               <div className={styles.overallBannerRow}>
                 <span className={styles.overallOld}>{oldest.overall}</span>
                 <span className={styles.overallBannerArrow}>→</span>
@@ -148,7 +150,7 @@ export default function AccountView({ reports }: { reports: AccountReport[] }) {
               </div>
             </div>
             <div className={styles.overallBannerRight}>
-              <div className={styles.overallPctLabel}>VERÄNDERUNG</div>
+              <div className={styles.overallPctLabel}>{t("change_label")}</div>
               <div
                 className={styles.overallPct}
                 style={{ color: latest.overall >= oldest.overall ? "#22C55E" : "#E63222" }}
@@ -170,7 +172,7 @@ export default function AccountView({ reports }: { reports: AccountReport[] }) {
                 <span className={styles.compareTableHeadOld}>{oldest.date}</span>
                 <span></span>
                 <span className={styles.compareTableHeadNew}>{latest.date}</span>
-                <span className={styles.compareTableHeadDelta}>DIFF</span>
+                <span className={styles.compareTableHeadDelta}>{t("diff_header")}</span>
               </div>
             </div>
             {SCORE_DEFS.map((def) => (
@@ -187,8 +189,8 @@ export default function AccountView({ reports }: { reports: AccountReport[] }) {
       )}
 
       <div className={styles.reportListHeader}>
-        <span>ALLE ANALYSEN</span>
-        <span className={styles.reportCount}>{reports.length} Reports</span>
+        <span>{t("all_analyses")}</span>
+        <span className={styles.reportCount}>{t("reports_count", { count: reports.length })}</span>
       </div>
 
       <div className={styles.reportList}>
@@ -280,11 +282,11 @@ export default function AccountView({ reports }: { reports: AccountReport[] }) {
               </div>
 
               <div className={styles.reportActions}>
-                <DownloadBtn url={report.pdfUrl}                          label="Performance Report" filename={`Performance-Report_${report.isoDate}.pdf`} />
-                <DownloadBtn url={i === 0 ? report.planUrls.activity  : null} label="Activity Plan"  filename={`Activity-Plan_${report.isoDate}.pdf`}         disabledTitle="Nur für aktuellsten Report verfügbar" />
-                <DownloadBtn url={i === 0 ? report.planUrls.metabolic : null} label="Metabolic Plan" filename={`Metabolic-Plan_${report.isoDate}.pdf`}        disabledTitle="Nur für aktuellsten Report verfügbar" />
-                <DownloadBtn url={i === 0 ? report.planUrls.recovery  : null} label="Recovery Plan"  filename={`Recovery-Plan_${report.isoDate}.pdf`}         disabledTitle="Nur für aktuellsten Report verfügbar" />
-                <DownloadBtn url={i === 0 ? report.planUrls.stress    : null} label="Stress Plan"    filename={`Stress-Lifestyle-Plan_${report.isoDate}.pdf`} disabledTitle="Nur für aktuellsten Report verfügbar" />
+                <DownloadBtn url={report.pdfUrl}                              label={t("download_report")}   filename={`Performance-Report_${report.isoDate}.pdf`}    fallbackTitle={t("disabled_default")} />
+                <DownloadBtn url={i === 0 ? report.planUrls.activity  : null} label={t("download_activity")} filename={`Activity-Plan_${report.isoDate}.pdf`}         disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
+                <DownloadBtn url={i === 0 ? report.planUrls.metabolic : null} label={t("download_metabolic")} filename={`Metabolic-Plan_${report.isoDate}.pdf`}       disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
+                <DownloadBtn url={i === 0 ? report.planUrls.recovery  : null} label={t("download_recovery")}  filename={`Recovery-Plan_${report.isoDate}.pdf`}        disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
+                <DownloadBtn url={i === 0 ? report.planUrls.stress    : null} label={t("download_stress")}    filename={`Stress-Lifestyle-Plan_${report.isoDate}.pdf`} disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
               </div>
             </div>
           );

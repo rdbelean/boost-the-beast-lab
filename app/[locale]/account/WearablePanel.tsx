@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export interface WearableUploadRow {
   id: string;
@@ -17,12 +18,13 @@ export default function WearablePanel({
 }: {
   uploads: WearableUploadRow[];
 }) {
+  const t = useTranslations("wearable_panel");
   const [uploads, setUploads] = useState(initialUploads);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
-    if (!confirm("Wearable-Daten wirklich löschen? Dein Report bleibt bestehen.")) return;
+    if (!confirm(t("confirm_delete"))) return;
     setDeleting(id);
     setError(null);
     try {
@@ -33,7 +35,7 @@ export default function WearablePanel({
       }
       setUploads((u) => u.filter((x) => x.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Löschung fehlgeschlagen");
+      setError(err instanceof Error ? err.message : t("error_generic"));
     } finally {
       setDeleting(null);
     }
@@ -61,7 +63,7 @@ export default function WearablePanel({
           marginBottom: 8,
         }}
       >
-        DSGVO · ART. 17
+        {t("tag")}
       </div>
       <h2
         style={{
@@ -74,7 +76,7 @@ export default function WearablePanel({
           margin: "0 0 8px",
         }}
       >
-        WEARABLE-DATEN
+        {t("title")}
       </h2>
       <p
         style={{
@@ -85,8 +87,7 @@ export default function WearablePanel({
           margin: "0 0 20px",
         }}
       >
-        Anonymisierte Aggregate aus deinen WHOOP- oder Apple-Health-Exports.
-        Du kannst jeden Import unabhängig von deinen Reports löschen.
+        {t("subtitle")}
       </p>
 
       {error && (
@@ -141,8 +142,8 @@ export default function WearablePanel({
                   color: "rgba(255,255,255,0.5)",
                 }}
               >
-                {up.days_covered} Tage · {up.window_start} bis {up.window_end}
-                {up.assessment_id ? " · verknüpft mit Report" : " · noch nicht verknüpft"}
+                {t("meta", { days: up.days_covered, start: up.window_start, end: up.window_end })}
+                {up.assessment_id ? t("linked_report") : t("not_linked")}
               </div>
             </div>
             <button
@@ -162,7 +163,7 @@ export default function WearablePanel({
                 flexShrink: 0,
               }}
             >
-              {deleting === up.id ? "Lösche..." : "Löschen"}
+              {deleting === up.id ? t("deleting") : t("delete")}
             </button>
           </div>
         ))}
