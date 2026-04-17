@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import styles from "@/app/landing.module.css";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Header() {
   const router = useRouter();
@@ -105,6 +106,7 @@ export default function Header() {
               AKTUELLSTER REPORT ↓
             </a>
           )}
+          <LanguageSwitcher />
           {/* Account dropdown */}
           <div className={styles.accountDropdown} ref={dropdownRef}>
             <button

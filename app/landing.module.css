@@ -247,6 +247,112 @@
   color: #fff;
 }
 
+/* ─── LANGUAGE SWITCHER ─────────────────────────────────────── */
+.langSwitcher {
+  position: relative;
+}
+.langSwitcherBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.langSwitcherBtn:hover {
+  border-color: rgba(230, 50, 34, 0.4);
+  background: rgba(230, 50, 34, 0.06);
+  color: #fff;
+}
+.langSwitcherCode {
+  line-height: 1;
+}
+.langSwitcherChevron {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-style: normal;
+  font-size: 10px;
+  opacity: 0.7;
+}
+.langSwitcherChevronOpen {
+  transform: rotate(180deg);
+}
+.langSwitcherMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  background: #161618;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  z-index: 100;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  animation: dropdownFadeIn 0.15s ease both;
+}
+.langSwitcherItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+.langSwitcherItem:last-child {
+  border-bottom: none;
+}
+.langSwitcherItem:hover {
+  background: rgba(230, 50, 34, 0.1);
+  color: #fff;
+}
+.langSwitcherItemActive {
+  color: #fff;
+  background: rgba(230, 50, 34, 0.06);
+}
+.langSwitcherItemActive::after {
+  content: "●";
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 7px;
+}
+.langSwitcherItemCode {
+  line-height: 1;
+  min-width: 22px;
+}
+.langSwitcherItemLabel {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+}
+.langSwitcherItem:hover .langSwitcherItemLabel,
+.langSwitcherItemActive .langSwitcherItemLabel {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 /* ─── HERO ──────────────────────────────────────────────────── */
 .hero {
   position: relative;
@@ -878,6 +984,10 @@
   .accountDropdownBtn { padding: 8px 12px; font-size: 10px; letter-spacing: 0.08em; }
   .accountDropdownMenu { right: 0; min-width: 180px; max-width: calc(100vw - 32px); }
   .accountDropdownItem { font-size: 10px; padding: 11px 14px; }
+  .langSwitcherBtn { padding: 7px 9px; gap: 6px; font-size: 10px; letter-spacing: 0.08em; }
+  .langSwitcherBtn svg { width: 18px; height: 12px; }
+  .langSwitcherMenu { right: 0; min-width: 160px; max-width: calc(100vw - 32px); }
+  .langSwitcherItem { font-size: 10px; padding: 10px 12px; }
 
   /* Hero */
   .hero { min-height: auto; align-items: flex-start; }
