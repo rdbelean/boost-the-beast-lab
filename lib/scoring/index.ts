@@ -59,6 +59,11 @@ import {
   type InterpretationBundle,
   type SystemicWarnings,
 } from "../interpretations";
+import type {
+  MetricProvenance,
+  ScoreProvenanceMap,
+  WearableOverrides,
+} from "./wearable";
 
 export {
   calculateActivityScore,
@@ -68,6 +73,7 @@ export {
   calculateStressScore,
   calculateRecoveryScore,
 };
+export type { MetricProvenance, ScoreProvenanceMap, WearableOverrides };
 export type {
   ActivityInputs,
   ActivityResult,
@@ -114,6 +120,8 @@ export interface FullAssessmentInputs {
   sleep: Omit<SleepInputs, "age">;
   metabolic: Omit<MetabolicInputs, "height_cm" | "weight_kg">;
   stress: { stress_level_1_10: number };
+  /** Optional measured data from WHOOP or Apple Health. */
+  wearable?: WearableOverrides;
 }
 
 export interface FullScoringResult {
@@ -134,6 +142,8 @@ export interface FullScoringResult {
     | "vo2max";
   systemic_warnings: SystemicWarnings;
   interpretation: InterpretationBundle;
+  provenance: ScoreProvenanceMap;
+  wearable_meta?: { source: "whoop" | "apple_health"; days_covered: number };
 }
 
 function overallBandFor(score: number): OverallBand {
@@ -152,14 +162,24 @@ function overallBandFor(score: number): OverallBand {
 export function runFullScoring(
   inputs: FullAssessmentInputs,
 ): FullScoringResult {
+  const wearableProvider = inputs.wearable?.source;
+
   // 1. Sleep
-  const sleep = calculateSleepScore({ ...inputs.sleep, age: inputs.age });
+  const sleep = calculateSleepScore(
+    { ...inputs.sleep, age: inputs.age },
+    inputs.wearable?.sleep,
+    wearableProvider,
+  );
 
   // 2. Activity (sitting hours surfaced as separate risk flag)
-  const activity = calculateActivityScore({
-    ...inputs.activity,
-    sitting_hours_per_day: inputs.metabolic.sitting_hours,
-  });
+  const activity = calculateActivityScore(
+    {
+      ...inputs.activity,
+      sitting_hours_per_day: inputs.metabolic.sitting_hours,
+    },
+    inputs.wearable?.activity,
+    wearableProvider,
+  );
 
   // 3. Stress (depends on sleep)
   const stress = calculateStressScore({
@@ -170,7 +190,7 @@ export function runFullScoring(
 
   // 4. Recovery (depends on sleep + stress + training load derived from activity)
   //    Training days ≈ max-span of activity days (conservative upper bound).
-  //    Intensity ratio = vigorous MET / total MET.
+  //    Intensity ratio = vigorous MET / total MET, overridden by WHOOP strain if present.
   const trainingDays = Math.min(
     7,
     Math.max(
@@ -180,33 +200,47 @@ export function runFullScoring(
     ),
   );
   const intensityRatio =
-    activity.total_met_minutes_week > 0
-      ? activity.vigorous_met / activity.total_met_minutes_week
-      : 0;
+    inputs.wearable?.activity?.whoop_strain_0_21 != null
+      ? Math.max(0, Math.min(1, inputs.wearable.activity.whoop_strain_0_21 / 21))
+      : activity.total_met_minutes_week > 0
+        ? activity.vigorous_met / activity.total_met_minutes_week
+        : 0;
 
-  const recovery = calculateRecoveryScore({
-    training_days: trainingDays,
-    intensity_ratio: intensityRatio,
-    subjective_recovery_1_10: inputs.sleep.recovery_1_10,
-    sleep_score_0_100: sleep.sleep_score_0_100,
-    stress_score_0_100: stress.stress_score_0_100,
-  });
+  const recovery = calculateRecoveryScore(
+    {
+      training_days: trainingDays,
+      intensity_ratio: intensityRatio,
+      subjective_recovery_1_10: inputs.sleep.recovery_1_10,
+      sleep_score_0_100: sleep.sleep_score_0_100,
+      stress_score_0_100: stress.stress_score_0_100,
+    },
+    inputs.wearable?.recovery,
+    inputs.age,
+    wearableProvider,
+  );
 
   // 5. Metabolic
-  const metabolic = calculateMetabolicScore({
-    height_cm: inputs.height_cm,
-    weight_kg: inputs.weight_kg,
-    ...inputs.metabolic,
-  });
+  const metabolic = calculateMetabolicScore(
+    {
+      height_cm: inputs.height_cm,
+      weight_kg: inputs.weight_kg,
+      ...inputs.metabolic,
+    },
+    inputs.wearable?.body,
+  );
 
   // 6. VO2max
-  const vo2max = estimateVO2max({
-    age: inputs.age,
-    gender: inputs.gender,
-    height_cm: inputs.height_cm,
-    weight_kg: inputs.weight_kg,
-    activity_category: activity.activity_category,
-  });
+  const vo2max = estimateVO2max(
+    {
+      age: inputs.age,
+      gender: inputs.gender,
+      height_cm: inputs.height_cm,
+      weight_kg: inputs.weight_kg,
+      activity_category: activity.activity_category,
+    },
+    inputs.wearable?.vo2max,
+    wearableProvider,
+  );
 
   // 7. Overall Performance Index
   const overall_score_0_100 = Math.round(
@@ -259,6 +293,26 @@ export function runFullScoring(
     systemic_warnings,
   );
 
+  const provenance: ScoreProvenanceMap = {
+    sleep_duration: (sleep as typeof sleep & { sleep_duration_source: MetricProvenance })
+      .sleep_duration_source,
+    sleep_efficiency: (
+      sleep as typeof sleep & { sleep_efficiency_source: MetricProvenance | "not_applicable" }
+    ).sleep_efficiency_source,
+    recovery: (recovery as typeof recovery & { recovery_source: MetricProvenance })
+      .recovery_source,
+    activity: (activity as typeof activity & { activity_source: MetricProvenance })
+      .activity_source,
+    vo2max: (vo2max as typeof vo2max & { vo2max_source: MetricProvenance }).vo2max_source,
+  };
+
+  const wearable_meta = inputs.wearable
+    ? {
+        source: inputs.wearable.source,
+        days_covered: inputs.wearable.days_covered,
+      }
+    : undefined;
+
   return {
     activity,
     sleep,
@@ -271,5 +325,7 @@ export function runFullScoring(
     top_priority_module,
     systemic_warnings,
     interpretation,
+    provenance,
+    wearable_meta,
   };
 }

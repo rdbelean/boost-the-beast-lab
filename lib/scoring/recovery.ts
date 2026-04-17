@@ -25,6 +25,12 @@
 // - Scientific Reports HRV-Training (2025) — psychological + physiological integration
 // - PMC Recovery Strategies Umbrella Review (2022) — 22 reviews, 1100 athletes
 
+import {
+  hrvRhrToBaseRecovery,
+  type MetricProvenance,
+  type WearableOverrides,
+} from "./wearable";
+
 export type RecoveryBand =
   | "critical"
   | "low"
@@ -125,14 +131,36 @@ function impactLabel(multiplier: number): "none" | "mild" | "moderate" | "severe
   return "severe";
 }
 
+export interface RecoveryScoreWithProvenance extends RecoveryResult {
+  recovery_source: MetricProvenance;
+}
+
 export function calculateRecoveryScore(
   inputs: RecoveryInputs,
-): RecoveryResult {
-  const base = computeBaseRecovery(
-    inputs.training_days,
-    inputs.intensity_ratio,
-    inputs.subjective_recovery_1_10,
-  );
+  wearable?: WearableOverrides["recovery"],
+  age?: number,
+  provenance?: "whoop" | "apple_health",
+): RecoveryScoreWithProvenance {
+  let base: number;
+  let recovery_source: MetricProvenance;
+
+  if (wearable?.whoop_recovery_0_100 != null) {
+    // WHOOP already computed 0..100 — trust it as the base, then apply governors.
+    base = clamp(wearable.whoop_recovery_0_100, 0, 100);
+    recovery_source = "whoop";
+  } else if (wearable?.hrv_ms != null || wearable?.rhr_bpm != null) {
+    // Apple Health path: synthesize base from HRV + RHR (age-normalised).
+    base = hrvRhrToBaseRecovery(wearable.hrv_ms, wearable.rhr_bpm, age ?? 35);
+    recovery_source = provenance ?? "apple_health";
+  } else {
+    base = computeBaseRecovery(
+      inputs.training_days,
+      inputs.intensity_ratio,
+      inputs.subjective_recovery_1_10,
+    );
+    recovery_source = "self_report";
+  }
+
   const sleepMult = sleepMultiplier(
     clamp(inputs.sleep_score_0_100, 0, 100),
   );
@@ -154,5 +182,6 @@ export function calculateRecoveryScore(
     overtraining_risk,
     sleep_impact: impactLabel(sleepMult),
     stress_impact: impactLabel(stressMult),
+    recovery_source,
   };
 }

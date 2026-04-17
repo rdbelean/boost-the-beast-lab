@@ -17,6 +17,13 @@
 // - PMC Sleep & Athletic Performance (2024) — GH release in N3
 // - Kalkanis et al. Sleep Medicine Reviews (2025) — irregular sleep impact
 
+import {
+  efficiencyToQualityScore,
+  wakeupsToScore,
+  type MetricProvenance,
+  type WearableOverrides,
+} from "./wearable";
+
 export type SleepBand = "poor" | "moderate" | "good" | "excellent";
 export type SleepDurationBand = "kurz" | "optimal" | "lang";
 export type SleepQualityLabel = "sehr_gut" | "gut" | "mittel" | "schlecht";
@@ -106,13 +113,34 @@ function bandFor(score: number): SleepBand {
   return "excellent";
 }
 
-export function calculateSleepScore(inputs: SleepInputs): SleepResult {
+export interface SleepScoreWithProvenance extends SleepResult {
+  sleep_duration_source: MetricProvenance;
+  sleep_efficiency_source: MetricProvenance | "not_applicable";
+}
+
+export function calculateSleepScore(
+  inputs: SleepInputs,
+  wearable?: WearableOverrides["sleep"],
+  provenance?: "whoop" | "apple_health",
+): SleepScoreWithProvenance {
+  const durHours =
+    wearable?.duration_hours != null ? wearable.duration_hours : inputs.duration_hours;
   const { score: durScore, band: duration_band } = durationScore(
-    inputs.duration_hours,
+    durHours,
     inputs.age,
   );
-  const qual = qualityScore(inputs.quality);
-  const wake = wakeupScore(inputs.wakeups);
+
+  // Prefer measured efficiency over self-reported quality label when available.
+  const qual =
+    wearable?.efficiency_pct != null
+      ? efficiencyToQualityScore(wearable.efficiency_pct)
+      : qualityScore(inputs.quality);
+
+  const wake =
+    wearable?.wakeups_per_night != null
+      ? wakeupsToScore(wearable.wakeups_per_night)
+      : wakeupScore(inputs.wakeups);
+
   const rec = recoveryScore(inputs.recovery_1_10);
 
   // Briefing weights: Quality 35% · Duration 30% · Wakeups 20% · Recovery 15%
@@ -123,6 +151,11 @@ export function calculateSleepScore(inputs: SleepInputs): SleepResult {
   const consistencyFlag =
     typeof inputs.consistency_1_10 === "number" && inputs.consistency_1_10 < 6;
 
+  const sleep_duration_source: MetricProvenance =
+    wearable?.duration_hours != null ? (provenance ?? "whoop") : "self_report";
+  const sleep_efficiency_source: MetricProvenance | "not_applicable" =
+    wearable?.efficiency_pct != null ? (provenance ?? "whoop") : "not_applicable";
+
   return {
     sleep_duration_score: durScore,
     sleep_quality_score: qual,
@@ -132,5 +165,7 @@ export function calculateSleepScore(inputs: SleepInputs): SleepResult {
     sleep_band: bandFor(sleep_score_0_100),
     sleep_duration_band: duration_band,
     sleep_consistency_flag: consistencyFlag,
+    sleep_duration_source,
+    sleep_efficiency_source,
   };
 }

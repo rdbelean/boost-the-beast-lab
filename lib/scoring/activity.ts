@@ -23,6 +23,8 @@
 // - Frontiers Sedentary & CVD Meta-Analysis (2022)
 // - AHA Science Advisory — sedentary independent of MVPA
 
+import type { MetricProvenance, WearableOverrides } from "./wearable";
+
 export type ActivityCategory = "LOW" | "MODERATE" | "HIGH";
 export type ActivityBand = "low" | "moderate" | "high";
 export type SittingRiskFlag = "normal" | "elevated" | "critical";
@@ -128,7 +130,15 @@ function sittingRisk(hours: number | undefined): SittingRiskFlag {
   return "normal";
 }
 
-export function calculateActivityScore(inputs: ActivityInputs): ActivityResult {
+export interface ActivityScoreWithProvenance extends ActivityResult {
+  activity_source: MetricProvenance;
+}
+
+export function calculateActivityScore(
+  inputs: ActivityInputs,
+  wearable?: WearableOverrides["activity"],
+  provenance?: "whoop" | "apple_health",
+): ActivityScoreWithProvenance {
   const walkDays = clampDays(inputs.walking_days);
   const modDays = clampDays(inputs.moderate_days);
   const vigDays = clampDays(inputs.vigorous_days);
@@ -137,19 +147,28 @@ export function calculateActivityScore(inputs: ActivityInputs): ActivityResult {
   const modMin = normalizeBout(inputs.moderate_minutes_per_day);
   const vigMin = normalizeBout(inputs.vigorous_minutes_per_day);
 
-  // Walking MET: prefer explicit weekly total when provided (new standing-
-  // hours question). Otherwise fall back to IPAQ days × bout-normalized minutes.
+  // Walking MET: prefer measured daily_steps × 7 days when present, else
+  // explicit weekly total (new standing-hours question), else IPAQ fallback.
+  // Step-to-walking-minute conversion: ~100 steps/min moderate pace, so
+  // minutes/day ≈ steps/100, then × 7 for weekly total.
+  const walkingMinutesFromSteps =
+    wearable?.daily_steps != null && Number.isFinite(wearable.daily_steps)
+      ? Math.max(0, (wearable.daily_steps as number) / 100) * 7
+      : undefined;
+
   const walking_met = cap960(
-    Number.isFinite(inputs.walking_total_minutes_week as number)
-      ? MET_WALK * Math.max(0, inputs.walking_total_minutes_week as number)
-      : MET_WALK * walkMin * walkDays,
+    walkingMinutesFromSteps != null
+      ? MET_WALK * walkingMinutesFromSteps
+      : Number.isFinite(inputs.walking_total_minutes_week as number)
+        ? MET_WALK * Math.max(0, inputs.walking_total_minutes_week as number)
+        : MET_WALK * walkMin * walkDays,
   );
   const moderate_met = cap960(MET_MOD * modMin * modDays);
   const vigorous_met = cap960(MET_VIG * vigMin * vigDays);
 
   const total_met_minutes_week = walking_met + moderate_met + vigorous_met;
 
-  const activity_category = categorize(
+  let activity_category = categorize(
     total_met_minutes_week,
     vigDays,
     vigMin,
@@ -159,7 +178,21 @@ export function calculateActivityScore(inputs: ActivityInputs): ActivityResult {
     walkMin,
   );
 
+  // WHOOP strain ≥14 (of 21) consistently = at least MODERATE day-to-day load.
+  if (
+    wearable?.whoop_strain_0_21 != null &&
+    wearable.whoop_strain_0_21 >= 14 &&
+    activity_category === "LOW"
+  ) {
+    activity_category = "MODERATE";
+  }
+
   const activity_score_0_100 = scoreFromTotalMet(total_met_minutes_week);
+
+  const activity_source: MetricProvenance =
+    wearable?.daily_steps != null || wearable?.whoop_strain_0_21 != null
+      ? (provenance ?? (wearable?.whoop_strain_0_21 != null ? "whoop" : "apple_health"))
+      : "self_report";
 
   return {
     walking_met: Math.round(walking_met),
@@ -170,5 +203,6 @@ export function calculateActivityScore(inputs: ActivityInputs): ActivityResult {
     activity_score_0_100,
     activity_band: bandFor(activity_score_0_100),
     sitting_risk_flag: sittingRisk(inputs.sitting_hours_per_day),
+    activity_source,
   };
 }

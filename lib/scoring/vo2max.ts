@@ -8,6 +8,7 @@
 //   Very Poor=10, Poor=30, Fair=50, Good=70, Excellent=88, Superior=100
 
 import type { ActivityCategory } from "./activity";
+import type { MetricProvenance, WearableOverrides } from "./wearable";
 
 export type Gender = "male" | "female" | "diverse";
 export type FitnessBand =
@@ -115,18 +116,41 @@ function bandToScore(band: FitnessBand): number {
   }
 }
 
-export function estimateVO2max(inputs: VO2MaxInputs): VO2MaxResult {
+export interface VO2MaxResultWithProvenance extends VO2MaxResult {
+  vo2max_source: MetricProvenance;
+}
+
+export function estimateVO2max(
+  inputs: VO2MaxInputs,
+  wearable?: WearableOverrides["vo2max"],
+  provenance?: "whoop" | "apple_health",
+): VO2MaxResultWithProvenance {
   const heightM = inputs.height_cm / 100;
   const bmi = Math.round((inputs.weight_kg / (heightM * heightM)) * 10) / 10;
 
-  const vo2raw =
-    56.363 +
-    1.921 * activityCategoryNumeric(inputs.activity_category) -
-    0.381 * inputs.age -
-    0.754 * bmi +
-    10.987 * genderNumeric(inputs.gender);
+  let vo2max_estimated: number;
+  let vo2max_source: MetricProvenance;
 
-  const vo2max_estimated = Math.round(Math.max(10, Math.min(85, vo2raw)) * 10) / 10;
+  if (
+    wearable?.measured_ml_kg_min != null &&
+    Number.isFinite(wearable.measured_ml_kg_min) &&
+    wearable.measured_ml_kg_min > 0
+  ) {
+    // Measured value replaces Jackson estimate entirely.
+    vo2max_estimated =
+      Math.round(Math.max(10, Math.min(85, wearable.measured_ml_kg_min)) * 10) / 10;
+    vo2max_source = provenance ?? "apple_health";
+  } else {
+    const vo2raw =
+      56.363 +
+      1.921 * activityCategoryNumeric(inputs.activity_category) -
+      0.381 * inputs.age -
+      0.754 * bmi +
+      10.987 * genderNumeric(inputs.gender);
+    vo2max_estimated = Math.round(Math.max(10, Math.min(85, vo2raw)) * 10) / 10;
+    vo2max_source = "self_report";
+  }
+
   const band = bandFor(vo2max_estimated, inputs.age, inputs.gender);
 
   return {
@@ -135,5 +159,6 @@ export function estimateVO2max(inputs: VO2MaxInputs): VO2MaxResult {
     vo2max_band: band,
     fitness_level_band: band,
     fitness_score_0_100: bandToScore(band),
+    vo2max_source,
   };
 }

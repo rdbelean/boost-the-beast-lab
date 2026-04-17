@@ -114,11 +114,18 @@ function bandFor(score: number): MetabolicBand {
   return "excellent";
 }
 
+import type { WearableOverrides } from "./wearable";
+
 export function calculateMetabolicScore(
   inputs: MetabolicInputs,
+  wearable?: WearableOverrides["body"],
 ): MetabolicResult {
   const heightM = inputs.height_cm / 100;
-  const bmi = Math.round((inputs.weight_kg / (heightM * heightM)) * 10) / 10;
+  const effectiveWeight =
+    wearable?.weight_kg != null && Number.isFinite(wearable.weight_kg)
+      ? wearable.weight_kg
+      : inputs.weight_kg;
+  const bmi = Math.round((effectiveWeight / (heightM * heightM)) * 10) / 10;
   const { score: bmiSc, category } = bmiScore(bmi);
 
   // Briefing weights: BMI 30 · Sitting 20 · Water 18 · Meals 17 · FruitVeg 15
