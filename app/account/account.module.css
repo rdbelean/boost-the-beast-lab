@@ -498,6 +498,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
+  font: inherit;
   font-family: var(--font-oswald), sans-serif;
   font-size: 0.65rem;
   font-weight: 600;

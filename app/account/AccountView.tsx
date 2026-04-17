@@ -74,22 +74,44 @@ function CompareRow({
   );
 }
 
+const DOWNLOAD_ICON = (
+  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
+    <path d="M5 1v6M2 7l3 2 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+function openDataUrl(dataUrl: string) {
+  // Browsers block top-level navigation to data: URIs (security restriction since Chrome 60).
+  // Convert to a blob URL which is allowed in new tabs.
+  const [header, b64] = dataUrl.split(",");
+  const mime = header.split(":")[1].split(";")[0];
+  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  const blob = new Blob([bytes], { type: mime });
+  const blobUrl = URL.createObjectURL(blob);
+  window.open(blobUrl, "_blank");
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+}
+
 function DownloadBtn({ url, label, filename, disabledTitle }: { url: string | null; label: string; filename: string; disabledTitle?: string }) {
   if (url) {
+    if (url.startsWith("data:")) {
+      return (
+        <button onClick={() => openDataUrl(url)} className={styles.pdfBtn}>
+          {DOWNLOAD_ICON}
+          {label}
+        </button>
+      );
+    }
     return (
       <a href={url} target="_blank" rel="noopener noreferrer" className={styles.pdfBtn}>
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
-          <path d="M5 1v6M2 7l3 2 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+        {DOWNLOAD_ICON}
         {label}
       </a>
     );
   }
   return (
     <span className={styles.pdfBtnDisabled} title={disabledTitle ?? "Nicht verfügbar"}>
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
-        <path d="M5 1v6M2 7l3 2 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
+      {DOWNLOAD_ICON}
       {label}
     </span>
   );
