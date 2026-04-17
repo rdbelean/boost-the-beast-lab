@@ -1,10 +1,9 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  // @sparticuz/chromium ships a pre-built Chromium binary that must NOT be
-  // bundled/processed by Turbopack — it needs to stay as a raw Node require
-  // so the binary asset is available at runtime on Vercel Lambda.
-  // (Only /api/plan/pdf still uses Puppeteer; report PDF now uses @react-pdf/renderer.)
   // @sparticuz/chromium ships a pre-built Chromium binary that must NOT be
   // bundled/processed by Turbopack — it needs to stay as a raw Node require
   // so the binary asset is available at runtime on Vercel Lambda.
@@ -20,4 +19,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
