@@ -6,6 +6,9 @@ export interface WearableMetrics {
     avg_duration_hours?: number;
     avg_efficiency_pct?: number;
     avg_wakeups?: number;
+    avg_sleep_performance_pct?: number; // WHOOP Sleep performance % (0..100)
+    avg_deep_sleep_min?: number;         // Deep (SWS) duration
+    avg_rem_min?: number;                // REM duration
   };
   recovery?: {
     avg_score?: number; // WHOOP recovery 0..100

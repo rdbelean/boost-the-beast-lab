@@ -1,76 +1,87 @@
 // WHOOP CSV column fingerprints. Each schema version lists the column names
-// we rely on for parsing. If the fingerprint doesn't match any known version,
-// we tag the upload with 'whoop_vUNKNOWN' and the UI shows a "neues Format"
-// fallback.
+// we rely on for parsing. Schema detection passes when physiological_cycles.csv
+// has all required columns — sleeps.csv and workouts.csv are optional.
 //
-// Add new versions here as WHOOP changes their export format — the parser
-// picks the first version whose required columns are all present.
+// Add new versions here as WHOOP changes their export format.
 
 export interface WhoopSchemaFingerprint {
   version: string;
   sleeps: {
     required: string[];
-    duration_min?: string; // "Asleep duration (min)"
-    efficiency_pct?: string; // "Sleep efficiency %"
-    wakeups?: string; // "Disturbances"
-    date?: string; // "Cycle start time" or similar
+    duration_min?: string;
+    efficiency_pct?: string;
+    sleep_performance_pct?: string;
+    date?: string;
   };
   physiological_cycles: {
     required: string[];
-    recovery_0_100?: string; // "Recovery score %"
-    hrv_ms?: string; // "Heart rate variability (ms)"
-    rhr_bpm?: string; // "Resting heart rate (bpm)"
+    recovery_0_100?: string;
+    hrv_ms?: string;
+    rhr_bpm?: string;
+    day_strain?: string;
+    sleep_performance_pct?: string;
+    deep_sleep_min?: string;
+    rem_min?: string;
+    duration_min?: string;
+    efficiency_pct?: string;
     date?: string;
   };
   workouts: {
     required: string[];
-    strain_0_21?: string;
+    activity_strain?: string;
     date?: string;
   };
 }
 
+// April 2026 real export format. physiological_cycles.csv is the primary file
+// and contains all recovery, sleep and strain data we need.
 export const WHOOP_SCHEMAS: WhoopSchemaFingerprint[] = [
   {
     version: "whoop_v1",
     sleeps: {
-      required: ["Asleep duration (min)", "Sleep efficiency %"],
+      required: [],
       duration_min: "Asleep duration (min)",
       efficiency_pct: "Sleep efficiency %",
-      wakeups: "Disturbances",
+      sleep_performance_pct: "Sleep performance %",
       date: "Cycle start time",
     },
     physiological_cycles: {
-      required: ["Recovery score %", "Heart rate variability (ms)", "Resting heart rate (bpm)"],
+      // Only these three are required to accept the file.
+      required: ["Recovery score %", "Heart rate variability (ms)", "Asleep duration (min)"],
       recovery_0_100: "Recovery score %",
       hrv_ms: "Heart rate variability (ms)",
       rhr_bpm: "Resting heart rate (bpm)",
+      day_strain: "Day Strain",
+      sleep_performance_pct: "Sleep performance %",
+      deep_sleep_min: "Deep (SWS) duration (min)",
+      rem_min: "REM duration (min)",
+      duration_min: "Asleep duration (min)",
+      efficiency_pct: "Sleep efficiency %",
       date: "Cycle start time",
     },
     workouts: {
-      required: ["Day Strain"],
-      strain_0_21: "Day Strain",
+      required: [],
+      activity_strain: "Activity Strain",
       date: "Cycle start time",
     },
   },
 ];
 
-/** Find the first schema version whose required columns are all present. */
+/**
+ * Detect schema by checking physiological_cycles.csv required columns only.
+ * sleeps.csv and workouts.csv are supplementary — their absence does not
+ * cause rejection.
+ */
 export function detectWhoopSchema(
   sleepsHeaders: string[],
   cyclesHeaders: string[],
-  workoutsHeaders: string[],
+  _workoutsHeaders: string[],
 ): WhoopSchemaFingerprint | null {
-  const sleepsSet = new Set(sleepsHeaders);
   const cyclesSet = new Set(cyclesHeaders);
-  const workoutsSet = new Set(workoutsHeaders);
 
   for (const schema of WHOOP_SCHEMAS) {
-    const sleepsOk = schema.sleeps.required.every((c) => sleepsSet.has(c));
-    const cyclesOk = schema.physiological_cycles.required.every((c) =>
-      cyclesSet.has(c),
-    );
-    const workoutsOk = schema.workouts.required.every((c) => workoutsSet.has(c));
-    if (sleepsOk && cyclesOk && workoutsOk) return schema;
+    const cyclesOk = schema.physiological_cycles.required.every((c) => cyclesSet.has(c));
+    if (cyclesOk) return schema;
   }
   return null;
 }

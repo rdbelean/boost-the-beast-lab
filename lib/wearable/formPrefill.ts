@@ -32,11 +32,11 @@ function round500(v: number): number {
   return Math.round(v / 500) * 500;
 }
 
-/** Sleep efficiency % → quality enum. */
+/** Sleep performance or efficiency % → quality enum. */
 function efficiencyToLabel(pct: number): string {
-  if (pct >= 92) return "sehr-gut";
-  if (pct >= 85) return "gut";
-  if (pct >= 75) return "mittel";
+  if (pct >= 85) return "sehr-gut";
+  if (pct >= 70) return "gut";
+  if (pct >= 55) return "mittel";
   return "schlecht";
 }
 
@@ -79,9 +79,12 @@ export function computeFormPrefill(metrics: WearableMetrics): FormPrefill {
     prefilledFields.push("schlafdauer");
   }
 
-  const eff = metrics.sleep?.avg_efficiency_pct;
-  if (typeof eff === "number" && eff > 0) {
-    values.schlafqualitaet = efficiencyToLabel(eff);
+  // Prefer WHOOP Sleep Performance % (broader scale); fall back to efficiency.
+  const perf = metrics.sleep?.avg_sleep_performance_pct;
+  const eff  = metrics.sleep?.avg_efficiency_pct;
+  const qualitySource = typeof perf === "number" && perf > 0 ? perf : eff;
+  if (typeof qualitySource === "number" && qualitySource > 0) {
+    values.schlafqualitaet = efficiencyToLabel(qualitySource);
     prefilledFields.push("schlafqualitaet");
   }
 

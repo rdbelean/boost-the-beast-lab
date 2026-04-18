@@ -41,7 +41,7 @@ async function parseCSV(content: string): Promise<{ headers: string[]; rows: CSV
   });
 }
 
-/** Find an entry by case-insensitive basename match (WHOOP sometimes varies case). */
+/** Find an entry by case-insensitive basename match. */
 function findEntry(zip: JSZip, basename: string): JSZip.JSZipObject | null {
   const lower = basename.toLowerCase();
   for (const [name, entry] of Object.entries(zip.files)) {
@@ -60,38 +60,37 @@ export async function parseWhoopZip(file: File): Promise<WearableParseResult> {
     zip = await JSZip.loadAsync(file);
   } catch {
     throw new WhoopParseError(
-      "Die Datei ist keine gültige ZIP. WHOOP exportiert eine 'my_whoop_data.zip' per E-Mail.",
+      "ZIP-Datei konnte nicht gelesen werden.",
       "not_a_zip",
     );
   }
 
-  const sleepsEntry = findEntry(zip, "sleeps.csv");
+  // physiological_cycles.csv is the only required file.
   const cyclesEntry = findEntry(zip, "physiological_cycles.csv");
-  const workoutsEntry = findEntry(zip, "workouts.csv");
-
-  if (!sleepsEntry || !cyclesEntry) {
+  if (!cyclesEntry) {
     throw new WhoopParseError(
-      "WHOOP CSV-Dateien nicht gefunden (sleeps.csv oder physiological_cycles.csv fehlen).",
+      "Diese ZIP scheint kein WHOOP-Export zu sein. Bitte lade die Datei direkt aus der WHOOP-App hoch.",
       "missing_csv",
     );
   }
 
-  const [sleepsText, cyclesText, workoutsText] = await Promise.all([
-    sleepsEntry.async("string"),
+  const sleepsEntry = findEntry(zip, "sleeps.csv");
+  const workoutsEntry = findEntry(zip, "workouts.csv");
+
+  const [cyclesText, sleepsText, workoutsText] = await Promise.all([
     cyclesEntry.async("string"),
+    sleepsEntry ? sleepsEntry.async("string") : Promise.resolve(""),
     workoutsEntry ? workoutsEntry.async("string") : Promise.resolve(""),
   ]);
 
-  const sleeps = await parseCSV(sleepsText);
   const cycles = await parseCSV(cyclesText);
-  const workouts = workoutsText
-    ? await parseCSV(workoutsText)
-    : { headers: [], rows: [] };
+  const sleeps = sleepsText ? await parseCSV(sleepsText) : { headers: [], rows: [] };
+  const workouts = workoutsText ? await parseCSV(workoutsText) : { headers: [], rows: [] };
 
   const schema = detectWhoopSchema(sleeps.headers, cycles.headers, workouts.headers);
   if (!schema) {
     throw new WhoopParseError(
-      "Unbekanntes WHOOP-Exportformat. Bitte ohne Wearable fortfahren.",
+      "Diese ZIP scheint kein WHOOP-Export zu sein. Bitte lade die Datei direkt aus der WHOOP-App hoch.",
       "unknown_schema",
     );
   }

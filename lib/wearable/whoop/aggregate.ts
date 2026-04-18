@@ -1,9 +1,11 @@
 // Pure aggregator for WHOOP CSV rows. Input is the raw parsed CSV rows +
 // schema fingerprint; output is the compact metrics JSON that gets persisted.
 //
-// Windowing: we keep only rows whose date is within `windowDays` of the most
-// recent row in the sleeps CSV. This handles users who exported >30 days as
-// well as users whose data is slightly stale.
+// physiological_cycles.csv is the primary source — it contains recovery,
+// sleep and strain data for every cycle. sleeps.csv is secondary; workouts.csv
+// provides per-workout detail but Day Strain is in cycles.
+//
+// Windowing: last 30 cycles (one per day) from the most recent cycle date.
 
 import type { WhoopSchemaFingerprint } from "./schema";
 import type { ParseWarning, WearableMetrics } from "../types";
@@ -15,12 +17,12 @@ export interface WhoopAggregateInput {
   cycles: Row[];
   workouts: Row[];
   schema: WhoopSchemaFingerprint;
-  windowDays?: number; // default 30
+  windowDays?: number;
 }
 
 export interface WhoopAggregateOutput {
   metrics: WearableMetrics;
-  window_start: string; // ISO date
+  window_start: string;
   window_end: string;
   days_covered: number;
   parse_warnings: ParseWarning[];
@@ -42,7 +44,6 @@ function toISODate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-/** Mean of finite numbers, or null if none. */
 function mean(values: (number | null)[]): number | null {
   const nums = values.filter((v): v is number => v != null && Number.isFinite(v));
   if (nums.length === 0) return null;
@@ -56,39 +57,39 @@ function round(v: number | null, decimals: number): number | undefined {
 }
 
 export function aggregateWhoop(input: WhoopAggregateInput): WhoopAggregateOutput {
-  const { sleeps, cycles, workouts, schema } = input;
+  const { cycles, sleeps, workouts, schema } = input;
   const windowDays = input.windowDays ?? 30;
   const warnings: ParseWarning[] = [];
+  const pc = schema.physiological_cycles;
 
-  // 1. Determine window_end = most recent sleep date (or today if missing).
-  const sleepDates = sleeps
-    .map((r) => parseDate(r[schema.sleeps.date ?? ""]))
+  // 1. Window end = most recent cycle date (fall back to today).
+  const cycleDates = cycles
+    .map((r) => parseDate(r[pc.date ?? ""]))
     .filter((d): d is Date => d != null);
-  const windowEnd = sleepDates.length
-    ? new Date(Math.max(...sleepDates.map((d) => d.getTime())))
+  const windowEnd = cycleDates.length
+    ? new Date(Math.max(...cycleDates.map((d) => d.getTime())))
     : new Date();
   const windowStart = new Date(windowEnd);
   windowStart.setDate(windowStart.getDate() - windowDays);
 
   const inWindow = (row: Row, dateCol: string | undefined): boolean => {
     const d = parseDate(row[dateCol ?? ""]);
-    if (!d) return false;
-    return d >= windowStart && d <= windowEnd;
+    return !!d && d >= windowStart && d <= windowEnd;
   };
 
-  // 2. Filter rows to window.
+  // 2. Filter to window.
+  const cyclesW = cycles.filter((r) => inWindow(r, pc.date));
   const sleepsW = sleeps.filter((r) => inWindow(r, schema.sleeps.date));
-  const cyclesW = cycles.filter((r) => inWindow(r, schema.physiological_cycles.date));
   const workoutsW = workouts.filter((r) => inWindow(r, schema.workouts.date));
 
-  // 3. Compute day_covered from unique dates across sleeps + cycles.
+  // 3. Days covered from unique cycle dates (primary) + sleep dates (secondary).
   const dateSet = new Set<string>();
-  for (const r of sleepsW) {
-    const d = parseDate(r[schema.sleeps.date ?? ""]);
+  for (const r of cyclesW) {
+    const d = parseDate(r[pc.date ?? ""]);
     if (d) dateSet.add(toISODate(d));
   }
-  for (const r of cyclesW) {
-    const d = parseDate(r[schema.physiological_cycles.date ?? ""]);
+  for (const r of sleepsW) {
+    const d = parseDate(r[schema.sleeps.date ?? ""]);
     if (d) dateSet.add(toISODate(d));
   }
   const days_covered = dateSet.size;
@@ -100,44 +101,63 @@ export function aggregateWhoop(input: WhoopAggregateInput): WhoopAggregateOutput
     });
   }
 
-  // 4. Aggregate sleep.
-  const sleepDurationHours = sleepsW.map((r) => {
-    const min = parseNum(r[schema.sleeps.duration_min ?? ""]);
+  // 4. All primary metrics from physiological_cycles.csv.
+  const recoveryScores  = cyclesW.map((r) => parseNum(r[pc.recovery_0_100 ?? ""]));
+  const hrv             = cyclesW.map((r) => parseNum(r[pc.hrv_ms ?? ""]));
+  const rhr             = cyclesW.map((r) => parseNum(r[pc.rhr_bpm ?? ""]));
+  const dayStrain       = cyclesW.map((r) => parseNum(r[pc.day_strain ?? ""]));
+  const sleepDurationH  = cyclesW.map((r) => {
+    const min = parseNum(r[pc.duration_min ?? ""]);
     return min != null ? min / 60 : null;
   });
-  const sleepEff = sleepsW.map((r) => parseNum(r[schema.sleeps.efficiency_pct ?? ""]));
-  const wakeups = sleepsW.map((r) => parseNum(r[schema.sleeps.wakeups ?? ""]));
+  const sleepEff        = cyclesW.map((r) => parseNum(r[pc.efficiency_pct ?? ""]));
+  const sleepPerf       = cyclesW.map((r) => parseNum(r[pc.sleep_performance_pct ?? ""]));
+  const deepSleepMin    = cyclesW.map((r) => parseNum(r[pc.deep_sleep_min ?? ""]));
+  const remMin          = cyclesW.map((r) => parseNum(r[pc.rem_min ?? ""]));
 
-  // 5. Aggregate recovery.
-  const recoveryScores = cyclesW.map((r) =>
-    parseNum(r[schema.physiological_cycles.recovery_0_100 ?? ""]),
-  );
-  const hrv = cyclesW.map((r) => parseNum(r[schema.physiological_cycles.hrv_ms ?? ""]));
-  const rhr = cyclesW.map((r) => parseNum(r[schema.physiological_cycles.rhr_bpm ?? ""]));
+  // 5. If dedicated sleeps.csv is present and has better detail, prefer it for
+  //    duration/efficiency (same columns, potentially deduplicated sleep events).
+  const hasSleepDetail = sleepsW.length > 0 && schema.sleeps.duration_min;
+  const finalDurH = hasSleepDetail
+    ? sleepsW.map((r) => {
+        const min = parseNum(r[schema.sleeps.duration_min ?? ""]);
+        return min != null ? min / 60 : null;
+      })
+    : sleepDurationH;
+  const finalEff = hasSleepDetail
+    ? sleepsW.map((r) => parseNum(r[schema.sleeps.efficiency_pct ?? ""]))
+    : sleepEff;
+  const finalPerf = hasSleepDetail && schema.sleeps.sleep_performance_pct
+    ? sleepsW.map((r) => parseNum(r[schema.sleeps.sleep_performance_pct ?? ""]))
+    : sleepPerf;
 
-  // 6. Aggregate strain (WHOOP's Day Strain sits in the workouts CSV per cycle).
-  const strain = workoutsW.map((r) => parseNum(r[schema.workouts.strain_0_21 ?? ""]));
+  // 6. Activity strain: Day Strain from cycles is the main signal.
+  //    workouts.csv provides per-workout Activity Strain as a secondary check.
+  const activityStrain = workoutsW.map((r) => parseNum(r[schema.workouts.activity_strain ?? ""]));
 
   const metrics: WearableMetrics = {
     sleep: {
-      avg_duration_hours: round(mean(sleepDurationHours), 2),
-      avg_efficiency_pct: round(mean(sleepEff), 1),
-      avg_wakeups: round(mean(wakeups), 1),
+      avg_duration_hours:        round(mean(finalDurH), 2),
+      avg_efficiency_pct:        round(mean(finalEff), 1),
+      avg_sleep_performance_pct: round(mean(finalPerf), 1),
+      avg_deep_sleep_min:        round(mean(deepSleepMin), 1),
+      avg_rem_min:               round(mean(remMin), 1),
     },
     recovery: {
-      avg_score: round(mean(recoveryScores), 1),
-      avg_hrv_ms: round(mean(hrv), 1),
-      avg_rhr_bpm: round(mean(rhr), 1),
+      avg_score:    round(mean(recoveryScores), 1),
+      avg_hrv_ms:   round(mean(hrv), 1),
+      avg_rhr_bpm:  round(mean(rhr), 1),
     },
     activity: {
-      avg_strain: round(mean(strain), 2),
+      avg_strain:      round(mean(dayStrain), 2),
+      avg_active_kcal: round(mean(activityStrain), 2), // activity strain as secondary
     },
   };
 
   return {
     metrics,
     window_start: toISODate(windowStart),
-    window_end: toISODate(windowEnd),
+    window_end:   toISODate(windowEnd),
     days_covered,
     parse_warnings: warnings,
   };
