@@ -770,7 +770,7 @@ export default function ResultsPage() {
                       {plan.score}<span className={styles.planCardScoreSub}>/100</span>
                     </div>
                     {(() => { const u = urgencyBucket(plan.score); return (
-                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: u.color, border: `1px solid ${u.color}`, background: `${u.color}18`, padding: "2px 7px", borderRadius: 2, whiteSpace: "nowrap" }}>
+                      <span className={styles.urgencyBadge} style={{ color: u.color, borderColor: u.color, background: `${u.color}18` }}>
                         {t(`urgency.${u.key}`)}
                       </span>
                     ); })()}

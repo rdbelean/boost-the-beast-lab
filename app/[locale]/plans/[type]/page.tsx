@@ -138,15 +138,19 @@ export default function PlanPage() {
               </span>
               {urgency && (
                 <span style={{
+                  display: "inline-block",
                   fontSize: 10,
                   fontWeight: 700,
-                  letterSpacing: "0.1em",
+                  letterSpacing: "0.08em",
                   color: urgency.color,
                   border: `1px solid ${urgency.color}`,
                   background: `${urgency.color}18`,
                   padding: "3px 10px",
                   borderRadius: 2,
                   fontFamily: "var(--font-oswald), sans-serif",
+                  textTransform: "uppercase",
+                  lineHeight: 1.35,
+                  maxWidth: "100%",
                 }}>
                   {tResults(`urgency.${urgency.key}`)}
                 </span>

@@ -1027,6 +1027,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 14px 24px;
   border-top: 1px solid #1e1e1e;
   font-family: var(--font-oswald), sans-serif;
@@ -1035,6 +1036,36 @@
   letter-spacing: 0.12em;
   color: rgba(255,255,255,0.7);
   transition: color 0.2s;
+  line-height: 1.3;
+}
+.planCardCta > span:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+  text-transform: uppercase;
+}
+
+/* Urgency badge shown next to plan scores on /results. Flex-shrinks and
+   wraps on narrow viewports so long IT translations ("AZIONE RICHIESTA")
+   don't spill past the card edge. */
+.urgencyBadge {
+  display: inline-block;
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 2px 7px;
+  border: 1px solid;
+  border-radius: 2px;
+  line-height: 1.45;
+  max-width: 100%;
+  text-align: center;
+  text-transform: uppercase;
+}
+@media (max-width: 480px) {
+  .urgencyBadge { font-size: 8px; letter-spacing: 0.06em; padding: 2px 6px; }
+  .planCardCta { padding: 12px 16px; letter-spacing: 0.08em; gap: 8px; }
+  .planCardArrow { font-size: 16px; flex-shrink: 0; }
 }
 .planCard:hover .planCardCta {
   color: #fff;
