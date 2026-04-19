@@ -327,7 +327,7 @@ function AnalyseContent() {
   // ── Wearable prefill (from /analyse/prepare) ──────────────────────────
   interface WearableSession {
     uploadId: string;
-    source: "whoop" | "apple_health";
+    source: import("@/lib/wearable/types").WearableSource;
     days_covered: number;
     metrics: import("@/lib/wearable/types").WearableMetrics;
   }
@@ -738,7 +738,14 @@ function AnalyseContent() {
               <div>
                 <strong style={{ color: "#fff", fontWeight: 600 }}>
                   {t("wearable_banner.imported_label", {
-                    source: wearable.source === "whoop" ? "WHOOP" : "Apple Health",
+                    source:
+                      wearable.source === "whoop"
+                        ? "WHOOP"
+                        : wearable.source === "apple_health"
+                          ? "Apple Health"
+                          : wearable.metrics.provenance?.source_type
+                            ? wearable.metrics.provenance.source_type.toUpperCase()
+                            : "AI",
                   })}
                 </strong>
                 {t("wearable_banner.text", { days: wearable.days_covered })}

@@ -114,12 +114,12 @@
   },
   "wearable": {
     "optional_badge": "OPZIONALE · NON OBBLIGATORIO",
-    "section_label": "DISPOSITIVI COMPATIBILI",
-    "section_title_1": "I TUOI DATI. LA TUA ANALISI.",
-    "section_title_2": "ANCORA PIÙ PRECISA.",
+    "section_label": "I TUOI DATI. OGNI FILE.",
+    "section_title_1": "PUNTEGGI PIÙ PRECISI.",
+    "section_title_2": "CON I TUOI DATI.",
     "subtitle_before": "L'analisi completa funziona anche ",
-    "subtitle_strong": "senza wearable",
-    "subtitle_after": ". Se ne hai uno, puoi collegare WHOOP o Apple Health come opzione — un add-on per affinare i punteggi con dati reali.",
+    "subtitle_strong": "senza wearable o scan",
+    "subtitle_after": ". Se hai qualcosa — WHOOP, Apple Health, scan InBody, report DEXA, CSV Garmin, screenshot, PDF della palestra — caricalo e la nostra IA lo legge. I punteggi vengono affinati automaticamente.",
     "card_pill": "ADD-ON",
     "cards": {
       "whoop": {
@@ -131,6 +131,11 @@
         "title": "APPLE HEALTH",
         "metrics": "HRV · FC · Passi · VO2max",
         "days": "Direttamente dal tuo iPhone"
+      },
+      "any_file": {
+        "title": "QUALSIASI ALTRO",
+        "metrics": "InBody · DEXA · Tanita · Garmin · PDF · Immagine · CSV",
+        "days": "L'IA legge ogni file"
       }
     },
     "usps": {
@@ -159,6 +164,9 @@
       "imported_label": "Dati {source} importati",
       "text": " ({days} giorni misurati). I seguenti campi sono stati precompilati dai tuoi dati reali — puoi comunque modificarli in qualsiasi momento: ",
       "fields": {
+        "alter": "Età",
+        "geschlecht": "Sesso",
+        "groesse": "Altezza",
         "gewicht": "Peso",
         "schlafdauer": "Durata del sonno",
         "schlafqualitaet": "Qualità del sonno",
@@ -324,12 +332,18 @@
     }
   },
   "analyse_prepare": {
-    "label": "OPZIONALE · DATI WEARABLE",
-    "headline": "Usa i tuoi dati reali.",
-    "subtitle": "Hai dati da WHOOP o Apple Health? Allora calcoliamo i tuoi punteggi in modo ancora più preciso. Salta questo passaggio se non hai un wearable — il questionario offre risultati solidi anche senza dati misurati.",
+    "label": "OPZIONALE · I TUOI DATI",
+    "headline": "Punteggi più precisi. Con i tuoi dati.",
+    "subtitle": "Carica qualsiasi file contenga i tuoi valori — export WHOOP, export Apple Health, scan InBody/DEXA/Tanita, CSV Garmin, screenshot di app fitness, PDF della palestra. La nostra IA lo legge e precompila il questionario. Oppure salta il passaggio — il questionario funziona anche senza.",
+    "dropzone": {
+      "title": "TRASCINA IL TUO FILE QUI",
+      "subtitle": "oppure clicca per selezionare",
+      "supports": "WHOOP · Apple Health · InBody · DEXA · Garmin · PDF · Immagine · CSV",
+      "max_size": "fino a 15 MB · qualsiasi formato comune"
+    },
     "privacy_banner": {
       "strong": "I tuoi dati restano tuoi.",
-      "text": " Il file ZIP viene elaborato esclusivamente nel tuo browser. Al nostro server arrivano solo medie anonime — nessun punto di misurazione, nessuna serie temporale, nessun ID dispositivo."
+      "text": " Gli ZIP (WHOOP, Apple Health) vengono elaborati esclusivamente nel tuo browser — al nostro server arrivano solo medie anonime. PDF e immagini vengono inviati crittografati alla nostra IA per l'estrazione e non vengono salvati."
     },
     "whoop": {
       "title": "WHOOP",
@@ -367,11 +381,19 @@
     "parsing": {
       "reading_zip": "Lettura dello ZIP...",
       "streaming_apple": "Streaming dell'export Apple Health...",
+      "analyzing_document": "Analisi del documento...",
       "saving": "Salvataggio dati..."
     },
     "errors": {
       "server": "Errore del server ({status})",
-      "unknown": "Errore sconosciuto durante l'analisi del file."
+      "unknown": "Errore sconosciuto durante l'analisi del file.",
+      "empty_file": "Il file è vuoto.",
+      "too_large": "File troppo grande. Massimo: 15 MB (eccetto ZIP WHOOP e Apple Health che girano nel browser).",
+      "unknown_zip": "Non riconosciamo questo ZIP. Supportati: export WHOOP, export Apple Health.",
+      "unsupported_format": "Questo tipo di file non è supportato. Supportati: PDF, JPG, PNG, WEBP, CSV, TXT, JSON, ZIP.",
+      "heic_unsupported": "HEIC/HEIF non è supportato. Esporta l'immagine come JPG o PNG.",
+      "low_confidence": "La nostra IA non ha trovato dati sanitari attendibili in questo file. Prova un altro file — oppure salta il passaggio.",
+      "server_error": "Elaborazione non riuscita. Riprova."
     },
     "overlay": {
       "label": "DATI WEARABLE · ELABORATI LOCALMENTE",

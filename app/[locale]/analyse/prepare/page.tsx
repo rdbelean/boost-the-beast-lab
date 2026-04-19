@@ -5,11 +5,12 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import styles from "./prepare.module.css";
-import { parseWhoopZip, WhoopParseError } from "@/lib/wearable/whoop/parser";
 import {
-  parseAppleHealthZip,
+  dispatchAnyFile,
+  UploadError,
+  WhoopParseError,
   AppleHealthParseError,
-} from "@/lib/wearable/apple/parser";
+} from "@/lib/wearable/upload/dispatch";
 import type { WearableParseResult } from "@/lib/wearable/types";
 
 function PrepareContent() {
@@ -21,13 +22,11 @@ function PrepareContent() {
 
   const [paymentChecked, setPaymentChecked] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [whoopOpen, setWhoopOpen] = useState(false);
-  const [appleOpen, setAppleOpen] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [parsingLabel, setParsingLabel] = useState(t("parsing.reading_zip"));
 
-  const whoopInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -73,10 +72,7 @@ function PrepareContent() {
     goToAnalyse();
   }
 
-  async function runParse(
-    source: "whoop" | "apple_health",
-    file: File,
-  ) {
+  async function handleFile(file: File) {
     setErrorMsg(null);
     setParsing(true);
     setProgress(5);
@@ -86,26 +82,17 @@ function PrepareContent() {
     const signal = abortRef.current.signal;
 
     try {
-      let result: WearableParseResult;
-
-      if (source === "whoop") {
-        const rampTimer = setInterval(() => {
-          setProgress((p) => Math.min(75, p + 3));
-        }, 120);
-        try {
-          result = await parseWhoopZip(file);
-        } finally {
-          clearInterval(rampTimer);
-        }
-      } else {
-        setParsingLabel(t("parsing.streaming_apple"));
-        result = await parseAppleHealthZip(file, {
-          signal,
-          onProgress: (pct) => {
-            setProgress(Math.max(5, pct));
-          },
-        });
-      }
+      const result: WearableParseResult = await dispatchAnyFile(file, {
+        signal,
+        onPhase: (phase) => {
+          if (phase === "streaming") setParsingLabel(t("parsing.streaming_apple"));
+          else if (phase === "analyzing") setParsingLabel(t("parsing.analyzing_document"));
+          else setParsingLabel(t("parsing.reading_zip"));
+        },
+        onProgress: (pct) => {
+          setProgress(Math.max(5, pct));
+        },
+      });
 
       if (signal.aborted) return;
 
@@ -150,20 +137,30 @@ function PrepareContent() {
         setParsing(false);
         return;
       }
-      const msg =
-        err instanceof WhoopParseError || err instanceof AppleHealthParseError
-          ? err.message
-          : err instanceof Error
-            ? err.message
-            : t("errors.unknown");
+
+      let msg: string;
+      if (err instanceof UploadError) {
+        // Map typed codes to localized error strings.
+        const code = err.code;
+        if (code === "empty_file" || code === "too_large" || code === "unknown_zip"
+          || code === "unsupported_format" || code === "heic_unsupported"
+          || code === "low_confidence" || code === "server_error") {
+          msg = t(`errors.${code}`);
+        } else {
+          msg = err.message;
+        }
+      } else if (err instanceof WhoopParseError || err instanceof AppleHealthParseError) {
+        msg = err.message;
+      } else if (err instanceof Error) {
+        msg = err.message;
+      } else {
+        msg = t("errors.unknown");
+      }
       setErrorMsg(msg);
       setParsing(false);
       setProgress(0);
     }
   }
-
-  const handleWhoopFile = (file: File) => runParse("whoop", file);
-  const handleAppleFile = (file: File) => runParse("apple_health", file);
 
   function handleCancel() {
     abortRef.current?.abort();
@@ -174,11 +171,6 @@ function PrepareContent() {
   if (!paymentChecked) {
     return null;
   }
-
-  // Steps arrays come from the messages file — cast because next-intl returns
-  // unknown for raw() lookups.
-  const whoopSteps = t.raw("whoop.steps") as string[];
-  const appleSteps = t.raw("apple.steps") as string[];
 
   return (
     <div className={styles.page}>
@@ -207,146 +199,53 @@ function PrepareContent() {
 
         {errorMsg && <div className={styles.errorMsg}>{errorMsg}</div>}
 
-        <div className={styles.grid}>
-          {/* ── WHOOP Card ──────────────────────────────────────────── */}
-          <div className={styles.card}>
-            <div className={styles.logoBox} aria-hidden>
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <circle cx="16" cy="16" r="12" stroke="#E63222" strokeWidth="1.5" />
-                <path d="M9 13l2.4 7 2.4-5.5L16.2 20l2.4-7" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M18.2 13l2.4 7" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </div>
-            <div className={styles.cardTitle}>{t("whoop.title")}</div>
-            <div className={styles.cardDesc}>{t("whoop.desc")}</div>
+        <label
+          className={styles.uploadZone}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add(styles.uploadZoneActive);
+          }}
+          onDragLeave={(e) => {
+            e.currentTarget.classList.remove(styles.uploadZoneActive);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove(styles.uploadZoneActive);
+            const file = e.dataTransfer.files?.[0];
+            if (file) handleFile(file);
+          }}
+        >
+          <svg
+            className={styles.uploadIcon}
+            width="40"
+            height="40"
+            viewBox="0 0 40 40"
+            fill="none"
+            aria-hidden
+          >
+            <path d="M20 28V12M12 20l8-8 8 8" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <rect x="6" y="30" width="28" height="4" rx="1" stroke="#E63222" strokeWidth="1.5" />
+          </svg>
+          <div className={styles.uploadLabel}>{t("dropzone.title")}</div>
+          <div className={styles.uploadHint}>{t("dropzone.subtitle")}</div>
+          <div className={styles.uploadSupports}>{t("dropzone.supports")}</div>
+          <div className={styles.uploadMeta}>{t("dropzone.max_size")}</div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".zip,application/zip,.pdf,application/pdf,image/jpeg,image/png,image/webp,image/gif,.csv,text/csv,.txt,text/plain,.json,application/json"
+            className={styles.uploadInput}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFile(file);
+              e.target.value = "";
+            }}
+          />
+        </label>
 
-            <div className={styles.tutorial}>
-              <button
-                className={styles.tutorialToggle}
-                onClick={() => setWhoopOpen((v) => !v)}
-                aria-expanded={whoopOpen}
-              >
-                <span className={`${styles.chevron} ${whoopOpen ? styles.chevronOpen : ""}`}>▾</span>
-                {t("tutorial_toggle")}
-              </button>
-              {whoopOpen && (
-                <div className={styles.tutorialContent}>
-                  <ol>
-                    {whoopSteps.map((step) => <li key={step}>{step}</li>)}
-                  </ol>
-                </div>
-              )}
-            </div>
-
-            <label
-              className={styles.uploadZone}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.add(styles.uploadZoneActive);
-              }}
-              onDragLeave={(e) => {
-                e.currentTarget.classList.remove(styles.uploadZoneActive);
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.remove(styles.uploadZoneActive);
-                const file = e.dataTransfer.files?.[0];
-                if (file) handleWhoopFile(file);
-              }}
-            >
-              <div className={styles.uploadLabel}>{t("upload_label")}</div>
-              <div className={styles.uploadHint}>{t("upload_hint")}</div>
-              <input
-                ref={whoopInputRef}
-                type="file"
-                accept=".zip,application/zip"
-                className={styles.uploadInput}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleWhoopFile(file);
-                  e.target.value = "";
-                }}
-              />
-            </label>
-          </div>
-
-          {/* ── Apple Health Card ───────────────────────────────────── */}
-          <div className={styles.card}>
-            <div className={styles.logoBox} aria-hidden>
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path d="M16 26s-9-5.5-9-12.5A5.5 5.5 0 0 1 16 10a5.5 5.5 0 0 1 9 3.5C25 20.5 16 26 16 26z" stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round" />
-                <path d="M10 16h3l1.5-3 2.5 6 1.5-3h4" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <div className={styles.cardTitle}>{t("apple.title")}</div>
-            <div className={styles.cardDesc}>{t("apple.desc")}</div>
-
-            <div className={styles.tutorial}>
-              <button
-                className={styles.tutorialToggle}
-                onClick={() => setAppleOpen((v) => !v)}
-                aria-expanded={appleOpen}
-              >
-                <span className={`${styles.chevron} ${appleOpen ? styles.chevronOpen : ""}`}>▾</span>
-                {t("tutorial_toggle")}
-              </button>
-              {appleOpen && (
-                <div className={styles.tutorialContent}>
-                  <ol>
-                    {appleSteps.map((step) => <li key={step}>{step}</li>)}
-                  </ol>
-                  <div className={styles.tutorialNote}>{t("apple.note")}</div>
-                </div>
-              )}
-            </div>
-
-            <label
-              className={styles.uploadZone}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.add(styles.uploadZoneActive);
-              }}
-              onDragLeave={(e) => {
-                e.currentTarget.classList.remove(styles.uploadZoneActive);
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.remove(styles.uploadZoneActive);
-                const file = e.dataTransfer.files?.[0];
-                if (file) handleAppleFile(file);
-              }}
-            >
-              <div className={styles.uploadLabel}>{t("upload_label")}</div>
-              <div className={styles.uploadHint}>{t("upload_hint")}</div>
-              <input
-                type="file"
-                accept=".zip,application/zip"
-                className={styles.uploadInput}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleAppleFile(file);
-                  e.target.value = "";
-                }}
-              />
-            </label>
-          </div>
-
-          {/* ── Skip Card ───────────────────────────────────────────── */}
-          <div className={styles.card}>
-            <div className={styles.logoBox} aria-hidden>
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path d="M6 9h16M6 16h16M6 23h10" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" />
-                <circle cx="23" cy="23" r="3" stroke="#E63222" strokeWidth="1.5" />
-                <path d="M23 21v2l1.3 1.3" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <div className={styles.cardTitle}>{t("skip.title")}</div>
-            <div className={styles.cardDesc}>{t("skip.desc")}</div>
-            <button className={styles.skipBtn} onClick={handleSkip}>{t("skip.btn")}</button>
-          </div>
-        </div>
-
-        <button className={styles.skipLink} onClick={handleSkip}>{t("skip.link")}</button>
+        <button className={styles.skipLink} onClick={handleSkip}>
+          {t("skip.link")}
+        </button>
       </div>
 
       {parsing && (

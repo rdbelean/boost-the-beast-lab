@@ -82,7 +82,11 @@ export function aggregateWhoop(input: WhoopAggregateInput): WhoopAggregateOutput
   const sleepsW = sleeps.filter((r) => inWindow(r, schema.sleeps.date));
   const workoutsW = workouts.filter((r) => inWindow(r, schema.workouts.date));
 
-  // 3. Days covered from unique cycle dates (primary) + sleep dates (secondary).
+  // 3. Days covered — union of cycles + sleeps + workouts. If all three
+  //    columns somehow returned empty strings but we still have rows (edge
+  //    case in the April 2026 export format), fall back to cycle row count
+  //    so the user doesn't end up with "0 days measured" after a successful
+  //    parse. Add a warning so the condition is visible in parse_warnings.
   const dateSet = new Set<string>();
   for (const r of cyclesW) {
     const d = parseDate(r[pc.date ?? ""]);
@@ -92,7 +96,21 @@ export function aggregateWhoop(input: WhoopAggregateInput): WhoopAggregateOutput
     const d = parseDate(r[schema.sleeps.date ?? ""]);
     if (d) dateSet.add(toISODate(d));
   }
-  const days_covered = dateSet.size;
+  for (const r of workoutsW) {
+    const d = parseDate(r[schema.workouts.date ?? ""]);
+    if (d) dateSet.add(toISODate(d));
+  }
+
+  let days_covered = dateSet.size;
+  if (days_covered === 0 && cyclesW.length > 0) {
+    // Cycles exist but their date columns didn't parse — use row count
+    // clamped to the window as a conservative fallback.
+    days_covered = Math.min(windowDays, cyclesW.length);
+    warnings.push({
+      code: "date_fallback",
+      message: `WHOOP cycle rows had unparseable date columns; falling back to row count (${days_covered})`,
+    });
+  }
 
   if (days_covered < 3) {
     warnings.push({

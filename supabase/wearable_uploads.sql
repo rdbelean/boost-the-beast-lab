@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS wearable_uploads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   assessment_id UUID REFERENCES assessments(id) ON DELETE SET NULL,
-  source TEXT NOT NULL CHECK (source IN ('whoop', 'apple_health')),
+  source TEXT NOT NULL CHECK (source IN ('whoop', 'apple_health', 'ai_document', 'ai_image', 'ai_text')),
   schema_version TEXT NOT NULL,
   window_start DATE NOT NULL,
   window_end DATE NOT NULL,

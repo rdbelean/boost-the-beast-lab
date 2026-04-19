@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 
-const CARD_LOGOS: Record<"whoop" | "apple", React.ReactNode> = {
+const CARD_LOGOS: Record<"whoop" | "apple" | "any_file", React.ReactNode> = {
   whoop: (
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden>
       <circle cx="20" cy="20" r="15" stroke="#E63222" strokeWidth="1.5" />
@@ -15,6 +15,13 @@ const CARD_LOGOS: Record<"whoop" | "apple", React.ReactNode> = {
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden>
       <path d="M20 32s-11-6.8-11-15.5A6.5 6.5 0 0 1 20 12a6.5 6.5 0 0 1 11 4.5C31 25.2 20 32 20 32z" stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round" />
       <path d="M12 20h4l2-4 3 8 2-4h5" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  any_file: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden>
+      <path d="M14 8h10l8 8v14a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z" stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M24 8v8h8" stroke="#E63222" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M18 23h8M18 27h8M18 19h4" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   ),
 };
@@ -49,7 +56,7 @@ const USP_ICONS: Record<"real_data" | "precise" | "private" | "optional", React.
   ),
 };
 
-const CARD_KEYS = ["whoop", "apple"] as const;
+const CARD_KEYS = ["whoop", "apple", "any_file"] as const;
 const USP_KEYS = ["real_data", "precise", "private", "optional"] as const;
 
 export default function WearableSync() {

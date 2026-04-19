@@ -195,36 +195,64 @@
   color: rgba(245, 158, 11, 0.85);
 }
 
-/* ─── UPLOAD ZONE ───────────────────────────────────────────── */
+/* ─── UPLOAD ZONE (single, standalone) ──────────────────────── */
 .uploadZone {
-  border: 1.5px dashed var(--border);
-  border-radius: 4px;
-  padding: 16px 14px;
-  margin-top: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  background: rgba(255, 255, 255, 0.02);
+  padding: 64px 28px;
+  margin: 0 auto 20px;
+  max-width: 720px;
+  border: 2px dashed rgba(230, 50, 34, 0.35);
+  border-radius: 4px;
+  background: rgba(230, 50, 34, 0.04);
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
 }
 .uploadZone:hover {
   border-color: var(--accent);
-  background: rgba(230, 50, 34, 0.04);
+  background: rgba(230, 50, 34, 0.08);
+  transform: translateY(-2px);
 }
 .uploadZoneActive {
   border-color: var(--accent);
-  background: rgba(230, 50, 34, 0.08);
+  background: rgba(230, 50, 34, 0.12);
+  transform: scale(1.01);
+}
+.uploadIcon {
+  margin-bottom: 20px;
 }
 .uploadLabel {
   font-family: var(--font-oswald), sans-serif;
-  font-size: 12px;
+  font-weight: 700;
+  font-size: 20px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #fff;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .uploadHint {
   font-family: var(--font-inter), sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.uploadSupports {
+  font-family: var(--font-jetbrains-mono), monospace;
   font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.uploadMeta {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   color: var(--text-muted);
 }
 .uploadInput {
@@ -233,6 +261,11 @@
   pointer-events: none;
   width: 0;
   height: 0;
+}
+@media (max-width: 640px) {
+  .uploadZone { padding: 44px 20px; }
+  .uploadLabel { font-size: 16px; }
+  .uploadSupports { font-size: 10px; }
 }
 
 /* ─── SKIP CARD BUTTON ──────────────────────────────────────── */

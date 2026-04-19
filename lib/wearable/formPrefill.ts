@@ -5,6 +5,9 @@
 import type { WearableMetrics } from "./types";
 
 export type PrefilledField =
+  | "alter"
+  | "geschlecht"
+  | "groesse"
   | "gewicht"
   | "schlafdauer"
   | "schlafqualitaet"
@@ -14,6 +17,9 @@ export type PrefilledField =
 
 export interface FormPrefill {
   values: Partial<{
+    alter: number;
+    geschlecht: string;
+    groesse: number;
     gewicht: number;
     schlafdauer: number;
     schlafqualitaet: string;
@@ -67,6 +73,30 @@ export function computeFormPrefill(metrics: WearableMetrics): FormPrefill {
   const values: FormPrefill["values"] = {};
   const prefilledFields: PrefilledField[] = [];
 
+  // User-profile fields are usually explicit on InBody/DEXA prints and in
+  // some fitness-app screenshots. Only prefill if actually present.
+  const age = metrics.user_profile?.age;
+  if (typeof age === "number" && age >= 14 && age <= 100) {
+    values.alter = Math.round(age);
+    prefilledFields.push("alter");
+  }
+  const gender = metrics.user_profile?.gender;
+  if (gender === "male") {
+    values.geschlecht = "maennlich";
+    prefilledFields.push("geschlecht");
+  } else if (gender === "female") {
+    values.geschlecht = "weiblich";
+    prefilledFields.push("geschlecht");
+  }
+  const height = metrics.user_profile?.height_cm;
+  if (typeof height === "number" && height >= 100 && height <= 230) {
+    values.groesse = Math.round(height);
+    prefilledFields.push("groesse");
+  }
+
+  // Weight prefers the explicit last_weight_kg (populated by Apple + WHOOP +
+  // AI extraction). body_composition.weight_kg would already be mirrored
+  // into last_weight_kg server-side.
   const weight = metrics.body?.last_weight_kg;
   if (typeof weight === "number" && weight > 0) {
     values.gewicht = Math.round(weight);

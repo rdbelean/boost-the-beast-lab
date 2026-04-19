@@ -12,10 +12,16 @@ export const dynamic = "force-dynamic";
 // Apple Health XML parsing happens client-side; only the aggregate lands here.
 const MAX_BODY_BYTES = 32 * 1024;
 
-const ALLOWED_SOURCES = new Set(["whoop", "apple_health"]);
+const ALLOWED_SOURCES = new Set([
+  "whoop",
+  "apple_health",
+  "ai_document",
+  "ai_image",
+  "ai_text",
+]);
 
 interface PersistBody {
-  source: "whoop" | "apple_health";
+  source: "whoop" | "apple_health" | "ai_document" | "ai_image" | "ai_text";
   schema_version: string;
   window_start: string; // ISO date YYYY-MM-DD
   window_end: string;

@@ -114,12 +114,12 @@
   },
   "wearable": {
     "optional_badge": "OPTIONAL · NOT REQUIRED",
-    "section_label": "COMPATIBLE DEVICES",
-    "section_title_1": "YOUR DATA. YOUR ANALYSIS.",
-    "section_title_2": "EVEN MORE PRECISE.",
+    "section_label": "YOUR DATA. ANY FILE.",
+    "section_title_1": "SHARPER SCORES.",
+    "section_title_2": "FROM YOUR DATA.",
     "subtitle_before": "The complete analysis works perfectly ",
-    "subtitle_strong": "without a wearable",
-    "subtitle_after": ". If you own one, you can optionally connect WHOOP or Apple Health — as an add-on, to sharpen your scores with real data.",
+    "subtitle_strong": "without a wearable or scan",
+    "subtitle_after": ". If you have anything — WHOOP, Apple Health, InBody scan, DEXA report, Garmin CSV, screenshot, gym PDF — upload it and our AI reads it out. Scores get sharpened automatically.",
     "card_pill": "ADD-ON",
     "cards": {
       "whoop": {
@@ -131,6 +131,11 @@
         "title": "APPLE HEALTH",
         "metrics": "HRV · HR · Steps · VO2max",
         "days": "Straight from your iPhone"
+      },
+      "any_file": {
+        "title": "ANYTHING ELSE",
+        "metrics": "InBody · DEXA · Tanita · Garmin · PDF · Image · CSV",
+        "days": "AI reads any file"
       }
     },
     "usps": {
@@ -159,6 +164,9 @@
       "imported_label": "{source} data imported",
       "text": " ({days} days measured). The following fields were pre-filled from your real data — you can still change them any time: ",
       "fields": {
+        "alter": "Age",
+        "geschlecht": "Sex",
+        "groesse": "Height",
         "gewicht": "Weight",
         "schlafdauer": "Sleep duration",
         "schlafqualitaet": "Sleep quality",
@@ -324,12 +332,18 @@
     }
   },
   "analyse_prepare": {
-    "label": "OPTIONAL · WEARABLE DATA",
-    "headline": "Use your real data.",
-    "subtitle": "Do you have data from WHOOP or Apple Health? Then we'll calculate your scores even more precisely. Skip this step if you don't have a wearable — the questionnaire delivers strong results without measured data too.",
+    "label": "OPTIONAL · YOUR DATA",
+    "headline": "Sharper scores. From your data.",
+    "subtitle": "Upload any file that has your numbers in it — WHOOP export, Apple Health export, InBody/DEXA/Tanita scan, Garmin CSV, fitness-app screenshot, gym PDF. Our AI reads it and pre-fills the questionnaire. Or skip this step — the questionnaire works without it.",
+    "dropzone": {
+      "title": "DROP YOUR FILE HERE",
+      "subtitle": "or click to choose",
+      "supports": "WHOOP · Apple Health · InBody · DEXA · Garmin · PDF · Image · CSV",
+      "max_size": "up to 15 MB · any common format"
+    },
     "privacy_banner": {
       "strong": "Your data stays yours.",
-      "text": " The ZIP file is processed exclusively in your browser. Only anonymous averages reach our server — no measurement points, no time series, no device IDs."
+      "text": " ZIPs (WHOOP, Apple Health) are processed exclusively in your browser — only anonymous averages reach our server. PDFs and images are sent encrypted to our AI for extraction and are not stored."
     },
     "whoop": {
       "title": "WHOOP",
@@ -367,11 +381,19 @@
     "parsing": {
       "reading_zip": "Reading ZIP...",
       "streaming_apple": "Streaming Apple Health export...",
+      "analyzing_document": "Analyzing document...",
       "saving": "Saving data..."
     },
     "errors": {
       "server": "Server error ({status})",
-      "unknown": "Unknown error while parsing the file."
+      "unknown": "Unknown error while parsing the file.",
+      "empty_file": "The file is empty.",
+      "too_large": "File too large. Maximum: 15 MB (except WHOOP and Apple Health ZIPs, which run in the browser).",
+      "unknown_zip": "We don't recognize this ZIP. Supported: WHOOP export, Apple Health export.",
+      "unsupported_format": "This file type isn't supported. Supported: PDF, JPG, PNG, WEBP, CSV, TXT, JSON, ZIP.",
+      "heic_unsupported": "HEIC/HEIF is not supported. Export the image as JPG or PNG.",
+      "low_confidence": "Our AI couldn't find reliable health data in this file. Try a different file — or skip the step.",
+      "server_error": "Processing failed. Please try again."
     },
     "overlay": {
       "label": "WEARABLE DATA · PROCESSED LOCALLY",

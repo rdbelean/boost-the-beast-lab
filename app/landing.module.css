@@ -1085,9 +1085,12 @@
 }
 .wearableCards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin-bottom: 72px;
+}
+@media (max-width: 900px) {
+  .wearableCards { grid-template-columns: 1fr; }
 }
 .wearableCard {
   background: var(--surface-card);

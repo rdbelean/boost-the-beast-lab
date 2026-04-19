@@ -114,12 +114,12 @@
   },
   "wearable": {
     "optional_badge": "OPTIONAL · KEIN MUSS",
-    "section_label": "KOMPATIBLE GERÄTE",
-    "section_title_1": "DEINE DATEN. DEINE ANALYSE.",
-    "section_title_2": "NOCH PRÄZISER.",
+    "section_label": "DEINE DATEN. JEDE DATEI.",
+    "section_title_1": "PRÄZISERE SCORES.",
+    "section_title_2": "MIT DEINEN DATEN.",
     "subtitle_before": "Die komplette Analyse funktioniert auch ",
-    "subtitle_strong": "ohne Wearable",
-    "subtitle_after": ". Wer eins hat, kann WHOOP oder Apple Health optional verbinden — als Add-on, um die Scores mit echten Daten zu schärfen.",
+    "subtitle_strong": "ohne Wearable oder Scan",
+    "subtitle_after": ". Wer was hat — WHOOP, Apple Health, InBody-Scan, DEXA-Report, Garmin-CSV, Screenshot, Gym-PDF — lädt es hoch und unsere KI liest es aus. Scores werden automatisch geschärft.",
     "card_pill": "ADD-ON",
     "cards": {
       "whoop": {
@@ -131,6 +131,11 @@
         "title": "APPLE HEALTH",
         "metrics": "HRV · HF · Schritte · VO2max",
         "days": "Direkt aus deinem iPhone"
+      },
+      "any_file": {
+        "title": "ALLES ANDERE",
+        "metrics": "InBody · DEXA · Tanita · Garmin · PDF · Bild · CSV",
+        "days": "KI liest jede Datei"
       }
     },
     "usps": {
@@ -159,6 +164,9 @@
       "imported_label": "{source}-Daten importiert",
       "text": " ({days} Tage gemessen). Folgende Felder wurden aus deinen echten Daten vorausgefüllt — du kannst sie trotzdem jederzeit ändern: ",
       "fields": {
+        "alter": "Alter",
+        "geschlecht": "Geschlecht",
+        "groesse": "Größe",
         "gewicht": "Gewicht",
         "schlafdauer": "Schlafdauer",
         "schlafqualitaet": "Schlafqualität",
@@ -324,12 +332,18 @@
     }
   },
   "analyse_prepare": {
-    "label": "OPTIONAL · WEARABLE DATEN",
-    "headline": "Nutze deine echten Daten.",
-    "subtitle": "Hast du Daten von WHOOP oder Apple Health? Dann berechnen wir deine Scores noch präziser. Überspringe diesen Schritt, wenn du keine Wearables hast — der Fragebogen liefert auch ohne Messdaten starke Ergebnisse.",
+    "label": "OPTIONAL · DEINE DATEN",
+    "headline": "Präzisere Scores. Mit deinen Daten.",
+    "subtitle": "Lade irgendeine Datei hoch, die Werte über dich enthält — WHOOP-Export, Apple-Health-Export, InBody-/DEXA-/Tanita-Scan, Garmin-CSV, Screenshot einer Fitness-App, Gym-PDF. Unsere KI liest sie aus und füllt den Fragebogen vor. Oder überspringe den Schritt — der Fragebogen funktioniert auch ohne.",
+    "dropzone": {
+      "title": "ZIEHE DEINE DATEI HIER",
+      "subtitle": "oder klicken, um auszuwählen",
+      "supports": "WHOOP · Apple Health · InBody · DEXA · Garmin · PDF · Bild · CSV",
+      "max_size": "bis 15 MB · alle gängigen Formate"
+    },
     "privacy_banner": {
       "strong": "Deine Daten bleiben bei dir.",
-      "text": " Die ZIP-Datei wird ausschließlich in deinem Browser verarbeitet. An unseren Server wandern nur anonyme Durchschnittswerte — keine Messpunkte, kein Zeitverlauf, keine Geräte-IDs."
+      "text": " ZIPs (WHOOP, Apple Health) werden ausschließlich in deinem Browser verarbeitet — an unseren Server wandern nur anonyme Durchschnittswerte. PDFs und Bilder werden zur Auswertung verschlüsselt an unsere KI geschickt und nicht gespeichert."
     },
     "whoop": {
       "title": "WHOOP",
@@ -367,11 +381,19 @@
     "parsing": {
       "reading_zip": "ZIP wird gelesen...",
       "streaming_apple": "Apple Health Export wird gestreamt...",
+      "analyzing_document": "Dokument wird ausgewertet...",
       "saving": "Daten werden gespeichert..."
     },
     "errors": {
       "server": "Server-Fehler ({status})",
-      "unknown": "Unbekannter Fehler beim Parsen der Datei."
+      "unknown": "Unbekannter Fehler beim Parsen der Datei.",
+      "empty_file": "Die Datei ist leer.",
+      "too_large": "Datei zu groß. Maximum: 15 MB (außer WHOOP- und Apple-Health-ZIPs, die laufen im Browser).",
+      "unknown_zip": "Dieses ZIP erkennen wir nicht. Unterstützt: WHOOP-Export, Apple-Health-Export.",
+      "unsupported_format": "Dieses Dateiformat wird nicht unterstützt. Unterstützt: PDF, JPG, PNG, WEBP, CSV, TXT, JSON, ZIP.",
+      "heic_unsupported": "HEIC/HEIF wird nicht unterstützt. Exportiere das Bild als JPG oder PNG.",
+      "low_confidence": "Die KI konnte in dieser Datei keine verlässlichen Gesundheitsdaten erkennen. Probier eine andere Datei — oder überspringe den Schritt.",
+      "server_error": "Verarbeitung fehlgeschlagen. Bitte erneut versuchen."
     },
     "overlay": {
       "label": "WEARABLE-DATEN · LOKAL VERARBEITET",
