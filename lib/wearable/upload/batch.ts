@@ -18,7 +18,7 @@ import {
 import { parseWhoopCsvFiles } from "../whoop/parser";
 import type { WearableParseResult } from "../types";
 
-export const MAX_FILES = 10;
+export const MAX_FILES = 50;
 export const MAX_TOTAL_BYTES = 200 * 1024 * 1024; // 200 MB
 export const MAX_ZIP_BYTES = 50 * 1024 * 1024;    // 50 MB per ZIP
 export const MAX_AI_BYTES = 15 * 1024 * 1024;     // 15 MB per AI doc
@@ -30,6 +30,7 @@ const WHOOP_CSV_NAMES = new Set([
   "sleeps.csv",
   "workouts.csv",
   "journal.csv",
+  "journal_entries.csv",
 ]);
 
 export function isWhoopCsv(file: File): boolean {

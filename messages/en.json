@@ -424,9 +424,11 @@
       "heic_unsupported": "HEIC/HEIF is not supported. Export the image as JPG or PNG.",
       "low_confidence": "Our AI couldn't find reliable health data in this file. Try a different file — or skip the step.",
       "server_error": "Processing failed. Please try again.",
-      "too_many_files": "Maximum 10 files allowed.",
+      "too_many_files": "Maximum 50 files allowed.",
       "total_too_large": "All files together exceed 200 MB.",
-      "all_failed": "No file could be read successfully. Check the file format and try again."
+      "all_failed": "No file could be read successfully. Check the file format and try again.",
+      "apple_ecg": "Apple Health ECG raw data — contains voltage samples, not usable health metrics.",
+      "files_skipped": "Not added (limit reached): {files}"
     },
     "overlay": {
       "label": "WEARABLE DATA · PROCESSED LOCALLY",
@@ -455,6 +457,19 @@
       "type_apple": "Apple Health",
       "type_scan": "Scan / Doc.",
       "type_unknown": "?"
+    },
+    "review": {
+      "title": "Analysis complete",
+      "summary": "{success} of {total} successful",
+      "continue_btn": "Continue to questionnaire →",
+      "add_more": "Add more files",
+      "all_failed_warning": "No file could be read — you can still continue and fill in the questionnaire manually.",
+      "result_whoop": "{days} days of WHOOP data",
+      "result_apple": "{days} days of Apple Health",
+      "result_body_comp": "Body composition detected",
+      "result_sleep": "Sleep data detected",
+      "result_weight": "Weight data detected",
+      "result_generic": "Data successfully extracted"
     }
   },
   "results": {

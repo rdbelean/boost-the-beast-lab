@@ -424,9 +424,11 @@
       "heic_unsupported": "HEIC/HEIF wird nicht unterstützt. Exportiere das Bild als JPG oder PNG.",
       "low_confidence": "Die KI konnte in dieser Datei keine verlässlichen Gesundheitsdaten erkennen. Probier eine andere Datei — oder überspringe den Schritt.",
       "server_error": "Verarbeitung fehlgeschlagen. Bitte erneut versuchen.",
-      "too_many_files": "Maximal 10 Dateien erlaubt.",
+      "too_many_files": "Maximal 50 Dateien erlaubt.",
       "total_too_large": "Alle Dateien zusammen überschreiten 200 MB.",
-      "all_failed": "Keine Datei konnte erfolgreich ausgelesen werden. Prüfe das Dateiformat und versuche es erneut."
+      "all_failed": "Keine Datei konnte erfolgreich ausgelesen werden. Prüfe das Dateiformat und versuche es erneut.",
+      "apple_ecg": "EKG-Rohdaten (Apple Health) — enthält Herzstrom-Messwerte, aber keine auswertbaren Gesundheitsdaten.",
+      "files_skipped": "Nicht hinzugefügt (Limit erreicht): {files}"
     },
     "overlay": {
       "label": "WEARABLE-DATEN · LOKAL VERARBEITET",
@@ -455,6 +457,19 @@
       "type_apple": "Apple Health",
       "type_scan": "Scan / Dok.",
       "type_unknown": "?"
+    },
+    "review": {
+      "title": "Analyse abgeschlossen",
+      "summary": "{success} von {total} erfolgreich",
+      "continue_btn": "Weiter zum Fragebogen →",
+      "add_more": "Weitere Dateien hinzufügen",
+      "all_failed_warning": "Keine Datei konnte ausgelesen werden — du kannst trotzdem fortfahren und den Fragebogen manuell ausfüllen.",
+      "result_whoop": "{days} Tage WHOOP-Daten",
+      "result_apple": "{days} Tage Apple Health",
+      "result_body_comp": "Körperzusammensetzung erkannt",
+      "result_sleep": "Schlafdaten erkannt",
+      "result_weight": "Gewichtsdaten erkannt",
+      "result_generic": "Daten erfolgreich extrahiert"
     }
   },
   "results": {

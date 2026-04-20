@@ -34,6 +34,7 @@ interface FileEntry {
   detectedType: DetectedType;
   result?: WearableParseResult;
   errorMsg?: string;
+  groupId?: string;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -120,12 +121,15 @@ function PrepareContent() {
   const [files, setFiles] = useState<FileEntry[]>([]);
   const [dragActive, setDragActive] = useState(false);
 
+  // 3-phase flow state
+  const [hasProcessed, setHasProcessed] = useState(false);
+  const [showDropzone, setShowDropzone] = useState(true);
+  const [isContinuing, setIsContinuing] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const abortRef     = useRef<AbortController | null>(null);
 
   // webkitdirectory is non-standard — set imperatively after mount.
-  // With this attribute the native dialog allows both individual file
-  // selection (cmd+click) and full folder selection in Chrome/Safari/Edge.
   useEffect(() => {
     if (fileInputRef.current) {
       fileInputRef.current.setAttribute("webkitdirectory", "");
@@ -176,14 +180,13 @@ function PrepareContent() {
     const toAdd: FileEntry[] = [];
 
     for (const f of incoming) {
-      // Skip hidden/system files from folder drops
       if (f.name.startsWith(".") || f.name === "Thumbs.db") continue;
 
       const lower = f.name.toLowerCase();
       const zipFile = f.type === "application/zip" || lower.endsWith(".zip");
       const maxBytes = zipFile ? MAX_ZIP_BYTES : MAX_AI_BYTES;
 
-      if (f.size === 0) continue; // skip empty files silently
+      if (f.size === 0) continue;
 
       if (f.size > maxBytes) {
         setErrorMsg(zipFile
@@ -197,19 +200,32 @@ function PrepareContent() {
 
     if (toAdd.length === 0) return;
 
-    setFiles((prev) => {
-      const combined = [...prev, ...toAdd];
-      if (combined.length > MAX_FILES) {
-        setErrorMsg(t("errors.too_many_files"));
-        return prev.concat(toAdd.slice(0, MAX_FILES - prev.length));
-      }
-      const totalBytes = combined.reduce((s, e) => s + e.file.size, 0);
-      if (totalBytes > 200 * 1024 * 1024) {
-        setErrorMsg(t("errors.total_too_large"));
-        return prev; // reject entire batch if it blows the total
-      }
-      return combined;
-    });
+    const currentCount = files.length;
+    const available = MAX_FILES - currentCount;
+
+    if (available <= 0) {
+      const names = toAdd.map(e => e.file.name).slice(0, 3).join(", ")
+        + (toAdd.length > 3 ? ` +${toAdd.length - 3}` : "");
+      setErrorMsg(t("errors.files_skipped", { files: names }));
+      return;
+    }
+
+    const accepted = toAdd.slice(0, available);
+    const skipped  = toAdd.slice(available);
+
+    if (skipped.length > 0) {
+      const names = skipped.map(e => e.file.name).slice(0, 3).join(", ")
+        + (skipped.length > 3 ? ` +${skipped.length - 3}` : "");
+      setErrorMsg(t("errors.files_skipped", { files: names }));
+    }
+
+    const totalBytes = [...files, ...accepted].reduce((s, e) => s + e.file.size, 0);
+    if (totalBytes > 200 * 1024 * 1024) {
+      setErrorMsg(t("errors.total_too_large"));
+      return;
+    }
+
+    setFiles(prev => [...prev, ...accepted]);
   }
 
   function removeFile(id: string) {
@@ -220,13 +236,15 @@ function PrepareContent() {
   function clearAll() {
     setFiles([]);
     setErrorMsg(null);
+    setHasProcessed(false);
+    setShowDropzone(true);
   }
 
   // ── Input handlers ───────────────────────────────────────────────────────
   function handleFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(e.target.files ?? []);
     if (picked.length) addFiles(picked);
-    e.target.value = ""; // reset so same files can be re-added after removal
+    e.target.value = "";
   }
 
   async function handleDrop(e: React.DragEvent) {
@@ -235,7 +253,6 @@ function PrepareContent() {
     const extracted = await extractFromDataTransfer(e.dataTransfer.items);
     if (extracted.length > 0) addFiles(extracted);
     else {
-      // Fallback for browsers that don't support webkitGetAsEntry
       const plain = Array.from(e.dataTransfer.files);
       if (plain.length) addFiles(plain);
     }
@@ -245,6 +262,7 @@ function PrepareContent() {
   function errorLabel(err: Error): string {
     if (err instanceof UploadError) {
       const code = err.code;
+      if (code === "apple_ecg") return t("errors.apple_ecg");
       if (
         code === "empty_file" || code === "too_large" || code === "unknown_zip" ||
         code === "unsupported_format" || code === "heic_unsupported" ||
@@ -257,9 +275,26 @@ function PrepareContent() {
     return err.message;
   }
 
-  // ── Batch processing ─────────────────────────────────────────────────────
+  // ── Result description for review ────────────────────────────────────────
+  function resultDescription(entry: FileEntry): string {
+    const r = entry.result;
+    if (!r) return "";
+    const { source, days_covered, metrics } = r;
+    if (source === "whoop") return t("review.result_whoop", { days: days_covered });
+    if (source === "apple_health") return t("review.result_apple", { days: days_covered });
+    if (metrics.body?.body_fat_pct != null || metrics.body?.skeletal_muscle_kg != null)
+      return t("review.result_body_comp");
+    if (metrics.sleep?.avg_duration_hours != null) return t("review.result_sleep");
+    if (metrics.body?.last_weight_kg != null) return t("review.result_weight");
+    return t("review.result_generic");
+  }
+
+  // ── Batch processing (dispatch only) ────────────────────────────────────
   async function processFiles() {
-    const batchErr = validateBatch(files.map((e) => e.file));
+    const queuedEntries = files.filter(e => e.status === "queued");
+    if (queuedEntries.length === 0) return;
+
+    const batchErr = validateBatch(queuedEntries.map((e) => e.file));
     if (batchErr === "too_many_files") { setErrorMsg(t("errors.too_many_files")); return; }
     if (batchErr === "total_too_large") { setErrorMsg(t("errors.total_too_large")); return; }
 
@@ -270,21 +305,17 @@ function PrepareContent() {
     abortRef.current = new AbortController();
     const signal = abortRef.current.signal;
 
-    // Reset statuses to queued
-    setFiles((prev) => prev.map((e) => ({ ...e, status: "queued" as FileEntryStatus })));
-
+    const queuedIds = queuedEntries.map(e => e.id);
+    const total = queuedEntries.length;
     let finished = 0;
-    const total = files.length;
-    // Snapshot file IDs so index→id mapping doesn't drift during processing
-    const fileIds = files.map((e) => e.id);
 
     const batchResults: BatchFileResult[] = await batchDispatch(
-      files.map((e) => e.file),
+      queuedEntries.map((e) => e.file),
       {
         signal,
         onFileStart: (idx) => {
-          setCurrentFileLabel(files[idx]?.file.name ?? "");
-          const id = fileIds[idx];
+          setCurrentFileLabel(queuedEntries[idx]?.file.name ?? "");
+          const id = queuedIds[idx];
           setFiles((prev) =>
             prev.map((e) => e.id === id ? { ...e, status: "processing" } : e),
           );
@@ -298,7 +329,7 @@ function PrepareContent() {
           finished++;
           setDoneCount(finished);
           setOverallProgress(5 + (finished / total) * 80);
-          const id = fileIds[idx];
+          const id = queuedIds[idx];
           setFiles((prev) =>
             prev.map((e) => e.id === id ? { ...e, status: "done", result } : e),
           );
@@ -306,7 +337,7 @@ function PrepareContent() {
         onFileError: (idx, err) => {
           finished++;
           setDoneCount(finished);
-          const id = fileIds[idx];
+          const id = queuedIds[idx];
           setFiles((prev) =>
             prev.map((e) =>
               e.id === id ? { ...e, status: "error", errorMsg: errorLabel(err) } : e,
@@ -321,27 +352,42 @@ function PrepareContent() {
       return;
     }
 
-    // Deduplicate grouped WHOOP CSV results (all files in the group share the same result).
-    const seen = new Set<string>();
-    const uniqueSuccesses = batchResults.filter((r) => {
-      if (!r.result) return false;
-      if (!r.groupId) return true;
-      if (seen.has(r.groupId)) return false;
-      seen.add(r.groupId);
-      return true;
-    });
+    // Attach groupId to FileEntry for WHOOP CSV deduplication in handleContinue.
+    setFiles(prev => prev.map(e => {
+      const idx = queuedIds.indexOf(e.id);
+      if (idx === -1) return e;
+      const br = batchResults[idx];
+      return br?.groupId ? { ...e, groupId: br.groupId } : e;
+    }));
 
-    if (uniqueSuccesses.length === 0) {
-      setErrorMsg(t("errors.all_failed"));
-      setProcessing(false);
+    setProcessing(false);
+    setHasProcessed(true);
+    setShowDropzone(false);
+  }
+
+  // ── Continue: persist + navigate ─────────────────────────────────────────
+  async function handleContinue() {
+    const successEntries = files.filter(e => e.status === "done" && e.result);
+
+    if (successEntries.length === 0) {
+      goToAnalyse();
       return;
     }
 
-    setOverallProgress(88);
-    setCurrentFileLabel(t("parsing.saving"));
+    setIsContinuing(true);
+    setErrorMsg(null);
 
-    const successResults = uniqueSuccesses.map((r) => r.result!);
-    const successNames   = uniqueSuccesses.map((r) => r.file.name);
+    // Deduplicate WHOOP CSV group (all files share same groupId + same result).
+    const seen = new Set<string>();
+    const uniqueSuccesses = successEntries.filter(e => {
+      if (!e.groupId) return true;
+      if (seen.has(e.groupId)) return false;
+      seen.add(e.groupId);
+      return true;
+    });
+
+    const successResults = uniqueSuccesses.map(e => e.result!);
+    const successNames   = uniqueSuccesses.map(e => e.file.name);
 
     let persistPayload: Record<string, unknown>;
 
@@ -349,11 +395,11 @@ function PrepareContent() {
       persistPayload = { ...successResults[0] };
     } else {
       const merged = mergeWearableResults({ results: successResults, fileNames: successNames });
-      const latestEnd     = successResults.map((r) => r.window_end).sort().at(-1)  ?? new Date().toISOString().slice(0, 10);
-      const earliestStart = successResults.map((r) => r.window_start).sort().at(0) ?? latestEnd;
-      const maxDays       = Math.max(...successResults.map((r) => r.days_covered));
-      const totalBytes    = uniqueSuccesses.reduce((s, r) => s + r.file.size, 0);
-      const allWarnings   = successResults.flatMap((r) => r.parse_warnings);
+      const latestEnd     = successResults.map(r => r.window_end).sort().at(-1)  ?? new Date().toISOString().slice(0, 10);
+      const earliestStart = successResults.map(r => r.window_start).sort().at(0) ?? latestEnd;
+      const maxDays       = Math.max(...successResults.map(r => r.days_covered));
+      const totalBytes    = uniqueSuccesses.reduce((s, e) => s + e.file.size, 0);
+      const allWarnings   = successResults.flatMap(r => r.parse_warnings);
       void (([...new Set(successResults.map((r) => r.source))] as WearableSource[]));
 
       persistPayload = {
@@ -377,7 +423,6 @@ function PrepareContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(persistPayload),
-        signal,
       });
       const persistJson = (await persistRes.json().catch(() => null)) as {
         uploadId?: string;
@@ -390,26 +435,23 @@ function PrepareContent() {
         );
       }
 
-      setOverallProgress(100);
-
       const metricsToStore = successResults.length === 1
         ? successResults[0].metrics
         : mergeWearableResults({ results: successResults, fileNames: successNames });
 
       try {
         sessionStorage.setItem("btb_wearable", JSON.stringify({
-          uploadId:    persistJson.uploadId,
-          source:      persistPayload.source,
+          uploadId:     persistJson.uploadId,
+          source:       persistPayload.source,
           days_covered: persistPayload.days_covered,
-          metrics:     metricsToStore,
+          metrics:      metricsToStore,
         }));
       } catch { /**/ }
 
       goToAnalyse(persistJson.uploadId);
     } catch (err) {
-      if (signal.aborted) { setProcessing(false); return; }
       setErrorMsg(err instanceof Error ? err.message : t("errors.unknown"));
-      setProcessing(false);
+      setIsContinuing(false);
     }
   }
 
@@ -444,8 +486,11 @@ function PrepareContent() {
 
   if (!paymentChecked) return null;
 
-  const hasFiles  = files.length > 0;
-  const totalFiles = files.length;
+  const hasFiles    = files.length > 0;
+  const totalFiles  = files.length;
+  const queuedCount = files.filter(e => e.status === "queued").length;
+  const successCount = files.filter(e => e.status === "done").length;
+  const allFailed   = hasProcessed && successCount === 0;
 
   return (
     <div className={styles.page}>
@@ -496,6 +541,9 @@ function PrepareContent() {
                     <span>{formatBytes(entry.file.size)}</span>
                     {typeBadge(entry.detectedType)}
                   </div>
+                  {entry.status === "done" && entry.result && (
+                    <span className={styles.resultDesc}>{resultDescription(entry)}</span>
+                  )}
                   {entry.status === "error" && entry.errorMsg && (
                     <span className={styles.fileError}>{entry.errorMsg}</span>
                   )}
@@ -518,59 +566,99 @@ function PrepareContent() {
           </div>
         )}
 
-        {/* ── Drop zone ─────────────────────────────────────── */}
-        <div
-          className={`${styles.uploadZone} ${dragActive ? styles.uploadZoneActive : ""}`}
-          onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
-          onDragLeave={() => setDragActive(false)}
-          onDrop={handleDrop}
-        >
-          <svg
-            className={styles.uploadIcon}
-            width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden
+        {/* ── Drop zone (shown initially or after "add more") ── */}
+        {showDropzone && (
+          <div
+            className={`${styles.uploadZone} ${dragActive ? styles.uploadZoneActive : ""}`}
+            onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+            onDragLeave={() => setDragActive(false)}
+            onDrop={handleDrop}
           >
-            <path d="M20 28V12M12 20l8-8 8 8" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <rect x="6" y="30" width="28" height="4" rx="1" stroke="#E63222" strokeWidth="1.5" />
-          </svg>
-
-          <div className={styles.uploadLabel}>
-            {t("dropzone.title")}
-          </div>
-          <div className={styles.uploadHint}>{t("dropzone.subtitle")}</div>
-
-          {!hasFiles && (
-            <>
-              <div className={styles.uploadSupports}>{t("dropzone.supports")}</div>
-              <div className={styles.uploadMeta}>{t("dropzone.max_size")}</div>
-            </>
-          )}
-
-          <div className={styles.uploadBtnRow}>
-            <button
-              type="button"
-              className={styles.uploadBtn}
-              onClick={() => fileInputRef.current?.click()}
+            <svg
+              className={styles.uploadIcon}
+              width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden
             >
-              {t("dropzone.btn_select")}
-            </button>
+              <path d="M20 28V12M12 20l8-8 8 8" stroke="#E63222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <rect x="6" y="30" width="28" height="4" rx="1" stroke="#E63222" strokeWidth="1.5" />
+            </svg>
+
+            <div className={styles.uploadLabel}>
+              {t("dropzone.title")}
+            </div>
+            <div className={styles.uploadHint}>{t("dropzone.subtitle")}</div>
+
+            {!hasFiles && (
+              <>
+                <div className={styles.uploadSupports}>{t("dropzone.supports")}</div>
+                <div className={styles.uploadMeta}>{t("dropzone.max_size")}</div>
+              </>
+            )}
+
+            <div className={styles.uploadBtnRow}>
+              <button
+                type="button"
+                className={styles.uploadBtn}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {t("dropzone.btn_select")}
+              </button>
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className={styles.uploadInput}
+              onChange={handleFilesChange}
+            />
           </div>
+        )}
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            className={styles.uploadInput}
-            onChange={handleFilesChange}
-          />
-        </div>
-
-        {/* ── Process CTA ───────────────────────────────────── */}
-        {hasFiles && (
+        {/* ── Process CTA (when queued files exist) ─────────── */}
+        {queuedCount > 0 && !processing && (
           <button className={styles.processBtn} onClick={processFiles}>
-            {totalFiles === 1
+            {queuedCount === 1
               ? t("multi.process_btn_one")
-              : t("multi.process_btn_other", { count: totalFiles })}
+              : t("multi.process_btn_other", { count: queuedCount })}
           </button>
+        )}
+
+        {/* ── Review panel (after first analysis) ───────────── */}
+        {hasProcessed && !processing && (
+          <div className={styles.reviewSection}>
+            <div className={styles.reviewHeader}>
+              <span className={styles.reviewTitle}>{t("review.title")}</span>
+              <span className={`${styles.reviewSummary} ${allFailed ? styles.reviewSummaryFailed : ""}`}>
+                {t("review.summary", { success: successCount, total: totalFiles })}
+              </span>
+            </div>
+
+            {allFailed && (
+              <div className={styles.allFailedWarning}>
+                {t("review.all_failed_warning")}
+              </div>
+            )}
+
+            <button
+              className={styles.continueBtn}
+              onClick={handleContinue}
+              disabled={isContinuing}
+            >
+              {isContinuing
+                ? <><span className={styles.spinner} aria-hidden /> &nbsp;</>
+                : null}
+              {t("review.continue_btn")}
+            </button>
+
+            {!showDropzone && (
+              <button
+                className={styles.addMoreLink}
+                onClick={() => setShowDropzone(true)}
+              >
+                {t("review.add_more")}
+              </button>
+            )}
+          </div>
         )}
 
         <button className={styles.skipLink} onClick={handleSkip}>

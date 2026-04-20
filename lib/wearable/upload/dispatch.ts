@@ -16,6 +16,7 @@ import {
   parseAppleHealthZip,
   AppleHealthParseError,
 } from "@/lib/wearable/apple/parser";
+import { isAppleHealthEcgCsv } from "@/lib/wearable/detection/apple-ecg";
 import type { WearableParseResult } from "@/lib/wearable/types";
 
 export class UploadError extends Error {
@@ -28,6 +29,7 @@ export class UploadError extends Error {
       | "unknown_zip"
       | "heic_unsupported"
       | "low_confidence"
+      | "apple_ecg"
       | "server_error",
   ) {
     super(message);
@@ -124,6 +126,14 @@ export async function dispatchAnyFile(
     throw new UploadError(
       "HEIC/HEIF images are not supported; export as JPG or PNG",
       "heic_unsupported",
+    );
+  }
+
+  // Apple Health ECG CSVs contain raw 500 Hz voltage samples — not health metrics.
+  if ((lower.endsWith(".csv") || lower.endsWith(".txt")) && await isAppleHealthEcgCsv(file)) {
+    throw new UploadError(
+      "Apple Health ECG raw data — not useful for health metrics",
+      "apple_ecg",
     );
   }
 
