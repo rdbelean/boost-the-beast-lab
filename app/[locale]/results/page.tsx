@@ -4,6 +4,9 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "./results.module.css";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import DataInsightBlock from "@/components/results/DataInsightBlock";
+import { generateDataInsights, type DataInsights } from "@/lib/reports/data-insights";
+import type { MergedWearableMetrics } from "@/lib/wearable/types";
 
 /* ─── Animated Counter ──────────────────────────────────────── */
 function useCountUp(target: number, duration = 1600) {
@@ -121,6 +124,7 @@ export default function ResultsPage() {
   const [pdfRetrying, setPdfRetrying] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [dataInsights, setDataInsights] = useState<DataInsights | null>(null);
   const [saveEmail, setSaveEmail] = useState("");
   const [saveCode, setSaveCode] = useState("");
   const [saveSending, setSaveSending] = useState(false);
@@ -219,6 +223,15 @@ export default function ResultsPage() {
       setAssessmentId(data.assessmentId ?? null);
     } catch {
       setError("Ergebnisse konnten nicht geladen werden.");
+    }
+    try {
+      const wRaw = sessionStorage.getItem("btb_wearable");
+      if (wRaw) {
+        const w = JSON.parse(wRaw) as { metrics: MergedWearableMetrics };
+        if (w.metrics) setDataInsights(generateDataInsights(w.metrics));
+      }
+    } catch {
+      // wearable data is optional — silently skip
     }
   }, []);
 
@@ -615,6 +628,12 @@ export default function ResultsPage() {
                     <div className={styles.scoreCardBarFill} style={{ width: `${entry.score}%`, background: c, animationDelay: `${0.2 + i * 0.1}s` }} />
                   </div>
                   <div className={styles.scoreCardDesc}>{entry.desc}</div>
+                  {dataInsights?.[entry.key as keyof DataInsights] && (
+                    <DataInsightBlock
+                      dimension={entry.key as "sleep" | "activity" | "vo2max" | "metabolic" | "stress"}
+                      rows={dataInsights[entry.key as keyof DataInsights]!}
+                    />
+                  )}
                 </div>
               );
             })}

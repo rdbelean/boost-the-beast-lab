@@ -841,11 +841,20 @@ function buildDisclaimer(
 
 // ── Main export ────────────────────────────────────────────────────────────
 
+export interface PdfWearableRows {
+  activity?: Array<[string, string]>;
+  sleep?: Array<[string, string]>;
+  vo2max?: Array<[string, string]>;
+  metabolic?: Array<[string, string]>;
+  stress?: Array<[string, string]>;
+}
+
 export async function generatePDF(
   content: PdfReportContent,
   scores: PdfScores,
   user: PdfUserProfile,
   locale: Locale = "de",
+  wearableRows?: PdfWearableRows,
 ): Promise<Uint8Array> {
   currentLocale = locale;
   const L = PDF_LABELS[locale];
@@ -875,6 +884,8 @@ export async function generatePDF(
   buildSummary(doc, content, scores, user, f, today);
 
   // Pages 3–7 — Module pages
+  const wr = wearableRows ?? {};
+
   buildModule(doc, "ACTIVITY", scores.activity.score, scores.activity.band,
     content.modules.activity,
     [
@@ -885,6 +896,7 @@ export async function generatePDF(
       ...(scores.sitting_hours != null
         ? [[L.sittingKey, `${scores.sitting_hours} h`] as [string, string]]
         : []),
+      ...(wr.activity ?? []),
     ],
     f, today,
   );
@@ -894,6 +906,7 @@ export async function generatePDF(
     [
       [L.sleepDuration, L.sleepDurationValue(scores.sleep_duration_hours)],
       [L.recoveryScore, `${scores.recovery.score} / 100`],
+      ...(wr.sleep ?? []),
     ],
     f, today,
   );
@@ -903,6 +916,7 @@ export async function generatePDF(
     [
       [L.vo2Estimated, `${scores.vo2max.estimated} ml/kg/min`],
       [L.fitnessLevel, tx(scores.vo2max.band).toUpperCase()],
+      ...(wr.vo2max ?? []),
     ],
     f, today,
   );
@@ -912,6 +926,7 @@ export async function generatePDF(
     [
       [L.bmiKey, `${user.bmi} kg/m2`],
       [L.bmiCategory, tx(user.bmi_category)],
+      ...(wr.metabolic ?? []),
     ],
     f, today,
   );
@@ -922,6 +937,7 @@ export async function generatePDF(
       [L.stressBand, tx(scores.stress.band).toUpperCase()],
       [L.actionNeed, scores.stress.score < 40 ? L.actionHigh : scores.stress.score < 65 ? L.actionModerate : L.actionLow],
       [L.recoveryScore, `${scores.recovery.score} / 100`],
+      ...(wr.stress ?? []),
     ],
     f, today,
   );

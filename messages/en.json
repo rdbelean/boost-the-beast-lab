@@ -626,6 +626,35 @@
         "cta": "GO TO STRESS PLAN"
       }
     },
+    "data_insights": {
+      "section_title": "FROM YOUR DATA",
+      "sleep": {
+        "duration": "Avg. Sleep Duration",
+        "efficiency": "Sleep Efficiency",
+        "deep_sleep": "Deep Sleep",
+        "rem": "REM Sleep",
+        "wakeups": "Avg. Wakeups"
+      },
+      "activity": {
+        "steps": "Avg. Steps/Day",
+        "strain": "Avg. Strain",
+        "active_kcal": "Avg. Active kcal"
+      },
+      "stress": {
+        "hrv": "Avg. HRV",
+        "rhr": "Avg. Resting HR",
+        "whoop_recovery": "Avg. Recovery"
+      },
+      "vo2max": {
+        "value": "VO2max (measured)"
+      },
+      "metabolic": {
+        "bmi": "BMI",
+        "body_fat": "Body Fat",
+        "skeletal_muscle": "Skeletal Muscle Mass",
+        "weight": "Body Weight"
+      }
+    },
     "urgency": {
       "critical": "CRITICAL",
       "action": "ACTION NEEDED",

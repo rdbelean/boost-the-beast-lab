@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
-import { generatePDF, type PdfReportContent } from "@/lib/pdf/generateReport";
+import { generatePDF, type PdfReportContent, type PdfWearableRows } from "@/lib/pdf/generateReport";
 import { sendReportEmail } from "@/lib/email/sendReport";
 import type { Locale } from "@/lib/supabase/types";
 import {
@@ -926,6 +926,7 @@ export async function POST(req: NextRequest) {
     const dataSources = assessment.data_sources as
       | { form?: true; whoop?: { days: number; upload_id?: string }; apple_health?: { days: number; upload_id?: string } }
       | null;
+    let pdfWearableRows: PdfWearableRows | undefined;
     if (dataSources?.whoop || dataSources?.apple_health) {
       const source = dataSources.whoop ? "whoop" : "apple_health";
       const { data: wUp } = await supabase
@@ -965,6 +966,45 @@ export async function POST(req: NextRequest) {
           vo2max: m.vo2max ? { measured_ml_kg_min: m.vo2max.last_value } : undefined,
           body: m.body ? { weight_kg: m.body.last_weight_kg } : undefined,
         };
+
+        // Build localized PDF stat-box rows from raw wearable metrics.
+        const isDE = locale === "de";
+        const wLabels = isDE
+          ? { dur: "Ø Schlafdauer", eff: "Schlafeffizienz", deep: "Tiefschlaf", rem: "REM", steps: "Ø Schritte", strain: "Ø Strain", kcal: "Ø Aktiv-kcal", hrv: "Ø HRV", rhr: "Ø Ruhepuls", rec: "Ø Recovery", vo2: "VO2max", bmi: "BMI", fat: "Körperfett", muscle: "Muskelmasse" }
+          : { dur: "Avg Sleep", eff: "Sleep Eff.", deep: "Deep Sleep", rem: "REM", steps: "Avg Steps", strain: "Avg Strain", kcal: "Active kcal", hrv: "Avg HRV", rhr: "Avg RHR", rec: "Avg Recovery", vo2: "VO2max", bmi: "BMI", fat: "Body Fat", muscle: "Muscle Mass" };
+        pdfWearableRows = {};
+        if (m.sleep) {
+          const sr: Array<[string, string]> = [];
+          if (m.sleep.avg_duration_hours != null) sr.push([wLabels.dur, `${m.sleep.avg_duration_hours.toFixed(1)} h`]);
+          if (m.sleep.avg_efficiency_pct != null) sr.push([wLabels.eff, `${Math.round(m.sleep.avg_efficiency_pct)}%`]);
+          if (m.sleep.avg_deep_sleep_min != null) sr.push([wLabels.deep, `${Math.round(m.sleep.avg_deep_sleep_min)} min`]);
+          if (m.sleep.avg_rem_min != null) sr.push([wLabels.rem, `${Math.round(m.sleep.avg_rem_min)} min`]);
+          if (sr.length) pdfWearableRows.sleep = sr;
+        }
+        if (m.activity) {
+          const ar: Array<[string, string]> = [];
+          if (m.activity.avg_steps != null) ar.push([wLabels.steps, Math.round(m.activity.avg_steps).toString()]);
+          if (m.activity.avg_strain != null) ar.push([wLabels.strain, m.activity.avg_strain.toFixed(1)]);
+          if (m.activity.avg_active_kcal != null) ar.push([wLabels.kcal, Math.round(m.activity.avg_active_kcal).toString()]);
+          if (ar.length) pdfWearableRows.activity = ar;
+        }
+        if (m.recovery) {
+          const rr: Array<[string, string]> = [];
+          if (m.recovery.avg_hrv_ms != null) rr.push([wLabels.hrv, `${Math.round(m.recovery.avg_hrv_ms)} ms`]);
+          if (m.recovery.avg_rhr_bpm != null) rr.push([wLabels.rhr, `${Math.round(m.recovery.avg_rhr_bpm)} bpm`]);
+          if (m.recovery.avg_score != null) rr.push([wLabels.rec, `${Math.round(m.recovery.avg_score)}%`]);
+          if (rr.length) pdfWearableRows.stress = rr;
+        }
+        if (m.vo2max?.last_value != null) {
+          pdfWearableRows.vo2max = [[wLabels.vo2, `${m.vo2max.last_value.toFixed(1)} ml/kg/min`]];
+        }
+        if (m.body) {
+          const br: Array<[string, string]> = [];
+          if (m.body.bmi != null) br.push([wLabels.bmi, m.body.bmi.toFixed(1)]);
+          if (m.body.body_fat_pct != null) br.push([wLabels.fat, `${m.body.body_fat_pct.toFixed(1)}%`]);
+          if (m.body.skeletal_muscle_kg != null) br.push([wLabels.muscle, `${m.body.skeletal_muscle_kg.toFixed(1)} kg`]);
+          if (br.length) pdfWearableRows.metabolic = br;
+        }
       }
     }
 
@@ -1120,6 +1160,7 @@ export async function POST(req: NextRequest) {
           bmi_category: bmiCategory,
         },
         locale,
+        pdfWearableRows,
       );
     } catch (pdfErr) {
       const pdfErrMsg = pdfErr instanceof Error ? pdfErr.message : String(pdfErr);

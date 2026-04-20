@@ -706,8 +706,8 @@ function AnalyseContent() {
               style={{
                 padding: "14px 18px",
                 margin: "28px 0 0",
-                borderLeft: "3px solid var(--accent)",
-                background: "rgba(230, 50, 34, 0.06)",
+                borderLeft: "3px solid rgb(74, 222, 128)",
+                background: "rgba(74, 222, 128, 0.06)",
                 borderRadius: 2,
                 display: "flex",
                 alignItems: "flex-start",
@@ -724,8 +724,8 @@ function AnalyseContent() {
                   width: 22,
                   height: 22,
                   borderRadius: "50%",
-                  background: "var(--accent)",
-                  color: "#fff",
+                  background: "rgb(74, 222, 128)",
+                  color: "#111",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -752,7 +752,7 @@ function AnalyseContent() {
                 <span
                   style={{
                     fontFamily: "var(--font-jetbrains-mono), monospace",
-                    color: "var(--accent)",
+                    color: "rgb(134, 239, 172)",
                     fontSize: 12,
                     letterSpacing: "0.04em",
                   }}

@@ -626,6 +626,35 @@
         "cta": "ZUM STRESS-PLAN"
       }
     },
+    "data_insights": {
+      "section_title": "AUS DEINEN DATEN",
+      "sleep": {
+        "duration": "Ø Schlafdauer",
+        "efficiency": "Schlafeffizienz",
+        "deep_sleep": "Tiefschlaf",
+        "rem": "REM-Schlaf",
+        "wakeups": "Ø Weckungen"
+      },
+      "activity": {
+        "steps": "Ø Schritte/Tag",
+        "strain": "Ø Strain",
+        "active_kcal": "Ø Aktive kcal"
+      },
+      "stress": {
+        "hrv": "Ø HRV",
+        "rhr": "Ø Ruhepuls",
+        "whoop_recovery": "Ø Recovery"
+      },
+      "vo2max": {
+        "value": "VO2max (gemessen)"
+      },
+      "metabolic": {
+        "bmi": "BMI",
+        "body_fat": "Körperfett",
+        "skeletal_muscle": "Skelettmuskelmasse",
+        "weight": "Körpergewicht"
+      }
+    },
     "urgency": {
       "critical": "KRITISCH",
       "action": "HANDLUNGSBEDARF",
