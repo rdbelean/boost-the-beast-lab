@@ -193,16 +193,28 @@
       "4": "ERNÄHRUNG, STRESS & LIFESTYLE"
     },
     "q": {
-      "age_sex": { "label": "ALTER & GESCHLECHT" },
-      "age": { "input_label": "Alter", "unit": "JAHRE", "placeholder": "28" },
+      "age_sex": {
+        "label": "ALTER & GESCHLECHT"
+      },
+      "age": {
+        "input_label": "Alter",
+        "unit": "JAHRE",
+        "placeholder": "28"
+      },
       "sex": {
         "label": "Geschlecht",
         "maennlich": "Männlich",
         "weiblich": "Weiblich",
         "divers": "Divers"
       },
-      "height": { "label": "KÖRPERGRÖSSE", "input": "Größe" },
-      "weight": { "label": "KÖRPERGEWICHT", "input": "Gewicht" },
+      "height": {
+        "label": "KÖRPERGRÖSSE",
+        "input": "Größe"
+      },
+      "weight": {
+        "label": "KÖRPERGEWICHT",
+        "input": "Gewicht"
+      },
       "fruit_veg": {
         "label": "GEMÜSE ODER OBST PRO WOCHE",
         "fast_jede": "Bei fast jeder Mahlzeit (18–21 pro Woche)",
@@ -228,8 +240,12 @@
         "yoga": "Yoga / Mobility",
         "gemischt": "Gemischt"
       },
-      "moderate_duration": { "label": "MINUTEN PRO MODERATER TRAININGSEINHEIT" },
-      "intense_duration": { "label": "MINUTEN PRO INTENSIVER TRAININGSEINHEIT" },
+      "moderate_duration": {
+        "label": "MINUTEN PRO MODERATER TRAININGSEINHEIT"
+      },
+      "intense_duration": {
+        "label": "MINUTEN PRO INTENSIVER TRAININGSEINHEIT"
+      },
       "duration_options": {
         "lt20": "< 20 Min",
         "20_30": "20–30 Min",
@@ -244,9 +260,19 @@
         "4_6": "4–6 Stunden",
         "gt6": "> 6 Stunden"
       },
-      "steps_q": { "label": "TÄGLICHE SCHRITTZAHL (Durchschnitt)", "input": "Schritte pro Tag", "unit": " Schritte" },
-      "sitting": { "label": "TÄGLICHE SITZZEIT", "input": "Stunden sitzen pro Tag" },
-      "sleep_duration": { "label": "DURCHSCHNITTLICHE SCHLAFDAUER", "input": "Stunden Schlaf pro Nacht" },
+      "steps_q": {
+        "label": "TÄGLICHE SCHRITTZAHL (Durchschnitt)",
+        "input": "Schritte pro Tag",
+        "unit": " Schritte"
+      },
+      "sitting": {
+        "label": "TÄGLICHE SITZZEIT",
+        "input": "Stunden sitzen pro Tag"
+      },
+      "sleep_duration": {
+        "label": "DURCHSCHNITTLICHE SCHLAFDAUER",
+        "input": "Stunden Schlaf pro Nacht"
+      },
       "sleep_quality": {
         "label": "SUBJEKTIVE SCHLAFQUALITÄT",
         "sehr_schlecht": "Sehr schlecht",
@@ -279,7 +305,10 @@
         "30_60": "30–60 Minuten",
         "gt60": "> 60 Minuten"
       },
-      "water": { "label": "TÄGLICHER WASSERKONSUM", "input": "Liter Wasser pro Tag" },
+      "water": {
+        "label": "TÄGLICHER WASSERKONSUM",
+        "input": "Liter Wasser pro Tag"
+      },
       "stress": {
         "label": "ALLGEMEINES STRESSLEVEL",
         "sehr_gering": "Sehr gering",
@@ -339,7 +368,8 @@
       "title": "ZIEHE DEINE DATEI HIER",
       "subtitle": "oder klicken, um auszuwählen",
       "supports": "WHOOP · Apple Health · InBody · DEXA · Garmin · PDF · Bild · CSV",
-      "max_size": "bis 15 MB · alle gängigen Formate"
+      "max_size": "bis 15 MB · alle gängigen Formate",
+      "title_with_files": "WEITERE DATEI HINZUFÜGEN"
     },
     "privacy_banner": {
       "strong": "Deine Daten bleiben bei dir.",
@@ -393,14 +423,30 @@
       "unsupported_format": "Dieses Dateiformat wird nicht unterstützt. Unterstützt: PDF, JPG, PNG, WEBP, CSV, TXT, JSON, ZIP.",
       "heic_unsupported": "HEIC/HEIF wird nicht unterstützt. Exportiere das Bild als JPG oder PNG.",
       "low_confidence": "Die KI konnte in dieser Datei keine verlässlichen Gesundheitsdaten erkennen. Probier eine andere Datei — oder überspringe den Schritt.",
-      "server_error": "Verarbeitung fehlgeschlagen. Bitte erneut versuchen."
+      "server_error": "Verarbeitung fehlgeschlagen. Bitte erneut versuchen.",
+      "too_many_files": "Maximal 10 Dateien erlaubt.",
+      "total_too_large": "Alle Dateien zusammen überschreiten 200 MB.",
+      "all_failed": "Keine Datei konnte erfolgreich ausgelesen werden. Prüfe das Dateiformat und versuche es erneut."
     },
     "overlay": {
       "label": "WEARABLE-DATEN · LOKAL VERARBEITET",
       "title_1": "DEINE DATEN",
       "title_2": "WERDEN ANALYSIERT.",
       "reassurance": "Alles läuft lokal in deinem Browser — die ZIP wird nicht hochgeladen, nur die Durchschnittswerte.",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "title_batch_1": "{current} / {total}",
+      "title_batch_2": "DATEIEN ANALYSIERT.",
+      "current_file": "Aktuelle Datei:"
+    },
+    "multi": {
+      "add_btn": "Datei hinzufügen",
+      "process_btn_one": "1 Datei analysieren →",
+      "process_btn_other": "{count} Dateien analysieren →",
+      "remove": "Entfernen",
+      "status_queued": "Wartend",
+      "status_processing": "Analysiere...",
+      "status_done": "Fertig",
+      "status_error": "Fehler"
     }
   },
   "results": {
@@ -437,13 +483,32 @@
     "hero_title": "OVERALL PERFORMANCE SCORE",
     "subscores_label": "SUBSCORES IM DETAIL",
     "score_entries": {
-      "activity": { "label": "ACTIVITY PERFORMANCE", "desc": "{met} MET-min/Woche · IPAQ Kategorie: {category}" },
-      "sleep": { "label": "SLEEP & RECOVERY", "desc": "Schlafdauer: {duration} · Qualität: {quality}" },
-      "vo2max": { "label": "VO2MAX FITNESS", "desc": "Geschätzter VO2max: {vo2} ml/kg/min · Band: {band}" },
-      "metabolic": { "label": "METABOLIC HEALTH", "desc": "BMI: {bmi} ({category}) · Band: {band}" },
-      "stress": { "label": "STRESS & LIFESTYLE", "desc": "Stress-Band: {band}" }
+      "activity": {
+        "label": "ACTIVITY PERFORMANCE",
+        "desc": "{met} MET-min/Woche · IPAQ Kategorie: {category}"
+      },
+      "sleep": {
+        "label": "SLEEP & RECOVERY",
+        "desc": "Schlafdauer: {duration} · Qualität: {quality}"
+      },
+      "vo2max": {
+        "label": "VO2MAX FITNESS",
+        "desc": "Geschätzter VO2max: {vo2} ml/kg/min · Band: {band}"
+      },
+      "metabolic": {
+        "label": "METABOLIC HEALTH",
+        "desc": "BMI: {bmi} ({category}) · Band: {band}"
+      },
+      "stress": {
+        "label": "STRESS & LIFESTYLE",
+        "desc": "Stress-Band: {band}"
+      }
     },
-    "badges": { "good": "GUT", "medium": "MITTEL", "low": "NIEDRIG" },
+    "badges": {
+      "good": "GUT",
+      "medium": "MITTEL",
+      "low": "NIEDRIG"
+    },
     "derived_metrics_label": "DERIVED METRICS",
     "vo2max_card": {
       "label": "VO2MAX SCHÄTZUNG",
@@ -465,18 +530,46 @@
     },
     "sleep_detail_label": "SLEEP & RECOVERY — DETAILANALYSE",
     "sleep_detail": {
-      "duration": { "label": "SCHLAFDAUER", "desc": "Band: {band}" },
-      "quality": { "label": "SCHLAFQUALITÄT", "desc": "Subjektive Bewertung (PSQI-adaptiert)" },
-      "wakeup": { "label": "AUFWACHEN", "desc": "Nächtliche Unterbrechungen" },
-      "recovery": { "label": "ERHOLUNG", "desc": "Morgens-Erholungsgefühl" }
+      "duration": {
+        "label": "SCHLAFDAUER",
+        "desc": "Band: {band}"
+      },
+      "quality": {
+        "label": "SCHLAFQUALITÄT",
+        "desc": "Subjektive Bewertung (PSQI-adaptiert)"
+      },
+      "wakeup": {
+        "label": "AUFWACHEN",
+        "desc": "Nächtliche Unterbrechungen"
+      },
+      "recovery": {
+        "label": "ERHOLUNG",
+        "desc": "Morgens-Erholungsgefühl"
+      }
     },
     "plans": {
       "heading": "DEINE 4 INDIVIDUELLEN PLÄNE",
       "subtitle": "Personalisiert auf Basis deiner Scores — inklusive in deinem Paket. Jeder Plan enthält konkrete Protokolle, Wochenpläne und wissenschaftliche Empfehlungen.",
-      "activity": { "label": "ACTIVITY-PLAN", "desc": "Trainingsvolumen, Wochenplan & Progression nach WHO/ACSM-Standard", "cta": "ZUM ACTIVITY-PLAN" },
-      "metabolic": { "label": "METABOLIC-PLAN", "desc": "Ernährungs- & Hydrations-Protokoll nach EFSA- und DGE-Richtlinien", "cta": "ZUM METABOLIC-PLAN" },
-      "recovery": { "label": "RECOVERY-PLAN", "desc": "Schlaf-Hygiene, Regenerationsprotokoll & Wochenstruktur nach NSF", "cta": "ZUM RECOVERY-PLAN" },
-      "stress": { "label": "STRESS & LIFESTYLE-PLAN", "desc": "Stressreduktion, Lifestyle-Optimierung & Sport als Stress-Tool", "cta": "ZUM STRESS-PLAN" }
+      "activity": {
+        "label": "ACTIVITY-PLAN",
+        "desc": "Trainingsvolumen, Wochenplan & Progression nach WHO/ACSM-Standard",
+        "cta": "ZUM ACTIVITY-PLAN"
+      },
+      "metabolic": {
+        "label": "METABOLIC-PLAN",
+        "desc": "Ernährungs- & Hydrations-Protokoll nach EFSA- und DGE-Richtlinien",
+        "cta": "ZUM METABOLIC-PLAN"
+      },
+      "recovery": {
+        "label": "RECOVERY-PLAN",
+        "desc": "Schlaf-Hygiene, Regenerationsprotokoll & Wochenstruktur nach NSF",
+        "cta": "ZUM RECOVERY-PLAN"
+      },
+      "stress": {
+        "label": "STRESS & LIFESTYLE-PLAN",
+        "desc": "Stressreduktion, Lifestyle-Optimierung & Sport als Stress-Tool",
+        "cta": "ZUM STRESS-PLAN"
+      }
     },
     "urgency": {
       "critical": "KRITISCH",

@@ -8,9 +8,9 @@ export const runtime = "nodejs";
 export const maxDuration = 10;
 export const dynamic = "force-dynamic";
 
-// 32 KB is plenty — the aggregated WHOOP/Apple metrics JSON is ~3 KB.
-// Apple Health XML parsing happens client-side; only the aggregate lands here.
-const MAX_BODY_BYTES = 32 * 1024;
+// 64 KB covers single-file (~3 KB) and merged multi-source payloads with
+// full per-field provenance (~30 KB worst case for 10 files).
+const MAX_BODY_BYTES = 64 * 1024;
 
 const ALLOWED_SOURCES = new Set([
   "whoop",
@@ -18,10 +18,11 @@ const ALLOWED_SOURCES = new Set([
   "ai_document",
   "ai_image",
   "ai_text",
+  "merged",
 ]);
 
 interface PersistBody {
-  source: "whoop" | "apple_health" | "ai_document" | "ai_image" | "ai_text";
+  source: "whoop" | "apple_health" | "ai_document" | "ai_image" | "ai_text" | "merged";
   schema_version: string;
   window_start: string; // ISO date YYYY-MM-DD
   window_end: string;
@@ -30,6 +31,10 @@ interface PersistBody {
   file_size_bytes?: number;
   parse_duration_ms?: number;
   parse_warnings?: Array<{ code: string; message: string }>;
+  // Multi-source fields (only present when source === "merged").
+  total_files_count?: number;
+  source_files?: unknown;
+  merge_provenance?: unknown;
 }
 
 function isIsoDate(s: unknown): s is string {
@@ -155,6 +160,9 @@ export async function POST(req: NextRequest) {
         file_size_bytes: parsed.file_size_bytes ?? null,
         parse_duration_ms: parsed.parse_duration_ms ?? null,
         parse_warnings: parsed.parse_warnings ?? null,
+        total_files_count: parsed.total_files_count ?? null,
+        source_files: parsed.source_files ?? null,
+        merge_provenance: parsed.merge_provenance ?? null,
       })
       .select("id")
       .single();

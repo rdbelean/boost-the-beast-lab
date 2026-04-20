@@ -93,3 +93,27 @@ export interface WearableParseResult {
   parse_duration_ms: number;
   file_size_bytes: number;
 }
+
+// Per-field provenance entry — records which file/source a merged value came from.
+export interface FieldProvenance {
+  source: WearableSource;
+  file_name: string;
+  confidence: number; // 0..1; 1 for WHOOP/Apple (deterministic), <1 for AI
+}
+
+// Summary of what one source file contributed to the merged result.
+export interface SourceContribution {
+  type: WearableSource;
+  file_name: string;
+  records_count?: number;
+  date_range?: [string, string]; // [window_start, window_end]
+  fields_contributed: string[];
+}
+
+// Multi-source merged result — WearableMetrics + per-field provenance.
+// field_provenance is named to avoid collision with WearableMetrics.provenance
+// (which records the AI-parser source type/confidence).
+export type MergedWearableMetrics = WearableMetrics & {
+  field_provenance?: Record<string, FieldProvenance>;
+  sources_used?: SourceContribution[];
+};
