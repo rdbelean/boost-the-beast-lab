@@ -369,7 +369,10 @@
       "subtitle": "oder klicken, um auszuwählen",
       "supports": "WHOOP · Apple Health · InBody · DEXA · Garmin · PDF · Bild · CSV",
       "max_size": "bis 15 MB · alle gängigen Formate",
-      "title_with_files": "WEITERE DATEI HINZUFÜGEN"
+      "title_with_files": "WEITERE DATEI HINZUFÜGEN",
+      "btn_files": "Dateien auswählen",
+      "btn_folder": "Ordner auswählen",
+      "hint_folder": "oder Ordner hierher ziehen"
     },
     "privacy_banner": {
       "strong": "Deine Daten bleiben bei dir.",
@@ -447,6 +450,14 @@
       "status_processing": "Analysiere...",
       "status_done": "Fertig",
       "status_error": "Fehler"
+    },
+    "file_list": {
+      "header": "Hinzugefügte Dateien",
+      "clear_all": "Alle löschen",
+      "type_whoop": "WHOOP",
+      "type_apple": "Apple Health",
+      "type_scan": "Scan / Dok.",
+      "type_unknown": "?"
     }
   },
   "results": {

@@ -195,7 +195,7 @@
   color: rgba(245, 158, 11, 0.85);
 }
 
-/* ─── UPLOAD ZONE (single, standalone) ──────────────────────── */
+/* ─── UPLOAD ZONE ────────────────────────────────────────────── */
 .uploadZone {
   position: relative;
   display: flex;
@@ -203,19 +203,17 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  cursor: pointer;
-  padding: 64px 28px;
+  padding: 48px 28px 36px;
   margin: 0 auto 20px;
   max-width: 720px;
   border: 2px dashed rgba(230, 50, 34, 0.35);
   border-radius: 4px;
   background: rgba(230, 50, 34, 0.04);
-  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
 .uploadZone:hover {
-  border-color: var(--accent);
-  background: rgba(230, 50, 34, 0.08);
-  transform: translateY(-2px);
+  border-color: rgba(230, 50, 34, 0.6);
+  background: rgba(230, 50, 34, 0.06);
 }
 .uploadZoneActive {
   border-color: var(--accent);
@@ -268,7 +266,62 @@
   .uploadSupports { font-size: 10px; }
 }
 
+/* ─── UPLOAD BUTTONS INSIDE DROPZONE ───────────────────────── */
+.uploadBtnRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.uploadBtn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid rgba(230, 50, 34, 0.5);
+  border-radius: 3px;
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.uploadBtn:hover {
+  border-color: var(--accent);
+  background: rgba(230, 50, 34, 0.1);
+}
+
 /* ─── FILE LIST ─────────────────────────────────────────────── */
+/* ─── FILE LIST HEADER ──────────────────────────────────────── */
+.fileListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.fileListTitle {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.clearAllBtn {
+  background: none;
+  border: none;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 0;
+  transition: color 0.15s;
+}
+.clearAllBtn:hover { color: rgb(252, 165, 165); }
+
 .fileList {
   display: flex;
   flex-direction: column;
@@ -328,6 +381,24 @@
   margin-top: 2px;
 }
 
+/* ─── FILE TYPE BADGE ───────────────────────────────────────── */
+.typeBadge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-left: 6px;
+}
+.typeBadge_whoop_csv,
+.typeBadge_whoop_zip { background: rgba(99, 102, 241, 0.15); color: rgb(165, 180, 252); }
+.typeBadge_apple_zip { background: rgba(74, 222, 128, 0.12); color: rgb(134, 239, 172); }
+.typeBadge_ai_doc    { background: rgba(251, 191, 36, 0.12); color: rgb(252, 211, 77);  }
+.typeBadge_unknown   { background: rgba(255,255,255,0.06);   color: var(--text-muted);  }
+
 .fileStatus {
   flex-shrink: 0;
   width: 20px;
@@ -346,6 +417,14 @@
   font-weight: 700;
 }
 .fileStatus_error { color: rgb(252, 165, 165); font-size: 14px; }
+
+.queueDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+}
 
 .spinner {
   display: inline-block;
