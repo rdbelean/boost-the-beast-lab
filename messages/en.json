@@ -365,14 +365,11 @@
     "headline": "Sharper scores. From your data.",
     "subtitle": "Upload any file that has your numbers in it — WHOOP export, Apple Health export, InBody/DEXA/Tanita scan, Garmin CSV, fitness-app screenshot, gym PDF. Our AI reads it and pre-fills the questionnaire. Or skip this step — the questionnaire works without it.",
     "dropzone": {
-      "title": "DROP YOUR FILE HERE",
+      "title": "DROP YOUR FILES OR FOLDERS HERE",
       "subtitle": "or click to choose",
       "supports": "WHOOP · Apple Health · InBody · DEXA · Garmin · PDF · Image · CSV",
       "max_size": "up to 15 MB · any common format",
-      "title_with_files": "ADD ANOTHER FILE",
-      "btn_files": "Select files",
-      "btn_folder": "Select folder",
-      "hint_folder": "or drag a folder here"
+      "btn_select": "Select files or folder"
     },
     "privacy_banner": {
       "strong": "Your data stays yours.",

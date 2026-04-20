@@ -365,14 +365,11 @@
     "headline": "Präzisere Scores. Mit deinen Daten.",
     "subtitle": "Lade irgendeine Datei hoch, die Werte über dich enthält — WHOOP-Export, Apple-Health-Export, InBody-/DEXA-/Tanita-Scan, Garmin-CSV, Screenshot einer Fitness-App, Gym-PDF. Unsere KI liest sie aus und füllt den Fragebogen vor. Oder überspringe den Schritt — der Fragebogen funktioniert auch ohne.",
     "dropzone": {
-      "title": "ZIEHE DEINE DATEI HIER",
+      "title": "DATEIEN ODER ORDNER HIER ABLEGEN",
       "subtitle": "oder klicken, um auszuwählen",
       "supports": "WHOOP · Apple Health · InBody · DEXA · Garmin · PDF · Bild · CSV",
       "max_size": "bis 15 MB · alle gängigen Formate",
-      "title_with_files": "WEITERE DATEI HINZUFÜGEN",
-      "btn_files": "Dateien auswählen",
-      "btn_folder": "Ordner auswählen",
-      "hint_folder": "oder Ordner hierher ziehen"
+      "btn_select": "Dateien oder Ordner auswählen"
     },
     "privacy_banner": {
       "strong": "Deine Daten bleiben bei dir.",

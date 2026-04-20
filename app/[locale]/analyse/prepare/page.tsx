@@ -120,15 +120,16 @@ function PrepareContent() {
   const [files, setFiles] = useState<FileEntry[]>([]);
   const [dragActive, setDragActive] = useState(false);
 
-  const fileInputRef   = useRef<HTMLInputElement | null>(null);
-  const folderInputRef = useRef<HTMLInputElement | null>(null);
-  const abortRef       = useRef<AbortController | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const abortRef     = useRef<AbortController | null>(null);
 
-  // Set webkitdirectory imperatively — not a standard React prop.
+  // webkitdirectory is non-standard — set imperatively after mount.
+  // With this attribute the native dialog allows both individual file
+  // selection (cmd+click) and full folder selection in Chrome/Safari/Edge.
   useEffect(() => {
-    if (folderInputRef.current) {
-      folderInputRef.current.setAttribute("webkitdirectory", "");
-      folderInputRef.current.setAttribute("directory", "");
+    if (fileInputRef.current) {
+      fileInputRef.current.setAttribute("webkitdirectory", "");
+      fileInputRef.current.setAttribute("directory", "");
     }
   }, []);
 
@@ -533,11 +534,9 @@ function PrepareContent() {
           </svg>
 
           <div className={styles.uploadLabel}>
-            {hasFiles ? t("dropzone.title_with_files") : t("dropzone.title")}
+            {t("dropzone.title")}
           </div>
-          <div className={styles.uploadHint}>
-            {t("dropzone.hint_folder")}
-          </div>
+          <div className={styles.uploadHint}>{t("dropzone.subtitle")}</div>
 
           {!hasFiles && (
             <>
@@ -552,28 +551,12 @@ function PrepareContent() {
               className={styles.uploadBtn}
               onClick={() => fileInputRef.current?.click()}
             >
-              {t("dropzone.btn_files")}
-            </button>
-            <button
-              type="button"
-              className={styles.uploadBtn}
-              onClick={() => folderInputRef.current?.click()}
-            >
-              {t("dropzone.btn_folder")}
+              {t("dropzone.btn_select")}
             </button>
           </div>
 
-          {/* Hidden inputs — NOT inside a <label> to avoid triggering on zone click */}
           <input
             ref={fileInputRef}
-            type="file"
-            multiple
-            accept=".zip,application/zip,.pdf,application/pdf,image/jpeg,image/png,image/webp,image/gif,.csv,text/csv,.txt,text/plain,.json,application/json"
-            className={styles.uploadInput}
-            onChange={handleFilesChange}
-          />
-          <input
-            ref={folderInputRef}
             type="file"
             multiple
             className={styles.uploadInput}
