@@ -80,7 +80,8 @@ export type WearableSource =
   | "apple_health"
   | "ai_document"
   | "ai_image"
-  | "ai_text";
+  | "ai_text"
+  | "gpx";
 
 export interface WearableParseResult {
   source: WearableSource;

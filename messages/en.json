@@ -466,10 +466,42 @@
       "all_failed_warning": "No file could be read — you can still continue and fill in the questionnaire manually.",
       "result_whoop": "{days} days of WHOOP data",
       "result_apple": "{days} days of Apple Health",
+      "result_gpx": "{days} days of GPS training data",
       "result_body_comp": "Body composition detected",
       "result_sleep": "Sleep data detected",
       "result_weight": "Weight data detected",
-      "result_generic": "Data successfully extracted"
+      "result_generic": "Data successfully extracted",
+      "errors_section": "Rejected files ({count})",
+      "errors_show": "Show",
+      "errors_hide": "Hide"
+    },
+    "upload": {
+      "quality": {
+        "strong_title": "Strong data foundation",
+        "strong_message": "Your {sources} data covers {days} days. You're ready to go.",
+        "good_title": "Good foundation",
+        "good_message": "{days} days of {sources} data successfully processed.",
+        "good_recommendation": "For more precise body metrics, an InBody or DEXA scan would help.",
+        "minimal_title": "Foundation present",
+        "minimal_message": "You can continue — the report will rely heavily on your manual inputs.",
+        "minimal_recommendation": "Tip: upload a wearable export (WHOOP / Apple Health) for more precise scores.",
+        "none_title": "No data processed",
+        "none_message": "No problem — you can fill in the questionnaire entirely manually.",
+        "gpx_note": "+ {count} GPS sessions included"
+      },
+      "folder_intent": {
+        "apple_subfolder_detected": "Apple Health sub-folder detected",
+        "apple_ecg_description": "These are individual ECG recordings (raw voltage samples). They don't contain usable health metrics.",
+        "apple_gpx_description": "These are individual workout routes (GPS tracks). They can be used for activity data — but a full Health export gives you much more.",
+        "apple_mixed_description": "These are ECG recordings and workout routes. For a complete report we recommend the full export.",
+        "main_export_tip": "For a full Apple Health report, upload your main export:\n1. Apple Health app → Profile (top right)\n2. \"Export All Health Data\"\n3. Wait 2–5 min → you'll get an export.zip\n4. Upload that ZIP here — includes sleep, steps, HRV and more",
+        "process_anyway": "Process anyway",
+        "cancel_and_reupload": "Cancel and choose again"
+      },
+      "gpx": {
+        "workout_routes_detected": "{count} workout routes detected",
+        "summary": "{km} km over {sessions} sessions"
+      }
     }
   },
   "results": {

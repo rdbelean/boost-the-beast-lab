@@ -16,6 +16,7 @@ import {
   AppleHealthParseError,
 } from "./dispatch";
 import { parseWhoopCsvFiles } from "../whoop/parser";
+import { parseGpxFiles } from "../gpx/parser";
 import type { WearableParseResult } from "../types";
 
 export const MAX_FILES = 50;
@@ -35,6 +36,10 @@ const WHOOP_CSV_NAMES = new Set([
 
 export function isWhoopCsv(file: File): boolean {
   return WHOOP_CSV_NAMES.has(file.name.toLowerCase());
+}
+
+export function isGpxFile(file: File): boolean {
+  return file.name.toLowerCase().endsWith(".gpx");
 }
 
 export type BatchFileStatus = "queued" | "processing" | "done" | "error";
@@ -86,6 +91,7 @@ export function validateBatch(files: File[]): string | null {
 }
 
 const WHOOP_CSV_GROUP_ID = "whoop_csvs";
+const GPX_GROUP_ID = "gpx_tracks";
 
 export async function batchDispatch(
   files: File[],
@@ -94,11 +100,13 @@ export async function batchDispatch(
   const { signal, onFileStart, onFilePhase, onFileProgress, onFileDone, onFileError } = opts;
   const aiSem = new Semaphore(AI_CONCURRENCY);
 
-  // Partition files: WHOOP CSVs get grouped; everything else is dispatched individually.
+  // Partition files: WHOOP CSVs and GPX files are grouped; everything else is individual.
   const whoopIndices: number[] = [];
+  const gpxIndices:   number[] = [];
   const otherIndices: number[] = [];
   files.forEach((f, i) => {
     if (isWhoopCsv(f)) whoopIndices.push(i);
+    else if (isGpxFile(f)) gpxIndices.push(i);
     else otherIndices.push(i);
   });
 
@@ -126,6 +134,33 @@ export async function batchDispatch(
         const e = err instanceof Error ? err : new Error(String(err));
         whoopIndices.forEach((idx) => {
           results[idx] = { file: files[idx], result: null, error: e, groupId: WHOOP_CSV_GROUP_ID };
+          onFileError?.(idx, e);
+        });
+      }
+    });
+  }
+
+  // ── GPX group ──────────────────────────────────────────────────────────────
+  if (gpxIndices.length > 0) {
+    tasks.push(async () => {
+      if (signal?.aborted) {
+        gpxIndices.forEach((idx) => {
+          results[idx] = { file: files[idx], result: null, error: new Error("aborted"), groupId: GPX_GROUP_ID };
+        });
+        return;
+      }
+      gpxIndices.forEach((idx) => onFileStart?.(idx));
+      try {
+        const gpxFiles = gpxIndices.map((i) => files[i]);
+        const result = await parseGpxFiles(gpxFiles);
+        gpxIndices.forEach((idx) => {
+          results[idx] = { file: files[idx], result, error: null, groupId: GPX_GROUP_ID };
+          onFileDone?.(idx, result);
+        });
+      } catch (err) {
+        const e = err instanceof Error ? err : new Error(String(err));
+        gpxIndices.forEach((idx) => {
+          results[idx] = { file: files[idx], result: null, error: e, groupId: GPX_GROUP_ID };
           onFileError?.(idx, e);
         });
       }

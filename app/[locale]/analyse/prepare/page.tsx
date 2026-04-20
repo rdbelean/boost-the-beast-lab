@@ -14,18 +14,23 @@ import {
   batchDispatch,
   validateBatch,
   isWhoopCsv,
+  isGpxFile,
   MAX_FILES,
   MAX_ZIP_BYTES,
   MAX_AI_BYTES,
   type BatchFileResult,
 } from "@/lib/wearable/upload/batch";
 import { mergeWearableResults } from "@/lib/wearable/aggregation/merge";
+import { detectFolderIntent, type FolderIntentResult } from "@/lib/wearable/detection/folder-intent";
+import { assessDataQuality } from "@/lib/wearable/assessment/data-quality";
+import DataQualityBadge from "@/components/analyse/wearable/DataQualityBadge";
+import FolderIntentWarning from "@/components/analyse/wearable/FolderIntentWarning";
 import type { WearableParseResult, WearableSource } from "@/lib/wearable/types";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
 type FileEntryStatus = "queued" | "processing" | "done" | "error";
-type DetectedType = "whoop_csv" | "whoop_zip" | "apple_zip" | "ai_doc" | "unknown";
+type DetectedType = "whoop_csv" | "whoop_zip" | "apple_zip" | "gpx" | "ai_doc" | "unknown";
 
 interface FileEntry {
   id: string;
@@ -42,6 +47,7 @@ interface FileEntry {
 function detectType(file: File): DetectedType {
   const lower = file.name.toLowerCase();
   if (isWhoopCsv(file)) return "whoop_csv";
+  if (isGpxFile(file)) return "gpx";
   if (lower.endsWith(".zip")) {
     if (lower.includes("whoop")) return "whoop_zip";
     if (lower.includes("export") || lower.includes("apple")) return "apple_zip";
@@ -57,6 +63,7 @@ function fileIcon(file: File): string {
   const lower = file.name.toLowerCase();
   if (lower.endsWith(".zip")) return "📦";
   if (lower.endsWith(".pdf")) return "📄";
+  if (lower.endsWith(".gpx")) return "🗺";
   if (lower.match(/\.(jpe?g|png|webp|gif)$/)) return "🖼";
   if (lower.match(/\.(csv|txt)$/)) return "📊";
   return "📎";
@@ -67,8 +74,6 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-// Recursively collect all File objects from a drag-drop DataTransferItemList,
-// including files inside dropped folders.
 async function extractFromDataTransfer(items: DataTransferItemList): Promise<File[]> {
   const files: File[] = [];
 
@@ -80,7 +85,6 @@ async function extractFromDataTransfer(items: DataTransferItemList): Promise<Fil
       files.push(file);
     } else if (entry.isDirectory) {
       const reader = (entry as FileSystemDirectoryEntry).createReader();
-      // readEntries may return results in batches — keep reading until empty.
       let batch: FileSystemEntry[];
       do {
         batch = await new Promise<FileSystemEntry[]>((res) =>
@@ -103,6 +107,14 @@ async function extractFromDataTransfer(items: DataTransferItemList): Promise<Fil
 let idSeq = 0;
 function newId() { return `fe${++idSeq}`; }
 
+// ── Status sort order ──────────────────────────────────────────────────────
+const STATUS_ORDER: Record<FileEntryStatus, number> = {
+  done:       0,
+  processing: 1,
+  queued:     1,
+  error:      2,
+};
+
 // ── Component ──────────────────────────────────────────────────────────────
 
 function PrepareContent() {
@@ -121,15 +133,19 @@ function PrepareContent() {
   const [files, setFiles] = useState<FileEntry[]>([]);
   const [dragActive, setDragActive] = useState(false);
 
-  // 3-phase flow state
+  // 3-phase flow
   const [hasProcessed, setHasProcessed] = useState(false);
   const [showDropzone, setShowDropzone] = useState(true);
   const [isContinuing, setIsContinuing] = useState(false);
+  const [showErrors, setShowErrors] = useState(true);
+
+  // Folder-intent pre-flight
+  const [pendingRawFiles, setPendingRawFiles] = useState<File[] | null>(null);
+  const [folderIntent, setFolderIntent] = useState<FolderIntentResult | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const abortRef     = useRef<AbortController | null>(null);
 
-  // webkitdirectory is non-standard — set imperatively after mount.
   useEffect(() => {
     if (fileInputRef.current) {
       fileInputRef.current.setAttribute("webkitdirectory", "");
@@ -174,27 +190,23 @@ function PrepareContent() {
     goToAnalyse();
   }
 
-  // ── File queue management ───────────────────────────────────────────────
-  function addFiles(incoming: File[]) {
+  // ── Core file-add logic (runs after intent check) ───────────────────────
+  function processAddFiles(incoming: File[]) {
     setErrorMsg(null);
     const toAdd: FileEntry[] = [];
 
     for (const f of incoming) {
       if (f.name.startsWith(".") || f.name === "Thumbs.db") continue;
-
       const lower = f.name.toLowerCase();
       const zipFile = f.type === "application/zip" || lower.endsWith(".zip");
       const maxBytes = zipFile ? MAX_ZIP_BYTES : MAX_AI_BYTES;
-
       if (f.size === 0) continue;
-
       if (f.size > maxBytes) {
         setErrorMsg(zipFile
           ? `"${f.name}" ist zu groß (max. ${formatBytes(maxBytes)} pro ZIP).`
           : t("errors.too_large"));
         continue;
       }
-
       toAdd.push({ id: newId(), file: f, status: "queued", detectedType: detectType(f) });
     }
 
@@ -228,8 +240,36 @@ function PrepareContent() {
     setFiles(prev => [...prev, ...accepted]);
   }
 
+  // ── addFiles: runs intent check first ───────────────────────────────────
+  function addFiles(incoming: File[]) {
+    const relevant = incoming.filter(
+      f => !f.name.startsWith(".") && f.name !== "Thumbs.db" && f.size > 0,
+    );
+    if (relevant.length === 0) return;
+
+    const intent = detectFolderIntent(relevant);
+    if (intent.intent !== "normal") {
+      setPendingRawFiles(relevant);
+      setFolderIntent(intent);
+      return;
+    }
+    processAddFiles(relevant);
+  }
+
+  function handleFolderWarningContinue() {
+    const pending = pendingRawFiles;
+    setPendingRawFiles(null);
+    setFolderIntent(null);
+    if (pending) processAddFiles(pending);
+  }
+
+  function handleFolderWarningCancel() {
+    setPendingRawFiles(null);
+    setFolderIntent(null);
+  }
+
   function removeFile(id: string) {
-    setFiles((prev) => prev.filter((e) => e.id !== id));
+    setFiles(prev => prev.filter(e => e.id !== id));
     setErrorMsg(null);
   }
 
@@ -238,6 +278,7 @@ function PrepareContent() {
     setErrorMsg(null);
     setHasProcessed(false);
     setShowDropzone(true);
+    setShowErrors(true);
   }
 
   // ── Input handlers ───────────────────────────────────────────────────────
@@ -258,7 +299,7 @@ function PrepareContent() {
     }
   }
 
-  // ── Error label helper ───────────────────────────────────────────────────
+  // ── Error label ──────────────────────────────────────────────────────────
   function errorLabel(err: Error): string {
     if (err instanceof UploadError) {
       const code = err.code;
@@ -275,13 +316,14 @@ function PrepareContent() {
     return err.message;
   }
 
-  // ── Result description for review ────────────────────────────────────────
+  // ── Result description ───────────────────────────────────────────────────
   function resultDescription(entry: FileEntry): string {
     const r = entry.result;
     if (!r) return "";
     const { source, days_covered, metrics } = r;
     if (source === "whoop") return t("review.result_whoop", { days: days_covered });
     if (source === "apple_health") return t("review.result_apple", { days: days_covered });
+    if (source === "gpx") return t("review.result_gpx", { days: days_covered });
     if (metrics.body?.body_fat_pct != null || metrics.body?.skeletal_muscle_kg != null)
       return t("review.result_body_comp");
     if (metrics.sleep?.avg_duration_hours != null) return t("review.result_sleep");
@@ -289,12 +331,12 @@ function PrepareContent() {
     return t("review.result_generic");
   }
 
-  // ── Batch processing (dispatch only) ────────────────────────────────────
+  // ── Batch processing ─────────────────────────────────────────────────────
   async function processFiles() {
     const queuedEntries = files.filter(e => e.status === "queued");
     if (queuedEntries.length === 0) return;
 
-    const batchErr = validateBatch(queuedEntries.map((e) => e.file));
+    const batchErr = validateBatch(queuedEntries.map(e => e.file));
     if (batchErr === "too_many_files") { setErrorMsg(t("errors.too_many_files")); return; }
     if (batchErr === "total_too_large") { setErrorMsg(t("errors.total_too_large")); return; }
 
@@ -310,15 +352,13 @@ function PrepareContent() {
     let finished = 0;
 
     const batchResults: BatchFileResult[] = await batchDispatch(
-      queuedEntries.map((e) => e.file),
+      queuedEntries.map(e => e.file),
       {
         signal,
         onFileStart: (idx) => {
           setCurrentFileLabel(queuedEntries[idx]?.file.name ?? "");
           const id = queuedIds[idx];
-          setFiles((prev) =>
-            prev.map((e) => e.id === id ? { ...e, status: "processing" } : e),
-          );
+          setFiles(prev => prev.map(e => e.id === id ? { ...e, status: "processing" } : e));
         },
         onFileProgress: (_, pct) => {
           const base = (finished / total) * 80;
@@ -330,16 +370,14 @@ function PrepareContent() {
           setDoneCount(finished);
           setOverallProgress(5 + (finished / total) * 80);
           const id = queuedIds[idx];
-          setFiles((prev) =>
-            prev.map((e) => e.id === id ? { ...e, status: "done", result } : e),
-          );
+          setFiles(prev => prev.map(e => e.id === id ? { ...e, status: "done", result } : e));
         },
         onFileError: (idx, err) => {
           finished++;
           setDoneCount(finished);
           const id = queuedIds[idx];
-          setFiles((prev) =>
-            prev.map((e) =>
+          setFiles(prev =>
+            prev.map(e =>
               e.id === id ? { ...e, status: "error", errorMsg: errorLabel(err) } : e,
             ),
           );
@@ -347,12 +385,9 @@ function PrepareContent() {
       },
     );
 
-    if (signal.aborted) {
-      setProcessing(false);
-      return;
-    }
+    if (signal.aborted) { setProcessing(false); return; }
 
-    // Attach groupId to FileEntry for WHOOP CSV deduplication in handleContinue.
+    // Attach groupId so handleContinue can deduplicate WHOOP/GPX groups.
     setFiles(prev => prev.map(e => {
       const idx = queuedIds.indexOf(e.id);
       if (idx === -1) return e;
@@ -363,6 +398,7 @@ function PrepareContent() {
     setProcessing(false);
     setHasProcessed(true);
     setShowDropzone(false);
+    setShowErrors(false); // errors section starts collapsed
   }
 
   // ── Continue: persist + navigate ─────────────────────────────────────────
@@ -377,7 +413,6 @@ function PrepareContent() {
     setIsContinuing(true);
     setErrorMsg(null);
 
-    // Deduplicate WHOOP CSV group (all files share same groupId + same result).
     const seen = new Set<string>();
     const uniqueSuccesses = successEntries.filter(e => {
       if (!e.groupId) return true;
@@ -459,8 +494,8 @@ function PrepareContent() {
     abortRef.current?.abort();
     setProcessing(false);
     setOverallProgress(0);
-    setFiles((prev) =>
-      prev.map((e) =>
+    setFiles(prev =>
+      prev.map(e =>
         e.status === "processing" || e.status === "queued"
           ? { ...e, status: "queued" }
           : e,
@@ -474,6 +509,7 @@ function PrepareContent() {
       whoop_csv: t("file_list.type_whoop"),
       whoop_zip: t("file_list.type_whoop"),
       apple_zip: t("file_list.type_apple"),
+      gpx:       "GPX",
       ai_doc:    t("file_list.type_scan"),
       unknown:   t("file_list.type_unknown"),
     };
@@ -486,11 +522,23 @@ function PrepareContent() {
 
   if (!paymentChecked) return null;
 
-  const hasFiles    = files.length > 0;
-  const totalFiles  = files.length;
-  const queuedCount = files.filter(e => e.status === "queued").length;
+  const hasFiles     = files.length > 0;
+  const totalFiles   = files.length;
+  const queuedCount  = files.filter(e => e.status === "queued").length;
   const successCount = files.filter(e => e.status === "done").length;
-  const allFailed   = hasProcessed && successCount === 0;
+  const errorCount   = files.filter(e => e.status === "error").length;
+  const allFailed    = hasProcessed && successCount === 0;
+
+  // Sort: done first, then queued/processing, then error
+  const sortedFiles = [...files].sort(
+    (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status],
+  );
+
+  // Quality assessment from current successful results
+  const successResults = files
+    .filter(e => e.status === "done" && e.result)
+    .map(e => e.result!);
+  const quality = assessDataQuality(successResults, totalFiles);
 
   return (
     <div className={styles.page}>
@@ -530,47 +578,95 @@ function PrepareContent() {
               )}
             </div>
 
-            {files.map((entry) => (
-              <div key={entry.id} className={styles.fileItem}>
-                <span className={styles.fileIconEmoji} aria-hidden>
-                  {fileIcon(entry.file)}
-                </span>
-                <div className={styles.fileInfo}>
-                  <span className={styles.fileName}>{entry.file.name}</span>
-                  <div className={styles.fileMeta}>
-                    <span>{formatBytes(entry.file.size)}</span>
-                    {typeBadge(entry.detectedType)}
+            {/* Successful + queued/processing files */}
+            {sortedFiles
+              .filter(e => e.status !== "error")
+              .map(entry => (
+                <div
+                  key={entry.id}
+                  className={`${styles.fileItem} ${entry.status === "done" ? styles.fileItem_done : ""}`}
+                >
+                  <span className={styles.fileIconEmoji} aria-hidden>
+                    {fileIcon(entry.file)}
+                  </span>
+                  <div className={styles.fileInfo}>
+                    <span className={styles.fileName}>{entry.file.name}</span>
+                    <div className={styles.fileMeta}>
+                      <span>{formatBytes(entry.file.size)}</span>
+                      {typeBadge(entry.detectedType)}
+                    </div>
+                    {entry.status === "done" && entry.result && (
+                      <span className={styles.resultDesc}>{resultDescription(entry)}</span>
+                    )}
                   </div>
-                  {entry.status === "done" && entry.result && (
-                    <span className={styles.resultDesc}>{resultDescription(entry)}</span>
-                  )}
-                  {entry.status === "error" && entry.errorMsg && (
-                    <span className={styles.fileError}>{entry.errorMsg}</span>
+                  <span className={`${styles.fileStatus} ${styles[`fileStatus_${entry.status}`]}`}>
+                    {entry.status === "processing" && <span className={styles.spinner} aria-hidden />}
+                    {entry.status === "done"  && "✓"}
+                    {entry.status === "queued" && <span className={styles.queueDot} />}
+                  </span>
+                  {!processing && (
+                    <button
+                      className={styles.fileRemove}
+                      onClick={() => removeFile(entry.id)}
+                      aria-label={t("multi.remove")}
+                    >×</button>
                   )}
                 </div>
-                <span className={`${styles.fileStatus} ${styles[`fileStatus_${entry.status}`]}`}>
-                  {entry.status === "processing" && <span className={styles.spinner} aria-hidden />}
-                  {entry.status === "done"  && "✓"}
-                  {entry.status === "error" && "✕"}
-                  {entry.status === "queued" && <span className={styles.queueDot} />}
-                </span>
-                {!processing && (
-                  <button
-                    className={styles.fileRemove}
-                    onClick={() => removeFile(entry.id)}
-                    aria-label={t("multi.remove")}
-                  >×</button>
-                )}
+              ))}
+
+            {/* Collapsible error section */}
+            {errorCount > 0 && (
+              <div className={styles.errorSection}>
+                <button
+                  className={styles.errorSectionToggle}
+                  onClick={() => setShowErrors(v => !v)}
+                >
+                  <span>{t("review.errors_section", { count: errorCount })}</span>
+                  <span className={styles.errorToggleArrow}>
+                    {showErrors ? t("review.errors_hide") : t("review.errors_show")}
+                  </span>
+                </button>
+
+                {showErrors && sortedFiles
+                  .filter(e => e.status === "error")
+                  .map(entry => (
+                    <div
+                      key={entry.id}
+                      className={`${styles.fileItem} ${styles.fileItem_error}`}
+                    >
+                      <span className={styles.fileIconEmoji} aria-hidden>
+                        {fileIcon(entry.file)}
+                      </span>
+                      <div className={styles.fileInfo}>
+                        <span className={styles.fileName}>{entry.file.name}</span>
+                        <div className={styles.fileMeta}>
+                          <span>{formatBytes(entry.file.size)}</span>
+                          {typeBadge(entry.detectedType)}
+                        </div>
+                        {entry.errorMsg && (
+                          <span className={styles.fileError}>{entry.errorMsg}</span>
+                        )}
+                      </div>
+                      <span className={`${styles.fileStatus} ${styles.fileStatus_error}`}>✕</span>
+                      {!processing && (
+                        <button
+                          className={styles.fileRemove}
+                          onClick={() => removeFile(entry.id)}
+                          aria-label={t("multi.remove")}
+                        >×</button>
+                      )}
+                    </div>
+                  ))}
               </div>
-            ))}
+            )}
           </div>
         )}
 
-        {/* ── Drop zone (shown initially or after "add more") ── */}
+        {/* ── Drop zone ─────────────────────────────────────── */}
         {showDropzone && (
           <div
             className={`${styles.uploadZone} ${dragActive ? styles.uploadZoneActive : ""}`}
-            onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+            onDragOver={e => { e.preventDefault(); setDragActive(true); }}
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
           >
@@ -582,9 +678,7 @@ function PrepareContent() {
               <rect x="6" y="30" width="28" height="4" rx="1" stroke="#E63222" strokeWidth="1.5" />
             </svg>
 
-            <div className={styles.uploadLabel}>
-              {t("dropzone.title")}
-            </div>
+            <div className={styles.uploadLabel}>{t("dropzone.title")}</div>
             <div className={styles.uploadHint}>{t("dropzone.subtitle")}</div>
 
             {!hasFiles && (
@@ -614,7 +708,7 @@ function PrepareContent() {
           </div>
         )}
 
-        {/* ── Process CTA (when queued files exist) ─────────── */}
+        {/* ── Process CTA ───────────────────────────────────── */}
         {queuedCount > 0 && !processing && (
           <button className={styles.processBtn} onClick={processFiles}>
             {queuedCount === 1
@@ -623,7 +717,7 @@ function PrepareContent() {
           </button>
         )}
 
-        {/* ── Review panel (after first analysis) ───────────── */}
+        {/* ── Review panel ──────────────────────────────────── */}
         {hasProcessed && !processing && (
           <div className={styles.reviewSection}>
             <div className={styles.reviewHeader}>
@@ -632,6 +726,9 @@ function PrepareContent() {
                 {t("review.summary", { success: successCount, total: totalFiles })}
               </span>
             </div>
+
+            {/* Data quality badge */}
+            <DataQualityBadge quality={quality} />
 
             {allFailed && (
               <div className={styles.allFailedWarning}>
@@ -644,9 +741,7 @@ function PrepareContent() {
               onClick={handleContinue}
               disabled={isContinuing}
             >
-              {isContinuing
-                ? <><span className={styles.spinner} aria-hidden /> &nbsp;</>
-                : null}
+              {isContinuing && <span className={styles.spinner} aria-hidden />}
               {t("review.continue_btn")}
             </button>
 
@@ -690,7 +785,7 @@ function PrepareContent() {
             </div>
             {totalFiles > 1 && (
               <div className={styles.overlayBatchFiles}>
-                {files.map((e) => (
+                {files.map(e => (
                   <span
                     key={e.id}
                     className={`${styles.batchFileDot} ${styles[`batchFileDot_${e.status}`]}`}
@@ -705,6 +800,15 @@ function PrepareContent() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* ── Folder-intent warning modal ───────────────────── */}
+      {folderIntent && folderIntent.intent !== "normal" && (
+        <FolderIntentWarning
+          intent={folderIntent}
+          onContinue={handleFolderWarningContinue}
+          onCancel={handleFolderWarningCancel}
+        />
       )}
     </div>
   );

@@ -16,6 +16,7 @@ import {
   parseAppleHealthZip,
   AppleHealthParseError,
 } from "@/lib/wearable/apple/parser";
+import { parseGpxFiles } from "@/lib/wearable/gpx/parser";
 import { isAppleHealthEcgCsv } from "@/lib/wearable/detection/apple-ecg";
 import type { WearableParseResult } from "@/lib/wearable/types";
 
@@ -88,6 +89,11 @@ export async function dispatchAnyFile(
   const lower = file.name.toLowerCase();
   const mime = file.type.toLowerCase();
   const isZip = mime === "application/zip" || lower.endsWith(".zip");
+
+  // GPX → parse directly in the browser (no AI needed).
+  if (lower.endsWith(".gpx")) {
+    return parseGpxFiles([file]);
+  }
 
   // ZIP → detect and delegate to the appropriate browser parser.
   if (isZip) {

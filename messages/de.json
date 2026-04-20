@@ -466,10 +466,42 @@
       "all_failed_warning": "Keine Datei konnte ausgelesen werden — du kannst trotzdem fortfahren und den Fragebogen manuell ausfüllen.",
       "result_whoop": "{days} Tage WHOOP-Daten",
       "result_apple": "{days} Tage Apple Health",
+      "result_gpx": "{days} Tage GPS-Trainingsdaten",
       "result_body_comp": "Körperzusammensetzung erkannt",
       "result_sleep": "Schlafdaten erkannt",
       "result_weight": "Gewichtsdaten erkannt",
-      "result_generic": "Daten erfolgreich extrahiert"
+      "result_generic": "Daten erfolgreich extrahiert",
+      "errors_section": "Abgelehnte Dateien ({count})",
+      "errors_show": "Einblenden",
+      "errors_hide": "Ausblenden"
+    },
+    "upload": {
+      "quality": {
+        "strong_title": "Starke Datenbasis",
+        "strong_message": "Deine {sources}-Daten decken {days} Tage ab. Du kannst direkt starten.",
+        "good_title": "Gute Grundlage",
+        "good_message": "{days} Tage Daten von {sources} erfolgreich verarbeitet.",
+        "good_recommendation": "Für präzisere Körperdaten hilft ein InBody- oder DEXA-Scan.",
+        "minimal_title": "Grundlage vorhanden",
+        "minimal_message": "Du kannst fortfahren — der Report basiert stark auf deinen manuellen Eingaben.",
+        "minimal_recommendation": "Tipp: Lade einen Wearable-Export (WHOOP / Apple Health) für präzisere Scores hoch.",
+        "none_title": "Keine Daten verarbeitet",
+        "none_message": "Kein Problem — du kannst den Fragebogen auch komplett manuell ausfüllen.",
+        "gpx_note": "+ {count} GPS-Sessions eingeflossen"
+      },
+      "folder_intent": {
+        "apple_subfolder_detected": "Apple Health Teilexport erkannt",
+        "apple_ecg_description": "Das sind einzelne EKG-Aufzeichnungen (Herzstrom-Rohdaten). Sie enthalten keine auswertbaren Gesundheitsmetriken.",
+        "apple_gpx_description": "Das sind einzelne Workout-Routen (GPS-Tracks). Sie können für Aktivitätsdaten genutzt werden — aber ein vollständiger Health-Export liefert mehr.",
+        "apple_mixed_description": "Das sind EKG-Aufzeichnungen und Workout-Routen. Für einen vollständigen Report empfehlen wir den Hauptexport.",
+        "main_export_tip": "Für einen vollständigen Apple Health Report lade deinen Hauptexport hoch:\n1. Apple Health App → Profil (oben rechts)\n2. \"Alle Gesundheitsdaten exportieren\"\n3. Warte 2–5 Min → du bekommst eine export.zip\n4. Lade diese ZIP hier hoch — enthält Schlaf, Schritte, HRV und mehr",
+        "process_anyway": "Trotzdem verarbeiten",
+        "cancel_and_reupload": "Abbrechen und neu auswählen"
+      },
+      "gpx": {
+        "workout_routes_detected": "{count} Workout-Routen erkannt",
+        "summary": "{km} km über {sessions} Sessions"
+      }
     }
   },
   "results": {

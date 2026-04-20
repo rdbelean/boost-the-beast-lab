@@ -340,6 +340,21 @@
   border: 1px solid var(--border);
   border-radius: 4px;
   min-width: 0;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+/* ── Strong visual differentiation: success vs error ── */
+.fileItem_done {
+  background: rgba(74, 222, 128, 0.04);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-left: 4px solid rgb(74, 222, 128);
+}
+
+.fileItem_error {
+  background: rgba(239, 68, 68, 0.03);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-left: 4px solid rgba(239, 68, 68, 0.4);
+  opacity: 0.65;
 }
 
 .fileIconEmoji {
@@ -396,8 +411,46 @@
 .typeBadge_whoop_csv,
 .typeBadge_whoop_zip { background: rgba(99, 102, 241, 0.15); color: rgb(165, 180, 252); }
 .typeBadge_apple_zip { background: rgba(74, 222, 128, 0.12); color: rgb(134, 239, 172); }
+.typeBadge_gpx       { background: rgba(14, 165, 233, 0.12); color: rgb(125, 211, 252); }
 .typeBadge_ai_doc    { background: rgba(251, 191, 36, 0.12); color: rgb(252, 211, 77);  }
 .typeBadge_unknown   { background: rgba(255,255,255,0.06);   color: var(--text-muted);  }
+
+/* ─── COLLAPSIBLE ERROR SECTION ─────────────────────────────── */
+.errorSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.errorSectionToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  padding: 8px 2px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.errorSectionToggle span:first-child {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgb(252, 165, 165);
+}
+
+.errorToggleArrow {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+.errorSectionToggle:hover .errorToggleArrow { color: #fff; }
 
 .fileStatus {
   flex-shrink: 0;
@@ -413,10 +466,10 @@
 .fileStatus_processing { color: var(--accent); }
 .fileStatus_done {
   color: rgb(74, 222, 128);
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 700;
 }
-.fileStatus_error { color: rgb(252, 165, 165); font-size: 14px; }
+.fileStatus_error { color: rgb(252, 165, 165); font-size: 20px; }
 
 .queueDot {
   display: inline-block;

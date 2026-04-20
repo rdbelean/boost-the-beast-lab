@@ -18,11 +18,12 @@ const ALLOWED_SOURCES = new Set([
   "ai_document",
   "ai_image",
   "ai_text",
+  "gpx",
   "merged",
 ]);
 
 interface PersistBody {
-  source: "whoop" | "apple_health" | "ai_document" | "ai_image" | "ai_text" | "merged";
+  source: "whoop" | "apple_health" | "ai_document" | "ai_image" | "ai_text" | "gpx" | "merged";
   schema_version: string;
   window_start: string; // ISO date YYYY-MM-DD
   window_end: string;
@@ -54,7 +55,7 @@ function validate(body: unknown): PersistBody | { error: string } {
   if (
     typeof b.days_covered !== "number" ||
     b.days_covered < 0 ||
-    b.days_covered > 31
+    b.days_covered > 366
   )
     return { error: "invalid days_covered" };
   if (!b.metrics || typeof b.metrics !== "object")
