@@ -63,7 +63,7 @@ interface AssessmentRequestBody {
 }
 
 function isLocale(v: unknown): v is Locale {
-  return v === "de" || v === "en" || v === "it";
+  return v === "de" || v === "en" || v === "it" || v === "ko";
 }
 
 function bandForScore(score: number): ScoreBand {

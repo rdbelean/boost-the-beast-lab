@@ -1,8 +1,9 @@
 // Server-side PDF generation via pdf-lib (pure JavaScript).
 // No native dependencies — works reliably on Vercel serverless functions.
 
-import { PDFDocument, rgb, StandardFonts, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
+import { PDFDocument, rgb, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
 import { LOGO_WHITE_PNG_BASE64 } from "./logo";
+import { embedLocaleFonts } from "./fonts";
 import type { Locale } from "@/lib/supabase/types";
 
 // Single-invocation state for the locale. `generatePDF` sets this at entry
@@ -207,6 +208,54 @@ const PDF_LABELS: Record<Locale, {
     disclaimer1: "Tutti i dati si basano su informazioni fornite dall'utente e calcoli modellistici secondo le linee guida IPAQ, NSF/AASM, WHO e ACSM. Il VO2max \u00E8 una stima algoritmica basata sul modello Jackson Non-Exercise Prediction. Questo documento non costituisce dichiarazioni mediche e non \u00E8 un dispositivo medico ai sensi del MDR.",
     disclaimer2: "Questo report \u00E8 stato generato utilizzando modelli di scoring scientifici. Non sostituisce la visita medica, la diagnostica di laboratorio o la consulenza medica individualizzata. Per problemi di salute o domande specifiche, consultare un medico o terapista qualificato.",
   },
+  ko: {
+    footerStrip: "PERFORMANCE LAB  |  의료 상담을 대체하지 않음",
+    legalTitle: "법적 고지",
+    legalAccent: "의학적 진단이 아닙니다",
+    legalSub: "PERFORMANCE INSIGHT  |  의료 상담을 대체하지 않음",
+    overallIndex: "OVERALL PERFORMANCE INDEX",
+    gesamtbild: "종합 프로필",
+    topPriority: "최우선 과제",
+    metKey: "MET-분 / 주",
+    trainingDaysKey: "트레이닝 일수 / 주",
+    sittingKey: "좌식 시간 / 일",
+    sleepDuration: "수면 시간",
+    sleepDurationValue: (h) => `${h} 시간 / 밤`,
+    recoveryScore: "Recovery Score",
+    vo2Estimated: "추정 VO2max",
+    fitnessLevel: "피트니스 레벨",
+    bmiKey: "BMI",
+    bmiCategory: "카테고리",
+    stressBand: "스트레스 밴드",
+    actionNeed: "조치 필요도",
+    actionHigh: "높음",
+    actionModerate: "보통",
+    actionLow: "낮음",
+    dateLocale: "ko-KR",
+    ageUnit: "세",
+    einordnung: "맥락",
+    hauptbefund: "핵심 결과",
+    systemischeVerbindung: "시스템적 연관",
+    limitierung: "제한 요인",
+    naechsterSchritt: "다음 단계",
+    kennwerte: "핵심 지표",
+    findingsTitle: "당신의 주요 3가지 인사이트",
+    connectionTitle: "당신 데이터의 연관성",
+    actionPlanTitle: "당신의 30일 프로토콜",
+    goalLabel: "목표",
+    istLabel: "현재:",
+    zielValueLabel: "목표:",
+    messbarLabel: "측정:",
+    typeWeakness: "약점",
+    typeStrength: "강점",
+    typeConnection: "연관성",
+    qExcellent: "우수한 데이터 기반",
+    qStrong: "견고한 데이터 기반",
+    qGood: "양호한 데이터 기반",
+    qSecured: "데이터 기반 확보",
+    disclaimer1: "모든 데이터는 자기 보고 정보와 IPAQ, NSF/AASM, WHO, ACSM 지침에 따른 모델 기반 계산을 토대로 합니다. VO2max는 Jackson Non-Exercise Prediction Model에 기반한 알고리즘 추정치입니다. 본 문서는 의학적 주장을 포함하지 않으며 MDR 규정상 의료 기기가 아닙니다.",
+    disclaimer2: "본 리포트는 과학적 스코어링 모델을 사용해 생성되었습니다. 의학적 검진, 실험실 진단, 또는 개인 맞춤 의료 상담을 대체하지 않습니다. 건강 문제나 구체적인 질문이 있는 경우, 자격을 갖춘 의사 또는 치료사와 상담하세요.",
+  },
 };
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -338,9 +387,13 @@ function safe(s: string | undefined | null): string {
   return s ? String(s) : "";
 }
 
-// Sanitise to WinAnsi / Latin-1 (required for standard PDF fonts).
+// Sanitise to WinAnsi / Latin-1 for standard PDF fonts — but ONLY when the
+// current locale is not Korean. For ko, Noto Sans KR is embedded and handles
+// the full Hangul + CJK range, so the Unicode is kept intact. For DE/EN/IT
+// Helvetica is Latin-1 only and any extended Unicode would render as empty
+// glyphs (tofu boxes).
 function tx(s: string | undefined | null): string {
-  return safe(s)
+  const normalized = safe(s)
     .replace(/[\u2014\u2013]/g, "-")
     .replace(/\u2026/g, "...")
     .replace(/[\u201C\u201D]/g, '"')
@@ -348,8 +401,9 @@ function tx(s: string | undefined | null): string {
     .replace(/\u2192/g, "->")
     .replace(/\u2190/g, "<-")
     .replace(/\u2022/g, "-")
-    .replace(/[\u2265\u2264]/g, "")
-    .replace(/[^\x00-\xFF]/g, "");
+    .replace(/[\u2265\u2264]/g, "");
+  if (currentLocale === "ko") return normalized;
+  return normalized.replace(/[^\x00-\xFF]/g, "");
 }
 
 // Wrap text into lines that each fit within maxW.
@@ -1184,8 +1238,7 @@ export async function generatePDF(
   });
 
   const doc = await PDFDocument.create();
-  const reg  = await doc.embedFont(StandardFonts.Helvetica);
-  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const { reg, bold } = await embedLocaleFonts(doc, locale);
   const f: F = { reg, bold };
 
   const logoBytes = Buffer.from(LOGO_WHITE_PNG_BASE64, "base64");

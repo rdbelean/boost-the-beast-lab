@@ -2,7 +2,9 @@
 // Pure JavaScript — zero native dependencies, works reliably on Vercel.
 // Dark warm-grey theme matching the main Performance Intelligence Report.
 
-import { PDFDocument, rgb, StandardFonts, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
+import { PDFDocument, rgb, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
+import { embedLocaleFonts } from "./fonts";
+import type { Locale } from "@/lib/supabase/types";
 import { LOGO_WHITE_PNG_BASE64 } from "./logo";
 
 export interface PlanBlock {
@@ -78,7 +80,21 @@ const PLAN_LABELS: Record<string, {
     dateLocale: "it-IT",
     urgency: ["CRITICO", "AZIONE RICHIESTA", "POTENZIALE DI OTTIMIZZAZIONE", "FINE-TUNING", "TOP-LEVEL"],
   },
+  ko: {
+    scientificBasis: "과학적 근거",
+    keyActions: "핵심 실행 항목",
+    individualPlan: "개인 맞춤 플랜",
+    footerNote: "PERFORMANCE LAB  |  의료 상담을 대체하지 않음",
+    dateLocale: "ko-KR",
+    urgency: ["심각", "조치 필요", "최적화 여지", "미세 조정", "최상위"],
+  },
 };
+
+// Module-level locale state. Set at entry of generatePlanPDF so the
+// text-sanitizer tx() knows whether the current embedded font can
+// render non-Latin Unicode (Korean → Noto Sans KR can; everything
+// else → Helvetica Latin-1 only).
+let currentPlanLocale: Locale = "de";
 
 // Urgency label derived from score (matches web urgencyLabel() helper)
 function urgencyInfo(score: number, locale = "de"): { text: string; color: Color } {
@@ -97,15 +113,21 @@ function safe(s: string | undefined | null): string {
 }
 
 function tx(s: string | undefined | null): string {
-  return safe(s)
+  // Punctuation normalization runs for every locale — pdf-lib can't draw
+  // fancy dashes / curly quotes reliably even with Unicode fonts.
+  const normalized = safe(s)
     .replace(/[\u2014\u2013]/g, "-")
     .replace(/\u2026/g, "...")
     .replace(/[\u201C\u201D]/g, '"')
     .replace(/[\u2018\u2019]/g, "'")
     .replace(/\u2192/g, "->")
     .replace(/\u2022/g, "-")
-    .replace(/[\u2265\u2264]/g, "")
-    .replace(/[^\x00-\xFF]/g, "");
+    .replace(/[\u2265\u2264]/g, "");
+  // For Korean, Noto Sans KR is embedded and handles Hangul + CJK glyphs;
+  // keep the Unicode. For DE/EN/IT, Helvetica is Latin-1 only — strip
+  // anything outside that range to avoid empty-glyph rendering errors.
+  if (currentPlanLocale === "ko") return normalized;
+  return normalized.replace(/[^\x00-\xFF]/g, "");
 }
 
 function wrapLines(text: string, font: PDFFont, size: number, maxW: number): string[] {
@@ -463,9 +485,10 @@ export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
     try { return hexToRgb(plan.color); } catch { return ACCENT; }
   })();
 
+  const planLocale = (plan.locale ?? "de") as Locale;
+  currentPlanLocale = planLocale;
   const doc = await PDFDocument.create();
-  const reg  = await doc.embedFont(StandardFonts.Helvetica);
-  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const { reg, bold } = await embedLocaleFonts(doc, planLocale);
   const f: F = { reg, bold };
 
   const logoBytes = Buffer.from(LOGO_WHITE_PNG_BASE64, "base64");

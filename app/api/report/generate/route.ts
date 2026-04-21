@@ -199,6 +199,7 @@ const DISCLAIMER: Record<Locale, string> = {
   de: "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik. VO2max ist eine algorithmische Schätzung — keine Labormessung.",
   en: "All statements are model-based performance insights from self-reported data. Not a substitute for medical diagnostics. VO2max is an algorithmic estimate — not a lab measurement.",
   it: "Tutte le indicazioni sono insight di performance basati su modelli da dati auto-riportati. Non sostituiscono la diagnostica medica. Il VO2max è una stima algoritmica — non una misurazione di laboratorio.",
+  ko: "모든 내용은 자기 보고 데이터를 기반으로 한 모델 기반 퍼포먼스 인사이트입니다. 의학적 진단을 대체하지 않습니다. VO2max는 알고리즘 추정치이며 실험실 측정값이 아닙니다.",
 };
 
 // Language directive appended to SYSTEM_PROMPT per request. Claude is
@@ -235,6 +236,21 @@ TONO per l'output italiano:
 - FRASI VIETATE: "è importante che", "dovresti cercare di", "ricordati di", "potrebbe essere utile". Sostituisci con affermazioni dirette + motivazione.
 
 Il campo "disclaimer" DEVE essere esattamente:
+"${/* filled at request time */""}"`,
+  ko: `
+
+OUTPUT LANGUAGE OVERRIDE — 필수:
+JSON 내 모든 사용자 대면 텍스트(headline, executive_summary, 모든 module 필드, top_priority, systemic_connections_overview, prognose_30_days, disclaimer)는 반드시 한국어로 작성해야 합니다. JSON 키는 영문 그대로 유지하세요.
+
+한국어 출력 톤:
+- 직접적이고 간결한 엘리트 코치 목소리. 웰니스 블로그 톤 금지.
+- 과학적 근거 기반. 독자는 VO2max, HRV, HPA 축 개념을 이미 알고 있다고 전제.
+- 동기부여성 미사여구, 우회 표현, 이모지 금지.
+- 반말이 아닌 존댓말(~합니다 / ~입니다) 사용. 친근하지만 프리미엄 톤 유지.
+- 금지된 표현: "~하는 것이 중요합니다", "~해보세요", "~하는 것이 좋습니다", "잊지 마세요", "도움이 될 수 있습니다". 대신 근거와 함께 직설적 진술을 하세요.
+- 전문 용어(VO2max, HRV, HPA, BMI, MET, IPAQ 등)는 영문 그대로 유지. 번역하지 않습니다.
+
+"disclaimer" 필드는 정확히 다음과 같아야 합니다:
 "${/* filled at request time */""}"`,
 };
 
@@ -853,7 +869,9 @@ export async function POST(req: NextRequest) {
     if (aErr) throw aErr;
 
     const locale: Locale =
-      assessment.locale === "en" || assessment.locale === "it"
+      assessment.locale === "en" ||
+      assessment.locale === "it" ||
+      assessment.locale === "ko"
         ? assessment.locale
         : "de";
 

@@ -11,12 +11,12 @@ function getStripe() {
 }
 
 function isLocale(v: unknown): v is Locale {
-  return v === "de" || v === "en" || v === "it";
+  return v === "de" || v === "en" || v === "it" || v === "ko";
 }
 
 // Stripe's Checkout locale param accepts ISO codes that match our locales
 // 1:1 here. See https://stripe.com/docs/api/checkout/sessions/create#create_checkout_session-locale
-type StripeLocale = "de" | "en" | "it";
+type StripeLocale = "de" | "en" | "it" | "ko";
 
 interface ProductCopy {
   name: string;
@@ -57,6 +57,16 @@ const PRODUCTS: Record<Locale, Record<string, ProductCopy & { price: number }>> 
     "plan-stress": { name: "Stress Reset Program", price: 2499, description: "Programma anti-stress e ottimizzazione lifestyle di 30 giorni" },
     "bundle-all": { name: "Tutti e 4 i Piani di Ottimizzazione — Bundle", price: 4999, description: "Metabolic + Recovery + Activity + Stress — ottimizzazione completa della performance" },
   },
+  ko: {
+    metabolic: { name: "Metabolic Performance Score", price: 2900, description: "BMI, 영양·수분 점수, AI 리포트, 프리미엄 PDF" },
+    recovery: { name: "Recovery & Regeneration Score", price: 2900, description: "수면 분석, 회복 점수, AI 리포트, 프리미엄 PDF" },
+    "complete-analysis": { name: "Complete Performance Analysis", price: 3990, description: "4개 스코어 전체 + 종합 지수, AI 리포트, 30일 예측, 프리미엄 PDF" },
+    "plan-metabolic": { name: "Metabolic Boost Plan", price: 2499, description: "30일 맞춤 영양·대사 최적화 플랜" },
+    "plan-recovery": { name: "Recovery Protocol", price: 2499, description: "최대 회복을 위한 개인 맞춤 수면·회복 프로토콜" },
+    "plan-activity": { name: "Performance Training Plan", price: 2499, description: "12주 개인 맞춤 근력·컨디셔닝 트레이닝 플랜" },
+    "plan-stress": { name: "Stress Reset Program", price: 2499, description: "30일 스트레스 완화·라이프스타일 최적화 프로그램" },
+    "bundle-all": { name: "4개 최적화 플랜 — 번들", price: 4999, description: "Metabolic + Recovery + Activity + Stress — 퍼포먼스 완전 최적화" },
+  },
 };
 
 // T&C message shown on the Stripe checkout consent step. Must mention the
@@ -66,12 +76,14 @@ const TOS_MESSAGE: Record<Locale, string> = {
   de: "Mit Bestätigung stimmst du zu, dass Boost the Beast Lab deine Zahlungsdaten speichert und für zukünftige optionale Upsell-Käufe (Trainings- & Ernährungspläne) verwenden darf, die du auf der Ergebnisseite freigibst.",
   en: "By confirming, you agree that Boost the Beast Lab may store your payment details and use them for future optional upsell purchases (training and nutrition plans) that you release on the results page.",
   it: "Confermando, accetti che Boost the Beast Lab possa salvare i tuoi dati di pagamento e utilizzarli per futuri acquisti upsell opzionali (piani di allenamento e alimentazione) che autorizzi nella pagina dei risultati.",
+  ko: "확인 시, Boost the Beast Lab이 귀하의 결제 정보를 저장하고 결과 페이지에서 허용하시는 향후 선택적 업셀 구매(트레이닝 및 영양 플랜)에 사용할 수 있음에 동의하게 됩니다.",
 };
 
 const ERROR_MSG: Record<Locale, { not_found: string; checkout_failed: string }> = {
   de: { not_found: "Produkt nicht gefunden", checkout_failed: "Checkout fehlgeschlagen" },
   en: { not_found: "Product not found", checkout_failed: "Checkout failed" },
   it: { not_found: "Prodotto non trovato", checkout_failed: "Checkout non riuscito" },
+  ko: { not_found: "상품을 찾을 수 없습니다", checkout_failed: "결제가 실패했습니다" },
 };
 
 export async function POST(req: NextRequest) {

@@ -8,7 +8,7 @@ export type ScoreBand = "low" | "moderate" | "high" | "very_high";
 // Mirrors i18n/routing.ts#routing.locales. Kept duplicated here so
 // non-UI code (API routes, PDF/email generators) can import this
 // without pulling in the next-intl runtime. Keep in sync.
-export type Locale = "de" | "en" | "it";
+export type Locale = "de" | "en" | "it" | "ko";
 
 // ─── Systemic warnings & assessment result envelope ────────────────────────
 // Mirrors lib/scoring/index.ts → FullScoringResult so the report pipeline has

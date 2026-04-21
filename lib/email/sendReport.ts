@@ -89,6 +89,22 @@ const COPY: Record<Locale, EmailCopy> = {
     disclaimer_2: " Non sostituisce una consulenza medica professionale.",
     unsubscribe: "Annulla iscrizione",
   },
+  ko: {
+    subject: "퍼포먼스 리포트가 준비되었습니다 — BOOST THE BEAST LAB",
+    title_line_1: "리포트가",
+    title_line_2: "준비되었습니다.",
+    overall_label: "OVERALL PERFORMANCE INDEX",
+    row_activity: "Activity",
+    row_sleep: "Sleep",
+    row_vo2max: "VO2max",
+    row_metabolic: "Metabolic",
+    row_stress: "Stress",
+    cta: "리포트 다운로드 →",
+    disclaimer_1: "이 리포트는 귀하의 자기 보고 데이터에서 도출한 모델 기반 퍼포먼스 인사이트를 담고 있습니다. ",
+    disclaimer_strong: "의학적 진단이 아닙니다.",
+    disclaimer_2: " 전문 의료 상담을 대체하지 않습니다.",
+    unsubscribe: "수신 거부",
+  },
 };
 
 function buildHtml(downloadUrl: string, scores: ScoreSummary, locale: Locale): string {
