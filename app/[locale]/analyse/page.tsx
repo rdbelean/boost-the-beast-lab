@@ -22,6 +22,9 @@ interface PlanPersonalization {
   time_budget?: string | null;
   experience_level?: string | null;
   training_days?: number | null;
+  nutrition_painpoint?: string | null;
+  stress_source?: string | null;
+  recovery_ritual?: string | null;
 }
 
 async function generatePlanBundle(
@@ -112,6 +115,10 @@ interface FormData {
   wasserkonsum: number;
   stresslevel: string;
   mahlzeitenPlan: string;
+  // Phase 2 — Tiefen-Inputs für personalisierte Daily-Life-Protocol-Habits
+  nutritionPainpoint: string; // cravings_evening | low_protein | no_energy | no_time | none
+  stressSource: string; // job | family | finances | health | future | none
+  recoveryRitual: string; // sport | nature | cooking | reading | meditation | social | none
   // Report & Email
   selectedProduct: string;
   email: string;
@@ -207,6 +214,24 @@ const SCREEN_TIME_MAP: Record<string, "kein" | "unter_30" | "30_60" | "ueber_60"
   ">60": "ueber_60",
 };
 
+const NUTRITION_PAINPOINT_VALUES = new Set([
+  "cravings_evening",
+  "low_protein",
+  "no_energy",
+  "no_time",
+  "none",
+]);
+const STRESS_SOURCE_VALUES = new Set(["job", "family", "finances", "health", "future", "none"]);
+const RECOVERY_RITUAL_VALUES = new Set([
+  "sport",
+  "nature",
+  "cooking",
+  "reading",
+  "meditation",
+  "social",
+  "none",
+]);
+
 const REPORT_MAP: Record<string, "metabolic" | "recovery" | "complete"> = {
   metabolic: "metabolic",
   recovery: "recovery",
@@ -288,6 +313,13 @@ function buildAssessmentPayload(f: FormData) {
     main_goal: MAIN_GOAL_VALUES.has(f.mainGoal) ? f.mainGoal : null,
     time_budget: TIME_BUDGET_VALUES.has(f.timeBudget) ? f.timeBudget : null,
     experience_level: EXPERIENCE_VALUES.has(f.experienceLevel) ? f.experienceLevel : null,
+    // Phase-2-Tiefe: flossen direkt in den Daily-Protocol-Prompt. Wenn der
+    // User "Heißhunger abends" angibt + "Job" als Stressor + "Natur" als
+    // Erholungs-Ritual, kann Claude drei Habits ausspielen die exakt DIESE
+    // Kombination adressieren statt generischer Tipps.
+    nutrition_painpoint: NUTRITION_PAINPOINT_VALUES.has(f.nutritionPainpoint) ? f.nutritionPainpoint : null,
+    stress_source: STRESS_SOURCE_VALUES.has(f.stressSource) ? f.stressSource : null,
+    recovery_ritual: RECOVERY_RITUAL_VALUES.has(f.recoveryRitual) ? f.recoveryRitual : null,
   };
 }
 
@@ -356,6 +388,9 @@ function AnalyseContent() {
     wasserkonsum: 2,
     stresslevel: "moderat",
     mahlzeitenPlan: "kein",
+    nutritionPainpoint: "",
+    stressSource: "",
+    recoveryRitual: "",
     selectedProduct: preselectedProduct,
     email: "",
   });
@@ -495,7 +530,7 @@ function AnalyseContent() {
   }
 
   // Count answered questions for progress
-  const totalQuestions = 23;
+  const totalQuestions = 26;
   const answeredCount = [
     !!form.mainGoal,
     !!form.timeBudget,
@@ -505,6 +540,9 @@ function AnalyseContent() {
     form.groesse > 0,
     form.gewicht > 0,
     !!form.obstGemuese,
+    !!form.nutritionPainpoint,
+    !!form.stressSource,
+    !!form.recoveryRitual,
     !!form.trainingsfreq,
     !!form.trainingsart,
     !!form.moderateDauer,
@@ -609,6 +647,9 @@ function AnalyseContent() {
               main_goal: payload.main_goal,
               time_budget: payload.time_budget,
               experience_level: payload.experience_level,
+              nutrition_painpoint: payload.nutrition_painpoint,
+              stress_source: payload.stress_source,
+              recovery_ritual: payload.recovery_ritual,
             },
           };
 
@@ -641,6 +682,9 @@ function AnalyseContent() {
         time_budget: payload.time_budget,
         experience_level: payload.experience_level,
         training_days: (payload.vigorous_days ?? 0) + (payload.moderate_days ?? 0),
+        nutrition_painpoint: payload.nutrition_painpoint,
+        stress_source: payload.stress_source,
+        recovery_ritual: payload.recovery_ritual,
       };
       const planPromises = PLAN_TYPES.map((planType) =>
         generatePlanBundle(planType, scores, locale, planPersonalization)
@@ -1291,6 +1335,66 @@ function AnalyseContent() {
                     { label: t("q.meals.grob"), value: "grob" },
                     { label: t("q.meals.makros"), value: "makros" },
                     { label: t("q.meals.meal_prep"), value: "meal-prep" },
+                  ]}
+                />
+              </div>
+
+              {/* Q21: Ernährungs-Painpoint — Phase 2 */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>{t("q.nutrition_painpoint.label")}</span>
+                <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
+                  {t("q.nutrition_painpoint.sub")}
+                </span>
+                <RadioGroup
+                  value={form.nutritionPainpoint}
+                  onChange={(v) => set("nutritionPainpoint", v as string)}
+                  options={[
+                    { label: t("q.nutrition_painpoint.cravings_evening"), value: "cravings_evening" },
+                    { label: t("q.nutrition_painpoint.low_protein"), value: "low_protein" },
+                    { label: t("q.nutrition_painpoint.no_energy"), value: "no_energy" },
+                    { label: t("q.nutrition_painpoint.no_time"), value: "no_time" },
+                    { label: t("q.nutrition_painpoint.none"), value: "none" },
+                  ]}
+                />
+              </div>
+
+              {/* Q22: Haupt-Stressquelle — Phase 2 */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>{t("q.stress_source.label")}</span>
+                <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
+                  {t("q.stress_source.sub")}
+                </span>
+                <RadioGroup
+                  value={form.stressSource}
+                  onChange={(v) => set("stressSource", v as string)}
+                  options={[
+                    { label: t("q.stress_source.job"), value: "job" },
+                    { label: t("q.stress_source.family"), value: "family" },
+                    { label: t("q.stress_source.finances"), value: "finances" },
+                    { label: t("q.stress_source.health"), value: "health" },
+                    { label: t("q.stress_source.future"), value: "future" },
+                    { label: t("q.stress_source.none"), value: "none" },
+                  ]}
+                />
+              </div>
+
+              {/* Q23: Erholungs-Ritual — Phase 2 */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>{t("q.recovery_ritual.label")}</span>
+                <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
+                  {t("q.recovery_ritual.sub")}
+                </span>
+                <RadioGroup
+                  value={form.recoveryRitual}
+                  onChange={(v) => set("recoveryRitual", v as string)}
+                  options={[
+                    { label: t("q.recovery_ritual.sport"), value: "sport" },
+                    { label: t("q.recovery_ritual.nature"), value: "nature" },
+                    { label: t("q.recovery_ritual.cooking"), value: "cooking" },
+                    { label: t("q.recovery_ritual.reading"), value: "reading" },
+                    { label: t("q.recovery_ritual.meditation"), value: "meditation" },
+                    { label: t("q.recovery_ritual.social"), value: "social" },
+                    { label: t("q.recovery_ritual.none"), value: "none" },
                   ]}
                 />
               </div>

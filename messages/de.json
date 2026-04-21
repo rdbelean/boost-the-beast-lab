@@ -203,6 +203,36 @@
         "stress_sleep": "Besser schlafen & Stress runterfahren",
         "longevity": "Langfristig gesund bleiben — Prävention"
       },
+      "nutrition_painpoint": {
+        "label": "WAS IST DEIN GRÖSSTER ERNÄHRUNGS-PAIN?",
+        "sub": "Ehrlich — der Report gibt dir dafür eine konkrete Mikro-Habit.",
+        "cravings_evening": "Heißhunger abends — kann dann nicht aufhören zu essen",
+        "low_protein": "Zu wenig Protein — weiß nie wie ich genug reinbekomme",
+        "no_energy": "Zu wenig Energie / Mittagstief / Kaffee-Abhängigkeit",
+        "no_time": "Keine Zeit zu kochen / greife zu schnell zu Fertigessen",
+        "none": "Läuft eigentlich gut — kein echter Painpoint"
+      },
+      "stress_source": {
+        "label": "HAUPT-QUELLE DEINES STRESSES?",
+        "sub": "Damit der Report Stress-Habits auf genau diese Quelle zuschneidet — nicht auf generisches „atme tief durch\".",
+        "job": "Arbeit / Job / Karriere",
+        "family": "Familie / Beziehung",
+        "finances": "Geld / Finanzen",
+        "health": "Gesundheit (eigene oder nahe Personen)",
+        "future": "Zukunfts-Angst / Ungewissheit",
+        "none": "Kein großer Stress aktuell"
+      },
+      "recovery_ritual": {
+        "label": "DEIN LIEBSTES ERHOLUNGS-RITUAL?",
+        "sub": "Der Report baut darauf auf statt etwas Neues aufzudrücken.",
+        "sport": "Sport / Bewegung",
+        "nature": "Natur / draußen sein",
+        "cooking": "Kochen / Essen zubereiten",
+        "reading": "Lesen",
+        "meditation": "Meditation / Atem-Praxis",
+        "social": "Zeit mit Menschen die mir wichtig sind",
+        "none": "Habe kein festes Ritual"
+      },
       "time_budget": {
         "label": "WIEVIEL ZEIT HAST DU REALISTISCH PRO TAG?",
         "sub": "Ehrlich bleiben — der Plan soll in dein Leben passen, nicht umgekehrt.",

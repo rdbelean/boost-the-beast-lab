@@ -203,6 +203,36 @@
         "stress_sleep": "Dormire meglio e ridurre lo stress",
         "longevity": "Rimanere sano a lungo termine — prevenzione"
       },
+      "nutrition_painpoint": {
+        "label": "QUAL È IL TUO MAGGIORE PROBLEMA ALIMENTARE?",
+        "sub": "Sii onesto — il report ti dà una micro-abitudine concreta per questo.",
+        "cravings_evening": "Voglie serali — non riesco a smettere di mangiare",
+        "low_protein": "Troppa poca proteina — non so come raggiungere il fabbisogno",
+        "no_energy": "Poca energia / calo pomeridiano / dipendenza dalla caffeina",
+        "no_time": "Niente tempo per cucinare / ricorro a cibi pronti",
+        "none": "L'alimentazione va bene — nessun vero problema"
+      },
+      "stress_source": {
+        "label": "PRINCIPALE FONTE DEL TUO STRESS?",
+        "sub": "Così il report personalizza le abitudini antistress su questa fonte — non su un generico \"respira profondamente\".",
+        "job": "Lavoro / carriera",
+        "family": "Famiglia / relazione",
+        "finances": "Soldi / finanze",
+        "health": "Salute (mia o di una persona vicina)",
+        "future": "Ansia per il futuro / incertezza",
+        "none": "Nessuno stress particolare al momento"
+      },
+      "recovery_ritual": {
+        "label": "IL TUO RITUALE DI RECUPERO PREFERITO?",
+        "sub": "Il report si basa su questo invece di imporre qualcosa di nuovo.",
+        "sport": "Sport / movimento",
+        "nature": "Natura / stare all'aperto",
+        "cooking": "Cucinare / preparare cibo",
+        "reading": "Lettura",
+        "meditation": "Meditazione / pratica del respiro",
+        "social": "Tempo con persone importanti per me",
+        "none": "Nessun rituale fisso"
+      },
       "time_budget": {
         "label": "QUANTO TEMPO HAI REALISTICAMENTE AL GIORNO?",
         "sub": "Sii onesto — il piano deve adattarsi alla tua vita, non viceversa.",

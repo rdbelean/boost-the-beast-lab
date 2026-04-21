@@ -203,6 +203,36 @@
         "stress_sleep": "Sleep better and bring stress down",
         "longevity": "Stay healthy long term — prevention"
       },
+      "nutrition_painpoint": {
+        "label": "WHAT'S YOUR BIGGEST NUTRITION PAIN?",
+        "sub": "Be honest — the report gives you a concrete micro-habit for it.",
+        "cravings_evening": "Evening cravings — I can't stop eating once I start",
+        "low_protein": "Too little protein — no idea how to hit my target",
+        "no_energy": "No energy / afternoon crash / caffeine dependency",
+        "no_time": "No time to cook / grabbing quick processed food",
+        "none": "Nutrition is actually fine — no real pain point"
+      },
+      "stress_source": {
+        "label": "MAIN SOURCE OF YOUR STRESS?",
+        "sub": "So the report tailors stress habits to exactly this source — not generic \"take a deep breath\".",
+        "job": "Work / job / career",
+        "family": "Family / relationship",
+        "finances": "Money / finances",
+        "health": "Health (my own or someone close)",
+        "future": "Future anxiety / uncertainty",
+        "none": "No major stress right now"
+      },
+      "recovery_ritual": {
+        "label": "YOUR FAVORITE RECOVERY RITUAL?",
+        "sub": "The report builds on this instead of forcing something new.",
+        "sport": "Sport / movement",
+        "nature": "Nature / being outside",
+        "cooking": "Cooking / preparing food",
+        "reading": "Reading",
+        "meditation": "Meditation / breath practice",
+        "social": "Time with people who matter to me",
+        "none": "No fixed ritual"
+      },
       "time_budget": {
         "label": "HOW MUCH TIME DO YOU REALISTICALLY HAVE PER DAY?",
         "sub": "Be honest — the plan should fit your life, not the other way around.",

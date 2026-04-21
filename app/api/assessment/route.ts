@@ -62,6 +62,10 @@ interface AssessmentRequestBody {
   main_goal?: "feel_better" | "body_comp" | "performance" | "stress_sleep" | "longevity" | null;
   time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
   experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
+  /** Phase-2 Tiefen-Inputs — feeden direkt in Daily-Protocol-Prompt. */
+  nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "none" | null;
+  stress_source?: "job" | "family" | "finances" | "health" | "future" | "none" | null;
+  recovery_ritual?: "sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none" | null;
   /** Optional: links a prior wearable upload (from /api/wearable/persist) into this assessment. */
   wearable_upload_id?: string;
   /** UI locale at submit time. Drives Claude report language, PDF labels,

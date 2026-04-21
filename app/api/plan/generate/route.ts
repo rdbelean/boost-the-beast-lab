@@ -168,6 +168,12 @@ interface PlanPersonalization {
   time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
   experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
   training_days?: number | null; // current actual training frequency
+  /** Phase-2-Tiefe — erlaubt dem Plan, gezielte Ernährungs-Habit zu empfehlen
+   *  (z.B. 30 g Protein beim Abendessen bei cravings_evening) statt generisch
+   *  "iss mehr Gemüse". */
+  nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "none" | null;
+  stress_source?: "job" | "family" | "finances" | "health" | "future" | "none" | null;
+  recovery_ritual?: "sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none" | null;
 }
 
 // Kalibrierungsregel: Welche Trainings-Intensitäts-Stufe passt zum Profil?
@@ -258,14 +264,60 @@ function buildFallbackBlocks(type: PlanType, s: ScoreInput, p: PlanPersonalizati
     const score = s.metabolic.metabolic_score_0_100;
     const bmi = s.metabolic.bmi;
     const cat = s.metabolic.bmi_category;
-    return [
+    // Painpoint-spezifischer Block — basiert auf User-Selbstaussage in Q21
+    const painpointBlock = (() => {
+      const np = p.nutrition_painpoint;
+      if (!np || np === "none") return null;
+      if (np === "cravings_evening") {
+        return { heading: "Dein spezifischer Hebel: Heißhunger-Kontrolle", items: [
+          "30 g Protein beim Abendessen als Priorität — stabilisiert Blutzucker über die Nacht, reduziert Cravings nachweisbar",
+          "2 h vor dem Schlafengehen keine schnellen Kohlenhydrate (Süßes, Weißbrot) — Blutzucker-Spike → Crash → nächtliches Erwachen",
+          "Wenn Heißhunger kommt: 300 ml Wasser + 10 Min warten — 60% der Cravings sind Durst oder Langeweile, nicht echter Hunger",
+          "Evening-Routine: feste Essens-Cutoff-Zeit (z.B. 20:30) — Ritual > Willenskraft. Zähneputzen direkt danach als Cue.",
+          "Tracking: Heißhunger-Episoden für 2 Wochen notieren (Uhrzeit + Trigger) — Muster erkennen ist 50% der Lösung",
+        ] };
+      }
+      if (np === "low_protein") {
+        return { heading: "Dein spezifischer Hebel: Protein-Target erreichen", items: [
+          `Ziel: 1,6–2,2 g Protein pro kg KG/Tag — bei ${s.metabolic.bmi * 25} kg (Schätzung) sind das ${Math.round(s.metabolic.bmi * 25 * 1.8)} g/Tag`,
+          "Auf 3 Mahlzeiten verteilt: ~40 g pro Mahlzeit — entspricht z.B. 150 g Hähnchen, 200 g Quark, 2 Eier + 100 g Hüttenkäse",
+          "Praktische Protein-Quellen (>20 g/Portion): Hühnchen, Lachs, Mager-Quark, griechischer Joghurt, Hüttenkäse, Linsen, Tofu",
+          "Protein-Shake als Fallback: 30 g Whey/Casein in Wasser — 3 Min Prep-Zeit, volle Kontrolle",
+          "Meal-Prep-Sonntag: 1 kg Protein vorkochen (Hühnchen/Lachs/Tofu) — deckt 3–4 Mahlzeiten ab",
+        ] };
+      }
+      if (np === "no_energy") {
+        return { heading: "Dein spezifischer Hebel: Energie-Stabilisierung", items: [
+          "Frühstück innerhalb 60 Min nach Aufstehen — bricht Nüchtern-Cortisol, stabilisiert Blutzucker-Kurve für den Tag",
+          "Frühstück muss Protein + komplexe Kohlenhydrate kombinieren (z.B. Haferflocken + Quark + Beeren) — KEIN reiner Zucker",
+          "Koffein-Cutoff 14:00 — Halbwertszeit 5–6 h, abendlich-aktives Koffein fragmentiert Tiefschlaf → nächster Tag müde",
+          "Wenn Mittagstief: 10 Min Spaziergang statt 3. Kaffee — Durchblutung + Tageslicht sind messbar effektiver",
+          "Keine Snacks >2 h vor der nächsten Mahlzeit — erneute Blutzucker-Spikes zerstören Sättigungs-Signal",
+        ] };
+      }
+      if (np === "no_time") {
+        return { heading: "Dein spezifischer Hebel: Zeit-Friction reduzieren", items: [
+          "Sonntag-Prep: 30 Min reserviert — 1 kg Protein vorkochen, 3 Gemüse-Portionen schneiden, 2 Dressings mixen",
+          "Standard-Frühstück festlegen (z.B. Quark + Beeren + Nüsse + Haferflocken) — keine Entscheidungs-Fatigue morgens",
+          "Mittags: Reste vom Vortag + Gemüse = 5 Min Assembly, 0 Kochen. Essen in Tupper = transportabel.",
+          "Abends: 1 One-Pot-Rezept pro Woche rotieren — 20 Min Gesamt-Kochzeit, 2–3 Portionen auf einmal",
+          "Einkaufsliste fix → gleiche Zutaten jede Woche → weniger Entscheidungen → weniger Aufgeben",
+        ] };
+      }
+      return null;
+    })();
+    const out: PlanBlock[] = [
       { heading: "Deine Ausgangslage", items: [`Metabolic Score: ${score}/100 (${s.metabolic.metabolic_band})`, `BMI: ${bmi} kg/m² — WHO-Kategorie: ${cat} (Normalbereich: 18,5–24,9 kg/m²)`, `Activity Score: ${s.activity.activity_score_0_100}/100 — MET-Minuten/Woche: ${s.activity.total_met_minutes_week}`, `Sleep Score: ${s.sleep.sleep_score_0_100}/100 — Covassin RCT 2022: Schlafmangel erhöht viszerales Bauchfett unabhängig von der Ernährung`, `Stress Score: ${s.stress.stress_score_0_100}/100 — chronischer Stress senkt Insulinsensitivität und erhöht Cortisol-getriebene Fetteinlagerung`] },
+    ];
+    if (painpointBlock) out.push(painpointBlock);
+    out.push(
       { heading: "Ernährungs-Protokoll (ISSN/EFSA-Standard)", items: ["3 Hauptmahlzeiten + 1–2 Snacks — gleichmäßige Energieverteilung stabilisiert Blutzucker und vermeidet Heißhunger", "Protein: 1,6–2,2 g/kg KG/Tag (ISSN Position Stand) — für aktive Personen zur Muskelmasseerhaltung essenziell", "Kohlenhydrate: komplex und ballaststoffreich — Vollkorn, Hülsenfrüchte, Gemüse vor verarbeiteten Produkten priorisieren", "Gesättigte Fette: <10% der Gesamtenergie (WHO) — ungesättigte Fettsäuren (Oliven, Nüsse, Avocado) bevorzugen", "Gemüse & Obst: ≥400g/Tag (WHO-Mindestempfehlung) — am einfachsten: ≥2 Portionen Gemüse pro Hauptmahlzeit", "JAMA 2024: frühes Essen (Kalorienaufnahme bis 15:00 Uhr betont) → nachweislich bessere Gewichtskontrolle in 29 RCTs"] },
       { heading: "Hydrations-Protokoll", items: ["Grundbedarf: 30–35 ml × Körpergewicht (kg) pro Tag — bei 80 kg entspricht das 2,4–2,8 l", "Sport-Ergänzung: +500–750 ml pro Trainingsstunde — bei Schwitzen höherer Bedarf", "Morgens: 300–500 ml Wasser direkt nach dem Aufstehen — reaktiviert Stoffwechsel nach Nüchtern-Phase", "Timing: Wasser vor dem Essen trinken — reduziert Kalorienaufnahme und unterstützt Sättigung", "Zuckerhaltige Getränke vollständig durch Wasser, Mineralwasser oder ungesüßten Tee ersetzen"] },
       { heading: "Sitzzeit-Management & Alltagsaktivität", items: ["Frontiers 2022: >6h Sitzen/Tag erhöht Risiko für 12 chronische Erkrankungen — auch bei regelmäßigem Training", "AHA Science Advisory: Sitzzeit erhöht Metabolisches-Syndrom-Odds um Faktor 1.73 nach Sport-Adjustierung", "Bewegungspause alle 45–60 Min: 5 Min Stehen, Gehen, Treppensteigen — unterbricht metabolische Stagnation", "Aktive Mittagspause (15–20 Min Gehen) zählt als moderate Aktivität und senkt Blutzuckerspitzen nach dem Essen"] },
       { heading: "Schlaf & Stress als metabolische Hebel", items: [`Dein Sleep Score ${s.sleep.sleep_score_0_100}/100: Schlafmangel erhöht Ghrelin (Hungersignal) und senkt Leptin (Sättigungshormon) messbar`, "Kaczmarek 2025: Schlafmangel → Cortisol↑ → erhöhte Gluconeogenese → Blutzucker destabilisiert", `Stress Score ${s.stress.stress_score_0_100}/100: chronischer Stress → Insulin-Sensitivität↓ → Fetteinlagerung bevorzugt im viszeralen Bereich`, "Sondrup 2022: Schlafmangel → signifikant erhöhte Insulinresistenz — metabolische Medikamente können das nicht kompensieren"] },
       { heading: "Monitoring & Fortschritt", items: ["Mahlzeiten für 14 Tage tracken (App) — Ziel: Muster, nicht Kalorien-Obsession", "Körpergewicht 1×/Woche morgens nüchtern — gleiche Uhrzeit, gleiche Bedingungen", "Nachhaltiges Tempo: max. 0,5–1,0 kg/Woche Gewichtsveränderung (WHO-Empfehlung für langfristigen Erfolg)", "Taillenumfang alle 4 Wochen messen — besserer Indikator für viszerales Fett als Körpergewicht allein", "Alle 8 Wochen: Neue Analyse für objektive Score-Entwicklung"] },
-    ];
+    );
+    return out;
   }
 
   if (type === "recovery") {
@@ -284,26 +336,168 @@ function buildFallbackBlocks(type: PlanType, s: ScoreInput, p: PlanPersonalizati
   // stress
   const score = s.stress.stress_score_0_100;
   const band = s.stress.stress_band;
-  return [
+  const stressorBlock = (() => {
+    const src = p.stress_source;
+    if (!src || src === "none") return null;
+    if (src === "job") {
+      return { heading: "Dein spezifischer Stress-Hebel: Arbeit", items: [
+        "Feste Feierabend-Transition: 5 Min Atem-Reset direkt nach letztem Meeting, BEVOR du vom Schreibtisch aufstehst — trennt kognitive Modi",
+        "Keine Arbeits-Mails nach 20:00 Uhr — cortisol-triggernder Stimulus vor dem Schlaf fragmentiert Tiefschlaf",
+        "Mikro-Pausen: alle 90 Min 3 Min aufstehen + 5× tiefe Atemzüge — reduziert kumulativen Tagesstress messbar",
+        "1× pro Woche einen echten Feierabend (kein Laptop, kein Slack) als harten Cutoff — auch wenn der Rest der Woche chaotisch ist",
+        "Ultradiane Rhythmen nutzen: fokussiert arbeiten in 90-Min-Blöcken, 15 Min Pause — aligned mit natürlicher Aufmerksamkeits-Zyklus",
+      ] };
+    }
+    if (src === "family") {
+      return { heading: "Dein spezifischer Stress-Hebel: Familie / Beziehung", items: [
+        "Transitions-Ritual: 10 Min Allein-Zeit nach Heimkommen, BEVOR du in den Familien-Modus wechselst — verhindert dass Arbeits-Stress ins Zuhause übertragen wird",
+        "Gemeinsames Ritual pro Tag: eine feste 15-Min-Zeit (Abendessen, Spaziergang) ohne Handy — Qualität > Quantität für Beziehungs-Reserven",
+        "Konflikt-Regel: schwierige Gespräche NIE nach 21:00 Uhr — müde Gehirne eskalieren schneller (limbisches System dominiert)",
+        "Eigen-Zeit: 1× pro Woche 60 Min nur für dich — ohne schlechtes Gewissen, als Investition in Beziehungsqualität framen",
+        "Dankbarkeit als Familien-Habit: 1 positive Sache des Tages zu zweit benennen — stabilisiert Bindung messbar (Gottman-Forschung)",
+      ] };
+    }
+    if (src === "finances") {
+      return { heading: "Dein spezifischer Stress-Hebel: Finanzen", items: [
+        "Fixer Finanz-Slot: 1× pro Woche 20 Min für Zahlen-Check (gleicher Tag, gleiche Uhrzeit) — konzentriert diffuse Dauer-Sorge in einen Container",
+        "Rest der Woche: Finanz-Gedanken bewusst auf den Slot verschieben ('das schaue ich Sonntag an') — reduziert kognitive Belastung",
+        "Konkreter nächster Schritt statt Grübeln: Eine Aktion identifizieren (Ausgaben-Analyse, Beratungs-Termin, Gespräch) und datieren",
+        "Kein Handy-Banking in Stress-Momenten — Saldo-Check verstärkt akute Angst ohne Handlungsoption",
+        "Finanz-Stress ist oft Unsicherheits-Stress: 3 Szenarien notieren (Worst / Expected / Best) — begrenzt das Kopf-Kino",
+      ] };
+    }
+    if (src === "health") {
+      return { heading: "Dein spezifischer Stress-Hebel: Gesundheit", items: [
+        "Unterscheide: Sorge über KONTROLLIERBARES (Ernährung, Bewegung, Schlaf) vs. NICHT-kontrollierbar (Alter, Genetik) — Energie in Ersteres",
+        "Symptom-Tagebuch statt Google-Spiralen: notiere was dir auffällt, bring es zum Arzttermin — reduziert nachts-wach-liegen",
+        "Abend-Journal: 3 kontrollierbare Dinge heute gemacht → kalibriert Fokus auf Handlung statt Sorge",
+        "1 Arzttermin / Checkup pro Jahr als festes Ritual — reduziert diffuse Gesundheits-Angst durch echte Datenpunkte",
+        "Medizin-Nachrichten begrenzen: keine Symptom-Googlerei außerhalb konkreter Beschwerden — nährt Gesundheits-Angst messbar",
+      ] };
+    }
+    if (src === "future") {
+      return { heading: "Dein spezifischer Stress-Hebel: Zukunfts-Angst / Ungewissheit", items: [
+        "Kontroll-Kreis-Übung: tägliches Journal mit 3 Spalten (beeinflussbar / teilweise / gar nicht) — Energie nur in Spalte 1 investieren",
+        "5-Jahres-Horizont-Frage: 'Wird das in 5 Jahren noch wichtig sein?' — 80% der akuten Sorgen schrumpfen dadurch",
+        "Abend-Routine: 1 konkreter nächster Schritt für morgen — ersetzt endloses 'was-wäre-wenn'-Grübeln mit Handlung",
+        "Meditation/Atem-Praxis 10 Min täglich: trainiert Unsicherheits-Toleranz — Cortisol sinkt messbar in 4–8 Wochen",
+        "Zukunfts-Angst ist oft Lösungs-Ausweichen: die Angst sagt 'da ist was' — diesen Impuls nutzen, nicht unterdrücken",
+      ] };
+    }
+    return null;
+  })();
+  const ritualBlock = (() => {
+    const rr = p.recovery_ritual;
+    if (!rr || rr === "none") return null;
+    const map: Record<string, { heading: string; items: string[] }> = {
+      nature: { heading: "Dein Ritual ausbauen: Natur", items: [
+        "Mikro-Nature-Break im Alltag: 5 Min draußen zwischen Meetings (auch Balkon / Straße zählt) — senkt Cortisol messbar (Univ. Michigan 2020)",
+        "Wochenend-Ritual: 1× pro Woche 60+ Min in echter Natur (Wald, Park, Gewässer) — größerer biophiler Effekt als Stadt-Spaziergang",
+        "Tageslicht-Protokoll: erste 10 Min des Tages draußen (bei jedem Wetter) — synchronisiert zirkadianen Rhythmus, senkt Abend-Cortisol",
+        "Natur-Input abends: Bild/Video aus letztem Nature-Trip anschauen — selbst Visualisierung senkt physiologischen Stress",
+      ] },
+      sport: { heading: "Dein Ritual ausbauen: Sport als Stress-Tool", items: [
+        "Sport als Stress-Regulation framen, nicht nur Performance: 3× moderate Ausdauer (65–75% HFmax) senkt Cortisol langfristig",
+        "Bei akutem Stress >7/10: KEIN HIIT — das erhöht Cortisol weiter. Gehen, Yoga oder Dehnen bevorzugen.",
+        "Mikro-Bewegung bei Stressspitzen: 20 Kniebeugen oder 2 Min Treppen → akuter Cortisol-Abbau in <10 Min",
+        "Sport-Timing: morgens ODER nachmittags, nicht später als 19:00 Uhr — sonst kann Adrenalin das Einschlafen erschweren",
+      ] },
+      cooking: { heading: "Dein Ritual ausbauen: Kochen", items: [
+        "Kochen bewusst als Meditation in Bewegung nutzen: kein Handy in der Küche, volle Konzentration auf Handgriffe — senkt Cortisol",
+        "1× pro Woche 60 Min Slow Cooking als Ritual (ohne Zeitdruck) — aktiviert Parasympathikus analog zu Meditation",
+        "Meal-Prep-Sonntag als Anti-Stress-Anker: 90 Min Musik + Kochen + Woche vorbereiten = Kontrollgefühl für Mo-Fr",
+        "Gäste alle 2 Wochen: soziale Mahlzeit verstärkt Oxytocin + reduziert Cortisol messbar",
+      ] },
+      reading: { heading: "Dein Ritual ausbauen: Lesen", items: [
+        "Abend-Cutoff-Ritual: letzte 30 Min vor Schlaf Papier-Buch (kein Screen) — senkt Einschlaflatenz messbar, ersetzt Social-Media-Scrolling",
+        "Mittags-Ritual: 15 Min Lesepause ohne Arbeitsbezug — kognitiver Reset, reduziert Nachmittags-Cortisol-Spike",
+        "Wochenend-Morgen: 60 Min Lesen vor erstem Screen-Kontakt — schützt mentale Klarheit",
+        "Fiktion bevorzugen für Stress-Reduktion — aktiviert narrative Entspannung stärker als Sachbuch",
+      ] },
+      meditation: { heading: "Dein Ritual ausbauen: Meditation", items: [
+        "Von aktuell-praktizierter Dauer ausgehend: +2 Min pro Woche bis 15–20 Min/Tag — langsam > perfekt",
+        "Morgens > Abends für Cortisol-Regulation — Morgen-Meditation senkt Baseline über den Tag",
+        "Bei akutem Stress: 3 Min Box-Breathing (4-4-4-4) in real-time — klinisch validiert zur HRV-Verbesserung",
+        "App-frei 1× pro Woche: Timer + Stille — trainiert Unabhängigkeit vom Tool",
+      ] },
+      social: { heading: "Dein Ritual ausbauen: Soziale Verbindung", items: [
+        "1× pro Woche 60+ Min ungestörte Zeit mit wichtigster Person — Handy weg, volle Präsenz",
+        "Tägliches Kurz-Check-in mit 1 nahestehender Person (Anruf/Text) — regelmäßige soziale Nahrung > seltene Events",
+        "Nach stressigen Tagen: soziale Interaktion priorisieren statt Alleine-Grübeln — Oxytocin senkt Cortisol messbar",
+        "Einsamkeits-Check: wenn mehr als 3 Tage ohne echten Kontakt → aktiv planen statt warten",
+      ] },
+    };
+    return map[rr] ?? null;
+  })();
+  const out: PlanBlock[] = [
     { heading: "Deine Ausgangslage", items: [`Stress & Lifestyle Score: ${score}/100 (${band})`, `Sleep Score: ${s.sleep.sleep_score_0_100}/100 — direktes Wechselspiel: Stress erhöht Cortisol → Schlafarchitektur wird fragmentiert`, `Activity Score: ${s.activity.activity_score_0_100}/100 — Bewegung ist das effektivste Stress-Tool (nach Pharmaka)`, `Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 — PMC 2024: chronischer Stress → Insulinsensitivität↓, viszerale Fetteinlagerung↑`, "Psychoneuroendocrinology 2024: Mindfulness (g=0.345) und Entspannung (g=0.347) sind die effektivsten nicht-pharmakologischen Cortisol-Interventionen"] },
+  ];
+  if (stressorBlock) out.push(stressorBlock);
+  if (ritualBlock) out.push(ritualBlock);
+  out.push(
     { heading: "Tägliches Stress-Protokoll", items: ["Morgenroutine: 10 Min strukturierte Entspannung (Atemübung, Meditation oder stilles Journaling) — senkt Cortisol-Spike direkt nach dem Aufwachen", "Atemtechnik 4-7-8: 4 s einatmen (Nase) · 7 s halten · 8 s ausatmen (Mund) — aktiviert Parasympathikus in unter 90 Sekunden", "Mittagspause: 15–20 Min vollständig offline und ohne Arbeitsbezug — verhindert kumulativen Stressaufbau", "Abendroutine: To-do-Liste für morgen schreiben — Gedanken aus dem präfrontalen Kortex auslagern für besseren Schlafbeginn", "Box-Breathing (4-4-4-4): 4 Min täglich — klinisch validiert zur HRV-Verbesserung und Cortisol-Senkung (Navy SEAL Protokoll)"] },
     { heading: "Sport als neurobiologisches Stress-Tool", items: ["Moderate Ausdauer (65–75% HFmax), 3×/Woche: Cortisol langfristig senken durch Sensitivisierung der HPA-Achse", "Psychoneuroendocrinology 2024: aerobe Aktivität ist die einzige Intervention, die gleichzeitig Cortisol senkt UND Serotonin/BDNF erhöht", "Yoga/Pilates 2×/Woche: Kombination aus Bewegung und kontrollierter Atmung — synergistischer Effekt auf Parasympathikus", "KEIN intensives HIIT oder Maximalbelastung bei akutem Stresslevel >8/10 — erhöht Cortisol weiter und erhöht Verletzungsrisiko messbar", "Natur-Bewegung: 20 Min in natürlicher Umgebung senkt Cortisol-Spiegel nachweisbar (Univ. Michigan, 2020 meta-analysis)"] },
     { heading: "Schlaf als Anti-Stress-Intervention", items: ["7–9h Schlaf ist die kostenloseste und wirksamste Anti-Cortisol-Maßnahme — alles andere ist Symptombehandlung", "Kaczmarek 2025: Schlafmangel → Cortisol↑ und Testosteron↓ gleichzeitig — HPA-HPG-Achsen-Kaskade", "Schlafzeit stabilisieren auf ±30 Min täglich: normalisiert zirkadianen Rhythmus und senkt Baseline-Cortisol in 2–4 Wochen", "Kein Alkohol als Einschlafhilfe: unterbricht REM-Schlaf, erhöht nächtliche Cortisol-Pegel und verschlechtert Recovery"] },
     { heading: "Lifestyle-Optimierung & Resilienz", items: ["Digitale Auszeiten: 1–2h/Tag komplett offline (kein Smartphone, kein Social Media) — reduziert kognitiven Dauerstress", "Soziale Face-to-Face-Interaktion: nachgewiesen stressreduzierend durch Oxytocin-Ausschüttung (meta-analytisch belegt)", "Alkohol: >14 Einheiten/Woche aktivieren die Stressachse nachhaltig und verschlechtern Schlafarchitektur", "Koffein nach 14:00 Uhr: verlängert Cortisol-Halbwertszeit und erhöht Schlaflatenz — bei Stressbelastung zuerst hier ansetzen", "Frontiers 2022: >6h Sitzen/Tag → Risikofaktor für 12 chronische Erkrankungen unabhängig vom Stressmanagement"] },
     { heading: "Monitoring & Fortschritt", items: ["Subjektiven Stresslevel täglich 1–10 bewerten — 2-Wochen-Muster zeigen Trigger und Eskalationspunkte", "HRV (Heart Rate Variability) tracken (wenn verfügbar): steigt bei effektivem Stress-Management messbar in 4–8 Wochen", "Schlafqualität und Einschlafzeit korrelieren direkt mit Stressniveau — nutze sie als proximalen Indikator", "Kortisol-Signale im Alltag: Konzentrationsschwäche, Reizbarkeit, Heißhunger auf Zucker/Fett — alle sind Biomarker", "Alle 8 Wochen: Neue Analyse für objektiven Stress Score Vergleich"] },
-  ];
+  );
+  return out;
 }
 
 // ── User prompt builder ──────────────────────────────────────────────────────
 
 function buildUserPrompt(type: PlanType, s: ScoreInput, p: PlanPersonalization = {}): string {
   const overall = `Overall Score: ${s.overall_score_0_100}/100 (${s.overall_band})`;
+
+  // Tiefen-Inputs-Regel: welche Plan-Blöcke MÜSSEN den spezifischen
+  // Painpoint / Stressor / Ritual adressieren? Nur relevant für den
+  // Plan-Typ, der thematisch am nächsten liegt — sonst würde jeder Plan
+  // alles doppelt empfehlen.
+  const deepRules: string[] = [];
+  if (p.nutrition_painpoint && p.nutrition_painpoint !== "none" && (type === "metabolic" || type === "activity")) {
+    const npMap: Record<string, string> = {
+      cravings_evening: 'Mindestens 1 Block MUSS "Heißhunger abends" explizit adressieren — konkret mit Protein-Timing (z.B. 30 g Protein beim Abendessen stabilisiert Blutzucker → weniger Cravings in der Nacht).',
+      low_protein: "Mindestens 1 Block MUSS Protein-Targets konkret machen (z.B. 1,6–2,2 g/kg KG/Tag → Portionen × Mahlzeit runterbrechen).",
+      no_energy: "Mindestens 1 Block MUSS Energie-Timing adressieren (Frühstücks-Timing, Koffein-Cutoff, Blutzucker-Stabilisierung).",
+      no_time: "Mindestens 1 Block MUSS Meal-Prep-Friction reduzieren (Sonntags 30-Min-Prep, 2–3 Protein-Quellen vorkochen).",
+    };
+    const entry = npMap[p.nutrition_painpoint];
+    if (entry) deepRules.push(entry);
+  }
+  if (p.stress_source && p.stress_source !== "none" && (type === "stress" || type === "recovery")) {
+    const ssMap: Record<string, string> = {
+      job: 'Mindestens 1 Block MUSS Arbeits-Stress-Recovery adressieren (z.B. 3-Min-Atem-Reset nach letztem Meeting, klare Feierabend-Transition, keine Arbeits-Mails nach 20 Uhr).',
+      family: 'Mindestens 1 Block MUSS Familien-Transitionen adressieren (z.B. 10 Min Allein-Zeit nach Heimkommen, bevor in den Familien-Modus).',
+      finances: 'Mindestens 1 Block MUSS Finanz-Stress-Cognitive-Load adressieren (z.B. 1× pro Woche 20-Min-Finanz-Check in festem Zeitslot — reduziert diffuse Dauer-Sorge).',
+      health: 'Mindestens 1 Block MUSS Gesundheits-Unsicherheit kalibrieren (z.B. Abend-Journal: 3 kontrollierbare Dinge heute).',
+      future: 'Mindestens 1 Block MUSS Zukunfts-Angst kalibrieren (z.B. Journaling auf "3 heute-kontrollierbare Dinge" fokussieren).',
+    };
+    const entry = ssMap[p.stress_source];
+    if (entry) deepRules.push(entry);
+  }
+  if (p.recovery_ritual && p.recovery_ritual !== "none") {
+    const rrMap: Record<string, string> = {
+      sport: "Baue auf dem Ritual SPORT auf — keine komplett neue Routine aufzwingen.",
+      nature: 'Integriere NATUR-Exposure explizit (z.B. "5 Min draußen zwischen 2 Meetings" statt nur "Atem-Pause").',
+      cooking: "KOCHEN als Regenerations-Anker nutzen — z.B. 1× pro Woche Meal-Prep als bewusste Down-Time framen.",
+      reading: "LESEN als Abend-Cutoff-Ritual framen (letzte 30 Min vor Schlaf: Papier-Buch, kein Screen).",
+      meditation: "MEDITATION ausbauen statt komplett neu einführen — Dauer langsam steigern.",
+      social: 'Soziale Interaktion als Regenerations-Tool framen (z.B. "1× pro Woche ungestörte Zeit mit wichtiger Person").',
+    };
+    const entry = rrMap[p.recovery_ritual];
+    if (entry) deepRules.push(entry);
+  }
+  const deepRulesBlock = deepRules.length ? `\nTIEFEN-REGELN (diese Ausprägungen sind USER-spezifisch und müssen im Plan namentlich auftauchen):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n` : "";
+
   const personalizationBlock = `
 USER PERSONALISIERUNG (PFLICHT berücksichtigen):
 - Hauptziel: ${p.main_goal ?? "feel_better (Default)"}
 - Zeitbudget: ${p.time_budget ?? "moderate (Default)"}
 - Erfahrungslevel: ${p.experience_level ?? "intermediate (Default)"}
 - Aktuelle Trainingstage/Woche: ${p.training_days ?? "nicht angegeben"}
+- Ernährungs-Painpoint: ${p.nutrition_painpoint ?? "nicht angegeben"}
+- Haupt-Stressor: ${p.stress_source ?? "nicht angegeben"}
+- Liebstes Erholungs-Ritual: ${p.recovery_ritual ?? "nicht angegeben"}
 
 HARTE REGELN:
 - Wenn time_budget="minimal" (10–20 Min/Tag): KEINE Sessions >15 Min. Micro-Workouts + Alltagsbewegung priorisieren. NIE Zone-2-45-Min empfehlen.
@@ -311,7 +505,7 @@ HARTE REGELN:
 - Wenn main_goal ∈ {feel_better, stress_sleep, longevity}: Training kommt NACH Schlaf/Stress/Ernährungs-Fixes in der Priorität. Keine HIIT-Empfehlungen.
 - Wenn training_days=0: Starten bei 1×/Woche. NIE 5×/Woche als Startempfehlung.
 - NUR wenn main_goal="performance" UND time_budget ∈ {committed, athlete} UND experience_level ∈ {intermediate, advanced}: DANN sind 4–5 Einheiten/Woche angebracht.
-`;
+${deepRulesBlock}`;
 
   if (type === "activity") {
     const gap = Math.max(0, 600 - s.activity.total_met_minutes_week);
@@ -378,6 +572,9 @@ export async function POST(req: NextRequest) {
       time_budget: (body as { time_budget?: PlanPersonalization["time_budget"] }).time_budget ?? null,
       experience_level: (body as { experience_level?: PlanPersonalization["experience_level"] }).experience_level ?? null,
       training_days: (body as { training_days?: number | null }).training_days ?? null,
+      nutrition_painpoint: (body as { nutrition_painpoint?: PlanPersonalization["nutrition_painpoint"] }).nutrition_painpoint ?? null,
+      stress_source: (body as { stress_source?: PlanPersonalization["stress_source"] }).stress_source ?? null,
+      recovery_ritual: (body as { recovery_ritual?: PlanPersonalization["recovery_ritual"] }).recovery_ritual ?? null,
     };
 
     const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];

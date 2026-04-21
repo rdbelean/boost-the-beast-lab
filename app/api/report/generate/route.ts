@@ -489,6 +489,12 @@ export interface PremiumPromptContext {
   main_goal?: "feel_better" | "body_comp" | "performance" | "stress_sleep" | "longevity" | null;
   time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
   experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
+  /** Phase-2-Tiefe — Pflicht-Zitation im daily_life_protocol (siehe System-Prompt).
+   *  Wenn nutrition_painpoint="cravings_evening" → MUSS es eine Evening-Habit
+   *  geben die genau Heißhunger adressiert (30g Protein beim Dinner o.ä.). */
+  nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "none" | null;
+  stress_source?: "job" | "family" | "finances" | "health" | "future" | "none" | null;
+  recovery_ritual?: "sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none" | null;
   /** Data sources that fed this assessment — drives measured-vs-self-reported language. */
   data_sources?: {
     form: true;
@@ -622,6 +628,26 @@ Hauptziel: ${goalHumanDE[mainGoal] ?? mainGoal}
 Zeitbudget: ${timeBudgetHuman}
 Erfahrungslevel: ${experienceHumanDE[experience] ?? experience}
 Bildschirmzeit vor dem Schlaf: ${screenTime ?? "nicht angegeben"}
+
+═══════════════════════════════════════════════════════════
+TIEFEN-INPUTS (PFLICHT-ZITATION im daily_life_protocol)
+═══════════════════════════════════════════════════════════
+Ernährungs-Painpoint: ${ctx.nutrition_painpoint ?? "nicht angegeben"}
+Haupt-Stressor: ${ctx.stress_source ?? "nicht angegeben"}
+Liebstes Erholungs-Ritual: ${ctx.recovery_ritual ?? "nicht angegeben"}
+
+HARTE REGEL: Mindestens 3 der Habits im daily_life_protocol MÜSSEN diese drei Inputs NAMENTLICH adressieren.
+- Wenn nutrition_painpoint = "cravings_evening": mindestens 1 Evening- oder Nutrition-Habit, die Heißhunger adressiert (z.B. "30 g Protein beim Abendessen — stabilisiert Blutzucker → weniger Cravings").
+- Wenn nutrition_painpoint = "low_protein": mindestens 1 Nutrition-Habit mit konkretem Protein-Trigger (z.B. "Protein-Quelle zu jeder Mahlzeit — 3× täglich = ~120 g gesamt").
+- Wenn nutrition_painpoint = "no_energy": mindestens 1 Morning- oder Nutrition-Habit, die Energie-Stabilisierung adressiert (z.B. "Erstes Frühstück innerhalb 60 Min nach Aufstehen — stabilisiert Cortisol-Kurve").
+- Wenn nutrition_painpoint = "no_time": mindestens 1 Habit die Mahlzeiten-Friction reduziert (z.B. "5-Min-Prep-Routine Sonntag Abend — 3 Portionen Protein vorkochen").
+- Wenn stress_source = "job": mindestens 1 Work-Day-Habit die Arbeits-Stress-Recovery adressiert (z.B. "Nach letztem Meeting: 3 Min Atem-Reset BEVOR du aufstehst").
+- Wenn stress_source = "family": mindestens 1 Evening-Habit die Familien-Reset-Routine adressiert (z.B. "10 Min Allein-Zeit nach dem Nachhause-Kommen, bevor du in den Familien-Modus gehst").
+- Wenn stress_source = "finances": mindestens 1 Habit die Finanz-Stress-Cognitive-Load adressiert (z.B. "1× pro Woche 20-Min-Finanz-Check in festem Zeitslot — reduziert diffuse Dauer-Sorge").
+- Wenn stress_source = "health" oder "future": mindestens 1 Habit die Unsicherheits-Toleranz trainiert (z.B. "Abend-Journal: 3 kontrollierbare Dinge heute — kalibriert Fokus").
+- Wenn recovery_ritual ≠ "none": baue eine der Habits auf diesem Ritual auf (z.B. bei "nature": "Micro-Nature-Break: 5 Min draußen zwischen 2 Meetings" — nutzt das was der User schon liebt, statt was Neues aufzudrücken).
+
+Diese Regeln ersetzen NICHT die Zitierpflicht von Rohzahlen — sie kommen zusätzlich. Jede Daily-Habit braucht EINEN konkreten User-Input als Anker.
 
 
 ═══════════════════════════════════════════════════════════
@@ -774,6 +800,9 @@ interface DemoContext {
   main_goal?: PremiumPromptContext["main_goal"];
   time_budget?: PremiumPromptContext["time_budget"];
   experience_level?: PremiumPromptContext["experience_level"];
+  nutrition_painpoint?: PremiumPromptContext["nutrition_painpoint"];
+  stress_source?: PremiumPromptContext["stress_source"];
+  recovery_ritual?: PremiumPromptContext["recovery_ritual"];
   data_sources?: PremiumPromptContext["data_sources"];
 }
 
@@ -839,6 +868,9 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
       main_goal: ctx.main_goal ?? null,
       time_budget: ctx.time_budget ?? null,
       experience_level: ctx.experience_level ?? null,
+      nutrition_painpoint: ctx.nutrition_painpoint ?? null,
+      stress_source: ctx.stress_source ?? null,
+      recovery_ritual: ctx.recovery_ritual ?? null,
       data_sources: ctx.data_sources,
     });
     const anthropic = getAnthropic();
@@ -1194,6 +1226,13 @@ export async function POST(req: NextRequest) {
       time_budget: (respMap.get("time_budget") as PremiumPromptContext["time_budget"]) ?? null,
       experience_level:
         (respMap.get("experience_level") as PremiumPromptContext["experience_level"]) ?? null,
+      // Phase-2 Tiefen-Inputs
+      nutrition_painpoint:
+        (respMap.get("nutrition_painpoint") as PremiumPromptContext["nutrition_painpoint"]) ?? null,
+      stress_source:
+        (respMap.get("stress_source") as PremiumPromptContext["stress_source"]) ?? null,
+      recovery_ritual:
+        (respMap.get("recovery_ritual") as PremiumPromptContext["recovery_ritual"]) ?? null,
       data_sources: dataSources
         ? {
             form: true,
@@ -1337,17 +1376,25 @@ export async function POST(req: NextRequest) {
         main_goal: respMap.get("main_goal") ?? "feel_better",
         time_budget: respMap.get("time_budget") ?? "moderate",
         experience_level: respMap.get("experience_level") ?? "intermediate",
+        nutrition_painpoint: respMap.get("nutrition_painpoint") ?? "nicht angegeben",
+        stress_source: respMap.get("stress_source") ?? "nicht angegeben",
+        recovery_ritual: respMap.get("recovery_ritual") ?? "nicht angegeben",
       };
       const rawContextBlock = `
 User profile: age ${user.age}, gender ${user.gender}, BMI ${bmi}
 Main goal: ${subCtx.main_goal}
 Time budget: ${subCtx.time_budget}
 Experience level: ${subCtx.experience_level}
+Nutrition painpoint: ${subCtx.nutrition_painpoint}
+Main stress source: ${subCtx.stress_source}
+Favorite recovery ritual: ${subCtx.recovery_ritual}
 Raw inputs (CITE AT LEAST ONE NUMBER VERBATIM in each finding/insight/goal):
 - Sleep: ${subCtx.sleep_duration_h}h / quality ${subCtx.sleep_quality} / wakeups ${subCtx.wakeups} / recovery ${subCtx.morning_recovery_1_10}/10 / screen-cutoff ${subCtx.screen_time_before_sleep}
-- Stress: ${subCtx.stress_1_10}/10
+- Stress: ${subCtx.stress_1_10}/10 (source: ${subCtx.stress_source})
 - Activity: ${subCtx.training_days} days/wk (${subCtx.training_intensity}), ${subCtx.sitting_h}h sitting, ${subCtx.standing_h}h standing, ${subCtx.daily_steps} steps/day
-- Nutrition: ${subCtx.meals} meals/day, ${subCtx.water_l}L water, ${subCtx.fruit_veg} fruit/veg`;
+- Nutrition: ${subCtx.meals} meals/day, ${subCtx.water_l}L water, ${subCtx.fruit_veg} fruit/veg (painpoint: ${subCtx.nutrition_painpoint})
+
+When the user has a specific nutrition_painpoint or stress_source, the related finding/insight/goal MUST name that painpoint/source explicitly (not generic "improve nutrition" — instead "address your evening cravings by…").`;
 
       const localeDirective =
         locale === "de" ? 'Language: German, du-Form.' :
