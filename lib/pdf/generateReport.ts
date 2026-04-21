@@ -561,13 +561,14 @@ function moduleContentH(
   let h = 0;
 
   if (mod.score_context) {
-    // 15 (secLabel) + 14 (label-to-text gap) + textH + sectionGap
-    h += 15 + 14 + textH(mod.score_context, f.reg, L.bodySize, CW, L.lhBody) + L.sectionGap;
+    // 15 (secLabel) + 10 (tight after-heading gap) + textH + sectionGap
+    h += 15 + 10 + textH(mod.score_context, f.reg, L.bodySize, CW, L.lhBody) + L.sectionGap;
   }
 
   const finding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
   if (finding) {
-    h += 15 + 14 + textH(finding, f.bold, L.findingSize, CW, L.lhBody) + L.sectionGap;
+    // 12 (pre-heading boost) + 15 (secLabel) + 10 (tight after-heading gap) + textH + sectionGap
+    h += 12 + 15 + 10 + textH(finding, f.bold, L.findingSize, CW, L.lhBody) + L.sectionGap;
   }
 
   const systemic = mod.systemic_connection ?? mod.systemic_impact ?? "";
@@ -582,7 +583,7 @@ function moduleContentH(
   }
 
   if (metrics.length > 0) {
-    h += 8 + 18 + 52;  // pre-gap + secLabel + stat box height
+    h += 24 + 13 + 52;  // pre-gap (24) + after-heading gap (13) + stat box height
   }
 
   return h;
@@ -971,7 +972,7 @@ function buildModule(
   // ── EINORDNUNG ────────────────────────────────────────────────────────
   if (mod.score_context) {
     y = secLabel(page, "EINORDNUNG", f, MX, y);
-    y -= 14;  // gap between heading and body text (~20pt visual clearance)
+    y -= 10;  // tight gap: heading belongs to content below, not above
     y = drawW(page, mod.score_context, MX, y, CW, f.reg, L.bodySize, TXT_WHITE, L.lhBody);
     y -= L.sectionGap;
   }
@@ -979,8 +980,9 @@ function buildModule(
   // ── HAUPTBEFUND ───────────────────────────────────────────────────────
   const finding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
   if (finding) {
+    y -= 12;  // extra pre-heading gap: visually separates from previous section
     y = secLabel(page, "HAUPTBEFUND", f, MX, y);
-    y -= 14;  // gap between heading and body text
+    y -= 10;  // tight gap: heading belongs to content below
     y = drawW(page, finding, MX, y, CW, f.bold, L.findingSize, TXT_WHITE, L.lhBody);
     y -= L.sectionGap;
   }
