@@ -456,28 +456,98 @@ function tx(s: string | undefined | null): string {
 }
 
 // Wrap text into lines that each fit within maxW.
-function wrapLines(text: string, font: PDFFont, size: number, maxW: number): string[] {
-  const result: string[] = [];
+// Word-wrap that also tracks which wrapped lines end a paragraph (either
+// the very last line, or the last line before a manual \n break). Needed
+// for Blocktext/justified rendering: the last line of a paragraph is NEVER
+// justified — otherwise a single trailing word gets stretched across the
+// full width and looks broken.
+interface WrapResult {
+  lines: string[];
+  isParaEnd: boolean[];
+}
+
+function wrapLinesWithFlags(
+  text: string,
+  font: PDFFont,
+  size: number,
+  maxW: number,
+): WrapResult {
+  const lines: string[] = [];
+  const isParaEnd: boolean[] = [];
   const sanitised = tx(text);
-  if (!sanitised.trim()) return result;
-  for (const para of sanitised.split("\n")) {
-    if (!para.trim()) { result.push(""); continue; }
+  if (!sanitised.trim()) return { lines, isParaEnd };
+  const paras = sanitised.split("\n");
+  for (let p = 0; p < paras.length; p++) {
+    const para = paras[p];
+    if (!para.trim()) {
+      lines.push("");
+      isParaEnd.push(true);
+      continue;
+    }
+    const paraLines: string[] = [];
     let line = "";
-    for (const word of para.split(" ")) {
+    for (const word of para.split(" ").filter((w) => w.length > 0)) {
       const test = line ? `${line} ${word}` : word;
       if (font.widthOfTextAtSize(test, size) > maxW && line) {
-        result.push(line);
+        paraLines.push(line);
         line = word;
       } else {
         line = test;
       }
     }
-    if (line) result.push(line);
+    if (line) paraLines.push(line);
+    for (let i = 0; i < paraLines.length; i++) {
+      lines.push(paraLines[i]);
+      // Last line of this paragraph block → don't justify.
+      isParaEnd.push(i === paraLines.length - 1);
+    }
   }
-  return result;
+  return { lines, isParaEnd };
+}
+
+function wrapLines(text: string, font: PDFFont, size: number, maxW: number): string[] {
+  return wrapLinesWithFlags(text, font, size, maxW).lines;
+}
+
+// Render a single line as Blocktext (justified): all words' inter-word
+// gaps are stretched so the line fills exactly maxW. Skipped for
+// single-word lines and lines whose natural width already exceeds maxW.
+function drawJustifiedLine(
+  page: PDFPage,
+  line: string,
+  x: number,
+  y: number,
+  maxW: number,
+  font: PDFFont,
+  size: number,
+  color: Color,
+): void {
+  const words = line.split(" ").filter((w) => w.length > 0);
+  if (words.length <= 1) {
+    page.drawText(line, { x, y, size, font, color });
+    return;
+  }
+  let wordsTotal = 0;
+  for (const w of words) wordsTotal += font.widthOfTextAtSize(w, size);
+  const gapCount = words.length - 1;
+  const gapW = (maxW - wordsTotal) / gapCount;
+  // Safety net: if the line already overflows (very long unbreakable word),
+  // just draw naturally — forcing a negative gap would reverse text.
+  if (gapW <= 0) {
+    page.drawText(line, { x, y, size, font, color });
+    return;
+  }
+  let cx = x;
+  for (let i = 0; i < words.length; i++) {
+    page.drawText(words[i], { x: cx, y, size, font, color });
+    cx += font.widthOfTextAtSize(words[i], size) + gapW;
+  }
 }
 
 // Draw wrapped text; returns new y after last line.
+// `justify = true` (default) renders body copy as Blocktext — last line of
+// each paragraph stays left-aligned. Callers that need strict left-align
+// (short captions, measured widths) pass false.
 function drawW(
   page: PDFPage,
   text: string,
@@ -488,12 +558,19 @@ function drawW(
   size: number,
   color: Color,
   lhMul = 1.6,
+  justify = true,
 ): number {
   if (!text || !tx(text).trim()) return y;
   const lh = size * lhMul;
-  for (const line of wrapLines(text, font, size, maxW)) {
+  const { lines, isParaEnd } = wrapLinesWithFlags(text, font, size, maxW);
+  for (let i = 0; i < lines.length; i++) {
     if (y < CB) break;  // respect hard content-bottom floor
-    page.drawText(line, { x, y, size, font, color });
+    const line = lines[i];
+    if (justify && line.trim() && !isParaEnd[i]) {
+      drawJustifiedLine(page, line, x, y, maxW, font, size, color);
+    } else {
+      page.drawText(line, { x, y, size, font, color });
+    }
     y -= lh;
   }
   return y;
@@ -1012,8 +1089,8 @@ function buildExecutiveFindings(
     page.drawText(`${i + 1}`, { x: MX + 14, y: y - 16, size: 9, font: f.bold, color: col });
     page.drawText(tx(tLabel), { x: MX + 28, y: y - 16, size: 6.5, font: f.bold, color: col });
 
-    // Headline
-    drawW(page, tx(f2.headline), MX + 14, y - 32, CW - 32, f.bold, 11, TXT_WHITE, 1.4);
+    // Headline — kept left-aligned; justified bold headlines look stretched.
+    drawW(page, tx(f2.headline), MX + 14, y - 32, CW - 32, f.bold, 11, TXT_WHITE, 1.4, false);
 
     // Body
     const headlineLines = wrapLines(tx(f2.headline), f.bold, 11, CW - 32);
@@ -1176,7 +1253,7 @@ function buildDailyProtocolPage(
       const habitText = h.time_cost_min != null && h.time_cost_min > 0
         ? `${tx(h.habit)}  ·  ${h.time_cost_min} min`
         : tx(h.habit);
-      hy = drawW(page, habitText, MX + 14, hy, CW - 28, f.bold, 9.5, TXT_WHITE, 1.45);
+      hy = drawW(page, habitText, MX + 14, hy, CW - 28, f.bold, 9.5, TXT_WHITE, 1.45, false);
       hy -= 2;
       hy = drawW(page, tx(h.why_specific_to_user), MX + 14, hy, CW - 28, f.reg, 8, TXT_MUTED, 1.5);
       hy -= 8;

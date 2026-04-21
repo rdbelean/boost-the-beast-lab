@@ -130,25 +130,86 @@ function tx(s: string | undefined | null): string {
   return normalized.replace(/[^\x00-\xFF]/g, "");
 }
 
-function wrapLines(text: string, font: PDFFont, size: number, maxW: number): string[] {
-  const result: string[] = [];
+// Word-wrap + paragraph-end tracking, mirroring lib/pdf/generateReport.ts.
+// Kept duplicated here on purpose: the two generators have slightly
+// different tx()-sanitizer semantics and CB/footer rules; sharing a helper
+// would require funneling tx() through an argument and we'd rather keep
+// each generator self-contained.
+interface WrapResult {
+  lines: string[];
+  isParaEnd: boolean[];
+}
+
+function wrapLinesWithFlags(
+  text: string,
+  font: PDFFont,
+  size: number,
+  maxW: number,
+): WrapResult {
+  const lines: string[] = [];
+  const isParaEnd: boolean[] = [];
   const sanitised = tx(text);
-  if (!sanitised.trim()) return result;
-  for (const para of sanitised.split("\n")) {
-    if (!para.trim()) { result.push(""); continue; }
+  if (!sanitised.trim()) return { lines, isParaEnd };
+  const paras = sanitised.split("\n");
+  for (let p = 0; p < paras.length; p++) {
+    const para = paras[p];
+    if (!para.trim()) {
+      lines.push("");
+      isParaEnd.push(true);
+      continue;
+    }
+    const paraLines: string[] = [];
     let line = "";
-    for (const word of para.split(" ")) {
+    for (const word of para.split(" ").filter((w) => w.length > 0)) {
       const test = line ? `${line} ${word}` : word;
       if (font.widthOfTextAtSize(test, size) > maxW && line) {
-        result.push(line);
+        paraLines.push(line);
         line = word;
       } else {
         line = test;
       }
     }
-    if (line) result.push(line);
+    if (line) paraLines.push(line);
+    for (let i = 0; i < paraLines.length; i++) {
+      lines.push(paraLines[i]);
+      isParaEnd.push(i === paraLines.length - 1);
+    }
   }
-  return result;
+  return { lines, isParaEnd };
+}
+
+function wrapLines(text: string, font: PDFFont, size: number, maxW: number): string[] {
+  return wrapLinesWithFlags(text, font, size, maxW).lines;
+}
+
+function drawJustifiedLine(
+  page: PDFPage,
+  line: string,
+  x: number,
+  y: number,
+  maxW: number,
+  font: PDFFont,
+  size: number,
+  color: Color,
+): void {
+  const words = line.split(" ").filter((w) => w.length > 0);
+  if (words.length <= 1) {
+    page.drawText(line, { x, y, size, font, color });
+    return;
+  }
+  let wordsTotal = 0;
+  for (const w of words) wordsTotal += font.widthOfTextAtSize(w, size);
+  const gapCount = words.length - 1;
+  const gapW = (maxW - wordsTotal) / gapCount;
+  if (gapW <= 0) {
+    page.drawText(line, { x, y, size, font, color });
+    return;
+  }
+  let cx = x;
+  for (let i = 0; i < words.length; i++) {
+    page.drawText(words[i], { x: cx, y, size, font, color });
+    cx += font.widthOfTextAtSize(words[i], size) + gapW;
+  }
 }
 
 function drawW(
@@ -161,12 +222,19 @@ function drawW(
   size: number,
   color: Color,
   lhMul = 1.6,
+  justify = true,
 ): number {
   if (!text || !tx(text).trim()) return y;
   const lh = size * lhMul;
-  for (const line of wrapLines(text, font, size, maxW)) {
+  const { lines, isParaEnd } = wrapLinesWithFlags(text, font, size, maxW);
+  for (let i = 0; i < lines.length; i++) {
     if (y < 80) break;  // respect footer zone
-    page.drawText(line, { x, y, size, font, color });
+    const line = lines[i];
+    if (justify && line.trim() && !isParaEnd[i]) {
+      drawJustifiedLine(page, line, x, y, maxW, font, size, color);
+    } else {
+      page.drawText(line, { x, y, size, font, color });
+    }
     y -= lh;
   }
   return y;
@@ -393,7 +461,7 @@ function drawKeyTakeaways(
   for (let i = 0; i < actions.length; i++) {
     const num = String(i + 1);
     page.drawText(num, { x: MX + 16, y: itemY, size: 8, font: f.bold, color: accentColor });
-    itemY = drawW(page, actions[i], MX + 30, itemY, innerW - 16, f.bold, 9, TXT_WHITE, 1.5);
+    itemY = drawW(page, actions[i], MX + 30, itemY, innerW - 16, f.bold, 9, TXT_WHITE, 1.5, false);
     itemY -= 8;
   }
 
@@ -406,8 +474,9 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
   let page = doc.addPage([PW, PH]);
   let y = pageChrome(page, f, accentColor, today);
 
-  // Page title + subtitle — wrapped so long strings never overflow right margin
-  y = drawW(page, tx(plan.title).toUpperCase(), MX, y, CW, f.bold, 20, TXT_WHITE, 1.3);
+  // Page title + subtitle — wrapped so long strings never overflow right margin.
+  // Title gets left-align even when it wraps; stretched bold headlines look broken.
+  y = drawW(page, tx(plan.title).toUpperCase(), MX, y, CW, f.bold, 20, TXT_WHITE, 1.3, false);
   y -= 8;
   y = drawW(page, tx(plan.subtitle), MX, y, CW, f.reg, 8.5, TXT_MUTED);
   y -= 16;
