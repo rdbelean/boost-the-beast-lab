@@ -39,22 +39,45 @@ const PDF_LABELS: Record<Locale, {
   actionModerate: string;
   actionLow: string;
   dateLocale: string;
+  ageUnit: string;
+  einordnung: string;
+  hauptbefund: string;
+  systemischeVerbindung: string;
+  limitierung: string;
+  naechsterSchritt: string;
+  kennwerte: string;
+  findingsTitle: string;
+  connectionTitle: string;
+  actionPlanTitle: string;
+  goalLabel: string;
+  istLabel: string;
+  zielValueLabel: string;
+  messbarLabel: string;
+  typeWeakness: string;
+  typeStrength: string;
+  typeConnection: string;
+  qExcellent: string;
+  qStrong: string;
+  qGood: string;
+  qSecured: string;
+  disclaimer1: string;
+  disclaimer2: string;
 }> = {
   de: {
-    footerStrip: "PERFORMANCE LAB  |  Kein Ersatz für medizinische Beratung",
+    footerStrip: "PERFORMANCE LAB  |  Kein Ersatz f\u00FCr medizinische Beratung",
     legalTitle: "RECHTLICHER HINWEIS",
     legalAccent: "KEINE MEDIZINISCHE DIAGNOSE",
-    legalSub: "PERFORMANCE-INSIGHTS  |  KEIN ERSATZ FÜR ÄRZTLICHE BERATUNG",
+    legalSub: "PERFORMANCE-INSIGHTS  |  KEIN ERSATZ F\u00DCR \u00C4RZTLICHE BERATUNG",
     overallIndex: "OVERALL PERFORMANCE INDEX",
     gesamtbild: "GESAMTBILD",
-    topPriority: "TOP PRIORITÄT",
+    topPriority: "TOP PRIORIT\u00C4T",
     metKey: "MET-Minuten / Woche",
     trainingDaysKey: "Trainingstage / Woche",
     sittingKey: "Sitzzeit / Tag",
     sleepDuration: "Schlafdauer",
     sleepDurationValue: (h) => `${h} h / Nacht`,
     recoveryScore: "Recovery Score",
-    vo2Estimated: "Geschätzter VO2max",
+    vo2Estimated: "Gesch\u00E4tzter VO2max",
     fitnessLevel: "Fitness-Level",
     bmiKey: "BMI",
     bmiCategory: "Kategorie",
@@ -64,6 +87,29 @@ const PDF_LABELS: Record<Locale, {
     actionModerate: "MODERAT",
     actionLow: "GERING",
     dateLocale: "de-DE",
+    ageUnit: "Jahre",
+    einordnung: "EINORDNUNG",
+    hauptbefund: "HAUPTBEFUND",
+    systemischeVerbindung: "SYSTEMISCHE VERBINDUNG",
+    limitierung: "LIMITIERUNG",
+    naechsterSchritt: "N\u00C4CHSTER SCHRITT",
+    kennwerte: "KENNWERTE",
+    findingsTitle: "DEINE 3 WICHTIGSTEN FINDINGS",
+    connectionTitle: "ZUSAMMENH\u00C4NGE IN DEINEN DATEN",
+    actionPlanTitle: "DEIN 30-TAGE PROTOKOLL",
+    goalLabel: "ZIEL",
+    istLabel: "IST:",
+    zielValueLabel: "ZIEL:",
+    messbarLabel: "MESSBAR:",
+    typeWeakness: "SCHWACHSTELLE",
+    typeStrength: "ST\u00C4RKE",
+    typeConnection: "ZUSAMMENHANG",
+    qExcellent: "EXZELLENTE DATENBASIS",
+    qStrong: "STARKE DATENBASIS",
+    qGood: "GUTE DATENBASIS",
+    qSecured: "DATENBASIS GESICHERT",
+    disclaimer1: "Alle Angaben basieren auf selbstberichteten Daten und modellbasierten Berechnungen nach IPAQ, NSF/AASM, WHO und ACSM Leitlinien. VO2max ist eine algorithmische Sch\u00E4tzung nach dem Jackson Non-Exercise Prediction Model. Dieses Dokument stellt keine Heilaussagen dar und ist kein Medizinprodukt im Sinne der MDR.",
+    disclaimer2: "Dieser Report wurde auf Basis wissenschaftlicher Scoring-Modelle erstellt. Er ersetzt keine \u00E4rztliche Untersuchung, keine Labordiagnostik und keine individualisierte medizinische Beratung. Wende dich bei gesundheitlichen Beschwerden oder spezifischen Fragen an einen qualifizierten Arzt oder Therapeuten.",
   },
   en: {
     footerStrip: "PERFORMANCE LAB  |  Not a substitute for medical advice",
@@ -89,15 +135,38 @@ const PDF_LABELS: Record<Locale, {
     actionModerate: "MODERATE",
     actionLow: "LOW",
     dateLocale: "en-GB",
+    ageUnit: "yrs",
+    einordnung: "CONTEXT",
+    hauptbefund: "KEY FINDING",
+    systemischeVerbindung: "SYSTEMIC CONNECTION",
+    limitierung: "LIMITATION",
+    naechsterSchritt: "NEXT STEP",
+    kennwerte: "KEY METRICS",
+    findingsTitle: "YOUR 3 KEY FINDINGS",
+    connectionTitle: "CONNECTIONS IN YOUR DATA",
+    actionPlanTitle: "YOUR 30-DAY PROTOCOL",
+    goalLabel: "GOAL",
+    istLabel: "NOW:",
+    zielValueLabel: "TARGET:",
+    messbarLabel: "TRACKED:",
+    typeWeakness: "WEAKNESS",
+    typeStrength: "STRENGTH",
+    typeConnection: "CONNECTION",
+    qExcellent: "EXCELLENT DATA BASIS",
+    qStrong: "STRONG DATA BASIS",
+    qGood: "GOOD DATA BASIS",
+    qSecured: "DATA BASIS SECURED",
+    disclaimer1: "All data is based on self-reported information and model-based calculations per IPAQ, NSF/AASM, WHO and ACSM guidelines. VO2max is an algorithmic estimate based on the Jackson Non-Exercise Prediction Model. This document does not constitute medical claims and is not a medical device per MDR.",
+    disclaimer2: "This report was generated using scientific scoring models. It does not replace medical examination, laboratory diagnostics, or individualised medical consultation. For health concerns or specific questions, please consult a qualified physician or therapist.",
   },
   it: {
     footerStrip: "PERFORMANCE LAB  |  Non sostituisce la consulenza medica",
     legalTitle: "AVVISO LEGALE",
-    legalAccent: "NON È UNA DIAGNOSI MEDICA",
+    legalAccent: "NON \u00C8 UNA DIAGNOSI MEDICA",
     legalSub: "PERFORMANCE INSIGHT  |  NON SOSTITUISCE LA CONSULENZA MEDICA",
     overallIndex: "OVERALL PERFORMANCE INDEX",
     gesamtbild: "QUADRO GENERALE",
-    topPriority: "PRIORITÀ PRINCIPALE",
+    topPriority: "PRIORIT\u00C0 PRINCIPALE",
     metKey: "MET-minuti / settimana",
     trainingDaysKey: "Giorni di allenamento / settimana",
     sittingKey: "Tempo seduto / giorno",
@@ -114,6 +183,29 @@ const PDF_LABELS: Record<Locale, {
     actionModerate: "MODERATA",
     actionLow: "BASSA",
     dateLocale: "it-IT",
+    ageUnit: "anni",
+    einordnung: "CONTESTO",
+    hauptbefund: "RISULTATO PRINCIPALE",
+    systemischeVerbindung: "CONNESSIONE SISTEMICA",
+    limitierung: "LIMITAZIONE",
+    naechsterSchritt: "PASSO SUCCESSIVO",
+    kennwerte: "VALORI CHIAVE",
+    findingsTitle: "I TUOI 3 RISULTATI CHIAVE",
+    connectionTitle: "CONNESSIONI NEI TUOI DATI",
+    actionPlanTitle: "IL TUO PROTOCOLLO 30 GIORNI",
+    goalLabel: "OBIETTIVO",
+    istLabel: "ATTUALE:",
+    zielValueLabel: "OBIETTIVO:",
+    messbarLabel: "MONITORATO:",
+    typeWeakness: "PUNTO DEBOLE",
+    typeStrength: "PUNTO FORTE",
+    typeConnection: "CONNESSIONE",
+    qExcellent: "OTTIMA BASE DATI",
+    qStrong: "BUONA BASE DATI",
+    qGood: "BASE DATI BUONA",
+    qSecured: "BASE DATI GARANTITA",
+    disclaimer1: "Tutti i dati si basano su informazioni fornite dall'utente e calcoli modellistici secondo le linee guida IPAQ, NSF/AASM, WHO e ACSM. Il VO2max \u00E8 una stima algoritmica basata sul modello Jackson Non-Exercise Prediction. Questo documento non costituisce dichiarazioni mediche e non \u00E8 un dispositivo medico ai sensi del MDR.",
+    disclaimer2: "Questo report \u00E8 stato generato utilizzando modelli di scoring scientifici. Non sostituisce la visita medica, la diagnostica di laboratorio o la consulenza medica individualizzata. Per problemi di salute o domande specifiche, consultare un medico o terapista qualificato.",
   },
 };
 
@@ -626,7 +718,7 @@ function buildCover(
 
   // User info subtitle
   y -= 34;
-  const info = `Performance Report - ${user.age} Jahre, ${tx(user.gender)} | Overall: ${scores.overall.score}/100 (${tx(scores.overall.band)})`;
+  const info = `Performance Report - ${user.age} ${PDF_LABELS[currentLocale].ageUnit}, ${tx(user.gender)} | Overall: ${scores.overall.score}/100 (${tx(scores.overall.band)})`;
   y = drawW(page, info, MX, y, CW * 0.70, f.reg, 11, rgb(0.560, 0.553, 0.541));
 
   // Headline
@@ -666,13 +758,14 @@ function buildCover(
         page.drawText(per, { x: MX + 14, y: Math.max(sectionY - boxH + 14, sy), size: 7, font: f.reg, color: TXT_MUTED });
       }
       // Quality badge
+      const L2 = PDF_LABELS[currentLocale];
       const qLabels: Record<string, string> = {
-        excellent: "EXZELLENTE DATENBASIS",
-        strong:    "STARKE DATENBASIS",
-        good:      "GUTE DATENBASIS",
-        secured:   "DATENBASIS GESICHERT",
-        minimal:   "GUTE DATENBASIS",
-        none:      "DATENBASIS GESICHERT",
+        excellent: L2.qExcellent,
+        strong:    L2.qStrong,
+        good:      L2.qGood,
+        secured:   L2.qSecured,
+        minimal:   L2.qGood,
+        none:      L2.qSecured,
       };
       const qColors: Record<string, Color> = {
         excellent: SC_GREEN, strong: SC_GREEN, good: SC_GREEN,
@@ -752,7 +845,7 @@ function buildSummary(
   });
 
   // Right side user meta — 16pt inside box right edge to avoid clinging to border
-  const meta = `BMI ${user.bmi}  |  ${user.age} Jahre  |  ${tx(user.gender)}`;
+  const meta = `BMI ${user.bmi}  |  ${user.age} ${PDF_LABELS[currentLocale].ageUnit}  |  ${tx(user.gender)}`;
   const metaW = f.reg.widthOfTextAtSize(meta, 9);
   page.drawText(meta, { x: PW - MX - metaW - 16, y: y - 22, size: 9, font: f.reg, color: TXT_MUTED });
   const bCat = tx(user.bmi_category).toUpperCase();
@@ -788,22 +881,21 @@ function buildExecutiveFindings(
   const page = doc.addPage([PW, PH]);
   let y = pageChrome(page, f, today);
 
-  const isDE = currentLocale !== "en";
-  const title = isDE ? "DEINE 3 WICHTIGSTEN FINDINGS" : "YOUR 3 KEY FINDINGS";
-  y = secLabel(page, title, f, MX, y);
+  const L = PDF_LABELS[currentLocale];
+  y = secLabel(page, L.findingsTitle, f, MX, y);
   y -= 8;
 
   const typeColors: Record<string, Color> = { weakness: ACCENT, strength: SC_GREEN, connection: BLUE_INFO };
-  const typeLabels: Record<string, [string, string]> = {
-    weakness: ["SCHWACHSTELLE", "WEAKNESS"],
-    strength: ["ST\u00C4RKE", "STRENGTH"],
-    connection: ["ZUSAMMENHANG", "CONNECTION"],
+  const typeLabels: Record<string, string> = {
+    weakness: L.typeWeakness,
+    strength: L.typeStrength,
+    connection: L.typeConnection,
   };
 
   for (let i = 0; i < Math.min(3, findings.length); i++) {
     const f2 = findings[i];
     const col = typeColors[f2.type] ?? TXT_MUTED;
-    const tLabel = (typeLabels[f2.type] ?? ["FINDING", "FINDING"])[isDE ? 0 : 1];
+    const tLabel = typeLabels[f2.type] ?? "FINDING";
     const bodyH = textH(f2.body, f.reg, 9.5, CW - 32, 1.6);
     const headH = textH(f2.headline, f.bold, 11, CW - 32, 1.4);
     const boxH = Math.min(Math.max(64, headH + bodyH + 46), Math.max(0, y - CB));
@@ -843,8 +935,7 @@ function buildCrossInsightsPage(
   const page = doc.addPage([PW, PH]);
   let y = pageChrome(page, f, today);
 
-  const isDE = currentLocale !== "en";
-  y = secLabel(page, isDE ? "ZUSAMMENH\u00C4NGE IN DEINEN DATEN" : "CONNECTIONS IN YOUR DATA", f, MX, y);
+  y = secLabel(page, PDF_LABELS[currentLocale].connectionTitle, f, MX, y);
   y -= 8;
 
   for (const ins of insights.slice(0, 3)) {
@@ -876,8 +967,8 @@ function buildActionPlanPage(
   const page = doc.addPage([PW, PH]);
   let y = pageChrome(page, f, today);
 
-  const isDE = currentLocale !== "en";
-  y = secLabel(page, isDE ? "DEIN 30-TAGE PROTOKOLL" : "YOUR 30-DAY PROTOCOL", f, MX, y);
+  const L = PDF_LABELS[currentLocale];
+  y = secLabel(page, L.actionPlanTitle, f, MX, y);
   y -= 6;
 
   for (let gi = 0; gi < Math.min(3, goals.length); gi++) {
@@ -890,13 +981,13 @@ function buildActionPlanPage(
     page.drawRectangle({ x: MX, y: y - boxH, width: 4, height: boxH, color: SC_GREEN });
 
     // Goal number + headline
-    page.drawText(`${isDE ? "ZIEL" : "GOAL"} ${gi + 1}`, { x: MX + 14, y: y - 16, size: 6.5, font: f.bold, color: SC_GREEN });
+    page.drawText(`${L.goalLabel} ${gi + 1}`, { x: MX + 14, y: y - 16, size: 6.5, font: f.bold, color: SC_GREEN });
     page.drawText(tx(g.headline).toUpperCase(), { x: MX + 14, y: y - 30, size: 10, font: f.bold, color: TXT_WHITE });
 
-    // IST / ZIEL / SOURCE
-    const cvLabel = isDE ? "IST:" : "NOW:";
-    const tvLabel = isDE ? "ZIEL:" : "TARGET:";
-    const srcLabel = isDE ? "MESSBAR:" : "TRACKED:";
+    // NOW / TARGET / SOURCE
+    const cvLabel = L.istLabel;
+    const tvLabel = L.zielValueLabel;
+    const srcLabel = L.messbarLabel;
     page.drawText(`${cvLabel} ${tx(g.current_value)}`, { x: MX + 14, y: y - 46, size: 8, font: f.reg, color: TXT_MUTED });
     page.drawText(`${tvLabel} ${tx(g.target_value)}${g.delta_pct ? `  (${tx(g.delta_pct)})` : ""}`, { x: MX + 120, y: y - 46, size: 8, font: f.reg, color: SC_GREEN });
     page.drawText(`${srcLabel} ${tx(g.metric_source)}`, { x: MX + 14, y: y - 58, size: 7, font: f.reg, color: TXT_MUTED });
@@ -969,9 +1060,11 @@ function buildModule(
   page.drawRectangle({ x: MX, y, width: Math.max(2, (score / 100) * CW), height: 5, color: col });
   y -= 26;
 
+  const PL = PDF_LABELS[currentLocale];
+
   // ── EINORDNUNG ────────────────────────────────────────────────────────
   if (mod.score_context) {
-    y = secLabel(page, "EINORDNUNG", f, MX, y);
+    y = secLabel(page, PL.einordnung, f, MX, y);
     y -= 10;  // tight gap: heading belongs to content below, not above
     y = drawW(page, mod.score_context, MX, y, CW, f.reg, L.bodySize, TXT_WHITE, L.lhBody);
     y -= L.sectionGap;
@@ -981,7 +1074,7 @@ function buildModule(
   const finding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
   if (finding) {
     y -= 12;  // extra pre-heading gap: visually separates from previous section
-    y = secLabel(page, "HAUPTBEFUND", f, MX, y);
+    y = secLabel(page, PL.hauptbefund, f, MX, y);
     y -= 10;  // tight gap: heading belongs to content below
     y = drawW(page, finding, MX, y, CW, f.bold, L.findingSize, TXT_WHITE, L.lhBody);
     y -= L.sectionGap;
@@ -990,22 +1083,22 @@ function buildModule(
   // ── Info boxes ────────────────────────────────────────────────────────
   const systemic = mod.systemic_connection ?? mod.systemic_impact ?? "";
   if (systemic && tx(systemic).trim()) {
-    y = infoBox(page, "SYSTEMISCHE VERBINDUNG", systemic, f, MX, y, CW, BLUE_INFO,
+    y = infoBox(page, PL.systemischeVerbindung, systemic, f, MX, y, CW, BLUE_INFO,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
   if (mod.limitation && tx(mod.limitation).trim()) {
-    y = infoBox(page, "LIMITIERUNG", mod.limitation, f, MX, y, CW, ACCENT,
+    y = infoBox(page, PL.limitierung, mod.limitation, f, MX, y, CW, ACCENT,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
   if (mod.recommendation && tx(mod.recommendation).trim()) {
-    y = infoBox(page, "NÄCHSTER SCHRITT", mod.recommendation, f, MX, y, CW, SC_GREEN,
+    y = infoBox(page, PL.naechsterSchritt, mod.recommendation, f, MX, y, CW, SC_GREEN,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
 
   // ── Stat boxes ────────────────────────────────────────────────────────
   if (metrics.length > 0) {
     y -= 24;  // generous gap before heading (separates from previous section)
-    secLabel(page, "KENNWERTE", f, MX, y);
+    secLabel(page, PL.kennwerte, f, MX, y);
     y -= 13;  // tight gap after heading (heading belongs to content below)
     statBoxes(page, metrics, f, y);
   }
@@ -1041,18 +1134,10 @@ function buildDisclaimer(
   y = drawW(page, content.disclaimer, MX, y, CW, f.reg, 10.5, TXT_WHITE, 1.75);
   y -= 20;
 
-  y = drawW(
-    page,
-    "Alle Angaben basieren auf selbstberichteten Daten und modellbasierten Berechnungen nach IPAQ, NSF/AASM, WHO und ACSM Leitlinien. VO2max ist eine algorithmische Schätzung nach dem Jackson Non-Exercise Prediction Model. Dieses Dokument stellt keine Heilaussagen dar und ist kein Medizinprodukt im Sinne der MDR.",
-    MX, y, CW, f.reg, 10.5, TXT_WHITE, 1.75,
-  );
+  const DL = PDF_LABELS[currentLocale];
+  y = drawW(page, DL.disclaimer1, MX, y, CW, f.reg, 10.5, TXT_WHITE, 1.75);
   y -= 20;
-
-  y = drawW(
-    page,
-    "Dieser Report wurde auf Basis wissenschaftlicher Scoring-Modelle erstellt. Er ersetzt keine ärztliche Untersuchung, keine Labordiagnostik und keine individualisierte medizinische Beratung. Wende dich bei gesundheitlichen Beschwerden oder spezifischen Fragen an einen qualifizierten Arzt oder Therapeuten.",
-    MX, y, CW, f.reg, 10.5, TXT_WHITE, 1.75,
-  );
+  y = drawW(page, DL.disclaimer2, MX, y, CW, f.reg, 10.5, TXT_WHITE, 1.75);
   y -= 36;
 
   // Contact line

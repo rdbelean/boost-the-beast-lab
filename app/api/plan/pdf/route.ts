@@ -6,14 +6,14 @@ export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as { plan: PlanPdfInput };
-    const { plan } = body;
+    const body = await req.json() as { plan: PlanPdfInput; locale?: string };
+    const { plan, locale } = body;
 
     if (!plan?.title || !Array.isArray(plan?.blocks)) {
       return NextResponse.json({ error: "Missing plan data" }, { status: 400 });
     }
 
-    const pdfBytes = await generatePlanPDF(plan);
+    const pdfBytes = await generatePlanPDF({ ...plan, locale: locale ?? plan.locale });
 
     const slug = plan.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     const filename = `btb-${slug}.pdf`;

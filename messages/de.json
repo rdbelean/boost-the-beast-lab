@@ -797,5 +797,11 @@
     "disclaimer": "Hinweis: Die Inhalte und Ergebnisse von Boost The Beast Lab dienen ausschließlich der allgemeinen Information und stellen keine medizinische Beratung, Diagnose oder Therapieempfehlung dar. Sie ersetzen in keinem Fall den Besuch bei einem Arzt, Heilpraktiker oder sonstigen medizinischen Fachpersonal. Bei gesundheitlichen Beschwerden oder Fragen zu Ihrer Gesundheit konsultieren Sie bitte immer einen Arzt. Die Nutzung der bereitgestellten Informationen erfolgt auf eigene Verantwortung.",
     "copy": "© {year} Boost The Beast Lab. Alle Rechte vorbehalten.",
     "copy_note": "Kein Medizinprodukt · Keine Heilkunde i.S.d. HeilprG"
+  },
+  "cookie_banner": {
+    "aria_label": "Cookie-Hinweis",
+    "text": "Diese Website verwendet ausschließlich technisch notwendige Cookies für Login und Zahlungsabwicklung. Kein Tracking, keine Werbung.",
+    "policy_link": "Cookie-Richtlinie",
+    "dismiss": "Verstanden"
   }
 }

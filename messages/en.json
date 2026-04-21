@@ -797,5 +797,11 @@
     "disclaimer": "Disclaimer: The content and results from Boost The Beast Lab are provided for general information only and do not constitute medical advice, diagnosis, or treatment recommendations. They never replace a consultation with a physician, alternative practitioner, or other qualified medical professional. For any health concerns or questions regarding your health, always consult a physician. Use of the provided information is at your own risk.",
     "copy": "© {year} Boost The Beast Lab. All rights reserved.",
     "copy_note": "Not a medical device · Not healthcare per German HeilprG"
+  },
+  "cookie_banner": {
+    "aria_label": "Cookie Notice",
+    "text": "This website uses only technically necessary cookies for login and payment processing. No tracking, no advertising.",
+    "policy_link": "Cookie Policy",
+    "dismiss": "Got it"
   }
 }

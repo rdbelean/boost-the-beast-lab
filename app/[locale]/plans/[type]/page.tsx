@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "./plan.module.css";
 import { buildPlan, type PlanType, type PlanContent } from "@/lib/plan/buildPlan";
@@ -12,7 +12,7 @@ function openBlobInTab(blob: Blob) {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
-async function openPlanAsPDF(plan: PlanContent, _planType: string, cachedPdfBase64?: string | null) {
+async function openPlanAsPDF(plan: PlanContent, _planType: string, cachedPdfBase64?: string | null, locale = "de") {
   if (cachedPdfBase64) {
     const byteChars = atob(cachedPdfBase64);
     const bytes = new Uint8Array(byteChars.length);
@@ -23,7 +23,7 @@ async function openPlanAsPDF(plan: PlanContent, _planType: string, cachedPdfBase
   const res = await fetch("/api/plan/pdf", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ plan }),
+    body: JSON.stringify({ plan, locale }),
   });
   if (!res.ok) throw new Error("PDF generation failed");
   openBlobInTab(await res.blob());
@@ -47,6 +47,7 @@ function urgencyBucket(score: number): { key: UrgencyKey; color: string } {
 export default function PlanPage() {
   const t = useTranslations("plans_detail");
   const tResults = useTranslations("results");
+  const locale = useLocale();
   const { type } = useParams() as { type: string };
   const [plan, setPlan] = useState<PlanContent | null>(null);
   const [cachedPdfBase64, setCachedPdfBase64] = useState<string | null>(null);
@@ -81,7 +82,7 @@ export default function PlanPage() {
       fetch("/api/plan/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, scores: data.scores }),
+        body: JSON.stringify({ type, scores: data.scores, locale }),
       })
         .then((r) => r.ok ? r.json() : null)
         .then((ai) => {
@@ -120,7 +121,7 @@ export default function PlanPage() {
       <div className={styles.header}>
         <Link href="/results" className={styles.backLink}>{t("back_to_report_upper")}</Link>
         <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
-        <button onClick={() => openPlanAsPDF(plan, type, cachedPdfBase64)} className={styles.printBtn}>
+        <button onClick={() => openPlanAsPDF(plan, type, cachedPdfBase64, locale)} className={styles.printBtn}>
           {t("pdf_download")}
         </button>
       </div>

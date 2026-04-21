@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import styles from "./analyse.module.css";
 import SliderInput from "@/components/analyse/SliderInput";
@@ -20,6 +20,7 @@ interface PlanBundle {
 async function generatePlanBundle(
   planType: PlanType,
   scores: Record<string, unknown>,
+  locale = "de",
 ): Promise<PlanBundle | null> {
   // 1. Build static fallback content locally
   const basePlan = buildPlan(planType, scores);
@@ -31,7 +32,7 @@ async function generatePlanBundle(
     const aiRes = await fetch("/api/plan/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: planType, scores }),
+      body: JSON.stringify({ type: planType, scores, locale }),
     });
     if (aiRes.ok) {
       const ai = (await aiRes.json()) as { blocks?: PlanBlock[]; source?: string };
@@ -50,7 +51,7 @@ async function generatePlanBundle(
     const pdfRes = await fetch("/api/plan/pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan: merged }),
+      body: JSON.stringify({ plan: merged, locale }),
     });
     if (!pdfRes.ok) {
       console.warn(`[plan ${planType}] PDF gen failed`, pdfRes.status);
@@ -263,6 +264,7 @@ export default function AnalysePage() {
 
 function AnalyseContent() {
   const t = useTranslations("analyse");
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
   const preselectedProduct = searchParams.get("product") ?? "complete-analysis";
@@ -576,7 +578,7 @@ function AnalyseContent() {
 
       const PLAN_TYPES: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
       const planPromises = PLAN_TYPES.map((planType) =>
-        generatePlanBundle(planType, scores)
+        generatePlanBundle(planType, scores, locale)
           .then((bundle) => {
             setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
             return { planType, bundle };

@@ -50,12 +50,12 @@ export default function DataInsightBlock({ dimension, rows, interpretation }: Da
           return (
             <div
               key={row.label_key}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, minWidth: 0 }}
             >
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-inter), sans-serif", flexShrink: 0 }}>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-inter), sans-serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flexShrink: 1 }}>
                 {labelText}
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: row.evaluation?.color ?? "rgba(255,255,255,0.85)", fontFamily: "var(--font-jetbrains-mono), monospace", whiteSpace: "nowrap" }}>
                   {row.value}{row.unit ? ` ${row.unit}` : ""}
                 </span>

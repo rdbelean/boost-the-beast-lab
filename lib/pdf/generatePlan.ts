@@ -18,6 +18,7 @@ export interface PlanPdfInput {
   color: string;
   score?: number;      // Used for urgency label on cover
   blocks: PlanBlock[];
+  locale?: string;     // "de" | "en" | "it" — defaults to "de"
 }
 
 // ── Page dimensions ────────────────────────────────────────────────────────
@@ -45,13 +46,48 @@ function hexToRgb(hex: string): Color {
   return rgb(r, g, b);
 }
 
+const PLAN_LABELS: Record<string, {
+  scientificBasis: string;
+  keyActions: string;
+  individualPlan: string;
+  footerNote: string;
+  dateLocale: string;
+  urgency: [string, string, string, string, string];
+}> = {
+  de: {
+    scientificBasis: "WISSENSCHAFTLICHE EINORDNUNG",
+    keyActions: "DEINE WICHTIGSTEN MASSNAHMEN",
+    individualPlan: "INDIVIDUELLER PLAN",
+    footerNote: "PERFORMANCE LAB  |  Kein Ersatz f\u00FCr medizinische Beratung",
+    dateLocale: "de-DE",
+    urgency: ["KRITISCH", "HANDLUNGSBEDARF", "OPTIMIERUNGSPOTENZIAL", "FEINTUNING", "TOP-LEVEL"],
+  },
+  en: {
+    scientificBasis: "SCIENTIFIC BASIS",
+    keyActions: "YOUR KEY ACTIONS",
+    individualPlan: "INDIVIDUAL PLAN",
+    footerNote: "PERFORMANCE LAB  |  Not a substitute for medical advice",
+    dateLocale: "en-GB",
+    urgency: ["CRITICAL", "ACTION NEEDED", "OPTIMIZATION POTENTIAL", "FINE-TUNING", "TOP-LEVEL"],
+  },
+  it: {
+    scientificBasis: "BASE SCIENTIFICA",
+    keyActions: "LE TUE AZIONI PRINCIPALI",
+    individualPlan: "PIANO INDIVIDUALE",
+    footerNote: "PERFORMANCE LAB  |  Non sostituisce la consulenza medica",
+    dateLocale: "it-IT",
+    urgency: ["CRITICO", "AZIONE RICHIESTA", "POTENZIALE DI OTTIMIZZAZIONE", "FINE-TUNING", "TOP-LEVEL"],
+  },
+};
+
 // Urgency label derived from score (matches web urgencyLabel() helper)
-function urgencyInfo(score: number): { text: string; color: Color } {
-  if (score <= 30) return { text: "KRITISCH",             color: rgb(0.863, 0.149, 0.149) };
-  if (score <= 50) return { text: "HANDLUNGSBEDARF",      color: rgb(0.706, 0.325, 0.035) };
-  if (score <= 70) return { text: "OPTIMIERUNGSPOTENZIAL",color: rgb(0.631, 0.631, 0.667) };
-  if (score <= 85) return { text: "FEINTUNING",           color: rgb(0.302, 0.486, 0.059) };
-  return                 { text: "TOP-LEVEL",             color: rgb(0.082, 0.502, 0.239) };
+function urgencyInfo(score: number, locale = "de"): { text: string; color: Color } {
+  const u = (PLAN_LABELS[locale] ?? PLAN_LABELS["de"]).urgency;
+  if (score <= 30) return { text: u[0], color: rgb(0.863, 0.149, 0.149) };
+  if (score <= 50) return { text: u[1], color: rgb(0.706, 0.325, 0.035) };
+  if (score <= 70) return { text: u[2], color: rgb(0.631, 0.631, 0.667) };
+  if (score <= 85) return { text: u[3], color: rgb(0.302, 0.486, 0.059) };
+  return                 { text: u[4], color: rgb(0.082, 0.502, 0.239) };
 }
 
 // ── Text utilities ─────────────────────────────────────────────────────────
@@ -150,10 +186,10 @@ function pageChrome(page: PDFPage, f: F, accentColor: Color, today: string): num
   return lineY - 26;
 }
 
-function pageFooter(page: PDFPage, f: F, today: string): void {
+function pageFooter(page: PDFPage, f: F, today: string, locale = "de"): void {
   const fy = 32;
   page.drawLine({ start: { x: MX, y: fy + 13 }, end: { x: PW - MX, y: fy + 13 }, thickness: 0.5, color: BORDER_C });
-  page.drawText("PERFORMANCE LAB  |  Kein Ersatz für medizinische Beratung", { x: MX, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
+  page.drawText((PLAN_LABELS[locale] ?? PLAN_LABELS["de"]).footerNote, { x: MX, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
   const tw = f.reg.widthOfTextAtSize(today, 7);
   page.drawText(today, { x: PW - MX - tw, y: fy, size: 7, font: f.reg, color: TXT_MUTED });
 }
@@ -178,9 +214,9 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
   y -= 16;
   page.drawText("PERFORMANCE LAB", { x: textX, y, size: 7, font: f.reg, color: accentColor });
 
-  // "INDIVIDUELLER PLAN" badge
+  // Plan type badge
   y -= 56;
-  const badgeTxt = "INDIVIDUELLER PLAN";
+  const badgeTxt = (PLAN_LABELS[plan.locale ?? "de"] ?? PLAN_LABELS["de"]).individualPlan;
   const badgeW = f.bold.widthOfTextAtSize(badgeTxt, 7) + 24;
   page.drawRectangle({ x: MX, y: y - 5, width: badgeW, height: 20, color: BG_INSET });
   page.drawRectangle({ x: MX, y: y + 14, width: badgeW, height: 2, color: accentColor });
@@ -196,7 +232,7 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
   // Score + urgency label (if score provided)
   if (plan.score != null) {
     y -= 8;
-    const { text: urgTxt, color: urgColor } = urgencyInfo(plan.score);
+    const { text: urgTxt, color: urgColor } = urgencyInfo(plan.score, plan.locale ?? "de");
     const scoreStr = `${plan.score}/100`;
     page.drawText(scoreStr, { x: MX, y, size: 18, font: f.bold, color: accentColor });
     const scoreW = f.bold.widthOfTextAtSize(scoreStr, 18);
@@ -249,6 +285,7 @@ function drawBlock(
   f: F,
   accentColor: Color,
   startY: number,
+  locale = "de",
 ): number {
   const innerW = CW - 32;  // 16pt left (3pt bar + 13pt gap) + 16pt right
   const bh = blockHeight(block, f) - 20;  // strip inter-block gap to get card height
@@ -286,7 +323,7 @@ function drawBlock(
       thickness: 0.5, color: BORDER_C,
     });
     itemY -= 12;
-    page.drawText("WISSENSCHAFTLICHE EINORDNUNG", {
+    page.drawText((PLAN_LABELS[locale] ?? PLAN_LABELS["de"]).scientificBasis, {
       x: MX + 16, y: itemY, size: 6, font: f.bold, color: TXT_MUTED,
     });
     itemY -= 12;
@@ -321,7 +358,7 @@ function drawKeyTakeaways(
   page.drawRectangle({ x: MX, y: startY - 5, width: CW, height: 5, color: accentColor });
 
   // Heading
-  page.drawText("DEINE WICHTIGSTEN MASSNAHMEN", {
+  page.drawText((PLAN_LABELS[plan.locale ?? "de"] ?? PLAN_LABELS["de"]).keyActions, {
     x: MX + 16, y: startY - 20, size: 7, font: f.bold, color: accentColor,
   });
   page.drawLine({
@@ -357,7 +394,7 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
     const bh = blockHeight(block, f);
 
     if (y - bh < 80) {  // 80pt = SAFE_Y; footer line is at 45pt
-      pageFooter(page, f, today);
+      pageFooter(page, f, today, plan.locale);
       page = doc.addPage([PW, PH]);
       y = pageChrome(page, f, accentColor, today);
       // Compact muted continuation header with a visual rule — gives clear top separation
@@ -371,11 +408,13 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
       y -= 20;
     }
 
-    y = drawBlock(page, block, f, accentColor, y);
+    y = drawBlock(page, block, f, accentColor, y, plan.locale ?? "de");
   }
 
   // ── Key takeaways card ────────────────────────────────────────────────────
   // Pre-compute height so we never draw a box that bleeds into the footer.
+  const locale = plan.locale ?? "de";
+  const PL = PLAN_LABELS[locale] ?? PLAN_LABELS["de"];
   const srcInnerW = CW - 32;
   const srcH = plan.source ? Math.max(44, textH(plan.source, f.reg, 8.5, srcInnerW, 1.5) + 28) : 0;
 
@@ -402,17 +441,18 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
   if (plan.source && y - 4 - srcH > 80) {
     y -= 4;
     page.drawRectangle({ x: MX, y: y - srcH, width: CW, height: srcH, color: BG_INSET });
-    page.drawText("WISSENSCHAFTLICHE BASIS", { x: MX + 16, y: y - 14, size: 6, font: f.bold, color: TXT_MUTED });
+    page.drawText(PL.scientificBasis, { x: MX + 16, y: y - 14, size: 6, font: f.bold, color: TXT_MUTED });
     drawW(page, plan.source, MX + 16, y - 28, srcInnerW, f.reg, 8.5, TXT_MUTED, 1.5);
   }
 
-  pageFooter(page, f, today);
+  pageFooter(page, f, today, locale);
 }
 
 // ── Main export ────────────────────────────────────────────────────────────
 
 export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
-  const today = new Date().toLocaleDateString("de-DE", {
+  const dateLocale = (PLAN_LABELS[plan.locale ?? "de"] ?? PLAN_LABELS["de"]).dateLocale;
+  const today = new Date().toLocaleDateString(dateLocale, {
     year: "numeric",
     month: "long",
     day: "numeric",

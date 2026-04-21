@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 const STORAGE_KEY = "btb_cookie_notice";
 
 export default function CookieBanner() {
+  const t = useTranslations("cookie_banner");
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function CookieBanner() {
   return (
     <div
       role="region"
-      aria-label="Cookie-Hinweis"
+      aria-label={t("aria_label")}
       style={{
         position: "fixed",
         bottom: 0,
@@ -51,13 +53,12 @@ export default function CookieBanner() {
           flex: "1 1 300px",
         }}
       >
-        Diese Website verwendet ausschließlich technisch notwendige Cookies für
-        Login und Zahlungsabwicklung. Kein Tracking, keine Werbung.{" "}
+        {t("text")}{" "}
         <Link
           href="/cookies"
           style={{ color: "rgba(255,255,255,0.85)", textDecoration: "underline" }}
         >
-          Cookie-Richtlinie
+          {t("policy_link")}
         </Link>
       </p>
 
@@ -78,7 +79,7 @@ export default function CookieBanner() {
           textTransform: "uppercase",
         }}
       >
-        Verstanden
+        {t("dismiss")}
       </button>
     </div>
   );

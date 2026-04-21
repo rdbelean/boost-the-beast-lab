@@ -14,16 +14,18 @@ function hasValidKey(key: string | undefined): boolean {
   return true;
 }
 
-const PLAN_META: Record<PlanType, { title: string; subtitle: string; source: string }> = {
+type PlanMeta = Record<PlanType, { title: string; subtitle: string; source: string }>;
+
+const PLAN_META_DE: PlanMeta = {
   activity: {
     title: "ACTIVITY-PLAN",
-    subtitle: "Individueller Plan zur Verbesserung deiner Aktivitätswerte",
-    source: "Basiert auf: WHO Global Action Plan 2018–2030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022, AMA Longevity Study 2024",
+    subtitle: "Individueller Plan zur Verbesserung deiner Aktivit\u00E4tswerte",
+    source: "Basiert auf: WHO Global Action Plan 2018\u20132030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022, AMA Longevity Study 2024",
   },
   metabolic: {
     title: "METABOLIC-PLAN",
     subtitle: "Individueller Plan zur Optimierung deiner metabolischen Performance",
-    source: "Basiert auf: WHO BMI-Klassifikation, EFSA Nährwertempfehlungen, ISSN Position Stand, JAMA Network Open Meal Timing 2024, Covassin et al. RCT 2022",
+    source: "Basiert auf: WHO BMI-Klassifikation, EFSA N\u00E4hrwertempfehlungen, ISSN Position Stand, JAMA Network Open Meal Timing 2024, Covassin et al. RCT 2022",
   },
   recovery: {
     title: "RECOVERY-PLAN",
@@ -36,6 +38,58 @@ const PLAN_META: Record<PlanType, { title: string; subtitle: string; source: str
     source: "Basiert auf: WHO Mental Health Guidelines, Psychoneuroendocrinology Meta-Analysis 2024, MBSR (Kabat-Zinn), Frontiers Sedentary & CVD 2022",
   },
 };
+
+const PLAN_META_EN: PlanMeta = {
+  activity: {
+    title: "ACTIVITY PLAN",
+    subtitle: "Individual plan to improve your activity metrics",
+    source: "Based on: WHO Global Action Plan 2018\u20132030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022, AMA Longevity Study 2024",
+  },
+  metabolic: {
+    title: "METABOLIC PLAN",
+    subtitle: "Individual plan to optimise your metabolic performance",
+    source: "Based on: WHO BMI Classification, EFSA Nutrition Recommendations, ISSN Position Stand, JAMA Network Open Meal Timing 2024, Covassin et al. RCT 2022",
+  },
+  recovery: {
+    title: "RECOVERY PLAN",
+    subtitle: "Individual plan to improve your recovery",
+    source: "Based on: NSF/AASM Sleep Guidelines, PSQI Scale, ACSM Recovery Protocols, Kaczmarek et al. MDPI 2025, PMC OTS Review 2025",
+  },
+  stress: {
+    title: "STRESS & LIFESTYLE PLAN",
+    subtitle: "Individual plan to optimise stress and lifestyle",
+    source: "Based on: WHO Mental Health Guidelines, Psychoneuroendocrinology Meta-Analysis 2024, MBSR (Kabat-Zinn), Frontiers Sedentary & CVD 2022",
+  },
+};
+
+const PLAN_META_IT: PlanMeta = {
+  activity: {
+    title: "PIANO ATTIVIT\u00C0",
+    subtitle: "Piano individuale per migliorare i tuoi valori di attivit\u00E0",
+    source: "Basato su: WHO Global Action Plan 2018\u20132030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022",
+  },
+  metabolic: {
+    title: "PIANO METABOLICO",
+    subtitle: "Piano individuale per ottimizzare la tua performance metabolica",
+    source: "Basato su: Classificazione BMI WHO, Raccomandazioni nutrizionali EFSA, ISSN Position Stand, JAMA Network Open 2024",
+  },
+  recovery: {
+    title: "PIANO RECOVERY",
+    subtitle: "Piano individuale per migliorare la tua rigenerazione",
+    source: "Basato su: NSF/AASM Sleep Guidelines, Scala PSQI, ACSM Recovery Protocols, Kaczmarek et al. MDPI 2025",
+  },
+  stress: {
+    title: "PIANO STRESS & LIFESTYLE",
+    subtitle: "Piano individuale per ottimizzare stress e stile di vita",
+    source: "Basato su: WHO Mental Health Guidelines, Meta-Analysis Psychoneuroendocrinology 2024, MBSR (Kabat-Zinn)",
+  },
+};
+
+function getPlanMeta(locale: string): PlanMeta {
+  if (locale === "en") return PLAN_META_EN;
+  if (locale === "it") return PLAN_META_IT;
+  return PLAN_META_DE;
+}
 
 const SYSTEM_PROMPT = `Du bist das Plan-Generierungs-System von BOOST THE BEAST LAB — ein präzises wissenschaftliches Performance-Tool.
 
@@ -236,27 +290,31 @@ export async function POST(req: NextRequest) {
     }
 
     const planType = type as PlanType;
-    const meta = PLAN_META[planType];
+    const locale = (body as { locale?: string }).locale ?? "de";
+    const meta = getPlanMeta(locale)[planType];
 
     if (!hasValidKey(process.env.ANTHROPIC_API_KEY)) {
       const fallback = buildFallbackBlocks(planType, scores);
-      return NextResponse.json({ ...meta, blocks: fallback });
+      return NextResponse.json({ ...meta, locale, blocks: fallback });
     }
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const userPrompt = buildUserPrompt(planType, scores);
+    const langDirective =
+      locale === "en" ? "\n\nIMPORTANT: Respond entirely in English." :
+      locale === "it" ? "\n\nIMPORTANT: Rispondi interamente in italiano." : "";
 
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 3000,
-      system: SYSTEM_PROMPT,
+      system: SYSTEM_PROMPT + langDirective,
       messages: [{ role: "user", content: userPrompt }],
     });
 
     const text = (response.content[0] as { type: string; text: string }).text.trim();
     const parsed = JSON.parse(text) as { blocks: PlanBlock[] };
 
-    return NextResponse.json({ ...meta, blocks: parsed.blocks });
+    return NextResponse.json({ ...meta, locale, blocks: parsed.blocks });
   } catch (err) {
     console.error("[plan/generate] error:", err);
     return NextResponse.json({ error: "Generation failed" }, { status: 500 });
