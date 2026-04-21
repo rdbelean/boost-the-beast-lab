@@ -187,12 +187,37 @@
     },
     "category_label": "CATEGORY",
     "categories": {
+      "0": "YOUR STARTING POINT",
       "1": "BODY DATA & METABOLISM",
       "2": "ACTIVITY & TRAINING",
       "3": "RECOVERY & REGENERATION",
       "4": "NUTRITION, STRESS & LIFESTYLE"
     },
     "q": {
+      "main_goal": {
+        "label": "WHAT DO YOU ACTUALLY WANT?",
+        "sub": "Your answer drives what the report focuses on — no template, built around your goal.",
+        "feel_better": "Feel more energized and fit in daily life",
+        "body_comp": "Reduce body fat or build muscle",
+        "performance": "Improve athletic performance (endurance / strength)",
+        "stress_sleep": "Sleep better and bring stress down",
+        "longevity": "Stay healthy long term — prevention"
+      },
+      "time_budget": {
+        "label": "HOW MUCH TIME DO YOU REALISTICALLY HAVE PER DAY?",
+        "sub": "Be honest — the plan should fit your life, not the other way around.",
+        "minimal": "10–20 min per day (busy life)",
+        "moderate": "20–45 min per day",
+        "committed": "45–90 min per day",
+        "athlete": "90+ min per day"
+      },
+      "experience": {
+        "label": "YOUR EXPERIENCE LEVEL",
+        "beginner": "Beginner — never trained regularly",
+        "restart": "Returning — took a longer break",
+        "intermediate": "1–3 years consistent training",
+        "advanced": "5+ years training, know what I'm doing"
+      },
       "age_sex": {
         "label": "AGE & SEX"
       },

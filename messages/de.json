@@ -187,12 +187,37 @@
     },
     "category_label": "KATEGORIE",
     "categories": {
+      "0": "DEIN AUSGANGSPUNKT",
       "1": "KÖRPERDATEN & METABOLISMUS",
       "2": "AKTIVITÄT & TRAINING",
       "3": "RECOVERY & REGENERATION",
       "4": "ERNÄHRUNG, STRESS & LIFESTYLE"
     },
     "q": {
+      "main_goal": {
+        "label": "WAS WILLST DU WIRKLICH?",
+        "sub": "Deine Antwort bestimmt, worauf der Report seinen Fokus legt — keine Schablone, sondern auf dein Ziel zugeschnitten.",
+        "feel_better": "Mich energievoller & fitter im Alltag fühlen",
+        "body_comp": "Körperfett reduzieren oder Muskeln aufbauen",
+        "performance": "Sportliche Leistung steigern (Ausdauer / Kraft)",
+        "stress_sleep": "Besser schlafen & Stress runterfahren",
+        "longevity": "Langfristig gesund bleiben — Prävention"
+      },
+      "time_budget": {
+        "label": "WIEVIEL ZEIT HAST DU REALISTISCH PRO TAG?",
+        "sub": "Ehrlich bleiben — der Plan soll in dein Leben passen, nicht umgekehrt.",
+        "minimal": "10–20 Min pro Tag (Busy Life)",
+        "moderate": "20–45 Min pro Tag",
+        "committed": "45–90 Min pro Tag",
+        "athlete": "90+ Min pro Tag"
+      },
+      "experience": {
+        "label": "DEIN ERFAHRUNGSLEVEL",
+        "beginner": "Neuling — noch nie regelmäßig trainiert",
+        "restart": "Wiedereinsteiger — länger Pause gehabt",
+        "intermediate": "1–3 Jahre regelmäßig am Ball",
+        "advanced": "5+ Jahre Training, kenne mich gut aus"
+      },
       "age_sex": {
         "label": "ALTER & GESCHLECHT"
       },

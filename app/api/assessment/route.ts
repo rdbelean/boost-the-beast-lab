@@ -55,6 +55,13 @@ interface AssessmentRequestBody {
   sitting_hours: number;
   // Stress
   stress_level_1_10: number;
+  /** Bildschirmzeit vor dem Einschlafen — wird als Text-Label gespeichert und
+   *  vom Report-Prompt als präziser Alltags-Hebel konsumiert. */
+  screen_time_before_sleep?: "kein" | "unter_30" | "30_60" | "ueber_60" | null;
+  /** Personalisierungs-Inputs. Nullable, damit alte Clients nicht brechen. */
+  main_goal?: "feel_better" | "body_comp" | "performance" | "stress_sleep" | "longevity" | null;
+  time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
+  experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
   /** Optional: links a prior wearable upload (from /api/wearable/persist) into this assessment. */
   wearable_upload_id?: string;
   /** UI locale at submit time. Drives Claude report language, PDF labels,

@@ -189,8 +189,32 @@ JSON-STRUKTUR:
   "top_priority": string,
   "systemic_connections_overview": string,
   "prognose_30_days": string,
+  "daily_life_protocol": {
+    "morning": [{"habit": string, "why_specific_to_user": string, "time_cost_min": integer}],
+    "work_day": [{"habit": string, "why_specific_to_user": string, "time_cost_min": integer}],
+    "evening": [{"habit": string, "why_specific_to_user": string, "time_cost_min": integer}],
+    "nutrition_micro": [{"habit": string, "why_specific_to_user": string, "time_cost_min": integer}],
+    "total_time_min_per_day": integer
+  },
   "disclaimer": "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik. VO2max ist eine algorithmische Schätzung — keine Labormessung."
-}`;
+}
+
+DAILY LIFE PROTOCOL — zwingende Regeln:
+- Jeder Abschnitt (morning, work_day, evening, nutrition_micro) enthält 2–4 Habits.
+- Insgesamt mindestens 8, maximal 14 Habits über alle Abschnitte.
+- Jede Habit MUSS ≤ 10 Minuten kosten (time_cost_min: integer 0-10). 0 = ohne Zeit integrierbar.
+- \`why_specific_to_user\` MUSS eine konkrete Zahl aus dem Input zitieren wörtlich (z.B. "weil du 6.4 h schläfst und dich 4/10 erholt fühlst, …"). Kein allgemeines "weil Schlaf wichtig ist".
+- total_time_min_per_day = Summe aller time_cost_min. Darf das User-Zeitbudget NICHT überschreiten: minimal ≤ 20, moderate ≤ 45, committed ≤ 90, athlete ≤ 120.
+- VERBOTEN in Daily Protocol: "trainiere mehr", "geh ins Gym", jedes strukturierte Training mit Pulsziel, "Zone 2", "HIIT", "3x/Woche Krafttraining", "45 Min Cardio". Diese gehören in das Modul-Recommendations, NICHT in daily_life_protocol.
+- ERLAUBT und erwünscht: Lichtexposition am Morgen (5 Min Sonne), Koffein-Cutoff-Zeit (14:00), Bildschirm-Cutoff vor Schlaf (60 Min vorher), Mahlzeiten-Timing, Protein-Trigger pro Mahlzeit, Hydration-Trigger (Glas Wasser beim Aufstehen), Atem-Protokolle (4-7-8, Box-Breathing), Sitz-Pausen alle 60 Min, Spaziergang nach Mahlzeit, Schlafzimmer-Temperatur, Journalling (3-Min-Prompt), Mikro-Stretches, 2-Min-Stress-Reset.
+- Priorisiere Habits, die die 3 schwächsten Scores und das User-Hauptziel adressieren. Nicht training, sondern Alltag.
+
+TRAININGS-REALISMUS — zusätzliche harte Regeln (gelten für modules.*.recommendation und top_priority):
+- Wenn User "beginner" oder "restart" ist: NIE mehr als 2–3 Einheiten/Woche empfehlen. Progression über 4 Wochen.
+- Wenn User "minimal" Zeit hat: Strukturiertes Training nur als optional framen. Mikro-Workouts (7–15 Min) + Alltagsbewegung priorisieren.
+- Wenn main_goal ∈ {feel_better, stress_sleep}: Training-Empfehlungen kommen NACH Schlaf/Stress/Ernährungs-Fixes in der Priorität. Keine HIIT, keine hohen Volumen.
+- Wenn aktuelle training_days = 0: Empfehle 1×/Woche Einstieg. NIE 5×.
+- Wenn "performance"-Goal UND "committed"/"athlete" Zeitbudget UND "intermediate"/"advanced" Erfahrung: DANN erst sind 4–5 Einheiten/Woche angebracht.`;
 
 // Per-locale disclaimer text that Claude MUST echo verbatim in the
 // `disclaimer` field of its JSON output. Keeping it here lets the PDF
@@ -455,6 +479,16 @@ export interface PremiumPromptContext {
   training_days: number;
   training_intensity_label: string;
   daily_steps: number;
+  /** Bildschirmzeit vor dem Einschlafen — "kein" | "unter_30" | "30_60" | "ueber_60".
+   *  Nullable wenn der User pre-v2 submitted hat. Wird vom daily_life_protocol-Modul
+   *  genutzt, um konkrete Abend-Habits auszuspielen. */
+  screen_time_before_sleep?: string | null;
+  /** Personalisierungs-Inputs. Defaults: feel_better / moderate / intermediate.
+   *  Treiben die Adaptivität des Reports: wer "minimal" Zeit + "beginner" ist,
+   *  kriegt KEINEN 5x/Woche Trainingsplan. */
+  main_goal?: "feel_better" | "body_comp" | "performance" | "stress_sleep" | "longevity" | null;
+  time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
+  experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
   /** Data sources that fed this assessment — drives measured-vs-self-reported language. */
   data_sources?: {
     form: true;
@@ -511,13 +545,84 @@ Provenance-Map (welche Scores basieren auf gemessenen vs. selbstberichteten Date
 `
     : "";
 
+  // Personalisierungs-Block. Wenn eines der Felder null ist, wird ein
+  // sinnvoller Default angenommen — der Prompt adaptiert aber deutlich
+  // stärker wenn der User echte Antworten geliefert hat.
+  const mainGoal = ctx.main_goal ?? "feel_better";
+  const timeBudget = ctx.time_budget ?? "moderate";
+  const experience = ctx.experience_level ?? "intermediate";
+  const timeBudgetMinutes: Record<string, string> = {
+    minimal: "10–20 Min/Tag",
+    moderate: "20–45 Min/Tag",
+    committed: "45–90 Min/Tag",
+    athlete: "90+ Min/Tag",
+  };
+  const timeBudgetHuman = timeBudgetMinutes[timeBudget] ?? "20–45 Min/Tag";
+  const screenTime = ctx.screen_time_before_sleep ?? null;
+
+  const goalHumanDE: Record<string, string> = {
+    feel_better: "Im Alltag energievoller + fitter werden",
+    body_comp: "Körperfett reduzieren / Muskeln aufbauen",
+    performance: "Sportliche Leistung steigern",
+    stress_sleep: "Besser schlafen + Stress reduzieren",
+    longevity: "Langfristige Gesundheit / Prävention",
+  };
+  const experienceHumanDE: Record<string, string> = {
+    beginner: "Neuling — noch nie regelmäßig trainiert",
+    restart: "Wiedereinsteiger — länger Pause",
+    intermediate: "Intermediate — 1–3 Jahre konsistent",
+    advanced: "Fortgeschritten — 5+ Jahre Erfahrung",
+  };
+
+  // Harte Regeln aus User-Input ableiten, damit Claude nicht aus Gewohnheit
+  // einen 5×/Woche-Plan empfiehlt. Die Regeln kommen direkt in den Prompt.
+  const trainingRealismRules: string[] = [];
+  if (experience === "beginner" || experience === "restart") {
+    trainingRealismRules.push(
+      "Nutzer ist BEGINNER/RESTART → maximal 2–3 Trainingseinheiten/Woche empfehlen. NIE 4–5×. Progression über 4 Wochen. Erste Woche: Habit-Aufbau, nicht Volumen.",
+    );
+  }
+  if (timeBudget === "minimal") {
+    trainingRealismRules.push(
+      "Nutzer hat MINIMAL Zeit (10–20 Min/Tag) → strukturiertes Gym-Training als optional framen. Alltagsbewegung, Mikro-Workouts (7–15 Min), Treppensteigen, Spaziergänge priorisieren. KEINE Zone-2-45-Min-Sessions empfehlen.",
+    );
+  }
+  if (mainGoal === "feel_better" || mainGoal === "stress_sleep") {
+    trainingRealismRules.push(
+      `Hauptziel ist ${mainGoal === "feel_better" ? "Alltags-Energie" : "Schlaf/Stress"} → Training kommt NACH Schlaf-, Stress-, Ernährungs-Fixes in der Priorität. Empfehle moderate Aktivität (Gehen, Yoga, leichtes Krafttraining), NICHT HIIT oder hohe Trainingsvolumen.`,
+    );
+  }
+  if (ctx.training_days === 0) {
+    trainingRealismRules.push(
+      "Nutzer trainiert aktuell 0×/Woche → empfohlener Plan muss bei 1×/Woche starten (Mini-Einstieg) und langsam steigern. NIE 5×/Woche empfehlen. Adhärenz > Volumen.",
+    );
+  }
+  const trainingRealismBlock = trainingRealismRules.length
+    ? `
+═══════════════════════════════════════════════════════════
+TRAININGS-REALISMUS (harte Regeln aus User-Input)
+═══════════════════════════════════════════════════════════
+${trainingRealismRules.map((r) => `- ${r}`).join("\n")}
+`
+    : "";
+
   return `Erstelle einen ausführlichen, persönlichen Performance Report für dieses Profil. Nutze alle Daten präzise. Mache den Report so spezifisch wie möglich — jeder Satz soll sich auf genau diese Person beziehen, nicht auf ein Template.
 
 REGELN:
 - Paraphrasiere die vorformulierten Interpretationen. Erfinde nichts.
 - Jeder Befund muss mindestens eine konkrete Zahl aus dem Input enthalten.
 - Aktive systemische Warnungen MÜSSEN prominent adressiert werden.
-- Pro Modul mindestens 15–20 Sätze insgesamt. Executive Summary + Top Priority besonders ausführlich.${datenquellenBlock}
+- Pro Modul mindestens 15–20 Sätze insgesamt. Executive Summary + Top Priority besonders ausführlich.
+- Das Modul "daily_life_protocol" (siehe JSON-Schema) MUSS ausgefüllt werden mit mindestens 8, maximal 14 Alltags-Habits — NICHT Training.${datenquellenBlock}${trainingRealismBlock}
+
+═══════════════════════════════════════════════════════════
+PERSONALISIERUNG (treibt Priorisierung + Ton)
+═══════════════════════════════════════════════════════════
+Hauptziel: ${goalHumanDE[mainGoal] ?? mainGoal}
+Zeitbudget: ${timeBudgetHuman}
+Erfahrungslevel: ${experienceHumanDE[experience] ?? experience}
+Bildschirmzeit vor dem Schlaf: ${screenTime ?? "nicht angegeben"}
+
 
 ═══════════════════════════════════════════════════════════
 NUTZERPROFIL
@@ -665,6 +770,10 @@ interface DemoContext {
   sitting_hours_per_day?: number;
   training_days?: number;
   daily_steps?: number;
+  screen_time_before_sleep?: string | null;
+  main_goal?: PremiumPromptContext["main_goal"];
+  time_budget?: PremiumPromptContext["time_budget"];
+  experience_level?: PremiumPromptContext["experience_level"];
   data_sources?: PremiumPromptContext["data_sources"];
 }
 
@@ -726,6 +835,10 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
       training_days: ctx.training_days ?? 0,
       training_intensity_label: trainingIntensityLabel(r),
       daily_steps: ctx.daily_steps ?? 0,
+      screen_time_before_sleep: ctx.screen_time_before_sleep ?? null,
+      main_goal: ctx.main_goal ?? null,
+      time_budget: ctx.time_budget ?? null,
+      experience_level: ctx.experience_level ?? null,
       data_sources: ctx.data_sources,
     });
     const anthropic = getAnthropic();
@@ -1073,6 +1186,14 @@ export async function POST(req: NextRequest) {
       training_days: trainingDays,
       training_intensity_label: trainingIntensityLabel(result),
       daily_steps: num("schrittzahl", 0),
+      // Neue v2-Felder — aus responses-Tabelle gelesen. Fehlende Werte
+      // werden im Prompt als "nicht angegeben" ausgespielt und dort per
+      // Default-Fallback (feel_better / moderate / intermediate) behandelt.
+      screen_time_before_sleep: respMap.get("screen_time_before_sleep") ?? null,
+      main_goal: (respMap.get("main_goal") as PremiumPromptContext["main_goal"]) ?? null,
+      time_budget: (respMap.get("time_budget") as PremiumPromptContext["time_budget"]) ?? null,
+      experience_level:
+        (respMap.get("experience_level") as PremiumPromptContext["experience_level"]) ?? null,
       data_sources: dataSources
         ? {
             form: true,
@@ -1195,34 +1316,90 @@ export async function POST(req: NextRequest) {
       const anthropic = getAnthropic();
       const scoresObj = { activity: activityScore, sleep: sleepScore, vo2max: vo2ScoreNum, metabolic: metabolicScore, stress: stressScore };
 
+      // Sub-calls hatten vorher nur Scores + Alter/Geschlecht — Claude konnte
+      // keine konkreten User-Werte zitieren, also blieb der Output generisch.
+      // Wir reichen denselben Kontext durch den `buildPremiumUserPrompt` bekommt.
+      const subCtx = {
+        sleep_duration_h: reconstructed.sleep.duration_hours,
+        sleep_quality: SLEEP_QUALITY_LABEL[reconstructed.sleep.quality] ?? "mittel",
+        wakeups: WAKEUP_LABEL[reconstructed.sleep.wakeups] ?? "selten",
+        morning_recovery_1_10: reconstructed.sleep.recovery_1_10,
+        stress_1_10: reconstructed.stress.stress_level_1_10,
+        training_days: trainingDays,
+        training_intensity: trainingIntensityLabel(result),
+        sitting_h: reconstructed.metabolic.sitting_hours,
+        standing_h: standingHours,
+        daily_steps: num("schrittzahl", 0),
+        meals: reconstructed.metabolic.meals_per_day,
+        water_l: reconstructed.metabolic.water_litres,
+        fruit_veg: FRUIT_VEG_LABEL[reconstructed.metabolic.fruit_veg] ?? "moderat",
+        screen_time_before_sleep: respMap.get("screen_time_before_sleep") ?? "nicht angegeben",
+        main_goal: respMap.get("main_goal") ?? "feel_better",
+        time_budget: respMap.get("time_budget") ?? "moderate",
+        experience_level: respMap.get("experience_level") ?? "intermediate",
+      };
+      const rawContextBlock = `
+User profile: age ${user.age}, gender ${user.gender}, BMI ${bmi}
+Main goal: ${subCtx.main_goal}
+Time budget: ${subCtx.time_budget}
+Experience level: ${subCtx.experience_level}
+Raw inputs (CITE AT LEAST ONE NUMBER VERBATIM in each finding/insight/goal):
+- Sleep: ${subCtx.sleep_duration_h}h / quality ${subCtx.sleep_quality} / wakeups ${subCtx.wakeups} / recovery ${subCtx.morning_recovery_1_10}/10 / screen-cutoff ${subCtx.screen_time_before_sleep}
+- Stress: ${subCtx.stress_1_10}/10
+- Activity: ${subCtx.training_days} days/wk (${subCtx.training_intensity}), ${subCtx.sitting_h}h sitting, ${subCtx.standing_h}h standing, ${subCtx.daily_steps} steps/day
+- Nutrition: ${subCtx.meals} meals/day, ${subCtx.water_l}L water, ${subCtx.fruit_veg} fruit/veg`;
+
+      const localeDirective =
+        locale === "de" ? 'Language: German, du-Form.' :
+        locale === "it" ? 'Lingua: Italiano, forma "tu".' :
+        locale === "ko" ? '언어: 한국어, 친근한 존댓말 (~합니다).' :
+        "Language: English, second person.";
+
+      // If goal = non-performance AND beginner/restart AND minimal/moderate time →
+      // force the action plan to be lifestyle-goals-only (no training goals).
+      const lifestyleOnly =
+        subCtx.main_goal !== "performance" &&
+        (subCtx.experience_level === "beginner" || subCtx.experience_level === "restart") &&
+        (subCtx.time_budget === "minimal" || subCtx.time_budget === "moderate");
+
       const buildFindingsPrompt = () => `You are generating 3 executive performance findings for a fitness report.
 Scores: ${JSON.stringify(scoresObj)}
-User: age ${user.age}, gender ${user.gender}
-Locale: ${locale}
+${rawContextBlock}
+
+${localeDirective}
 
 Return ONLY valid JSON array with exactly 3 objects, no markdown:
 [{"type":"weakness","headline":"...","body":"...","related_dimension":"..."},
  {"type":"strength","headline":"...","body":"...","related_dimension":"..."},
  {"type":"connection","headline":"...","body":"...","related_dimension":"..."}]
-Each headline ≤8 words, body ≤60 words. No diagnoses. Reference actual score numbers.`;
+Each headline ≤8 words. Body ≤60 words AND must reference at least one raw user value verbatim (e.g. "weil du 6.4 h schläfst..."). Generic advice ("reduziere Stress", "schlafe besser") forbidden.`;
 
       const buildInsightsPrompt = () => `Generate 2-3 cross-dimension performance insights for this athlete.
 Scores: ${JSON.stringify(scoresObj)}
-Locale: ${locale}
+${rawContextBlock}
+
+${localeDirective}
 
 Return ONLY valid JSON array, no markdown:
 [{"dimension_a":"sleep","dimension_b":"stress","headline":"...","body":"..."}]
-Body ≤50 words each. Only include pairs with meaningful interaction.`;
+Body ≤50 words each AND must cite at least one raw value from the user data. Only include pairs with meaningful interaction. Generic "X affects Y"-phrases forbidden unless backed by a specific user number.`;
 
       const buildPlanPrompt = () => `Generate a 30-day action plan with exactly 3 goals for this athlete.
 Scores: ${JSON.stringify(scoresObj)}
-User: age ${user.age}, gender ${user.gender}
-Locale: ${locale}
+${rawContextBlock}
 
 MANDATORY rules:
-- Focus on the 3 lowest-scored dimensions
+- Focus on the 3 lowest-scored dimensions (unless overridden by lifestyle-only rule below)
+- Each goal's headline AND current_value MUST reference a verbatim number from the raw user data above (e.g. current_value "6.4h sleep")
 - Each week_milestones array MUST contain exactly 4 objects — never strings, never empty
 - Each milestone object: {"week":"Week 1","task":"<concrete action max 70 chars>","milestone":"<measurable target>"}
+- Respect time_budget: if "minimal" → NEVER recommend sessions >15 min. If "moderate" → max 30-45 min sessions.
+- Respect experience_level: if "beginner"/"restart" → NEVER recommend >3 training sessions/wk.
+${
+  lifestyleOnly
+    ? "- LIFESTYLE-ONLY MODE ACTIVE: user goal is not performance AND experience is beginner/restart AND time is limited. ALL 3 goals MUST be lifestyle goals (sleep, stress, nutrition, daily habits) — ZERO training-volume goals. No \"train 3x/week\" headlines."
+    : ""
+}
 ${
   locale === "de"
     ? '- Language: German, du-Form. Week labels: "KW 1", "KW 2", "KW 3", "KW 4"'

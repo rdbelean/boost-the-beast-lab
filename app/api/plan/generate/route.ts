@@ -160,16 +160,94 @@ type ScoreInput = {
   overall_band: string;
 };
 
-function buildFallbackBlocks(type: PlanType, s: ScoreInput): PlanBlock[] {
+// Personalisierungs-Profil — treibt die Adaptivität der Fallback-Blöcke und
+// wird dem Claude-Prompt als zusätzlicher Context übergeben. Alle Felder
+// optional — der Plan fällt auf konservative Defaults zurück wenn sie fehlen.
+interface PlanPersonalization {
+  main_goal?: "feel_better" | "body_comp" | "performance" | "stress_sleep" | "longevity" | null;
+  time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
+  experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
+  training_days?: number | null; // current actual training frequency
+}
+
+// Kalibrierungsregel: Welche Trainings-Intensitäts-Stufe passt zum Profil?
+// Score allein reicht nicht — wer 0x/Woche trainiert und "minimal" Zeit
+// hat, kriegt NIE 5x/Woche egal wie gut der Score ist.
+function calibrateIntensity(score: number, p: PlanPersonalization): "minimal" | "starter" | "build" | "performance" {
+  const tb = p.time_budget ?? "moderate";
+  const exp = p.experience_level ?? "intermediate";
+  const curDays = p.training_days ?? 0;
+  const goal = p.main_goal ?? "feel_better";
+
+  // Hard override: minimal time budget OR zero current training + beginner
+  if (tb === "minimal") return "minimal";
+  if (curDays === 0 && (exp === "beginner" || exp === "restart")) return "minimal";
+  // Beginner/restart never gets performance tier
+  if (exp === "beginner" || exp === "restart") return score < 65 ? "starter" : "build";
+  // Goal not performance + moderate time → stay at build
+  if (goal !== "performance" && tb === "moderate") return "build";
+  // Committed + intermediate/advanced + low score → starter or build
+  if (tb === "committed") return score < 40 ? "starter" : score < 65 ? "build" : "performance";
+  // Athlete tier + performance goal
+  if (tb === "athlete" && goal === "performance") return "performance";
+  // Default: score-based
+  return score < 40 ? "starter" : score < 65 ? "build" : "performance";
+}
+
+function buildFallbackBlocks(type: PlanType, s: ScoreInput, p: PlanPersonalization = {}): PlanBlock[] {
   if (type === "activity") {
     const score = s.activity.activity_score_0_100;
     const met = s.activity.total_met_minutes_week;
     const gap = Math.max(0, 600 - met);
-    const intensity = score < 40 ? "Einstieg: 3×/Woche 30 Min zügiges Gehen (3,3 MET)" : score < 65 ? "Aufbau: 4×/Woche Mischtraining Kraft + Ausdauer, progressive Steigerung" : "Performance: 5×/Woche strukturiertes Training mit Periodisierung";
+    const tier = calibrateIntensity(score, p);
+    // Adaptive Intensitäts-Empfehlung — NIE mehr 5x/Woche als Default.
+    const intensity =
+      tier === "minimal"
+        ? "Micro-Plan: 3×/Woche 10–15 Min (Treppen, zügiges Gehen, Alltagsbewegung) — Volumen nach 2 Wochen erhöhen"
+        : tier === "starter"
+        ? "Einstieg: 2–3×/Woche 20–30 Min moderate Aktivität (3,3 MET), progressive Steigerung über 4 Wochen"
+        : tier === "build"
+        ? "Aufbau: 3×/Woche Mischtraining Kraft + Ausdauer, progressive Steigerung — Adhärenz vor Volumen"
+        : "Performance: 4–5×/Woche strukturiertes Training mit Periodisierung";
     return [
       { heading: "Deine Ausgangslage", items: [`Activity Score: ${score}/100 — IPAQ-Kategorie: ${s.activity.activity_category}`, `MET-Minuten/Woche: ${met} (WHO-Mindest-Ziel: ≥600 MET-min/Woche)`, gap > 0 ? `Lücke zum WHO-Minimum: ${gap} MET-min/Woche — entspricht ~${Math.round(gap / 4)} Min moderater Aktivität` : "WHO-Mindestempfehlung bereits erfüllt — Optimierungspotenzial liegt in Intensität und Struktur", `VO2max (geschätzt): ${s.vo2max.vo2max_estimated} ml/kg/min — direkt abhängig von deinem Aktivitätsniveau`, `Recovery-Kapazität (Sleep Score: ${s.sleep.sleep_score_0_100}/100) begrenzt Trainingsanpassung bei unzureichendem Schlaf`] },
       { heading: "Wochenziel nach WHO/ACSM-Standard", items: ["≥150 Min moderate ODER ≥75 Min intensive Aktivität pro Woche — AHA 2022: 20–21% niedrigeres Mortalitätsrisiko bei diesem Volumen", "≥2× Krafttraining pro Woche (alle Hauptmuskelgruppen) für Muskelerhalt und Grundumsatzstabilisierung", "Sitzzeit auf max. 8 h/Tag begrenzen — Frontiers 2022: >6h Sitzen erhöht CVD-Risiko unabhängig vom Sport", intensity, "Progressive Überladung: alle 4 Wochen Trainingsvolumen um 5–10% steigern (ACSM Position Stand)"] },
-      { heading: "Wochenplan (Beispielstruktur)", items: ["Montag: 30–45 Min Ausdauer (Laufen/Rad) — moderate Intensität (65–75% HFmax)", "Dienstag: 30–40 Min Krafttraining Ganzkörper — alle Hauptmuskelgruppen", "Mittwoch: Aktive Erholung — 20–30 Min Gehen oder Mobilität/Yoga", "Donnerstag: 30–45 Min Ausdauer — Intervalle (4×4 Min bei 85–90% HFmax) für VO2max-Stimulus", "Freitag: 30–40 Min Krafttraining — Fokus Beine + Rumpf", "Samstag: 45–60 Min Sport nach Wahl — Ausdauer, Sport, Gruppenaktivität", "Sonntag: Vollständige Erholung — leichte Bewegung optional (Spaziergang)"] },
+      { heading: "Wochenplan (adaptiert an dein Zeitbudget)", items:
+        tier === "minimal"
+          ? [
+              "Mo/Mi/Fr: je 10–15 Min — Treppen statt Lift, zügiger Spaziergang in der Mittagspause, 7-Min-Bodyweight-Zirkel",
+              "Di/Do: Aktive Mikro-Pausen — alle 60 Min Sitzen: 5 Min Bewegung (Stretching, Gehen, Kniebeugen)",
+              "Sa: 20–30 Min Aktivität deiner Wahl — Wandern, Schwimmen, Radfahren — ohne Pulsziel",
+              "So: Vollständige Erholung — leichte Bewegung optional",
+              "Prinzip: Häufigkeit > Dauer. 5× 15 Min schlägt 1× 60 Min für Adhärenz und metabolische Anpassung.",
+            ]
+          : tier === "starter"
+          ? [
+              "Mo: 20–30 Min Ausdauer (zügiges Gehen/leichtes Joggen) — moderate Intensität (65–75% HFmax)",
+              "Mi: 20–30 Min Bodyweight-Krafttraining (Ganzkörper: Squats, Push-ups, Bridge, Plank)",
+              "Fr: 20–30 Min Ausdauer + 5 Min Stretching",
+              "Di/Do/Sa/So: Alltagsbewegung (Spaziergänge, Treppen, aktive Haushalts-Aufgaben)",
+              "Woche 1–2: Volumen konstant halten. Ab Woche 3 um 10 % steigern. Adhärenz vor Leistung.",
+            ]
+          : tier === "build"
+          ? [
+              "Mo: 30–45 Min Ausdauer (Laufen/Rad) — moderate Intensität (65–75% HFmax)",
+              "Mi: 30–40 Min Krafttraining Ganzkörper",
+              "Fr: 30 Min Ausdauer + leichte Intervalle (2–3× 3 Min bei 80% HFmax)",
+              "Di/Do/Sa: Aktive Erholung (20 Min Gehen oder Yoga)",
+              "So: Vollständige Erholung",
+              "Deload alle 4 Wochen: Volumen um 40% reduzieren.",
+            ]
+          : [
+              "Mo: 30–45 Min Ausdauer (Laufen/Rad) — moderate Intensität (65–75% HFmax)",
+              "Di: 30–40 Min Krafttraining Ganzkörper",
+              "Mi: Aktive Erholung — 20–30 Min Gehen oder Mobilität/Yoga",
+              "Do: 30–45 Min Ausdauer-Intervalle (4×4 Min bei 85–90% HFmax) für VO2max-Stimulus",
+              "Fr: 30–40 Min Krafttraining — Fokus Beine + Rumpf",
+              "Sa: 45–60 Min Sport nach Wahl",
+              "So: Vollständige Erholung — Spaziergang optional",
+            ],
+      },
       { heading: "Intensitätssteuerung & MET-Kalkulation", items: ["Moderate Aktivität: 3–6 MET (zügiges Gehen 3.3 · Radfahren 4.0 · Schwimmen 5.8)", "Intensive Aktivität: >6 MET (Laufen 8.0 · Seilspringen 10.0 · HIIT 8–12 MET)", "80/20-Prinzip: 80% der Trainingszeit bei moderater Intensität, 20% bei hoher — optimale Adaption ohne Übertraining", "MET-Minuten berechnen: Dauer (Min) × MET-Wert — Ziel: ≥600/Woche als Basis, ≥1500 für Performance-Niveau"] },
       { heading: "Sitzzeit & Alltagsaktivität", items: ["Nach spätestens 45–60 Min Sitzen: 5 Min Bewegungspause — Treppensteigen, kurze Gehstrecke", "Stehpult oder dynamisches Sitzen reduziert metabolisches Risiko messbar (AHA Science Advisory)", "Tägliche Schritte: ≥8.000 als Baseline für Grundaktivität, ≥10.000 für optimale kardiovaskuläre Gesundheit", "Aktive Pendelwege (Gehen, Radfahren) zählen vollständig zur wöchentlichen Aktivität"] },
       { heading: "Monitoring & Fortschritt", items: ["MET-Minuten pro Woche wöchentlich tracken — einfachster Fortschrittsindikator", "Ruheherzrate morgens messen: sinkt bei konsistenter Ausdauerbelastung in 4–8 Wochen", "Alle 4 Wochen: Trainingsvolumen +5–10% steigern, dann 1 Deload-Woche (ACSM)", "Alle 8 Wochen: Neue Analyse für objektive Score-Entwicklung", "Overtraining-Signal: anhaltende Müdigkeit, Ruheherzrate +5–10% über Baseline, Motivationsverlust → Deload einleiten"] },
@@ -218,12 +296,27 @@ function buildFallbackBlocks(type: PlanType, s: ScoreInput): PlanBlock[] {
 
 // ── User prompt builder ──────────────────────────────────────────────────────
 
-function buildUserPrompt(type: PlanType, s: ScoreInput): string {
+function buildUserPrompt(type: PlanType, s: ScoreInput, p: PlanPersonalization = {}): string {
   const overall = `Overall Score: ${s.overall_score_0_100}/100 (${s.overall_band})`;
+  const personalizationBlock = `
+USER PERSONALISIERUNG (PFLICHT berücksichtigen):
+- Hauptziel: ${p.main_goal ?? "feel_better (Default)"}
+- Zeitbudget: ${p.time_budget ?? "moderate (Default)"}
+- Erfahrungslevel: ${p.experience_level ?? "intermediate (Default)"}
+- Aktuelle Trainingstage/Woche: ${p.training_days ?? "nicht angegeben"}
+
+HARTE REGELN:
+- Wenn time_budget="minimal" (10–20 Min/Tag): KEINE Sessions >15 Min. Micro-Workouts + Alltagsbewegung priorisieren. NIE Zone-2-45-Min empfehlen.
+- Wenn experience_level ∈ {beginner, restart}: MAX 2–3 Einheiten/Woche. NIE 4–5×. Erste 2 Wochen: Habit-Aufbau, nicht Volumen.
+- Wenn main_goal ∈ {feel_better, stress_sleep, longevity}: Training kommt NACH Schlaf/Stress/Ernährungs-Fixes in der Priorität. Keine HIIT-Empfehlungen.
+- Wenn training_days=0: Starten bei 1×/Woche. NIE 5×/Woche als Startempfehlung.
+- NUR wenn main_goal="performance" UND time_budget ∈ {committed, athlete} UND experience_level ∈ {intermediate, advanced}: DANN sind 4–5 Einheiten/Woche angebracht.
+`;
 
   if (type === "activity") {
     const gap = Math.max(0, 600 - s.activity.total_met_minutes_week);
     return `${overall}
+${personalizationBlock}
 
 ACTIVITY-PLAN — Nutzerdaten:
 - Activity Score: ${s.activity.activity_score_0_100}/100 — IPAQ-Kategorie: ${s.activity.activity_category}
@@ -238,7 +331,7 @@ Generiere einen detaillierten, personalisierten Activity-Plan. Nutze alle überm
 
   if (type === "metabolic") {
     return `${overall}
-
+${personalizationBlock}
 METABOLIC-PLAN — Nutzerdaten:
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (${s.metabolic.metabolic_band})
 - BMI: ${s.metabolic.bmi} kg/m² (${s.metabolic.bmi_category}) — WHO-Normalbereich: 18,5–24,9 kg/m²
@@ -251,7 +344,7 @@ Generiere einen detaillierten, personalisierten Metabolic-Plan mit konkreten Pro
 
   if (type === "recovery") {
     return `${overall}
-
+${personalizationBlock}
 RECOVERY-PLAN — Nutzerdaten:
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Schlafdauer-Band: ${s.sleep.sleep_duration_band} (NSF: 7–9h empfohlen)
@@ -263,7 +356,7 @@ Generiere einen detaillierten, personalisierten Recovery-Plan mit wissenschaftli
   }
 
   return `${overall}
-
+${personalizationBlock}
 STRESS & LIFESTYLE-PLAN — Nutzerdaten:
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band}) — Stress/Schlaf-Wechselwirkung
@@ -280,6 +373,12 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { type, scores } = body as { type: string; scores: ScoreInput };
+    const personalization: PlanPersonalization = {
+      main_goal: (body as { main_goal?: PlanPersonalization["main_goal"] }).main_goal ?? null,
+      time_budget: (body as { time_budget?: PlanPersonalization["time_budget"] }).time_budget ?? null,
+      experience_level: (body as { experience_level?: PlanPersonalization["experience_level"] }).experience_level ?? null,
+      training_days: (body as { training_days?: number | null }).training_days ?? null,
+    };
 
     const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
     if (!validTypes.includes(type as PlanType)) {
@@ -294,15 +393,16 @@ export async function POST(req: NextRequest) {
     const meta = getPlanMeta(locale)[planType];
 
     if (!hasValidKey(process.env.ANTHROPIC_API_KEY)) {
-      const fallback = buildFallbackBlocks(planType, scores);
+      const fallback = buildFallbackBlocks(planType, scores, personalization);
       return NextResponse.json({ ...meta, locale, blocks: fallback });
     }
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const userPrompt = buildUserPrompt(planType, scores);
+    const userPrompt = buildUserPrompt(planType, scores, personalization);
     const langDirective =
       locale === "en" ? "\n\nIMPORTANT: Respond entirely in English." :
-      locale === "it" ? "\n\nIMPORTANT: Rispondi interamente in italiano." : "";
+      locale === "it" ? "\n\nIMPORTANT: Rispondi interamente in italiano." :
+      locale === "ko" ? "\n\nIMPORTANT: 전적으로 한국어로 답변하십시오 (친근한 존댓말)." : "";
 
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",

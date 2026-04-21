@@ -17,10 +17,18 @@ interface PlanBundle {
   pdfBase64?: string;
 }
 
+interface PlanPersonalization {
+  main_goal?: string | null;
+  time_budget?: string | null;
+  experience_level?: string | null;
+  training_days?: number | null;
+}
+
 async function generatePlanBundle(
   planType: PlanType,
   scores: Record<string, unknown>,
   locale = "de",
+  personalization: PlanPersonalization = {},
 ): Promise<PlanBundle | null> {
   // 1. Build static fallback content locally
   const basePlan = buildPlan(planType, scores);
@@ -32,7 +40,7 @@ async function generatePlanBundle(
     const aiRes = await fetch("/api/plan/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: planType, scores, locale }),
+      body: JSON.stringify({ type: planType, scores, locale, ...personalization }),
     });
     if (aiRes.ok) {
       const ai = (await aiRes.json()) as { blocks?: PlanBlock[]; source?: string };
@@ -75,6 +83,10 @@ async function generatePlanBundle(
 
 /* ── Types ─────────────────────────────────────────────── */
 interface FormData {
+  // Personalisierungs-Inputs (treiben Report-Prompt-Adaptivität)
+  mainGoal: string; // feel_better | body_comp | performance | stress_sleep | longevity
+  timeBudget: string; // minimal | moderate | committed | athlete
+  experienceLevel: string; // beginner | restart | intermediate | advanced
   // Kategorie 1 — Körperdaten & Metabolismus
   alter: number;
   geschlecht: string;
@@ -175,6 +187,26 @@ const MEALS_MAP: Record<string, number> = {
   "meal-prep": 5,
 };
 
+// Main-goal / time-budget / experience-level are passed through as enum
+// strings; the report prompt branches on them, so we keep the raw value
+// rather than mapping to a number.
+const MAIN_GOAL_VALUES = new Set([
+  "feel_better",
+  "body_comp",
+  "performance",
+  "stress_sleep",
+  "longevity",
+]);
+const TIME_BUDGET_VALUES = new Set(["minimal", "moderate", "committed", "athlete"]);
+const EXPERIENCE_VALUES = new Set(["beginner", "restart", "intermediate", "advanced"]);
+
+const SCREEN_TIME_MAP: Record<string, "kein" | "unter_30" | "30_60" | "ueber_60"> = {
+  kein: "kein",
+  "<30": "unter_30",
+  "30-60": "30_60",
+  ">60": "ueber_60",
+};
+
 const REPORT_MAP: Record<string, "metabolic" | "recovery" | "complete"> = {
   metabolic: "metabolic",
   recovery: "recovery",
@@ -247,6 +279,15 @@ function buildAssessmentPayload(f: FormData) {
     sitting_hours: f.sitzzeit,
     // Stress
     stress_level_1_10: STRESS_TO_SCORE[f.stresslevel] ?? 5,
+    // Screen-time vor dem Einschlafen (wurde früher verworfen). Wird vom
+    // Report-Prompt genutzt, um konkrete Abend-Habits auszuspielen.
+    screen_time_before_sleep: SCREEN_TIME_MAP[f.bildschirmVorSchlaf] ?? null,
+    // Personalisierung: ohne diese Felder fällt der Report auf sinnvolle
+    // Defaults zurück (feel_better / moderate / intermediate), der Prompt
+    // bleibt adaptiv aber weniger zielgerichtet.
+    main_goal: MAIN_GOAL_VALUES.has(f.mainGoal) ? f.mainGoal : null,
+    time_budget: TIME_BUDGET_VALUES.has(f.timeBudget) ? f.timeBudget : null,
+    experience_level: EXPERIENCE_VALUES.has(f.experienceLevel) ? f.experienceLevel : null,
   };
 }
 
@@ -292,6 +333,9 @@ function AnalyseContent() {
   }, [sessionId, router]);
 
   const [form, setForm] = useState<FormData>({
+    mainGoal: "",
+    timeBudget: "",
+    experienceLevel: "",
     alter: 28,
     geschlecht: "maennlich",
     groesse: 178,
@@ -451,8 +495,11 @@ function AnalyseContent() {
   }
 
   // Count answered questions for progress
-  const totalQuestions = 20;
+  const totalQuestions = 23;
   const answeredCount = [
+    !!form.mainGoal,
+    !!form.timeBudget,
+    !!form.experienceLevel,
     form.alter > 0,
     !!form.geschlecht,
     form.groesse > 0,
@@ -558,6 +605,10 @@ function AnalyseContent() {
               sitting_hours_per_day: payload.sitting_hours,
               training_days: (payload.vigorous_days ?? 0) + (payload.moderate_days ?? 0),
               daily_steps: form.schrittzahl,
+              screen_time_before_sleep: payload.screen_time_before_sleep,
+              main_goal: payload.main_goal,
+              time_budget: payload.time_budget,
+              experience_level: payload.experience_level,
             },
           };
 
@@ -585,8 +636,14 @@ function AnalyseContent() {
         });
 
       const PLAN_TYPES: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
+      const planPersonalization: PlanPersonalization = {
+        main_goal: payload.main_goal,
+        time_budget: payload.time_budget,
+        experience_level: payload.experience_level,
+        training_days: (payload.vigorous_days ?? 0) + (payload.moderate_days ?? 0),
+      };
       const planPromises = PLAN_TYPES.map((planType) =>
-        generatePlanBundle(planType, scores, locale)
+        generatePlanBundle(planType, scores, locale, planPersonalization)
           .then((bundle) => {
             setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
             return { planType, bundle };
@@ -806,6 +863,71 @@ function AnalyseContent() {
 
           {/* ── Form ───────────────────────────────────── */}
           <div className={styles.form}>
+
+            {/* ── PERSONALISIERUNG: Ziel · Zeitbudget · Erfahrung ─── */}
+            {/* Drei Fragen, die den Report-Prompt adaptiv machen.
+                Ohne sie fällt der Report auf "generisches Training" zurück. */}
+            <div className={styles.category}>
+              <div className={styles.categoryHeader}>
+                <span className={styles.categoryNum} aria-hidden>00</span>
+                <div className={styles.categoryMeta}>
+                  <span className={styles.categoryLabel}>{t("category_label")}</span>
+                  <h2 className={styles.categoryTitle}>{t("categories.0")}</h2>
+                </div>
+              </div>
+
+              {/* Q0a: Hauptziel */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>{t("q.main_goal.label")}</span>
+                <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
+                  {t("q.main_goal.sub")}
+                </span>
+                <RadioGroup
+                  value={form.mainGoal}
+                  onChange={(v) => set("mainGoal", v as string)}
+                  options={[
+                    { label: t("q.main_goal.feel_better"), value: "feel_better" },
+                    { label: t("q.main_goal.body_comp"), value: "body_comp" },
+                    { label: t("q.main_goal.performance"), value: "performance" },
+                    { label: t("q.main_goal.stress_sleep"), value: "stress_sleep" },
+                    { label: t("q.main_goal.longevity"), value: "longevity" },
+                  ]}
+                />
+              </div>
+
+              {/* Q0b: Zeitbudget */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>{t("q.time_budget.label")}</span>
+                <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
+                  {t("q.time_budget.sub")}
+                </span>
+                <RadioGroup
+                  value={form.timeBudget}
+                  onChange={(v) => set("timeBudget", v as string)}
+                  options={[
+                    { label: t("q.time_budget.minimal"), value: "minimal" },
+                    { label: t("q.time_budget.moderate"), value: "moderate" },
+                    { label: t("q.time_budget.committed"), value: "committed" },
+                    { label: t("q.time_budget.athlete"), value: "athlete" },
+                  ]}
+                />
+              </div>
+
+              {/* Q0c: Erfahrungslevel */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>{t("q.experience.label")}</span>
+                <RadioGroup
+                  value={form.experienceLevel}
+                  onChange={(v) => set("experienceLevel", v as string)}
+                  options={[
+                    { label: t("q.experience.beginner"), value: "beginner" },
+                    { label: t("q.experience.restart"), value: "restart" },
+                    { label: t("q.experience.intermediate"), value: "intermediate" },
+                    { label: t("q.experience.advanced"), value: "advanced" },
+                  ]}
+                />
+              </div>
+            </div>
 
             {/* ── KATEGORIE 1: Körperdaten ──────────────── */}
             <div className={styles.category}>

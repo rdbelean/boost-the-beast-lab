@@ -187,12 +187,37 @@
     },
     "category_label": "CATEGORIA",
     "categories": {
+      "0": "IL TUO PUNTO DI PARTENZA",
       "1": "DATI CORPOREI E METABOLISMO",
       "2": "ATTIVITÀ E ALLENAMENTO",
       "3": "RECUPERO E RIGENERAZIONE",
       "4": "ALIMENTAZIONE, STRESS E LIFESTYLE"
     },
     "q": {
+      "main_goal": {
+        "label": "COSA VUOI DAVVERO?",
+        "sub": "La tua risposta guida su cosa si concentra il report — non un modello, costruito sul tuo obiettivo.",
+        "feel_better": "Sentirmi più energico e in forma nella vita quotidiana",
+        "body_comp": "Ridurre il grasso corporeo o aumentare massa muscolare",
+        "performance": "Migliorare la performance sportiva (resistenza / forza)",
+        "stress_sleep": "Dormire meglio e ridurre lo stress",
+        "longevity": "Rimanere sano a lungo termine — prevenzione"
+      },
+      "time_budget": {
+        "label": "QUANTO TEMPO HAI REALISTICAMENTE AL GIORNO?",
+        "sub": "Sii onesto — il piano deve adattarsi alla tua vita, non viceversa.",
+        "minimal": "10–20 min al giorno (vita frenetica)",
+        "moderate": "20–45 min al giorno",
+        "committed": "45–90 min al giorno",
+        "athlete": "90+ min al giorno"
+      },
+      "experience": {
+        "label": "IL TUO LIVELLO DI ESPERIENZA",
+        "beginner": "Principiante — mai allenato regolarmente",
+        "restart": "Rientro dopo una lunga pausa",
+        "intermediate": "1–3 anni di allenamento costante",
+        "advanced": "5+ anni di allenamento, so quello che faccio"
+      },
       "age_sex": {
         "label": "ETÀ E SESSO"
       },

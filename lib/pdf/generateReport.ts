@@ -57,6 +57,13 @@ const PDF_LABELS: Record<Locale, {
   typeWeakness: string;
   typeStrength: string;
   typeConnection: string;
+  dailyProtocolTitle: string;
+  dailyProtocolSub: string;
+  dailyMorning: string;
+  dailyWorkday: string;
+  dailyEvening: string;
+  dailyNutrition: string;
+  dailyTotalTime: (min: number) => string;
   qExcellent: string;
   qStrong: string;
   qGood: string;
@@ -105,6 +112,13 @@ const PDF_LABELS: Record<Locale, {
     typeWeakness: "SCHWACHSTELLE",
     typeStrength: "ST\u00C4RKE",
     typeConnection: "ZUSAMMENHANG",
+    dailyProtocolTitle: "DEIN ALLTAGS-PROTOKOLL",
+    dailyProtocolSub: "Konkrete Habits f\u00FCr deinen Alltag \u2014 kein Gym, keine Ausreden.",
+    dailyMorning: "MORGEN",
+    dailyWorkday: "ARBEITSTAG",
+    dailyEvening: "ABEND",
+    dailyNutrition: "ERN\u00C4HRUNG",
+    dailyTotalTime: (min) => `${min} Min / Tag`,
     qExcellent: "EXZELLENTE DATENBASIS",
     qStrong: "STARKE DATENBASIS",
     qGood: "GUTE DATENBASIS",
@@ -153,6 +167,13 @@ const PDF_LABELS: Record<Locale, {
     typeWeakness: "WEAKNESS",
     typeStrength: "STRENGTH",
     typeConnection: "CONNECTION",
+    dailyProtocolTitle: "YOUR DAILY PROTOCOL",
+    dailyProtocolSub: "Concrete habits for your everyday life \u2014 no gym, no excuses.",
+    dailyMorning: "MORNING",
+    dailyWorkday: "WORKDAY",
+    dailyEvening: "EVENING",
+    dailyNutrition: "NUTRITION",
+    dailyTotalTime: (min) => `${min} min / day`,
     qExcellent: "EXCELLENT DATA BASIS",
     qStrong: "STRONG DATA BASIS",
     qGood: "GOOD DATA BASIS",
@@ -201,6 +222,13 @@ const PDF_LABELS: Record<Locale, {
     typeWeakness: "PUNTO DEBOLE",
     typeStrength: "PUNTO FORTE",
     typeConnection: "CONNESSIONE",
+    dailyProtocolTitle: "IL TUO PROTOCOLLO QUOTIDIANO",
+    dailyProtocolSub: "Abitudini concrete per la tua vita quotidiana \u2014 niente palestra, niente scuse.",
+    dailyMorning: "MATTINA",
+    dailyWorkday: "GIORNATA",
+    dailyEvening: "SERA",
+    dailyNutrition: "ALIMENTAZIONE",
+    dailyTotalTime: (min) => `${min} min / giorno`,
     qExcellent: "OTTIMA BASE DATI",
     qStrong: "BUONA BASE DATI",
     qGood: "BASE DATI BUONA",
@@ -249,6 +277,13 @@ const PDF_LABELS: Record<Locale, {
     typeWeakness: "약점",
     typeStrength: "강점",
     typeConnection: "연관성",
+    dailyProtocolTitle: "당신의 일상 프로토콜",
+    dailyProtocolSub: "일상 속에서 실천할 구체적 습관 — 헬스장 불필요, 핑계 불필요.",
+    dailyMorning: "아침",
+    dailyWorkday: "근무 시간",
+    dailyEvening: "저녁",
+    dailyNutrition: "영양",
+    dailyTotalTime: (min) => `하루 ${min}분`,
     qExcellent: "우수한 데이터 기반",
     qStrong: "견고한 데이터 기반",
     qGood: "양호한 데이터 기반",
@@ -322,6 +357,21 @@ export interface PdfReportContent {
   executive_findings?: PdfFinding[];
   cross_insights?: PdfCrossInsight[];
   action_plan?: PdfGoal[];
+  /** Tägliches Alltags-Protokoll — 8–14 konkrete Habits, adressiert die
+   *  schwächsten Scores ohne Trainings-Content. Pflicht-Output ab v2. */
+  daily_life_protocol?: {
+    morning?: PdfDailyHabit[];
+    work_day?: PdfDailyHabit[];
+    evening?: PdfDailyHabit[];
+    nutrition_micro?: PdfDailyHabit[];
+    total_time_min_per_day?: number;
+  };
+}
+
+export interface PdfDailyHabit {
+  habit: string;
+  why_specific_to_user: string;
+  time_cost_min?: number;
 }
 
 export interface PdfScoreEntry {
@@ -1070,6 +1120,75 @@ function buildActionPlanPage(
   pageFooter(page, f, today);
 }
 
+// ── Daily-Life-Protocol page ───────────────────────────────────────────────
+
+function buildDailyProtocolPage(
+  doc: PDFDocument,
+  protocol: NonNullable<PdfReportContent["daily_life_protocol"]>,
+  f: F,
+  today: string,
+): void {
+  const sections: Array<{ key: "morning" | "work_day" | "evening" | "nutrition_micro"; title: string; accent: typeof SC_GREEN }> = [
+    { key: "morning", title: PDF_LABELS[currentLocale].dailyMorning, accent: SC_GREEN },
+    { key: "work_day", title: PDF_LABELS[currentLocale].dailyWorkday, accent: BLUE_INFO },
+    { key: "evening", title: PDF_LABELS[currentLocale].dailyEvening, accent: ACCENT },
+    { key: "nutrition_micro", title: PDF_LABELS[currentLocale].dailyNutrition, accent: SC_GREEN },
+  ];
+
+  const filled = sections
+    .map((s) => ({ ...s, habits: (protocol[s.key] ?? []).filter((h) => h.habit && h.why_specific_to_user) }))
+    .filter((s) => s.habits.length > 0);
+  if (filled.length === 0) return;
+
+  const page = doc.addPage([PW, PH]);
+  let y = pageChrome(page, f, today);
+
+  const L = PDF_LABELS[currentLocale];
+  y = secLabel(page, L.dailyProtocolTitle, f, MX, y);
+  y -= 4;
+  y = drawW(page, L.dailyProtocolSub, MX, y, CW, f.reg, 9, TXT_MUTED, 1.45);
+  y -= 6;
+  if (typeof protocol.total_time_min_per_day === "number" && protocol.total_time_min_per_day > 0) {
+    page.drawText(L.dailyTotalTime(protocol.total_time_min_per_day), {
+      x: MX, y, size: 9, font: f.bold, color: SC_GREEN,
+    });
+    y -= 14;
+  }
+
+  for (const s of filled) {
+    // Approx height of each section = title + sum of habit rows
+    const habits = s.habits.slice(0, 4); // cap per section
+    let habitsH = 0;
+    for (const h of habits) {
+      habitsH += textH(tx(h.habit), f.bold, 9.5, CW - 44, 1.45) + 4;
+      habitsH += textH(tx(h.why_specific_to_user), f.reg, 8, CW - 44, 1.5) + 10;
+    }
+    const boxH = Math.min(habitsH + 26, Math.max(0, y - CB));
+    if (boxH < 40) break;
+
+    page.drawRectangle({ x: MX, y: y - boxH, width: CW, height: boxH, color: BG_CARD });
+    page.drawRectangle({ x: MX, y: y - boxH, width: 4, height: boxH, color: s.accent });
+
+    page.drawText(s.title, { x: MX + 14, y: y - 14, size: 8, font: f.bold, color: s.accent });
+
+    let hy = y - 28;
+    for (const h of habits) {
+      if (hy < y - boxH + 8) break;
+      const habitText = h.time_cost_min != null && h.time_cost_min > 0
+        ? `${tx(h.habit)}  ·  ${h.time_cost_min} min`
+        : tx(h.habit);
+      hy = drawW(page, habitText, MX + 14, hy, CW - 28, f.bold, 9.5, TXT_WHITE, 1.45);
+      hy -= 2;
+      hy = drawW(page, tx(h.why_specific_to_user), MX + 14, hy, CW - 28, f.reg, 8, TXT_MUTED, 1.5);
+      hy -= 8;
+    }
+
+    y -= boxH + 8;
+  }
+
+  pageFooter(page, f, today);
+}
+
 // ── Pages 3–7: Score module ────────────────────────────────────────────────
 
 function buildModule(
@@ -1317,6 +1436,12 @@ export async function generatePDF(
     ],
     f, today,
   );
+
+  // Daily-Life-Protocol page (optional, v2+) — placed before Cross-Insights
+  // so the reader hits the most concrete, actionable content first.
+  if (content.daily_life_protocol) {
+    buildDailyProtocolPage(doc, content.daily_life_protocol, f, today);
+  }
 
   // Cross-Insights page (optional)
   if (content.cross_insights && content.cross_insights.length > 0) {
