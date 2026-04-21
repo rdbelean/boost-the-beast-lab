@@ -40,7 +40,7 @@ export default function Hero() {
   }, []);
 
   const stats = [
-    { target: 20, label: t("stats.questions") },
+    { target: 26, label: t("stats.questions") },
     { target: 5, label: t("stats.scores") },
     { target: 0, label: t("stats.deep_analysis"), static: true as const },
     { target: 0, label: t("stats.evidence_database"), static: true as const },
@@ -79,6 +79,9 @@ export default function Hero() {
           <a href="#how-it-works" className={styles.btnSecondary}>
             {t("cta_secondary")}
           </a>
+          <Link href="/beispielreport" className={styles.btnSecondary} style={{ borderColor: "#555", color: "#bbb" }}>
+            {t("cta_sample")}
+          </Link>
         </div>
 
         {/* Stats */}

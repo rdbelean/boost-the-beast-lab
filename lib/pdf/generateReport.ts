@@ -1,7 +1,7 @@
 // Server-side PDF generation via pdf-lib (pure JavaScript).
 // No native dependencies — works reliably on Vercel serverless functions.
 
-import { PDFDocument, rgb, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
+import { PDFDocument, rgb, degrees, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
 import { LOGO_WHITE_PNG_BASE64 } from "./logo";
 import { embedLocaleFonts } from "./fonts";
 import type { Locale } from "@/lib/supabase/types";
@@ -1346,6 +1346,7 @@ export async function generatePDF(
   locale: Locale = "de",
   wearableRows?: PdfWearableRows,
   heroData?: PdfHeroData,
+  isSample = false,
 ): Promise<Uint8Array> {
   currentLocale = locale;
   const L = PDF_LABELS[locale];
@@ -1455,6 +1456,24 @@ export async function generatePDF(
 
   // Disclaimer page
   buildDisclaimer(doc, content, f, today);
+
+  if (isSample) {
+    for (const page of doc.getPages()) {
+      const { width, height } = page.getSize();
+      const text = "BEISPIEL";
+      const size = 96;
+      const tw = f.bold.widthOfTextAtSize(text, size);
+      page.drawText(text, {
+        x: width / 2 - tw / 2,
+        y: height / 2 - size / 2,
+        size,
+        font: f.bold,
+        color: rgb(1, 1, 1),
+        opacity: 0.07,
+        rotate: degrees(45),
+      });
+    }
+  }
 
   const bytes = await doc.save();
   return new Uint8Array(bytes);

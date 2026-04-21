@@ -34,6 +34,7 @@
     "subtitle": "Diagnostica della performance a livello scientifico — niente laboratorio, niente attesa.",
     "cta_primary": "AVVIA L'ANALISI",
     "cta_secondary": "COME FUNZIONA",
+    "cta_sample": "VEDI REPORT ESEMPIO",
     "stats": {
       "questions": "DOMANDE",
       "scores": "SCORE",
@@ -76,7 +77,7 @@
       },
       "protocol": {
         "tag": "PROTOCOLLO DI ANALISI",
-        "title": "20 DOMANDE SCIENTIFICHE",
+        "title": "26 DOMANDE SCIENTIFICHE",
         "text": "Rispondi a domande precise su sonno, allenamento, alimentazione, stress e dati corporei — calibrate secondo le linee guida WHO e ACSM."
       },
       "report": {
@@ -179,8 +180,8 @@
       "label": "PROTOCOLLO DI ANALISI",
       "title_1": "IL TUO PROTOCOLLO",
       "title_2": "DI ANALISI.",
-      "subtitle": "Rispondi a 20 domande precise su corpo, allenamento, sonno e lifestyle — calibrate secondo le linee guida WHO, ACSM e IPAQ. L'IA calcola i tuoi punteggi.",
-      "stat_questions": "20 DOMANDE",
+      "subtitle": "Rispondi a 26 domande precise su corpo, allenamento, sonno e lifestyle — calibrate secondo le linee guida WHO, ACSM e IPAQ. L'IA calcola i tuoi punteggi.",
+      "stat_questions": "26 DOMANDE",
       "stat_scores": "5 SCORE",
       "stat_deep": "ANALISI APPROFONDITA",
       "stat_db": "DATABASE BASATO SU EVIDENZA"
@@ -757,5 +758,17 @@
     "text": "Questo sito utilizza esclusivamente cookie tecnici necessari per il login e l'elaborazione dei pagamenti. Nessun tracciamento, nessuna pubblicità.",
     "policy_link": "Cookie Policy",
     "dismiss": "Capito"
+  },
+  "sample_report": {
+    "banner_label": "REPORT ESEMPIO",
+    "banner_desc": "Questo è un report esempio con dati dimostrativi — non un output di analisi reale.",
+    "banner_cta": "AVVIA LA TUA ANALISI",
+    "page_title": "REPORT PERFORMANCE DI ESEMPIO",
+    "header_cta": "AVVIA L'ANALISI",
+    "cta_label": "VUOI I TUOI DATI REALI?",
+    "cta_title": "AVVIA LA TUA ANALISI",
+    "cta_desc": "Rispondi a 26 domande precise su corpo, allenamento, sonno e lifestyle — e ricevi il tuo report performance personalizzato con punteggi reali e raccomandazioni individuali.",
+    "cta_btn_primary": "AVVIA L'ANALISI",
+    "cta_btn_pdf": "SCARICA PDF DI ESEMPIO"
   }
 }

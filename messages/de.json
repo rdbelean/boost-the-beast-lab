@@ -34,6 +34,7 @@
     "subtitle": "Performance Diagnostik auf wissenschaftlichem Niveau — ohne Labor, ohne Wartezeit.",
     "cta_primary": "ANALYSE STARTEN",
     "cta_secondary": "WIE ES FUNKTIONIERT",
+    "cta_sample": "BEISPIELREPORT ANSEHEN",
     "stats": {
       "questions": "FRAGEN",
       "scores": "SCORES",
@@ -76,7 +77,7 @@
       },
       "protocol": {
         "tag": "ANALYSE-PROTOKOLL",
-        "title": "20 WISSENSCHAFTLICHE FRAGEN",
+        "title": "26 WISSENSCHAFTLICHE FRAGEN",
         "text": "Beantworte präzise Fragen zu Schlaf, Training, Ernährung, Stress und Körperdaten — kalibriert nach WHO & ACSM Richtlinien."
       },
       "report": {
@@ -179,8 +180,8 @@
       "label": "ANALYSE-PROTOKOLL",
       "title_1": "DEIN ANALYSE-",
       "title_2": "PROTOKOLL.",
-      "subtitle": "Beantworte 20 präzise Fragen zu Körper, Training, Schlaf und Lifestyle — kalibriert nach WHO, ACSM & IPAQ Richtlinien. KI berechnet deine Scores.",
-      "stat_questions": "20 FRAGEN",
+      "subtitle": "Beantworte 26 präzise Fragen zu Körper, Training, Schlaf und Lifestyle — kalibriert nach WHO, ACSM & IPAQ Richtlinien. KI berechnet deine Scores.",
+      "stat_questions": "26 FRAGEN",
       "stat_scores": "5 SCORES",
       "stat_deep": "TIEFGEHENDE AUSWERTUNG",
       "stat_db": "EVIDENZBASIERTE DATENBANK"
@@ -858,5 +859,17 @@
     "text": "Diese Website verwendet ausschließlich technisch notwendige Cookies für Login und Zahlungsabwicklung. Kein Tracking, keine Werbung.",
     "policy_link": "Cookie-Richtlinie",
     "dismiss": "Verstanden"
+  },
+  "sample_report": {
+    "banner_label": "BEISPIELREPORT",
+    "banner_desc": "Dies ist ein Beispielreport mit Musterdaten — kein echter Analyse-Output.",
+    "banner_cta": "EIGENE ANALYSE STARTEN",
+    "page_title": "BEISPIEL PERFORMANCE REPORT",
+    "header_cta": "ANALYSE STARTEN",
+    "cta_label": "DU WILLST DEINE ECHTEN WERTE?",
+    "cta_title": "STARTE DEINE EIGENE ANALYSE",
+    "cta_desc": "Beantworte 26 präzise Fragen zu Körper, Training, Schlaf und Lifestyle — und erhalte deinen personalisierten Performance Report mit echten Scores und individuellen Handlungsempfehlungen.",
+    "cta_btn_primary": "ANALYSE STARTEN",
+    "cta_btn_pdf": "BEISPIEL-PDF HERUNTERLADEN"
   }
 }

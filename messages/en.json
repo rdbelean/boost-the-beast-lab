@@ -34,6 +34,7 @@
     "subtitle": "Performance diagnostics at scientific level — no lab, no waiting.",
     "cta_primary": "START ANALYSIS",
     "cta_secondary": "HOW IT WORKS",
+    "cta_sample": "VIEW SAMPLE REPORT",
     "stats": {
       "questions": "QUESTIONS",
       "scores": "SCORES",
@@ -76,7 +77,7 @@
       },
       "protocol": {
         "tag": "ANALYSIS PROTOCOL",
-        "title": "20 SCIENTIFIC QUESTIONS",
+        "title": "26 SCIENTIFIC QUESTIONS",
         "text": "Answer precise questions on sleep, training, nutrition, stress, and body data — calibrated to WHO & ACSM guidelines."
       },
       "report": {
@@ -179,8 +180,8 @@
       "label": "ANALYSIS PROTOCOL",
       "title_1": "YOUR ANALYSIS",
       "title_2": "PROTOCOL.",
-      "subtitle": "Answer 20 precise questions on body, training, sleep, and lifestyle — calibrated to WHO, ACSM & IPAQ guidelines. AI calculates your scores.",
-      "stat_questions": "20 QUESTIONS",
+      "subtitle": "Answer 26 precise questions on body, training, sleep, and lifestyle — calibrated to WHO, ACSM & IPAQ guidelines. AI calculates your scores.",
+      "stat_questions": "26 QUESTIONS",
       "stat_scores": "5 SCORES",
       "stat_deep": "DEEP ANALYSIS",
       "stat_db": "EVIDENCE-BASED DATABASE"
@@ -858,5 +859,17 @@
     "text": "This website uses only technically necessary cookies for login and payment processing. No tracking, no advertising.",
     "policy_link": "Cookie Policy",
     "dismiss": "Got it"
+  },
+  "sample_report": {
+    "banner_label": "SAMPLE REPORT",
+    "banner_desc": "This is a sample report with demo data — not a real analysis output.",
+    "banner_cta": "START YOUR OWN ANALYSIS",
+    "page_title": "SAMPLE PERFORMANCE REPORT",
+    "header_cta": "START ANALYSIS",
+    "cta_label": "WANT YOUR REAL NUMBERS?",
+    "cta_title": "START YOUR OWN ANALYSIS",
+    "cta_desc": "Answer 26 precise questions about your body, training, sleep, and lifestyle — and receive your personalized performance report with real scores and individual recommendations.",
+    "cta_btn_primary": "START ANALYSIS",
+    "cta_btn_pdf": "DOWNLOAD SAMPLE PDF"
   }
 }
