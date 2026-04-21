@@ -2,9 +2,11 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "@/app/[locale]/results/results.module.css";
-import { SAMPLE_SCORES_DISPLAY } from "@/lib/sample-report/data";
+import lockedStyles from "@/components/sample-report/LockedSection.module.css";
+import { SAMPLE_SCORES_DISPLAY, SAMPLE_PDF_CONTENT } from "@/lib/sample-report/data";
 import SampleReportBanner from "@/components/sample-report/SampleReportBanner";
 import SampleReportCta from "@/components/sample-report/SampleReportCta";
+import UnlockOverlay from "@/components/sample-report/UnlockOverlay";
 
 /* ─── Helpers ───────────────────────────────────────────────── */
 function scoreColor(score: number): string {
@@ -287,6 +289,77 @@ export default function BeispielreportPage() {
               );
             })}
           </div>
+        </section>
+
+        {/* ─── LOCKED PREMIUM SECTIONS ─────────────────── */}
+        {/* Three "upgrade to unlock" blocks that sit between the free preview
+            and the final CTA. Each shows a teaser (section label + 1–2 real
+            rows from the sample data), then a blurred body with an overlay
+            linking back to /kaufen. This converts the sample-report page
+            from a passive preview into an active sales funnel. */}
+
+        {/* TOP PRIORITY (partial — first 2 lines readable, rest blurred) */}
+        <section className={`${styles.scoresSection} ${lockedStyles.wrap}`}>
+          <div className={lockedStyles.sectionLabel}>{ts("unlock.top_priority_title")}</div>
+          <div className={lockedStyles.blurredPartial} aria-hidden="true">
+            <div className={lockedStyles.cardFull}>
+              <div className={lockedStyles.cardHeadline}>{ts("unlock.top_priority_title")}</div>
+              <p className={lockedStyles.cardBody}>{SAMPLE_PDF_CONTENT.top_priority}</p>
+            </div>
+          </div>
+          <UnlockOverlay
+            title={ts("unlock.top_priority_title")}
+            description={ts("unlock.top_priority_desc")}
+          />
+        </section>
+
+        {/* 30-DAY FORECAST (fully blurred) */}
+        <section className={`${styles.scoresSection} ${lockedStyles.wrap}`}>
+          <div className={lockedStyles.sectionLabel}>{ts("unlock.forecast_title")}</div>
+          <div className={lockedStyles.blurred} aria-hidden="true">
+            <div className={lockedStyles.cardFull}>
+              <div className={lockedStyles.cardHeadline}>{ts("unlock.forecast_title")}</div>
+              <p className={lockedStyles.cardBody}>{SAMPLE_PDF_CONTENT.prognose_30_days}</p>
+            </div>
+            <div className={lockedStyles.cardFull}>
+              <div className={lockedStyles.cardHeadline}>{SAMPLE_PDF_CONTENT.action_plan?.[0]?.headline}</div>
+              <p className={lockedStyles.cardBody}>
+                {SAMPLE_PDF_CONTENT.action_plan?.[0]?.current_value} →{" "}
+                {SAMPLE_PDF_CONTENT.action_plan?.[0]?.target_value}
+              </p>
+            </div>
+          </div>
+          <UnlockOverlay
+            title={ts("unlock.forecast_title")}
+            description={ts("unlock.forecast_desc")}
+          />
+        </section>
+
+        {/* DAILY LIFE PROTOCOL (first 2 habits in Morning visible, rest blurred) */}
+        <section className={`${styles.scoresSection} ${lockedStyles.wrap}`}>
+          <div className={lockedStyles.sectionLabel}>{ts("unlock.protocol_title")}</div>
+          <div className={lockedStyles.blurredPartial} aria-hidden="true">
+            <div className={lockedStyles.protocolGrid}>
+              {(["morning", "work_day", "evening", "nutrition_micro"] as const).map((slot) => {
+                const habits = SAMPLE_PDF_CONTENT.daily_life_protocol?.[slot] ?? [];
+                return (
+                  <div key={slot} className={lockedStyles.protocolCol}>
+                    <div className={lockedStyles.protocolColTitle}>{ts(`unlock.protocol_${slot}`)}</div>
+                    {habits.slice(0, 2).map((h, i) => (
+                      <div key={i} className={lockedStyles.protocolHabit}>
+                        <span className={lockedStyles.protocolHabitTitle}>{h.habit}</span>
+                        <span className={lockedStyles.protocolHabitWhy}>{h.why_specific_to_user}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <UnlockOverlay
+            title={ts("unlock.protocol_title")}
+            description={ts("unlock.protocol_desc")}
+          />
         </section>
 
         {/* ─── CONVERSION CTA ──────────────────────────── */}

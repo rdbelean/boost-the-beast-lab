@@ -87,6 +87,21 @@ export default function Products() {
               </div>
               <div className={styles.priceSub}>{t("price_sub")}</div>
 
+              {/* Anchor-pricing: compares against Marco's 1:1 hourly rate so
+                  the €39.90 lands as "less than one hour with Marco". Big
+                  perceived-value lift for ~5 lines of markup. */}
+              <div className={styles.anchorPrice}>
+                <span className={styles.anchorPriceLabel}>{t("anchor_price_label")}</span>
+                <span className={styles.anchorPriceLine}>
+                  {t("anchor_price_pt_prefix")}{" "}
+                  <strong>{t("anchor_price_pt_value")}</strong>
+                </span>
+                <span className={styles.anchorPriceLine}>
+                  {t("anchor_price_sw_prefix")}{" "}
+                  <strong>{t("anchor_price_sw_value")}</strong>
+                </span>
+              </div>
+
               <button
                 onClick={async () => {
                   const supabase = getSupabaseBrowserClient();

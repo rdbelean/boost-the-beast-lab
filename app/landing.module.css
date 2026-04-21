@@ -768,6 +768,37 @@
   margin-bottom: 24px;
   margin-top: 4px;
 }
+.anchorPrice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  margin: -8px 0 22px;
+  background: rgba(230, 50, 34, 0.06);
+  border-left: 2px solid var(--accent);
+  width: 100%;
+  box-sizing: border-box;
+}
+.anchorPriceLabel {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.anchorPriceLine {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.anchorPriceLine strong,
+.anchorPriceLine b {
+  color: #fff;
+  font-weight: 600;
+}
 .cardBtn {
   width: 100%;
   font-family: var(--font-oswald), sans-serif;
@@ -816,6 +847,401 @@
   .card { flex-direction: column; }
   .cardRight { width: 100%; border-left: none; border-top: 1px solid var(--border); flex-direction: column; }
   .featuresGrid { grid-template-columns: 1fr; }
+}
+
+/* ─── PAIN POINTS ───────────────────────────────────────────── */
+.painSection {
+  padding: 100px 0;
+  background: var(--bg-base);
+  border-top: 1px solid var(--border);
+}
+.painHeader { margin-bottom: 64px; max-width: 760px; }
+.painSubtitle {
+  margin-top: 18px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: clamp(15px, 1.6vw, 17px);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 620px;
+}
+.painGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+.painCard {
+  background: var(--surface);
+  padding: 40px 32px 36px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  border-top: 2px solid transparent;
+  border-left: 1px solid transparent;
+}
+.painCard:hover {
+  transform: translateY(-4px);
+  border-top-color: var(--accent);
+}
+.painCardNum {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  margin-bottom: 22px;
+  font-weight: 600;
+}
+.painCardTitle {
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 700;
+  font-size: clamp(18px, 2vw, 22px);
+  line-height: 1.2;
+  color: #fff;
+  margin-bottom: 14px;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+.painCardBody {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  flex: 1;
+}
+@media (max-width: 900px) {
+  .painGrid { grid-template-columns: 1fr; }
+  .painSection { padding: 64px 0; }
+  .painHeader { margin-bottom: 40px; }
+  .painCard { padding: 28px 22px 24px; }
+}
+
+/* ─── FOUNDER / MARCO ───────────────────────────────────────── */
+.founderSection {
+  padding: 120px 0;
+  background: var(--bg-base);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.founderSection::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(230, 50, 34, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 85% 80%, rgba(230, 50, 34, 0.05) 0%, transparent 55%);
+  pointer-events: none;
+}
+.founderGrid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 64px;
+  align-items: center;
+  position: relative;
+}
+.founderPortraitWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 420px;
+}
+.founderPortraitFrame {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.founderPortrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+.founderPortraitAccent {
+  position: absolute;
+  right: -18px;
+  bottom: -18px;
+  width: 120px;
+  height: 120px;
+  background: var(--accent);
+  z-index: 1;
+  clip-path: polygon(0 60%, 100% 0, 100% 100%, 0 100%);
+  opacity: 0.85;
+}
+.founderContent { display: flex; flex-direction: column; gap: 20px; }
+.founderHeadline {
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.05;
+  color: #fff;
+  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+.founderStory {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 620px;
+}
+.founderQuote {
+  font-family: var(--font-inter), sans-serif;
+  font-size: clamp(15px, 1.8vw, 18px);
+  line-height: 1.5;
+  color: #fff;
+  font-style: italic;
+  margin: 8px 0;
+  padding: 4px 0 4px 28px;
+  border-left: 3px solid var(--accent);
+  position: relative;
+}
+.founderQuoteMark {
+  position: absolute;
+  left: 6px;
+  top: -6px;
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 34px;
+  color: var(--accent);
+  line-height: 1;
+  font-style: normal;
+}
+.founderCredentials {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 20px;
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 12px;
+}
+.founderCredential {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+.founderCredentialDot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.founderPressBlock {
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.founderPressLabel {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-muted, #7a7a80);
+  font-weight: 600;
+}
+.founderPressList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  align-items: center;
+}
+.founderPressItem {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  opacity: 0.75;
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+.founderPressItem:hover {
+  opacity: 1;
+  color: #fff;
+}
+.founderExternalLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 6px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease;
+  width: fit-content;
+  font-weight: 600;
+}
+.founderExternalLink:hover {
+  border-bottom-color: var(--accent);
+}
+@media (max-width: 900px) {
+  .founderSection { padding: 64px 0; }
+  .founderGrid { grid-template-columns: 1fr; gap: 36px; }
+  .founderPortraitWrap { max-width: 320px; margin: 0 auto; }
+  .founderPortraitAccent { width: 80px; height: 80px; right: -10px; bottom: -10px; }
+  .founderCredentials { grid-template-columns: 1fr; }
+  .founderPressList { gap: 16px; }
+  .founderPressItem { font-size: 13px; }
+}
+
+/* ─── SOCIAL PROOF ──────────────────────────────────────────── */
+.socialProofSection {
+  padding: 100px 0;
+  background: var(--bg-alt, #0b0b0d);
+  border-top: 1px solid var(--border);
+}
+.socialProofHeader {
+  max-width: 780px;
+  margin-bottom: 56px;
+}
+.socialProofBadge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 18px 22px;
+  background: rgba(245, 166, 35, 0.07);
+  border: 1px solid rgba(245, 166, 35, 0.25);
+  margin-bottom: 28px;
+}
+.socialProofStars {
+  display: inline-flex;
+  gap: 2px;
+}
+.socialProofBadgeText {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-oswald), sans-serif;
+  color: #fff;
+}
+.socialProofRating {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.socialProofDot { color: var(--text-secondary); font-size: 18px; }
+.socialProofReviews {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.socialProofSource {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 11px;
+  color: var(--text-muted, #7a7a80);
+  letter-spacing: 0.02em;
+}
+.socialProofDisclaimer {
+  margin-top: 18px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted, #7a7a80);
+  max-width: 640px;
+  font-style: italic;
+}
+.socialProofGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+.socialProofCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+.socialProofCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 166, 35, 0.35);
+}
+.socialProofCardStars {
+  display: inline-flex;
+  gap: 2px;
+  margin-bottom: 20px;
+}
+.socialProofQuote {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #fff;
+  margin: 0 0 24px;
+  flex: 1;
+  font-weight: 400;
+}
+.socialProofAttribution {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.socialProofName {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-transform: uppercase;
+}
+.socialProofMeta {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 11px;
+  color: var(--text-muted, #7a7a80);
+  letter-spacing: 0.02em;
+}
+.socialProofFooter {
+  text-align: center;
+}
+.socialProofAllReviews {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 10px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease;
+}
+.socialProofAllReviews:hover {
+  border-bottom-color: var(--accent);
+}
+@media (max-width: 900px) {
+  .socialProofGrid { grid-template-columns: 1fr; }
+  .socialProofSection { padding: 64px 0; }
+  .socialProofHeader { margin-bottom: 36px; }
+  .socialProofBadge { width: 100%; }
 }
 
 /* ─── TRUST / FEATURES ──────────────────────────────────────── */

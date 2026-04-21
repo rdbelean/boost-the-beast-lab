@@ -28,11 +28,11 @@
   },
   "hero": {
     "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
-    "headline_1": "YOUR BODY.",
-    "headline_2": "YOUR DATA.",
-    "headline_3": "YOUR LEVEL.",
-    "subtitle": "Performance diagnostics at scientific level — no lab, no waiting.",
-    "cta_primary": "START ANALYSIS",
+    "headline_1": "STOP GUESSING.",
+    "headline_2": "START KNOWING.",
+    "headline_3": "YOUR LEVEL, IN BLACK AND WHITE.",
+    "subtitle": "Performance diagnostics from a coach who trains aspiring pro athletes. No lab. No subscription. Personalized for you in under 10 minutes.",
+    "cta_primary": "START YOUR ANALYSIS — €39.90",
     "cta_secondary": "HOW IT WORKS",
     "cta_sample": "VIEW SAMPLE REPORT",
     "stats": {
@@ -42,6 +42,66 @@
       "evidence_database": "EVIDENCE-BASED DATABASE"
     },
     "scroll": "SCROLL"
+  },
+  "founder": {
+    "eyebrow": "BEHIND THE LAB",
+    "headline": "MARCO COLELLA — YOUR UNFAIR ADVANTAGE",
+    "story": "Marco has been coaching pros and aspiring athletes for years, and teaches at FH Potsdam (sports faculty). He's seen what actually matters: not training harder, but measuring smarter. BOOST THE BEAST LAB is his method — distilled into a system anyone can use. No subscription trap, no template: the same diagnostics he otherwise only gives in 1:1 coaching.",
+    "quote": "I've seen athletes spend millions on diagnostics — and people who just guess. The Lab is where the two meet.",
+    "portrait_alt": "Marco Colella — Personal Trainer and Founder",
+    "credentials": {
+      "1": "Certified Sports & Health Trainer (Germany)",
+      "2": "Lecturer at FH Potsdam (Sports & Management)",
+      "3": "DFAV Instructor · XPS Certified",
+      "4": "Athletes Performance & Nutrition Specialist"
+    },
+    "press_label": "AS FEATURED IN",
+    "external_link": "SEE MARCO'S BACKGROUND"
+  },
+  "social_proof": {
+    "badge_rating": "5.0",
+    "badge_reviews_count": "80 GOOGLE REVIEWS",
+    "badge_source": "Verified at Marco Colella Personal Training",
+    "eyebrow": "REAL PEOPLE. REAL RESULTS.",
+    "headline": "80 PEOPLE. ONE COACH. ZERO 1-STAR REVIEWS.",
+    "context_disclaimer": "The voices below refer to Marco's 1:1 coaching. The Lab is the same methodology — distilled into software.",
+    "testimonials": {
+      "1": {
+        "quote": "I've lost 30 kilos in total, which I never thought I'd be able to do.",
+        "name": "Melanie Manusch",
+        "meta": "Age 36 · 1:1 coaching client"
+      },
+      "2": {
+        "quote": "Marco turned me from couch potato to sports junkie — and I finished the Tough Mudder.",
+        "name": "Svenja Herbergs",
+        "meta": "Age 29 · 1:1 coaching client"
+      },
+      "3": {
+        "quote": "He actually engages with our goals and needs — no one-size-fits-all plan.",
+        "name": "Annika Solty",
+        "meta": "Age 30 · 1:1 coaching client"
+      }
+    },
+    "all_reviews_cta": "READ ALL 80 REVIEWS"
+  },
+  "pain_points": {
+    "eyebrow": "SOUND FAMILIAR?",
+    "headline": "YOU'RE NOT LAZY. YOU'RE FLYING BLIND.",
+    "subtitle": "Most people don't fail at discipline — they fail at measurement. Without precise data every plan is a guess, and every app hands you the same template.",
+    "cards": {
+      "1": {
+        "title": "You train — but nothing changes.",
+        "body": "Without a baseline, without recovery tracking, without stress context: more volume alone does nothing. You can't tell if you're getting stronger or sabotaging yourself."
+      },
+      "2": {
+        "title": "You eat clean — but still feel drained.",
+        "body": "Protein, water, meal timing, sleep quality, stress level — if you don't know which lever is stuck, you just spin in circles. Tracking apps give you numbers, not answers."
+      },
+      "3": {
+        "title": "You want to fix things — but don't know where to start.",
+        "body": "Fitness apps give you data. Your doctor gives you cutoff values. Nobody tells you: THIS is your 30-day plan — built around your actual life."
+      }
+    }
   },
   "trust": {
     "evidence": {
@@ -106,6 +166,11 @@
       "pdf": "AI-generated premium PDF report"
     },
     "price_sub": "one-time",
+    "anchor_price_label": "COMPARED TO",
+    "anchor_price_pt_prefix": "60 min 1:1 with Marco:",
+    "anchor_price_pt_value": "€150",
+    "anchor_price_sw_prefix": "His method as software:",
+    "anchor_price_sw_value": "€39.90 — one-time",
     "cta": "START ANALYSIS →",
     "trust_points": {
       "instant_download": "Instant download",
@@ -870,6 +935,21 @@
     "cta_title": "START YOUR OWN ANALYSIS",
     "cta_desc": "Answer 26 precise questions about your body, training, sleep, and lifestyle — and receive your personalized performance report with real scores and individual recommendations.",
     "cta_btn_primary": "START ANALYSIS",
-    "cta_btn_pdf": "DOWNLOAD SAMPLE PDF"
+    "cta_btn_pdf": "DOWNLOAD SAMPLE PDF",
+    "unlock": {
+      "lock_badge": "ONLY IN YOUR REAL REPORT",
+      "cta": "UNLOCK NOW — €39.90",
+      "alt_pdf": "or download the sample PDF",
+      "top_priority_title": "YOUR TOP PRIORITY",
+      "top_priority_desc": "The one lever that adds +8 to +12 overall points — tailored to your real values.",
+      "forecast_title": "30-DAY FORECAST",
+      "forecast_desc": "Which score rises how much if you follow the protocol — including 3 concrete goals with weekly milestones.",
+      "protocol_title": "YOUR DAILY PROTOCOL",
+      "protocol_desc": "8–14 micro-habits for morning · workday · evening · nutrition — each ≤ 10 min, each calibrated to your data.",
+      "protocol_morning": "MORNING",
+      "protocol_work_day": "WORKDAY",
+      "protocol_evening": "EVENING",
+      "protocol_nutrition_micro": "NUTRITION"
+    }
   }
 }

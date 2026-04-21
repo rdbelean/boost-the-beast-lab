@@ -109,6 +109,27 @@ export const SAMPLE_PDF_CONTENT: PdfReportContent = {
       body: "Trotz solidem BMI und Metabolic Score (71) begrenzt eine Sitzzeit von ca. 8h/Tag den Wert. Studies zeigen: >6h Sitzen/Tag wirkt als unabhängiger CVD-Risikofaktor — unabhängig vom Trainingspensum.",
     },
   ],
+  daily_life_protocol: {
+    morning: [
+      { habit: "500 ml Wasser + 10 Min Tageslicht vor dem ersten Kaffee", why_specific_to_user: "Dein Morgen-Cortisol ist bei Stress 52 bereits erhöht — Tageslicht stabilisiert ihn und verhindert den Mittags-Crash.", time_cost_min: 10 },
+      { habit: "30 g Protein im Frühstück (z.B. Quark + Beeren + Nüsse)", why_specific_to_user: "Stabilisiert den Blutzucker für die nächsten 4h und verhindert Heißhunger vor dem Mittag.", time_cost_min: 5 },
+      { habit: "3× tief einatmen vor dem ersten Blick aufs Handy", why_specific_to_user: "Verschiebt den Sympathikus-Trigger um 2–3 Minuten — messbar weniger Stress-Reaktivität über den Tag.", time_cost_min: 1 },
+    ],
+    work_day: [
+      { habit: "Alle 45–60 Min 2 Min aufstehen und bewegen", why_specific_to_user: "Deine 8h/Tag Sitzzeit ist der größte Hebel für deinen Metabolic Score (71) — kurz unterbrochen reduziert das das CVD-Risiko messbar.", time_cost_min: 2 },
+      { habit: "Mittags 10 Min draußen gehen (ohne Handy)", why_specific_to_user: "Senkt den Cortisol-Peak und aktiviert parasympathische Recovery — wichtig bei Stress 52.", time_cost_min: 10 },
+    ],
+    evening: [
+      { habit: "Koffein-Cutoff 14:00", why_specific_to_user: "Koffein-Halbwertszeit 5–7h — bei deinem Sleep Score 58 ist das der schnellste Hebel für Tiefschlaf.", time_cost_min: 0 },
+      { habit: "Bildschirm-Cutoff 45 Min vor Bett", why_specific_to_user: "Blaulicht drückt Melatonin und verschlechtert deine REM-Phase — direkter Effekt auf den morgendlichen Recovery-Score.", time_cost_min: 0 },
+      { habit: "Schlafzimmer-Temperatur 17–19 °C", why_specific_to_user: "Kerntemperatur muss für Schlaf sinken — bei unregelmäßiger Routine ist das der zuverlässigste Sleep-Onset-Trigger.", time_cost_min: 2 },
+    ],
+    nutrition_micro: [
+      { habit: "Protein-Ziel: 1.6 g/kg Körpergewicht verteilt auf 3–4 Mahlzeiten", why_specific_to_user: "Fundament für Muskelerhalt bei deiner moderaten Trainingsaktivität (67).", time_cost_min: 0 },
+      { habit: "4+ Portionen Gemüse täglich als Standard", why_specific_to_user: "Stabilisiert den Metabolic Score (71) und liefert Mikronährstoffe die Recovery direkt unterstützen.", time_cost_min: 5 },
+    ],
+    total_time_min_per_day: 35,
+  },
   action_plan: [
     {
       headline: "Schlaf auf 7,5–8h stabilisieren",

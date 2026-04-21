@@ -28,11 +28,11 @@
   },
   "hero": {
     "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
-    "headline_1": "VÜCUDUN.",
-    "headline_2": "VERİN.",
-    "headline_3": "SEVİYEN.",
-    "subtitle": "Bilimsel seviyede performans diyagnostiği — laboratuvar yok, bekleme yok.",
-    "cta_primary": "ANALİZİ BAŞLAT",
+    "headline_1": "TAHMİN ETMEYİ BIRAK.",
+    "headline_2": "GERÇEKTEN BİLMEYE BAŞLA.",
+    "headline_3": "SEVİYEN, SİYAH BEYAZ.",
+    "subtitle": "Aday profesyonel sporcuları çalıştıran bir koçtan performans diyagnostiği. Laboratuvar yok. Abonelik yok. Senin için 10 dakikadan kısa sürede kişiselleştirilir.",
+    "cta_primary": "ANALİZİ BAŞLAT — 39,90 €",
     "cta_secondary": "NASIL ÇALIŞIR",
     "cta_sample": "ÖRNEK RAPORA BAK",
     "stats": {
@@ -42,6 +42,66 @@
       "evidence_database": "KANITA DAYALI VERİ TABANI"
     },
     "scroll": "KAYDIR"
+  },
+  "founder": {
+    "eyebrow": "LAB'IN ARKASINDA",
+    "headline": "MARCO COLELLA — HAKSIZ REKABET ÜSTÜNLÜĞÜN",
+    "story": "Marco yıllardır profesyonelleri ve aday sporcuları çalıştırıyor, ayrıca FH Potsdam'da (Spor Fakültesi) ders veriyor. Gerçekten ne işe yaradığını gördü: daha sert antrenman değil, daha akıllı ölçüm. BOOST THE BEAST LAB onun metodu — herkesin kullanabileceği bir sisteme damıtıldı. Abonelik tuzağı yok, şablon yok: yalnızca 1:1 koçlukta verdiği aynı diyagnostik.",
+    "quote": "Diyagnostiğe milyonlar harcayan sporcular gördüm — ve sadece tahmin yürüten insanlar. Lab, bu ikisinin buluştuğu nokta.",
+    "portrait_alt": "Marco Colella — Personal Trainer ve kurucu",
+    "credentials": {
+      "1": "Diplomalı Spor ve Sağlık Eğitmeni",
+      "2": "FH Potsdam Öğretim Görevlisi (Spor & Yönetim)",
+      "3": "DFAV Eğitmeni · XPS Certified",
+      "4": "Athletes Performance & Nutrition Specialist"
+    },
+    "press_label": "BASINDA",
+    "external_link": "MARCO'NUN GEÇMİŞİNİ GÖR"
+  },
+  "social_proof": {
+    "badge_rating": "5,0",
+    "badge_reviews_count": "80 GOOGLE DEĞERLENDİRMESİ",
+    "badge_source": "Marco Colella Personal Training'de doğrulandı",
+    "eyebrow": "GERÇEK İNSANLAR. GERÇEK SONUÇLAR.",
+    "headline": "80 KİŞİ. BİR KOÇ. SIFIR 1-YILDIZ DEĞERLENDİRME.",
+    "context_disclaimer": "Aşağıdaki ifadeler Marco'nun 1:1 koçluğuna ait. Lab, aynı metodolojinin yazılım hâli.",
+    "testimonials": {
+      "1": {
+        "quote": "Toplam 30 kilo verdim — kendim bile inanamadım.",
+        "name": "Melanie Manusch",
+        "meta": "36 yaşında · 1:1 koçluk müşterisi"
+      },
+      "2": {
+        "quote": "Marco beni kanepe patatesinden spor bağımlısına çevirdi — Tough Mudder'ı da bitirdim.",
+        "name": "Svenja Herbergs",
+        "meta": "29 yaşında · 1:1 koçluk müşterisi"
+      },
+      "3": {
+        "quote": "Bizim isteklerimize ve ihtiyaçlarımıza gerçekten giriyor — tek beden her kalıp değil.",
+        "name": "Annika Solty",
+        "meta": "30 yaşında · 1:1 koçluk müşterisi"
+      }
+    },
+    "all_reviews_cta": "80 DEĞERLENDİRMENİN HEPSİNİ OKU"
+  },
+  "pain_points": {
+    "eyebrow": "TANIDIK GELİYOR MU?",
+    "headline": "TEMBEL DEĞİLSİN. YOL HARİTAN YOK.",
+    "subtitle": "Çoğu insan disiplin değil, ölçümsüzlük yüzünden başarısız olur. Kesin veri olmadan her plan tahmindir — ve her uygulama sana aynı şablonu verir.",
+    "cards": {
+      "1": {
+        "title": "Çalışıyorsun — ama hiçbir şey değişmiyor.",
+        "body": "Baseline olmadan, recovery ölçümü olmadan, stres bağlamı olmadan: sadece daha fazla hacim işe yaramaz. Güçlendiğini mi yoksa kendine sabotaj mı yaptığını bilmiyorsun."
+      },
+      "2": {
+        "title": "Temiz yiyorsun — ama hâlâ yorgunsun.",
+        "body": "Protein, su, öğün zamanlaması, uyku kalitesi, stres seviyesi — hangi kaldıracın takıldığını bilmiyorsan daireler çiziyorsun. Takip uygulamaları sana rakam verir, yanıt değil."
+      },
+      "3": {
+        "title": "Kendine bakmak istiyorsun — ama nereden başlayacağını bilmiyorsun.",
+        "body": "Fitness uygulamaları sana veri verir. Doktorun sana eşik değerleri verir. Kimse sana şunu söylemez: İŞTE 30 günlük planın — gerçek hayatına göre hazırlanmış."
+      }
+    }
   },
   "trust": {
     "evidence": {
@@ -106,6 +166,11 @@
       "pdf": "Yapay zekâ ile oluşturulmuş premium PDF rapor"
     },
     "price_sub": "tek seferlik",
+    "anchor_price_label": "KARŞILAŞTIRMA",
+    "anchor_price_pt_prefix": "Marco ile 60 dk 1:1:",
+    "anchor_price_pt_value": "150 €",
+    "anchor_price_sw_prefix": "Aynı metodoloji yazılım olarak:",
+    "anchor_price_sw_value": "39,90 € — tek seferlik",
     "cta": "ANALİZİ BAŞLAT →",
     "trust_points": {
       "instant_download": "Anında indirme",
@@ -870,6 +935,21 @@
     "cta_title": "KENDİ ANALİZİNİ BAŞLAT",
     "cta_desc": "Vücut, antrenman, uyku ve yaşam tarzı hakkında 26 net soruyu cevapla — ve gerçek skorlar ile bireysel eylem önerileri içeren kişisel performans raporunu al.",
     "cta_btn_primary": "ANALİZİ BAŞLAT",
-    "cta_btn_pdf": "ÖRNEK PDF'İ İNDİR"
+    "cta_btn_pdf": "ÖRNEK PDF'İ İNDİR",
+    "unlock": {
+      "lock_badge": "SADECE GERÇEK RAPORUNDA",
+      "cta": "ŞİMDİ KİLİDİ AÇ — 39,90 €",
+      "alt_pdf": "veya örnek PDF'i indir",
+      "top_priority_title": "EN ÖNCELİKLİ MADDEN",
+      "top_priority_desc": "Overall skorunu +8 ile +12 puan artıracak tek kaldıraç — gerçek değerlerine göre ayarlanmış.",
+      "forecast_title": "30 GÜNLÜK TAHMİN",
+      "forecast_desc": "Protokolü uygularsan hangi skor ne kadar yükselir — haftalık kilometre taşlarıyla 3 somut hedef dahil.",
+      "protocol_title": "GÜNLÜK PROTOKOLÜN",
+      "protocol_desc": "Sabah · iş günü · akşam · beslenme için 8–14 mikro alışkanlık — her biri ≤ 10 dk, her biri verilerine kalibre.",
+      "protocol_morning": "SABAH",
+      "protocol_work_day": "İŞ GÜNÜ",
+      "protocol_evening": "AKŞAM",
+      "protocol_nutrition_micro": "BESLENME"
+    }
   }
 }

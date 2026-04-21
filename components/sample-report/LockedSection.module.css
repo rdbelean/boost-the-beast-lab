@@ -1,0 +1,96 @@
+.wrap {
+  position: relative;
+  margin-bottom: 48px;
+  overflow: hidden;
+}
+.blurred {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  /* Pad the bottom so the blur gradient in UnlockOverlay has room to fade. */
+  min-height: 280px;
+}
+.blurredPartial {
+  /* Used when the section has some visible rows + blurred rows. The top stays
+     clear; only the content flagged below gets fogged. */
+  filter: blur(5px);
+  pointer-events: none;
+  user-select: none;
+}
+.sectionLabel {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent, #E63222);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.cardFull {
+  background: var(--surface, #18181c);
+  border: 1px solid var(--border, #27272f);
+  padding: 26px 28px;
+  margin-bottom: 14px;
+}
+.cardHeadline {
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin: 0 0 10px;
+}
+.cardBody {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary, #a0a0a8);
+  margin: 0;
+}
+.protocolGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.protocolCol {
+  background: var(--surface, #18181c);
+  border: 1px solid var(--border, #27272f);
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 160px;
+}
+.protocolColTitle {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent, #E63222);
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border, #27272f);
+}
+.protocolHabit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.protocolHabitTitle {
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  color: #fff;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+.protocolHabitWhy {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-secondary, #a0a0a8);
+}
+@media (max-width: 900px) {
+  .protocolGrid { grid-template-columns: 1fr; }
+}
