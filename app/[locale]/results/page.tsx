@@ -12,6 +12,7 @@ import { buildHeroSummary, type HeroSummary } from "@/lib/reports/hero-summary";
 import { computeScoreDataBasis } from "@/lib/reports/score-data-basis";
 import type { MergedWearableMetrics } from "@/lib/wearable/types";
 import type { Locale } from "@/lib/supabase/types";
+import { cacheKeyFor, tryOpenCached, fetchPdfBytes, openBytesInNewTab, cachePdf } from "@/lib/pdf/pdfCache";
 
 /* ─── Animated Counter ──────────────────────────────────────── */
 function useCountUp(target: number, duration = 1600) {
@@ -282,6 +283,29 @@ export default function ResultsPage() {
     }
   }, [locale]);
 
+  // Cache-first PDF-Open: wenn das PDF direkt nach der Analyse in IndexedDB
+  // gelandet ist, öffnen wir es blob-local (0 ms Server-Roundtrip).
+  // Sonst: fallback auf downloadUrl, parallel im Hintergrund cachen damit der
+  // zweite Klick instant ist. Fehler im Cache sind nie kritisch — notfalls
+  // lassen wir den Browser ganz normal navigieren.
+  async function openReportPdf(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (!downloadUrl) return;
+    if (!assessmentId) return; // ohne ID haben wir keinen Cache-Key, normales Fallback
+    e.preventDefault();
+    const key = cacheKeyFor(assessmentId, "report");
+    const cached = await tryOpenCached(key);
+    if (cached) return;
+    // Miss: fetch, open, cache in background
+    const bytes = await fetchPdfBytes(downloadUrl);
+    if (bytes) {
+      openBytesInNewTab(bytes);
+      cachePdf(key, bytes).catch(() => {});
+      return;
+    }
+    // Letzter Fallback — echte Browser-Navigation zum Server-URL
+    window.open(downloadUrl, "_blank", "noopener,noreferrer");
+  }
+
   async function retryPdfGeneration() {
     if (!assessmentId) {
       setPdfError(t("pdf_error_no_assessment"));
@@ -426,7 +450,7 @@ export default function ResultsPage() {
         <div className={styles.headerActions}>
           <Link href="/analyse" className={`${styles.headerBtnSecondary} ${styles.hideOnMobile}`}>{t("new_analysis")}</Link>
           {downloadUrl ? (
-            <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className={styles.headerBtnPrimary}>
+            <a href={downloadUrl} onClick={openReportPdf} target="_blank" rel="noopener noreferrer" className={styles.headerBtnPrimary}>
               {t("pdf_download")}
             </a>
           ) : (
@@ -867,7 +891,7 @@ export default function ResultsPage() {
         <section className={styles.ctaSection}>
           <div className={styles.ctaBtns}>
             {downloadUrl ? (
-              <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className={styles.ctaBtnPrimary}>
+              <a href={downloadUrl} onClick={openReportPdf} target="_blank" rel="noopener noreferrer" className={styles.ctaBtnPrimary}>
                 {t("bottom_cta.btn_download")}
               </a>
             ) : (

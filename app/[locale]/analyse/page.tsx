@@ -9,6 +9,7 @@ import RadioGroup from "@/components/analyse/RadioGroup";
 import CustomSelect from "@/components/analyse/CustomSelect";
 import { buildPlan, type PlanType, type PlanBlock } from "@/lib/plan/buildPlan";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { cachePdf, cacheKeyFor, base64ToBytes, fetchPdfBytes } from "@/lib/pdf/pdfCache";
 
 // ── Plan bundle cached in sessionStorage ─────────────────
 interface PlanBundle {
@@ -722,6 +723,55 @@ function AnalyseContent() {
               }),
             }).catch(() => {/* non-fatal */});
           }
+        }
+      }
+
+      // ── Pre-Cache PDFs für Instant-Download ────────────────────────────
+      // Bis hierhin sind alle 5 PDFs fertig: 1 Report (auf Supabase Storage)
+      // + 4 Plans (als base64 im Memory). Wir cachen sie jetzt in IndexedDB
+      // damit der User auf /results oder /account mit einem Klick öffnet —
+      // ohne Lambda-cold-start und ohne 10 MB base64 über die Leitung.
+      // Best-effort: Fehler (Quota, Private-Mode) nie kritisch.
+      if (json?.assessmentId) {
+        const cachingWork: Promise<void>[] = [];
+        // Report PDF — fetchen wir einmal aus Supabase Storage, dann liegt
+        // es lokal. Nur wenn downloadUrl gesetzt ist (kann bei PDF-Gen-Fail null sein).
+        if (downloadUrl) {
+          cachingWork.push(
+            (async () => {
+              const bytes = await fetchPdfBytes(downloadUrl);
+              if (bytes) await cachePdf(cacheKeyFor(json.assessmentId, "report"), bytes);
+            })(),
+          );
+        }
+        // Plan PDFs — schon base64 im Memory, direkt dekodieren.
+        for (const r of planResults) {
+          if (r.bundle?.pdfBase64) {
+            cachingWork.push(
+              (async () => {
+                try {
+                  const bytes = base64ToBytes(r.bundle!.pdfBase64!);
+                  await cachePdf(
+                    cacheKeyFor(json.assessmentId, `plan_${r.planType}` as const),
+                    bytes,
+                  );
+                } catch {
+                  /* silent */
+                }
+              })(),
+            );
+          }
+        }
+        // Warten auf Caching BEVOR wir zu /results routen — damit der User
+        // nie eine leere Download-Page sieht. User-Feedback war eindeutig:
+        // lieber 2 s länger im Ladescreen mit fortlaufendem Balken.
+        try {
+          await Promise.race([
+            Promise.all(cachingWork),
+            new Promise<void>((resolve) => setTimeout(resolve, 8000)), // Hard-timeout
+          ]);
+        } catch {
+          /* caching ist best-effort */
         }
       }
 

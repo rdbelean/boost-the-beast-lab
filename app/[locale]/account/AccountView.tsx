@@ -1,6 +1,14 @@
 "use client";
 import { useTranslations } from "next-intl";
 import styles from "./account.module.css";
+import {
+  cacheKeyFor,
+  tryOpenCached,
+  fetchPdfBytes,
+  openBytesInNewTab,
+  cachePdf,
+  type CacheablePdfType,
+} from "@/lib/pdf/pdfCache";
 
 export interface AccountReport {
   id: string;
@@ -93,21 +101,63 @@ function openDataUrl(dataUrl: string) {
   setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
 }
 
-function DownloadBtn({ url, label, disabledTitle, fallbackTitle }: { url: string | null; label: string; filename?: string; disabledTitle?: string; fallbackTitle: string }) {
+// Cache-first Download: wenn das PDF direkt nach der Analyse im IndexedDB
+// gelandet ist (siehe analyse/page.tsx pre-cache), öffnet der Klick das
+// PDF binnen Millisekunden. Sonst: fetcht aus Storage, öffnet, cached für
+// den nächsten Klick. Das eliminiert den "5 min Download"-Bug.
+async function openWithCache(url: string, assessmentId: string, cacheType: CacheablePdfType) {
+  const key = cacheKeyFor(assessmentId, cacheType);
+  const hit = await tryOpenCached(key);
+  if (hit) return;
+  // Cache miss: handle data: URLs inline (old rows), others via fetch.
+  if (url.startsWith("data:")) {
+    openDataUrl(url);
+    // Background-cache the legacy blob so the second click is instant too.
+    try {
+      const [, b64] = url.split(",");
+      if (b64) {
+        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+        await cachePdf(key, bytes);
+      }
+    } catch { /* ignore */ }
+    return;
+  }
+  const bytes = await fetchPdfBytes(url);
+  if (bytes) {
+    openBytesInNewTab(bytes);
+    cachePdf(key, bytes).catch(() => {});
+    return;
+  }
+  // Last resort — plain navigation.
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function DownloadBtn({
+  url,
+  label,
+  disabledTitle,
+  fallbackTitle,
+  assessmentId,
+  cacheType,
+}: {
+  url: string | null;
+  label: string;
+  filename?: string;
+  disabledTitle?: string;
+  fallbackTitle: string;
+  assessmentId: string;
+  cacheType: CacheablePdfType;
+}) {
   if (url) {
-    if (url.startsWith("data:")) {
-      return (
-        <button onClick={() => openDataUrl(url)} className={styles.pdfBtn}>
-          {DOWNLOAD_ICON}
-          {label}
-        </button>
-      );
-    }
     return (
-      <a href={url} target="_blank" rel="noopener noreferrer" className={styles.pdfBtn}>
+      <button
+        type="button"
+        onClick={() => { void openWithCache(url, assessmentId, cacheType); }}
+        className={styles.pdfBtn}
+      >
         {DOWNLOAD_ICON}
         {label}
-      </a>
+      </button>
     );
   }
   return (
@@ -282,11 +332,11 @@ export default function AccountView({ reports }: { reports: AccountReport[] }) {
               </div>
 
               <div className={styles.reportActions}>
-                <DownloadBtn url={report.pdfUrl}                              label={t("download_report")}   filename={`Performance-Report_${report.isoDate}.pdf`}    fallbackTitle={t("disabled_default")} />
-                <DownloadBtn url={i === 0 ? report.planUrls.activity  : null} label={t("download_activity")} filename={`Activity-Plan_${report.isoDate}.pdf`}         disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
-                <DownloadBtn url={i === 0 ? report.planUrls.metabolic : null} label={t("download_metabolic")} filename={`Metabolic-Plan_${report.isoDate}.pdf`}       disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
-                <DownloadBtn url={i === 0 ? report.planUrls.recovery  : null} label={t("download_recovery")}  filename={`Recovery-Plan_${report.isoDate}.pdf`}        disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
-                <DownloadBtn url={i === 0 ? report.planUrls.stress    : null} label={t("download_stress")}    filename={`Stress-Lifestyle-Plan_${report.isoDate}.pdf`} disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
+                <DownloadBtn assessmentId={report.id} cacheType="report"          url={report.pdfUrl}                              label={t("download_report")}   filename={`Performance-Report_${report.isoDate}.pdf`}    fallbackTitle={t("disabled_default")} />
+                <DownloadBtn assessmentId={report.id} cacheType="plan_activity"   url={i === 0 ? report.planUrls.activity  : null} label={t("download_activity")} filename={`Activity-Plan_${report.isoDate}.pdf`}         disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
+                <DownloadBtn assessmentId={report.id} cacheType="plan_metabolic"  url={i === 0 ? report.planUrls.metabolic : null} label={t("download_metabolic")} filename={`Metabolic-Plan_${report.isoDate}.pdf`}       disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
+                <DownloadBtn assessmentId={report.id} cacheType="plan_recovery"   url={i === 0 ? report.planUrls.recovery  : null} label={t("download_recovery")}  filename={`Recovery-Plan_${report.isoDate}.pdf`}        disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
+                <DownloadBtn assessmentId={report.id} cacheType="plan_stress"     url={i === 0 ? report.planUrls.stress    : null} label={t("download_stress")}    filename={`Stress-Lifestyle-Plan_${report.isoDate}.pdf`} disabledTitle={t("disabled_latest_only")} fallbackTitle={t("disabled_default")} />
               </div>
             </div>
           );

@@ -84,11 +84,34 @@ export default async function AccountPage({
   }
 
   // Group all artifacts by assessment + file_type (first row wins per type).
+  //
+  // WICHTIG: alte `data:application/pdf;base64,...` URLs können 500 KB - 2 MB
+  // pro Plan sein. Wenn der User 5 Analysen hat × 4 Plans = 10 MB base64 die
+  // der Server bei jedem /account-Aufruf ins HTML rendert und zum Client
+  // shippt — das ist der 5-Min-Ladezeit-Bug den Adrian gemeldet hat.
+  //
+  // Fix: wir shippen die base64-Payload NIE mehr an den Client. Für Plans
+  // mit data:-URL ersetzen wir durch den neuen Storage-Download-Endpoint
+  // (`/api/plan/download/{id}/{type}`). Der Endpoint fällt intern auf die
+  // data:-URL zurück falls sie noch in der DB steht.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const PLAN_TYPES = new Set(["plan_activity", "plan_metabolic", "plan_recovery", "plan_stress"]);
   const artifactsByAssessment = new Map<string, Record<string, string>>();
   for (const a of artifactsRes.data ?? []) {
     const map = artifactsByAssessment.get(a.assessment_id) ?? {};
     const key = a.file_type ?? "pdf";
-    if (!map[key]) map[key] = a.file_url;
+    if (!map[key]) {
+      const rawUrl = a.file_url as string;
+      let url = rawUrl;
+      // Replace legacy data: URLs for plans with the new download endpoint
+      // so we never ship 2 MB base64 strings in SSR HTML. Report PDFs never
+      // used data: URLs in the persisted path (they always go via Storage).
+      if (PLAN_TYPES.has(key) && typeof rawUrl === "string" && rawUrl.startsWith("data:")) {
+        const planType = key.replace(/^plan_/, "");
+        url = `${appUrl}/api/plan/download/${a.assessment_id}/${planType}`;
+      }
+      map[key] = url;
+    }
     artifactsByAssessment.set(a.assessment_id, map);
   }
 
