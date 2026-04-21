@@ -236,60 +236,60 @@ const PDF_LABELS: Record<Locale, {
     disclaimer1: "Tutti i dati si basano su informazioni fornite dall'utente e calcoli modellistici secondo le linee guida IPAQ, NSF/AASM, WHO e ACSM. Il VO2max \u00E8 una stima algoritmica basata sul modello Jackson Non-Exercise Prediction. Questo documento non costituisce dichiarazioni mediche e non \u00E8 un dispositivo medico ai sensi del MDR.",
     disclaimer2: "Questo report \u00E8 stato generato utilizzando modelli di scoring scientifici. Non sostituisce la visita medica, la diagnostica di laboratorio o la consulenza medica individualizzata. Per problemi di salute o domande specifiche, consultare un medico o terapista qualificato.",
   },
-  ko: {
-    footerStrip: "PERFORMANCE LAB  |  의료 상담을 대체하지 않음",
-    legalTitle: "법적 고지",
-    legalAccent: "의학적 진단이 아닙니다",
-    legalSub: "PERFORMANCE INSIGHT  |  의료 상담을 대체하지 않음",
+  tr: {
+    footerStrip: "PERFORMANCE LAB  |  Tıbbi tavsiyenin yerini almaz",
+    legalTitle: "YASAL UYARI",
+    legalAccent: "TIBBİ TEŞHİS DE\u011EİLDİR",
+    legalSub: "PERFORMANCE INSIGHT  |  TIBBİ TAVSİYENİN YERİNİ ALMAZ",
     overallIndex: "OVERALL PERFORMANCE INDEX",
-    gesamtbild: "종합 프로필",
-    topPriority: "최우선 과제",
-    metKey: "MET-분 / 주",
-    trainingDaysKey: "트레이닝 일수 / 주",
-    sittingKey: "좌식 시간 / 일",
-    sleepDuration: "수면 시간",
-    sleepDurationValue: (h) => `${h} 시간 / 밤`,
+    gesamtbild: "GENEL TABLO",
+    topPriority: "EN \u00D6NCELİKLİ",
+    metKey: "MET-dakika / hafta",
+    trainingDaysKey: "Antrenman g\u00FCn\u00FC / hafta",
+    sittingKey: "Oturma s\u00FCresi / g\u00FCn",
+    sleepDuration: "Uyku s\u00FCresi",
+    sleepDurationValue: (h) => `${h} saat / gece`,
     recoveryScore: "Recovery Score",
-    vo2Estimated: "추정 VO2max",
-    fitnessLevel: "피트니스 레벨",
+    vo2Estimated: "Tahmini VO2max",
+    fitnessLevel: "Fitness seviyesi",
     bmiKey: "BMI",
-    bmiCategory: "카테고리",
-    stressBand: "스트레스 밴드",
-    actionNeed: "조치 필요도",
-    actionHigh: "높음",
-    actionModerate: "보통",
-    actionLow: "낮음",
-    dateLocale: "ko-KR",
-    ageUnit: "세",
-    einordnung: "맥락",
-    hauptbefund: "핵심 결과",
-    systemischeVerbindung: "시스템적 연관",
-    limitierung: "제한 요인",
-    naechsterSchritt: "다음 단계",
-    kennwerte: "핵심 지표",
-    findingsTitle: "당신의 주요 3가지 인사이트",
-    connectionTitle: "당신 데이터의 연관성",
-    actionPlanTitle: "당신의 30일 프로토콜",
-    goalLabel: "목표",
-    istLabel: "현재:",
-    zielValueLabel: "목표:",
-    messbarLabel: "측정:",
-    typeWeakness: "약점",
-    typeStrength: "강점",
-    typeConnection: "연관성",
-    dailyProtocolTitle: "당신의 일상 프로토콜",
-    dailyProtocolSub: "일상 속에서 실천할 구체적 습관 — 헬스장 불필요, 핑계 불필요.",
-    dailyMorning: "아침",
-    dailyWorkday: "근무 시간",
-    dailyEvening: "저녁",
-    dailyNutrition: "영양",
-    dailyTotalTime: (min) => `하루 ${min}분`,
-    qExcellent: "우수한 데이터 기반",
-    qStrong: "견고한 데이터 기반",
-    qGood: "양호한 데이터 기반",
-    qSecured: "데이터 기반 확보",
-    disclaimer1: "모든 데이터는 자기 보고 정보와 IPAQ, NSF/AASM, WHO, ACSM 지침에 따른 모델 기반 계산을 토대로 합니다. VO2max는 Jackson Non-Exercise Prediction Model에 기반한 알고리즘 추정치입니다. 본 문서는 의학적 주장을 포함하지 않으며 MDR 규정상 의료 기기가 아닙니다.",
-    disclaimer2: "본 리포트는 과학적 스코어링 모델을 사용해 생성되었습니다. 의학적 검진, 실험실 진단, 또는 개인 맞춤 의료 상담을 대체하지 않습니다. 건강 문제나 구체적인 질문이 있는 경우, 자격을 갖춘 의사 또는 치료사와 상담하세요.",
+    bmiCategory: "Kategori",
+    stressBand: "Stres bandı",
+    actionNeed: "Eylem gereksinimi",
+    actionHigh: "Y\u00DCKSEK",
+    actionModerate: "ORTA",
+    actionLow: "D\u00DC\u015E\u00DCK",
+    dateLocale: "tr-TR",
+    ageUnit: "ya\u015F",
+    einordnung: "BA\u011ELAM",
+    hauptbefund: "ANA BULGU",
+    systemischeVerbindung: "SİSTEMİK BA\u011E",
+    limitierung: "KISITLAMA",
+    naechsterSchritt: "SONRAKI ADIM",
+    kennwerte: "ANAHTAR DE\u011EERLER",
+    findingsTitle: "EN ONEMLI 3 BULGUN",
+    connectionTitle: "VERİLERİNDEKİ BA\u011ELANTILAR",
+    actionPlanTitle: "30 G\u00DCNL\u00DCK PROTOKOL\u00DCN",
+    goalLabel: "HEDEF",
+    istLabel: "\u015EİMDİ:",
+    zielValueLabel: "HEDEF:",
+    messbarLabel: "\u00D6L\u00C7\u00DCM:",
+    typeWeakness: "ZAYIF Y\u00D6N",
+    typeStrength: "G\u00DC\u00C7L\u00DC Y\u00D6N",
+    typeConnection: "BA\u011ELANTI",
+    dailyProtocolTitle: "G\u00DCNL\u00DCK PROTOKOL\u00DCN",
+    dailyProtocolSub: "G\u00FCnl\u00FCk hayat\u0131n i\u00E7in somut al\u0131\u015Fkanl\u0131klar \u2014 spor salonu gerekmez, mazeret yok.",
+    dailyMorning: "SABAH",
+    dailyWorkday: "\u0130\u015E G\u00DCN\u00DC",
+    dailyEvening: "AK\u015EAM",
+    dailyNutrition: "BESLENME",
+    dailyTotalTime: (min) => `G\u00FCnde ${min} dk`,
+    qExcellent: "M\u00DCKEMMEL VERİ TABANI",
+    qStrong: "G\u00DC\u00C7L\u00DC VERİ TABANI",
+    qGood: "İYİ VERİ TABANI",
+    qSecured: "VERİ TABANI G\u00DCVENCE ALTINDA",
+    disclaimer1: "T\u00FCm veriler, kullan\u0131c\u0131 taraf\u0131ndan bildirilen bilgilere ve IPAQ, NSF/AASM, WHO, ACSM k\u0131lavuzlar\u0131na uygun model tabanl\u0131 hesaplamalara dayanmaktad\u0131r. VO2max, Jackson Non-Exercise Prediction Model'e dayal\u0131 algoritmik bir tahmindir. Bu belge t\u0131bbi beyan i\u00E7ermez ve MDR anlam\u0131nda t\u0131bbi cihaz de\u011Fildir.",
+    disclaimer2: "Bu rapor bilimsel skorlama modelleri kullan\u0131larak olu\u015Fturulmu\u015Ftur. T\u0131bbi muayene, laboratuvar tan\u0131 veya bireysel t\u0131bbi dan\u0131\u015Fmanl\u0131\u011F\u0131n yerini almaz. Sa\u011Fl\u0131k sorunlar\u0131 veya spesifik sorular i\u00E7in l\u00FCtfen yetkin bir doktor veya terapiste dan\u0131\u015F.",
   },
 };
 
@@ -437,11 +437,10 @@ function safe(s: string | undefined | null): string {
   return s ? String(s) : "";
 }
 
-// Sanitise to WinAnsi / Latin-1 for standard PDF fonts — but ONLY when the
-// current locale is not Korean. For ko, Noto Sans KR is embedded and handles
-// the full Hangul + CJK range, so the Unicode is kept intact. For DE/EN/IT
-// Helvetica is Latin-1 only and any extended Unicode would render as empty
-// glyphs (tofu boxes).
+// Sanitise to WinAnsi / Latin-1 for Standard14 Helvetica. For locales that
+// use an embedded TTF with wider Unicode coverage (currently only TR →
+// Noto Sans), we keep the full Unicode so ğ, ı, ş render correctly. DE/EN/IT
+// stay on Helvetica and get the WinAnsi filter applied.
 function tx(s: string | undefined | null): string {
   const normalized = safe(s)
     .replace(/[\u2014\u2013]/g, "-")
@@ -452,7 +451,7 @@ function tx(s: string | undefined | null): string {
     .replace(/\u2190/g, "<-")
     .replace(/\u2022/g, "-")
     .replace(/[\u2265\u2264]/g, "");
-  if (currentLocale === "ko") return normalized;
+  if (currentLocale === "tr") return normalized;
   return normalized.replace(/[^\x00-\xFF]/g, "");
 }
 

@@ -80,20 +80,20 @@ const PLAN_LABELS: Record<string, {
     dateLocale: "it-IT",
     urgency: ["CRITICO", "AZIONE RICHIESTA", "POTENZIALE DI OTTIMIZZAZIONE", "FINE-TUNING", "TOP-LEVEL"],
   },
-  ko: {
-    scientificBasis: "과학적 근거",
-    keyActions: "핵심 실행 항목",
-    individualPlan: "개인 맞춤 플랜",
-    footerNote: "PERFORMANCE LAB  |  의료 상담을 대체하지 않음",
-    dateLocale: "ko-KR",
-    urgency: ["심각", "조치 필요", "최적화 여지", "미세 조정", "최상위"],
+  tr: {
+    scientificBasis: "BİLİMSEL AÇIKLAMA",
+    keyActions: "EN \u00D6NEMLİ EYLEMLERİN",
+    individualPlan: "KİŞİSEL PLAN",
+    footerNote: "PERFORMANCE LAB  |  Tıbbi tavsiyenin yerini almaz",
+    dateLocale: "tr-TR",
+    urgency: ["KRİTİK", "EYLEM GEREKLİ", "OPTİMİZASYON POTANSİYELİ", "İNCE AYAR", "EN \u00DCST SEVİYE"],
   },
 };
 
 // Module-level locale state. Set at entry of generatePlanPDF so the
 // text-sanitizer tx() knows whether the current embedded font can
-// render non-Latin Unicode (Korean → Noto Sans KR can; everything
-// else → Helvetica Latin-1 only).
+// render wider Unicode (Turkish → Noto Sans covers Latin Extended-A;
+// everything else → Helvetica WinAnsi only).
 let currentPlanLocale: Locale = "de";
 
 // Urgency label derived from score (matches web urgencyLabel() helper)
@@ -123,10 +123,10 @@ function tx(s: string | undefined | null): string {
     .replace(/\u2192/g, "->")
     .replace(/\u2022/g, "-")
     .replace(/[\u2265\u2264]/g, "");
-  // For Korean, Noto Sans KR is embedded and handles Hangul + CJK glyphs;
-  // keep the Unicode. For DE/EN/IT, Helvetica is Latin-1 only — strip
-  // anything outside that range to avoid empty-glyph rendering errors.
-  if (currentPlanLocale === "ko") return normalized;
+  // For Turkish, Noto Sans is embedded and handles Latin Extended-A
+  // (ğ, ı, ş, İ, Ğ, Ş). Keep the Unicode. For DE/EN/IT, Helvetica is
+  // WinAnsi only — strip anything outside that range.
+  if (currentPlanLocale === "tr") return normalized;
   return normalized.replace(/[^\x00-\xFF]/g, "");
 }
 

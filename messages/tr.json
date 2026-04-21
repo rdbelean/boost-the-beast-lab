@@ -1,0 +1,875 @@
+{
+  "_meta": {
+    "locale": "tr",
+    "status": "full-translation-v1"
+  },
+  "seo": {
+    "default_title": "BOOST THE BEAST LAB – Performance Intelligence System",
+    "default_description": "Bilimsel seviyede performans diyagnostiği. Metabolizma, toparlanma, aktivite ve stresi analiz et — laboratuvar yok, bekleme yok.",
+    "og_title": "BOOST THE BEAST LAB",
+    "og_description": "Vücudun. Verin. Seviyen."
+  },
+  "language_switcher": {
+    "aria_label": "Dili değiştir"
+  },
+  "header": {
+    "nav": {
+      "how_it_works": "NASIL ÇALIŞIR",
+      "packages": "PAKETLER"
+    },
+    "latest_report_cta": "EN SON RAPOR ↓",
+    "account_dropdown": {
+      "account": "HESABIM",
+      "new_analysis": "Yeni analiz başlat →",
+      "reports": "Raporlarımı gör",
+      "logout": "Çıkış",
+      "login": "Giriş yap / Hesap oluştur"
+    }
+  },
+  "hero": {
+    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
+    "headline_1": "VÜCUDUN.",
+    "headline_2": "VERİN.",
+    "headline_3": "SEVİYEN.",
+    "subtitle": "Bilimsel seviyede performans diyagnostiği — laboratuvar yok, bekleme yok.",
+    "cta_primary": "ANALİZİ BAŞLAT",
+    "cta_secondary": "NASIL ÇALIŞIR",
+    "cta_sample": "ÖRNEK RAPORA BAK",
+    "stats": {
+      "questions": "SORU",
+      "scores": "SKOR",
+      "deep_analysis": "DERİNLEMESİNE ANALİZ",
+      "evidence_database": "KANITA DAYALI VERİ TABANI"
+    },
+    "scroll": "KAYDIR"
+  },
+  "trust": {
+    "evidence": {
+      "title": "KANITA DAYALI",
+      "text": "WHO & ACSM kılavuzlarına dayalı. Bilimsel olarak kalibre edilmiş."
+    },
+    "database": {
+      "title": "VERİ TABANI DESTEKLİ ANALİZ",
+      "text": "Sonuçların, uluslararası çalışmalardan 10.000'den fazla bilimsel veri noktasıyla karşılaştırılır."
+    },
+    "dimensions": {
+      "title": "5 PERFORMANS BOYUTU",
+      "text": "Metabolizma, toparlanma, aktivite, VO2max ve stres — her boyut ayrı analiz edilir ve puanlanır."
+    },
+    "no_doctor": {
+      "title": "DOKTOR RANDEVUSU YOK",
+      "text": "Laboratuvar yok, bekleme odası yok. Performans içgörüleri — anında."
+    }
+  },
+  "how": {
+    "section_label": "SÜREÇ",
+    "section_title": "NASIL ÇALIŞIR",
+    "steps": {
+      "package": {
+        "tag": "PAKET SEÇ",
+        "title": "PERFORMANS PAKETİN",
+        "text": "Kişiselleştirilmiş optimizasyon ve antrenman planları dahil tam performans raporunu seç — tek seferlik, abonelik yok."
+      },
+      "signup": {
+        "tag": "KAYIT OL",
+        "title": "HESABINI OLUŞTUR",
+        "text": "E-posta ve şifreyle güvenli hesabını oluştur — raporun kayıtlı kalsın, her zaman erişilebilir olsun."
+      },
+      "protocol": {
+        "tag": "ANALİZ PROTOKOLÜ",
+        "title": "26 BİLİMSEL SORU",
+        "text": "Uyku, antrenman, beslenme, stres ve vücut verilerine dair net sorulara cevap ver — WHO ve ACSM kılavuzlarına kalibre edilmiş."
+      },
+      "report": {
+        "tag": "RAPOR",
+        "title": "KİŞİSEL RAPORUN",
+        "text": "Fitness skoru, bireysel analizler ve kişiye özel optimizasyon planları ile performans raporun — anında premium PDF olarak."
+      }
+    }
+  },
+  "products": {
+    "section_label": "PAKETİN",
+    "section_title": "COMPLETE PERFORMANCE ANALYSIS",
+    "card_tag": "EKSİKSİZ PAKET",
+    "card_name": "COMPLETE PERFORMANCE ANALYSIS",
+    "card_question": "Tam performans raporun + kişiselleştirilmiş optimizasyon ve antrenman planları.",
+    "features": {
+      "overall": "Overall Performance Index (0–100)",
+      "metabolic": "Metabolic Performance Score",
+      "recovery": "Recovery & Regeneration Score",
+      "activity": "Activity Performance Score",
+      "stress": "Stress & Lifestyle Score",
+      "vo2max": "VO2max tahmini (ml/kg/dk)",
+      "optimization_plans": "Kişisel optimizasyon planları",
+      "training_plans": "Kişisel antrenman planları",
+      "forecast": "30 günlük performans tahmini",
+      "pdf": "Yapay zekâ ile oluşturulmuş premium PDF rapor"
+    },
+    "price_sub": "tek seferlik",
+    "cta": "ANALİZİ BAŞLAT →",
+    "trust_points": {
+      "instant_download": "Anında indirme",
+      "one_time": "Tek seferlik, abonelik yok",
+      "pdf_included": "PDF dahil"
+    }
+  },
+  "wearable": {
+    "optional_badge": "OPSİYONEL · ZORUNLU DEĞİL",
+    "section_label": "VERİN. HER DOSYA.",
+    "section_title_1": "DAHA NET SKORLAR.",
+    "section_title_2": "SENİN VERİLERİNLE.",
+    "subtitle_before": "Eksiksiz analiz, ",
+    "subtitle_strong": "wearable veya tarama olmadan da",
+    "subtitle_after": " mükemmel çalışır. Elinde ne varsa — WHOOP, Apple Health, InBody taraması, DEXA raporu, Garmin CSV, ekran görüntüsü, spor salonu PDF'i — yükle, yapay zekâmız okusun. Skorlar otomatik olarak keskinleşir.",
+    "card_pill": "EKLENTİ",
+    "cards": {
+      "whoop": {
+        "title": "WHOOP",
+        "metrics": "Uyku · Toparlanma · Strain · HRV",
+        "days": "30 günlük veri"
+      },
+      "apple": {
+        "title": "APPLE HEALTH",
+        "metrics": "HRV · Kalp hızı · Adım · VO2max",
+        "days": "Doğrudan iPhone'undan"
+      },
+      "any_file": {
+        "title": "DİĞER HER ŞEY",
+        "metrics": "InBody · DEXA · Tanita · Garmin · PDF · Görsel · CSV",
+        "days": "Yapay zekâ her dosyayı okur"
+      }
+    },
+    "usps": {
+      "real_data": {
+        "title": "30 günlük gerçek veri",
+        "sub": "Anlık değil, ortalama."
+      },
+      "precise": {
+        "title": "Daha net skorlar",
+        "sub": "Ölçülmüş, tahmin edilmemiş."
+      },
+      "private": {
+        "title": "Veri sende kalır",
+        "sub": "ZIP yalnızca tarayıcında işlenir."
+      },
+      "optional": {
+        "title": "Zorunlu değil",
+        "sub": "Analiz wearable olmadan da mükemmel çalışır."
+      }
+    }
+  },
+  "analyse": {
+    "demo_banner": "⚠ DEMO MODU — Analiz protokolü aktif",
+    "step_counter": "{answered}/{total} PROTOKOL SORUSU",
+    "wearable_banner": {
+      "imported_label": "{source} verisi içe aktarıldı",
+      "text": " ({days} gün ölçüldü). Aşağıdaki alanlar gerçek verilerinden önceden dolduruldu — istediğin zaman değiştirebilirsin: ",
+      "fields": {
+        "alter": "Yaş",
+        "geschlecht": "Cinsiyet",
+        "groesse": "Boy",
+        "gewicht": "Kilo",
+        "schlafdauer": "Uyku süresi",
+        "schlafqualitaet": "Uyku kalitesi",
+        "aufwachen": "Gece uyanmaları",
+        "erholtGefuehl": "Toparlanma",
+        "schrittzahl": "Adım sayısı"
+      }
+    },
+    "hero": {
+      "label": "ANALİZ PROTOKOLÜ",
+      "title_1": "SENİN ANALİZ",
+      "title_2": "PROTOKOLÜN.",
+      "subtitle": "Vücut, antrenman, uyku ve yaşam tarzı hakkında 26 net soruyu cevapla — WHO, ACSM ve IPAQ kılavuzlarına göre kalibre edilmiş. Yapay zekâ skorlarını hesaplar.",
+      "stat_questions": "26 SORU",
+      "stat_scores": "5 SKOR",
+      "stat_deep": "DERİNLEMESİNE ANALİZ",
+      "stat_db": "KANITA DAYALI VERİ TABANI"
+    },
+    "category_label": "KATEGORİ",
+    "categories": {
+      "0": "BAŞLANGIÇ NOKTAN",
+      "1": "VÜCUT VERİLERİ VE METABOLİZMA",
+      "2": "AKTİVİTE VE ANTRENMAN",
+      "3": "TOPARLANMA VE REJENERASYON",
+      "4": "BESLENME, STRES VE YAŞAM TARZI"
+    },
+    "q": {
+      "main_goal": {
+        "label": "ASIL NE İSTİYORSUN?",
+        "sub": "Cevabın, raporun neye odaklanacağını belirler — kalıba göre değil, hedefine göre hazırlanır.",
+        "feel_better": "Günlük hayatta daha enerjik ve formda hissetmek",
+        "body_comp": "Vücut yağı azaltmak veya kas yapmak",
+        "performance": "Sportif performansı artırmak (dayanıklılık / güç)",
+        "stress_sleep": "Daha iyi uyumak ve stresi düşürmek",
+        "longevity": "Uzun vadede sağlıklı kalmak — önleyici sağlık"
+      },
+      "nutrition_painpoint": {
+        "label": "EN BÜYÜK BESLENME SORUNUN NE?",
+        "sub": "Dürüst ol — rapor bunun için sana somut bir mikro alışkanlık verir.",
+        "cravings_evening": "Akşam iştah atakları — başlayınca duramıyorum",
+        "low_protein": "Yeterli protein alamıyorum — hedef miktarı nasıl tutacağımı bilmiyorum",
+        "no_energy": "Enerjim düşük / öğleden sonra bitkin / kahveye bağımlı",
+        "no_time": "Yemek yapmaya vakit yok / hızlıca hazır gıdaya kaçıyorum",
+        "none": "Aslında iyi gidiyor — belirgin bir sorun yok"
+      },
+      "stress_source": {
+        "label": "STRESİNİN ANA KAYNAĞI NE?",
+        "sub": "Rapor bu kaynağa özel stres alışkanlıkları versin — genel \"derin nefes al\" yerine.",
+        "job": "İş / kariyer",
+        "family": "Aile / ilişki",
+        "finances": "Para / finans",
+        "health": "Sağlık (kendi veya yakınlarınınki)",
+        "future": "Gelecek kaygısı / belirsizlik",
+        "none": "Şu an belirgin bir stres yok"
+      },
+      "recovery_ritual": {
+        "label": "EN SEVDİĞİN TOPARLANMA RİTÜELİN NE?",
+        "sub": "Rapor yeni bir şey dayatmak yerine bunun üzerine kurulur.",
+        "sport": "Spor / hareket",
+        "nature": "Doğa / dışarıda olmak",
+        "cooking": "Yemek yapmak / hazırlamak",
+        "reading": "Kitap okumak",
+        "meditation": "Meditasyon / nefes pratiği",
+        "social": "Benim için önemli insanlarla vakit geçirmek",
+        "none": "Belirli bir ritüelim yok"
+      },
+      "time_budget": {
+        "label": "GERÇEKÇİ OLARAK GÜNDE NE KADAR VAKTİN VAR?",
+        "sub": "Dürüst ol — plan senin hayatına uymalı, tersi değil.",
+        "minimal": "Günde 10–20 dk (yoğun hayat)",
+        "moderate": "Günde 20–45 dk",
+        "committed": "Günde 45–90 dk",
+        "athlete": "Günde 90+ dk"
+      },
+      "experience": {
+        "label": "DENEYİM SEVİYEN",
+        "beginner": "Yeni başlayan — hiç düzenli antrenman yapmadım",
+        "restart": "Ara vermiş — uzun bir moladan sonra dönüyorum",
+        "intermediate": "1–3 yıl düzenli antrenman",
+        "advanced": "5+ yıl antrenman, işin ehliyim"
+      },
+      "age_sex": {
+        "label": "YAŞ VE CİNSİYET"
+      },
+      "age": {
+        "input_label": "Yaş",
+        "unit": "YAŞ",
+        "placeholder": "28"
+      },
+      "sex": {
+        "label": "Cinsiyet",
+        "maennlich": "Erkek",
+        "weiblich": "Kadın",
+        "divers": "Diğer"
+      },
+      "height": {
+        "label": "BOY",
+        "input": "Boy"
+      },
+      "weight": {
+        "label": "KİLO",
+        "input": "Kilo"
+      },
+      "fruit_veg": {
+        "label": "HAFTADA KAÇ ÖĞÜN SEBZE VEYA MEYVE?",
+        "fast_jede": "Neredeyse her öğün (haftada 18–21)",
+        "meiste": "Öğünlerin çoğunda (haftada 12–17)",
+        "haelfte": "Yaklaşık yarısında (haftada 8–11)",
+        "selten": "Nadiren (haftada 3–7)",
+        "kaum": "Neredeyse hiç (haftada 0–2)"
+      },
+      "training_freq": {
+        "label": "HAFTALIK ANTRENMAN SIKLIĞI",
+        "keiner": "Hiç yok",
+        "1_2x": "Haftada 1–2×",
+        "3_4x": "Haftada 3–4×",
+        "5_6x": "Haftada 5–6×",
+        "taeglich": "Her gün"
+      },
+      "training_type": {
+        "label": "BASKIN ANTRENMAN TİPİ",
+        "kraft": "Ağırlık antrenmanı",
+        "cardio": "Kardiyo",
+        "kampfsport": "Dövüş sporu",
+        "teamsport": "Takım sporu",
+        "yoga": "Yoga / mobility",
+        "gemischt": "Karma"
+      },
+      "moderate_duration": {
+        "label": "ORTA YOĞUNLUKTA ANTRENMAN BAŞINA DAKİKA"
+      },
+      "intense_duration": {
+        "label": "YÜKSEK YOĞUNLUKTA ANTRENMAN BAŞINA DAKİKA"
+      },
+      "duration_options": {
+        "lt20": "< 20 dk",
+        "20_30": "20–30 dk",
+        "30_60": "30–60 dk",
+        "gt60": "> 60 dk"
+      },
+      "standing_hours": {
+        "label": "GÜNDE KAÇ SAAT AYAKTA VEYA HAREKETTESİN?",
+        "sub": "Ayakta durma, yürüme, hareket — oturma dışında her şey sayılır",
+        "lt2": "< 2 saat",
+        "2_4": "2–4 saat",
+        "4_6": "4–6 saat",
+        "gt6": "> 6 saat"
+      },
+      "steps_q": {
+        "label": "GÜNLÜK ADIM SAYISI (ortalama)",
+        "input": "Günlük adım",
+        "unit": " adım"
+      },
+      "sitting": {
+        "label": "GÜNLÜK OTURMA SÜRESİ",
+        "input": "Günde kaç saat oturuyorsun"
+      },
+      "sleep_duration": {
+        "label": "ORTALAMA UYKU SÜRESİ",
+        "input": "Gece başına uyku saati"
+      },
+      "sleep_quality": {
+        "label": "KENDİNE GÖRE UYKU KALİTESİ",
+        "sehr_schlecht": "Çok kötü",
+        "schlecht": "Kötü",
+        "mittel": "Orta",
+        "gut": "İyi",
+        "sehr_gut": "Çok iyi"
+      },
+      "wakeup": {
+        "label": "GECE SIK UYANMA",
+        "nie": "Hiç",
+        "selten": "Nadiren",
+        "manchmal": "Bazen",
+        "oft": "Sık sık",
+        "jede_nacht": "Her gece"
+      },
+      "rested": {
+        "label": "SABAH DİNLENMİŞ HİSSEDİYOR MUSUN?",
+        "fast_nie": "Neredeyse hiç",
+        "selten": "Nadiren",
+        "manchmal": "Bazen",
+        "meistens": "Çoğunlukla",
+        "immer": "Her zaman"
+      },
+      "screen_time": {
+        "label": "UYUMADAN ÖNCE EKRAN SÜRESİ",
+        "sub": "Telefon, laptop, TV — uyumadan ne kadar önce ekran kullanıyorsun?",
+        "kein": "Ekran yok",
+        "lt30": "< 30 dakika",
+        "30_60": "30–60 dakika",
+        "gt60": "> 60 dakika"
+      },
+      "water": {
+        "label": "GÜNLÜK SU TÜKETİMİ",
+        "input": "Günlük litre"
+      },
+      "stress": {
+        "label": "GENEL STRES SEVİYESİ",
+        "sehr_gering": "Çok düşük",
+        "gering": "Düşük",
+        "moderat": "Orta",
+        "hoch": "Yüksek",
+        "sehr_hoch": "Çok yüksek"
+      },
+      "meals": {
+        "label": "BESLENME YAPIN",
+        "kein": "Plan yok",
+        "intuitiv": "Sezgisel",
+        "grob": "Kabaca takip ediyorum",
+        "makros": "Makroları takip ediyorum",
+        "meal_prep": "Meal prep"
+      }
+    },
+    "submit": {
+      "error_label": "Hata:",
+      "error_server": "Sunucu hatası ({status})",
+      "error_unknown": "Bilinmeyen bir hata oluştu.",
+      "btn": "ANALİZİ BAŞLAT →",
+      "loading": "İŞLENİYOR..."
+    },
+    "loading_overlay": {
+      "label": "BOOST THE BEAST LAB · BİLİMSEL VERİ TABANIYLA EŞLEŞTİRİLİYOR",
+      "title_1": "RAPORUN",
+      "title_2": "HAZIRLANIYOR.",
+      "progress_label": "İlerleme",
+      "step_scoring": "Skorlar hesaplanıyor…",
+      "step_report": "Kişiselleştirilmiş rapor oluşturuluyor…",
+      "step_plans": "Optimizasyon planları hazırlanıyor…",
+      "step_done": "Her şey hazır — rapora geçiliyor…",
+      "duration_hint": "Bu birkaç dakika sürebilir — raporun şu an bilimsel veri tabanımızla eşleştiriliyor.",
+      "active_step_counter": "Adım {current} / {total}",
+      "steps": [
+        "BTB Lab'ın bilimsel referans veri tabanıyla eşleştirme...",
+        "WHO & ACSM norm değerleri profiline uygulanıyor...",
+        "Aktivite verilerin uluslararası standartlarla karşılaştırılıyor...",
+        "Performans kategorileri küresel çalışma verilerinden atanıyor...",
+        "Uyku & toparlanma profilin NSF referanslarıyla kontrol ediliyor...",
+        "VO2max uluslararası fitness veri tabanlarından hesaplanıyor...",
+        "Metabolik profil WHO sınıflandırmalarıyla eşleştiriliyor...",
+        "Stres & yaşam tarzı örüntüleri bilimsel olarak değerlendiriliyor...",
+        "Bütünsel performans endeksi 6 modül üzerinden hesaplanıyor...",
+        "BTB Lab kişisel raporunu hazırlıyor...",
+        "Bilimsel bulgular derleniyor...",
+        "Kişisel raporun tamamlanıyor..."
+      ]
+    }
+  },
+  "analyse_prepare": {
+    "label": "OPSİYONEL · SENİN VERİN",
+    "headline": "Daha net skorlar. Senin verinle.",
+    "subtitle": "Hakkında değer içeren herhangi bir dosyayı yükle — WHOOP export, Apple Health export, InBody/DEXA/Tanita taraması, Garmin CSV, fitness uygulaması ekran görüntüsü, spor salonu PDF'i. Yapay zekâmız okuyup formu önceden doldurur. Ya da bu adımı atla — form bunsuz da çalışır.",
+    "dropzone": {
+      "title": "DOSYALARI VEYA KLASÖRÜ BURAYA BIRAK",
+      "subtitle": "veya seçmek için tıkla",
+      "supports": "WHOOP · Apple Health · InBody · DEXA · Garmin · PDF · Görsel · CSV",
+      "max_size": "15 MB'a kadar · yaygın formatlar",
+      "btn_select": "Dosya veya klasör seç"
+    },
+    "privacy_banner": {
+      "strong": "Verin sende kalır.",
+      "text": " ZIP'ler (WHOOP, Apple Health) yalnızca tarayıcında işlenir — sunucumuza sadece anonim ortalamalar gider. PDF ve görseller değerlendirme için şifreli olarak yapay zekâmıza iletilir ve saklanmaz."
+    },
+    "whoop": {
+      "title": "WHOOP",
+      "desc": "Son 30 günlük WHOOP Export ZIP dosyanı yükle.",
+      "steps": [
+        "WHOOP uygulamasını aç",
+        "Profil → Ayarlar → Data Export",
+        "\"Last 90 days\" seç → Export",
+        "ZIP dosyasının linki e-postana gelir",
+        "ZIP'i buraya yükle"
+      ]
+    },
+    "apple": {
+      "title": "Apple Health",
+      "desc": "iOS Sağlık uygulamasından Health Export'u yükle — HRV, adım ve VO2max dahil.",
+      "steps": [
+        "iPhone'unda Sağlık uygulamasını aç",
+        "Profiline dokun (sağ üst)",
+        "Aşağı kaydır → \"Tüm sağlık verilerini dışa aktar\"",
+        "2-5 dakika bekle (daha uzun sürebilir)",
+        "ZIP dosyasını kendinle paylaş (AirDrop/e-posta)",
+        "Buraya yükle"
+      ],
+      "note": "Büyük dosyalar olabilir (2 GB'a kadar) — işleme birkaç dakika sürebilir ve tamamen tarayıcında çalışır."
+    },
+    "skip": {
+      "title": "Sadece form",
+      "desc": "Wearable yok mu? Sorun değil — form, doğrulanmış yöntemlerle (WHOOP, IPAQ, NSF/AASM) da kesin skorlar verir.",
+      "btn": "Wearable olmadan devam →",
+      "link": "Bu adımı atla →"
+    },
+    "tutorial_toggle": "Talimat",
+    "upload_label": "ZIP yükle",
+    "upload_hint": "Tıkla veya dosyayı buraya sürükle",
+    "parsing": {
+      "reading_zip": "ZIP okunuyor...",
+      "streaming_apple": "Apple Health export'u akıyor...",
+      "analyzing_document": "Belge değerlendiriliyor...",
+      "saving": "Veriler kaydediliyor..."
+    },
+    "errors": {
+      "server": "Sunucu hatası ({status})",
+      "unknown": "Dosya okunurken bilinmeyen bir hata.",
+      "empty_file": "Dosya boş.",
+      "too_large": "Dosya çok büyük. Maksimum: 15 MB (WHOOP ve Apple Health ZIP'leri hariç — onlar tarayıcıda çalışır).",
+      "unknown_zip": "Bu ZIP'i tanımıyoruz. Desteklenen: WHOOP export, Apple Health export.",
+      "unsupported_format": "Bu dosya formatı desteklenmiyor. Desteklenen: PDF, JPG, PNG, WEBP, CSV, TXT, JSON, ZIP.",
+      "heic_unsupported": "HEIC/HEIF desteklenmiyor. Görseli JPG veya PNG olarak dışa aktar.",
+      "low_confidence": "Yapay zekâ bu dosyada güvenilir sağlık verisi bulamadı. Başka bir dosya dene — veya bu adımı atla.",
+      "server_error": "İşleme başarısız. Lütfen tekrar dene.",
+      "too_many_files": "En fazla 50 dosya.",
+      "total_too_large": "Tüm dosyalar toplam 200 MB'ı aşıyor.",
+      "all_failed": "Hiçbir dosya başarıyla okunamadı. Dosya formatını kontrol et ve tekrar dene.",
+      "apple_ecg": "EKG ham verileri (Apple Health) — kalp akımı ölçümleri içerir ancak değerlendirilebilir sağlık verisi yok.",
+      "files_skipped": "Eklenmedi (limit aşıldı): {files}"
+    },
+    "overlay": {
+      "label": "WEARABLE VERİSİ · YEREL OLARAK İŞLENİYOR",
+      "title_1": "VERİLERİN",
+      "title_2": "ANALİZ EDİLİYOR.",
+      "reassurance": "Her şey tarayıcında lokal çalışıyor — ZIP yüklenmiyor, yalnızca ortalama değerler.",
+      "cancel": "İptal",
+      "title_batch_1": "{current} / {total}",
+      "title_batch_2": "DOSYA ANALİZ EDİLDİ.",
+      "current_file": "Mevcut dosya:"
+    },
+    "multi": {
+      "add_btn": "Dosya ekle",
+      "process_btn_one": "1 dosyayı analiz et →",
+      "process_btn_other": "{count} dosyayı analiz et →",
+      "remove": "Kaldır",
+      "status_queued": "Bekliyor",
+      "status_processing": "Analiz ediliyor...",
+      "status_done": "Tamam",
+      "status_error": "Hata"
+    },
+    "file_list": {
+      "header": "Eklenen dosyalar",
+      "clear_all": "Tümünü sil",
+      "type_whoop": "WHOOP",
+      "type_apple": "Apple Health",
+      "type_scan": "Tarama / belge",
+      "type_unknown": "?"
+    },
+    "review": {
+      "title": "Analiz tamamlandı",
+      "summary": "{success}/{total} başarılı",
+      "continue_btn": "Forma geç →",
+      "add_more": "Daha fazla dosya ekle",
+      "all_failed_warning": "Hiçbir dosya okunamadı — yine de devam edip formu manuel doldurabilirsin.",
+      "result_whoop": "{days} gün WHOOP verisi",
+      "result_apple": "{days} gün Apple Health",
+      "result_gpx": "{days} gün GPS antrenman verisi",
+      "result_body_comp": "Vücut kompozisyonu tanımlandı",
+      "result_sleep": "Uyku verisi tanımlandı",
+      "result_weight": "Kilo verisi tanımlandı",
+      "result_generic": "Veri başarıyla çıkarıldı",
+      "errors_section": "Reddedilen dosyalar ({count})",
+      "errors_show": "Göster",
+      "errors_hide": "Gizle"
+    },
+    "upload": {
+      "quality": {
+        "strong_title": "Güçlü veri tabanı",
+        "strong_message": "{sources} verilerin {days} günü kapsıyor. Direkt başlayabilirsin.",
+        "good_title": "İyi temel",
+        "good_message": "{sources} kaynağından {days} günlük veri başarıyla işlendi.",
+        "good_recommendation": "Daha kesin vücut verileri için bir InBody veya DEXA taraması yardımcı olur.",
+        "minimal_title": "Temel mevcut",
+        "minimal_message": "Devam edebilirsin — rapor büyük ölçüde manuel girdilerine dayanır.",
+        "minimal_recommendation": "İpucu: Daha net skorlar için wearable export'u (WHOOP / Apple Health) yükle.",
+        "none_title": "İşlenen veri yok",
+        "none_message": "Sorun değil — formu tamamen manuel de doldurabilirsin.",
+        "gpx_note": "+ {count} GPS oturumu dahil edildi"
+      },
+      "folder_intent": {
+        "apple_subfolder_detected": "Apple Health kısmi export'u tespit edildi",
+        "apple_ecg_description": "Bunlar tek tek EKG kayıtları (kalp akımı ham verisi). Değerlendirilebilir sağlık metriği içermiyor.",
+        "apple_gpx_description": "Bunlar tek tek antrenman rotaları (GPS track'leri). Aktivite verisi için kullanılabilir — ama tam bir Health export daha fazlasını sağlar.",
+        "apple_mixed_description": "Bunlar EKG kayıtları ve antrenman rotaları. Tam bir rapor için ana export'u öneriyoruz.",
+        "main_export_tip": "Tam bir Apple Health raporu için ana export'unu yükle:\n1. Apple Sağlık → Profil (sağ üst)\n2. \"Tüm sağlık verilerini dışa aktar\"\n3. 2–5 dk bekle → export.zip alırsın\n4. Bu ZIP'i buraya yükle — uyku, adım, HRV ve daha fazlasını içerir",
+        "process_anyway": "Yine de işle",
+        "cancel_and_reupload": "İptal et ve yeniden seç"
+      },
+      "gpx": {
+        "workout_routes_detected": "{count} antrenman rotası tespit edildi",
+        "summary": "{sessions} oturumda {km} km"
+      }
+    }
+  },
+  "results": {
+    "error_loading": "Sonuçlar yüklenemedi.",
+    "error_title": "HATA",
+    "restart": "YENİDEN BAŞLAT",
+    "back_home": "← ANA SAYFA",
+    "new_analysis": "Yeni analiz",
+    "loading": "Sonuçlar yükleniyor…",
+    "header_title": "BOOST THE BEAST LAB · PERFORMANCE REPORT",
+    "pdf_download": "PDF İNDİR",
+    "pdf_generating": "PDF OLUŞTURULUYOR…",
+    "pdf_generate": "PDF'İ ŞİMDİ OLUŞTUR",
+    "pdf_error_no_assessment": "Assessment ID yok — lütfen analizi yeniden başlat.",
+    "pdf_error_server": "Sunucu hatası ({status}): {body}",
+    "pdf_error_empty": "boş yanıt",
+    "pdf_error_generic": "Hata {status}",
+    "pdf_error_no_url": "Sunucu URL döndürmedi.",
+    "pdf_error_network": "Ağ hatası",
+    "save_banner": {
+      "label": "RAPORU KAYDET",
+      "title_email": "Raporunu sonrası için kaydet",
+      "title_code": "6 haneli kodu gir",
+      "desc_email": "Hesabı 10 saniyede oluştur — rapor ve PDF'ler istediğin zaman, başka cihazlardan da erişilebilir.",
+      "desc_code": "Kod {email} adresine gönderildi. Buraya gir.",
+      "email_placeholder": "senin@eposta.com",
+      "send_code": "KOD GÖNDER",
+      "sending": "…",
+      "google_btn": "Google ile kaydet",
+      "verify_btn": "GİRİŞ YAP",
+      "back_other_email": "← Başka e-posta"
+    },
+    "hero_label": "SONUCUN",
+    "hero_title": "OVERALL PERFORMANCE SCORE",
+    "subscores_label": "ALT SKORLAR DETAYLI",
+    "score_entries": {
+      "activity": {
+        "label": "ACTIVITY PERFORMANCE",
+        "desc": "{met} MET-dk/hafta · IPAQ kategorisi: {category}"
+      },
+      "sleep": {
+        "label": "SLEEP & RECOVERY",
+        "desc": "Uyku süresi: {duration} · Kalite: {quality}"
+      },
+      "vo2max": {
+        "label": "VO2MAX FITNESS",
+        "desc": "Tahmini VO2max: {vo2} ml/kg/dk · Band: {band}"
+      },
+      "metabolic": {
+        "label": "METABOLIC HEALTH",
+        "desc": "BMI: {bmi} ({category}) · Band: {band}"
+      },
+      "stress": {
+        "label": "STRESS & LIFESTYLE",
+        "desc": "Stres bandı: {band}"
+      }
+    },
+    "badges": {
+      "good": "İYİ",
+      "medium": "ORTA",
+      "low": "DÜŞÜK"
+    },
+    "derived_metrics_label": "DERIVED METRICS",
+    "vo2max_card": {
+      "label": "VO2MAX TAHMİNİ",
+      "desc": "Yaş, BMI ve aktivite kategorisine göre tahmini maksimum oksijen alımı. Model: Jackson Non-Exercise (1990)."
+    },
+    "bmi_card": {
+      "label": "BMI — VÜCUT KOMPOZİSYONU",
+      "desc": "Vücut kompozisyonunun WHO sınıflandırması. Optimal: 18,5–24,9 kg/m²."
+    },
+    "met_card": {
+      "label": "HAFTALIK MET-DAKİKA",
+      "desc": "IPAQ Short Form'a göre toplam aktivite hacmi. Yürüme (3,3 MET) + Orta (4,0 MET) + Yüksek (8,0 MET)."
+    },
+    "radar_label": "PERFORMANCE PROFİLİ",
+    "benchmark_label": "KARŞILAŞTIRMA — SKORUN VS. ORTALAMA",
+    "benchmark_legend": {
+      "your_score": "SKORUN",
+      "average": "ORTALAMA"
+    },
+    "sleep_detail_label": "SLEEP & RECOVERY — DETAYLI ANALİZ",
+    "sleep_detail": {
+      "duration": {
+        "label": "UYKU SÜRESİ",
+        "desc": "Band: {band}"
+      },
+      "quality": {
+        "label": "UYKU KALİTESİ",
+        "desc": "Öznel değerlendirme (PSQI uyarlaması)"
+      },
+      "wakeup": {
+        "label": "UYANMALAR",
+        "desc": "Gece kesintileri"
+      },
+      "recovery": {
+        "label": "TOPARLANMA",
+        "desc": "Sabah dinlenmişlik hissi"
+      }
+    },
+    "plans": {
+      "heading": "4 KİŞİSEL PLANIN",
+      "subtitle": "Skorlarına göre kişiselleştirildi — paket içinde dahil. Her plan somut protokoller, haftalık planlar ve bilimsel öneriler içerir.",
+      "activity": {
+        "label": "ACTIVITY-PLAN",
+        "desc": "WHO/ACSM standardına göre antrenman hacmi, haftalık plan ve ilerleme",
+        "cta": "ACTIVITY-PLAN'A GİT"
+      },
+      "metabolic": {
+        "label": "METABOLIC-PLAN",
+        "desc": "EFSA ve DGE kılavuzlarına göre beslenme ve hidrasyon protokolü",
+        "cta": "METABOLIC-PLAN'A GİT"
+      },
+      "recovery": {
+        "label": "RECOVERY-PLAN",
+        "desc": "NSF'ye göre uyku hijyeni, rejenerasyon protokolü ve haftalık yapı",
+        "cta": "RECOVERY-PLAN'A GİT"
+      },
+      "stress": {
+        "label": "STRESS & LIFESTYLE-PLAN",
+        "desc": "Stres azaltma, yaşam tarzı optimizasyonu ve stres aracı olarak spor",
+        "cta": "STRESS-PLAN'A GİT"
+      }
+    },
+    "data_insights": {
+      "section_title": "VERİLERİNDEN",
+      "sleep": {
+        "duration": "Ort. uyku süresi",
+        "efficiency": "Uyku verimliliği",
+        "deep_sleep": "Derin uyku",
+        "rem": "REM uykusu",
+        "wakeups": "Ort. uyanma"
+      },
+      "activity": {
+        "steps": "Ort. adım/gün",
+        "strain": "Ort. strain",
+        "active_kcal": "Ort. aktif kcal"
+      },
+      "stress": {
+        "hrv": "Ort. HRV",
+        "rhr": "Ort. istirahat nabzı",
+        "whoop_recovery": "Ort. recovery"
+      },
+      "vo2max": {
+        "value": "VO2max (ölçülen)"
+      },
+      "metabolic": {
+        "bmi": "BMI",
+        "body_fat": "Vücut yağı",
+        "skeletal_muscle": "İskelet kası kütlesi",
+        "weight": "Vücut ağırlığı"
+      }
+    },
+    "urgency": {
+      "critical": "KRİTİK",
+      "action": "EYLEM GEREKLİ",
+      "optimize": "OPTİMİZASYON POTANSİYELİ",
+      "finetune": "İNCE AYAR",
+      "top": "ÜST SEVİYE"
+    },
+    "bottom_cta": {
+      "btn_download": "RAPORU PDF OLARAK İNDİR",
+      "disclaimer": "Not: Bu rapor yalnızca genel bilgilendirme amaçlıdır ve doktor ziyaretini, tıbbi teşhisi veya tedavi önerisini replace etmez. Sağlık sorunlarında lütfen bir doktora başvurun. MDR anlamında tıbbi ürün değildir."
+    },
+    "upsell": {
+      "tag": "BİR ÜST SEVİYE",
+      "title": "GERÇEK LAB DİYAGNOSTİĞİ İÇİN HAZIR MISIN?",
+      "text": "Performans raporun bilimsel modellere dayanıyor — ama en kesin ölçüm laboratuvarda yapılır. Kişisel danışmanlık ve solunum maskesiyle gerçek VO2max ölçümü (spiroergometri) Düsseldorf'ta.",
+      "features": [
+        "Uzmanla kişisel danışmanlık görüşmesi",
+        "Spiroergometri ile kesin VO2max ölçümü",
+        "Kişisel antrenman ve beslenme danışmanlığı",
+        "Yerinde Düsseldorf · gerçek laboratuvar diyagnostiği"
+      ],
+      "btn": "RANDEVU AL →",
+      "note": "Kişisel danışmanlık · Düsseldorf"
+    },
+    "hero": {
+      "label": "VERİ TABANIN",
+      "datapoints_label": "Analiz edilen veri noktası",
+      "fallback_title": "RAPORUN — VERDİĞİN BİLGİLERE DAYANIYOR",
+      "fallback_text": "Raporun form cevaplarına göre hazırlandı. Daha kesin içgörüler için bir wearable bağla.",
+      "period_label": "Dönem:",
+      "quality_strong": "GÜÇLÜ VERİ TABANI",
+      "quality_good": "İYİ TEMEL",
+      "quality_minimal": "TEMEL MEVCUT",
+      "quality_none": "FORM RAPORU",
+      "quality_excellent_badge": "MÜKEMMEL VERİ TABANI",
+      "quality_excellent_message": "Bu kapsamlı veri, performansının derinlemesine ve net bir analizini sağlar.",
+      "quality_strong_badge": "GÜÇLÜ VERİ TABANI",
+      "quality_strong_message": "Verilerin kesin skorlar ve sağlam öneriler için sağlam bir temel oluşturur.",
+      "quality_good_badge": "İYİ VERİ TABANI",
+      "quality_good_message": "Yüklediğin veriler doğrudan değerlendirmeye akar ve raporun doğruluğunu artırır.",
+      "quality_secured_badge": "VERİ TABANI GÜVENCE ALTINDA",
+      "quality_secured_message": "Verdiğin bilgiler dikkatle değerlendirildi ve raporunun temelini oluşturuyor.",
+      "quality_minimal_badge": "İYİ VERİ TABANI",
+      "quality_minimal_message": "Yüklediğin veriler doğrudan değerlendirmeye akar ve raporun doğruluğunu artırır.",
+      "quality_none_badge": "VERİ TABANI GÜVENCE ALTINDA",
+      "quality_none_message": "Verdiğin bilgiler dikkatle değerlendirildi ve raporunun temelini oluşturuyor."
+    }
+  },
+  "plans_detail": {
+    "error_no_data": "Analiz verisi bulunamadı. Lütfen analizi yeniden başlat.",
+    "error_no_scores": "Skorlar mevcut değil.",
+    "error_unknown_type": "Bilinmeyen plan tipi.",
+    "error_loading": "Plan yüklenemedi.",
+    "back_to_report": "← Rapora dön",
+    "back_to_report_upper": "← RAPORA DÖN",
+    "loading": "Yükleniyor…",
+    "pdf_download": "PDF İNDİR ↓",
+    "tag": "KİŞİSEL PLAN",
+    "rationale_label": "BİLİMSEL AÇIKLAMA",
+    "disclaimer": "Tüm öneriler yayımlanmış kılavuzlara (WHO, ACSM, NSF, EFSA) ve bireysel hesaplanan skorlara dayanır. Tıbbi veya spor hekimliği danışmanlığının yerine geçmez."
+  },
+  "wearable_panel": {
+    "tag": "GDPR · MAD. 17",
+    "title": "WEARABLE VERİLERİ",
+    "subtitle": "WHOOP veya Apple Health export'larından anonim agregasyonlar. Her import'u raporlarından bağımsız olarak silebilirsin.",
+    "confirm_delete": "Wearable verileri gerçekten silinsin mi? Raporun bozulmaz.",
+    "error_generic": "Silme başarısız",
+    "meta": "{days} gün · {start} - {end}",
+    "linked_report": " · raporla bağlı",
+    "not_linked": " · henüz bağlı değil",
+    "deleting": "Siliniyor...",
+    "delete": "Sil"
+  },
+  "account": {
+    "tag": "HESABIM",
+    "title": "RAPOR GEÇMİŞİ",
+    "subtitle_loggedin_as": "Şu hesapla girişte",
+    "new_analysis_btn": "YENİ ANALİZ →",
+    "empty_title": "HENÜZ RAPOR YOK",
+    "empty_text": "İlk analizini yaptığında otomatik olarak burada görünür.",
+    "empty_cta": "İLK ANALİZİ BAŞLAT →",
+    "back_home": "← ANA SAYFA",
+    "logout": "ÇIKIŞ",
+    "progress_title": "GENEL İLERLEME",
+    "overall_banner_label": "OVERALL PERFORMANCE SCORE",
+    "change_label": "DEĞİŞİM",
+    "all_analyses": "TÜM ANALİZLER",
+    "reports_count": "{count, plural, one {# rapor} other {# rapor}}",
+    "download_report": "Performance Report",
+    "download_activity": "Activity Plan",
+    "download_metabolic": "Metabolic Plan",
+    "download_recovery": "Recovery Plan",
+    "download_stress": "Stress Plan",
+    "disabled_latest_only": "Sadece en güncel rapor için",
+    "disabled_default": "Mevcut değil",
+    "diff_header": "FARK"
+  },
+  "login": {
+    "title": "GİRİŞ / HESAP OLUŞTUR",
+    "subtitle_email": "Şifresiz giriş yap — e-postanıza 6 haneli bir kod göndeririz.",
+    "subtitle_code": "Kod {email} adresine gönderildi. Gelen kutunu kontrol et.",
+    "error_label": "Hata:",
+    "error_send_failed": "Giriş başarısız",
+    "error_verify_failed": "Kod geçersiz",
+    "error_google_failed": "Google girişi başarısız",
+    "google_button": "Google ile devam et",
+    "separator_or": "VEYA E-POSTA İLE",
+    "email_label": "E-POSTA",
+    "email_placeholder": "senin@eposta.com",
+    "send_code_btn": "KOD GÖNDER →",
+    "send_code_loading": "GÖNDERİLİYOR…",
+    "hint_passwordless": "Şifre gerekmez · 6 haneli giriş kodu e-posta ile",
+    "code_label": "6 HANELİ KOD",
+    "code_placeholder": "123456",
+    "verify_btn": "GİRİŞ YAP →",
+    "verify_loading": "DOĞRULANIYOR…",
+    "back_other_email": "← Başka e-posta kullan"
+  },
+  "kaufen": {
+    "back_home": "← ANA SAYFA",
+    "tag": "EKSİKSİZ PAKET",
+    "title": "COMPLETE PERFORMANCE ANALYSIS",
+    "subtitle": "Tam performans raporun + kişiselleştirilmiş optimizasyon ve antrenman planları.",
+    "price_sub": "tek seferlik · abonelik yok",
+    "cta_buy": "ŞİMDİ SATIN AL →",
+    "cta_loading": "BAŞLATILIYOR…",
+    "error_checkout": "Ödeme başlatılamadı. Lütfen tekrar dene.",
+    "disclaimer": "Güvenli ödeme · SSL şifrelemeli · Tek seferlik ödeme"
+  },
+  "footer": {
+    "claim": "MADE FOR ATHLETES. NOT FOR AVERAGE.",
+    "brand_desc": "Bilimsel seviyede performans içgörüleri — WHO & ACSM'ye göre kalibre edilmiş.",
+    "col_legal": "YASAL",
+    "col_contact": "İLETİŞİM",
+    "links": {
+      "imprint": "Künye",
+      "privacy": "Gizlilik",
+      "cookies": "Çerez politikası"
+    },
+    "disclaimer": "Not: Boost The Beast Lab'ın içerik ve sonuçları yalnızca genel bilgilendirme amaçlıdır ve tıbbi danışma, teşhis veya tedavi önerisi niteliğinde değildir. Doktor, doğa bilimci veya diğer tıbbi uzman ziyaretinin yerini hiçbir şekilde tutmaz. Sağlık şikayetleri veya sağlığınla ilgili sorular için lütfen her zaman bir doktora başvur. Sağlanan bilgilerin kullanımı kendi sorumluluğundadır.",
+    "copy": "© {year} Boost The Beast Lab. Tüm hakları saklıdır.",
+    "copy_note": "Tıbbi ürün değil · HeilprG anlamında iyileştirici faaliyet değil"
+  },
+  "cookie_banner": {
+    "aria_label": "Çerez bildirimi",
+    "text": "Bu site yalnızca giriş ve ödeme için teknik olarak gerekli çerezleri kullanır. İzleme yok, reklam yok.",
+    "policy_link": "Çerez politikası",
+    "dismiss": "Anladım"
+  },
+  "sample_report": {
+    "banner_label": "ÖRNEK RAPOR",
+    "banner_desc": "Bu örnek verilerle hazırlanmış bir örnek rapordur — gerçek analiz çıktısı değildir.",
+    "banner_cta": "KENDİ ANALİZİNİ BAŞLAT",
+    "page_title": "ÖRNEK PERFORMANCE REPORT",
+    "header_cta": "ANALİZİ BAŞLAT",
+    "cta_label": "GERÇEK DEĞERLERİNİ İSTİYOR MUSUN?",
+    "cta_title": "KENDİ ANALİZİNİ BAŞLAT",
+    "cta_desc": "Vücut, antrenman, uyku ve yaşam tarzı hakkında 26 net soruyu cevapla — ve gerçek skorlar ile bireysel eylem önerileri içeren kişisel performans raporunu al.",
+    "cta_btn_primary": "ANALİZİ BAŞLAT",
+    "cta_btn_pdf": "ÖRNEK PDF'İ İNDİR"
+  }
+}

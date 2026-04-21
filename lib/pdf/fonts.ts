@@ -1,9 +1,14 @@
-// Font loader for pdf-lib that swaps in Noto Sans KR when the target
-// locale is Korean (the bundled StandardFonts.Helvetica has no CJK
-// glyphs — Korean text would render as empty tofu boxes).
+// Font loader for pdf-lib.
 //
-// Non-KR locales keep using the zero-cost standard fonts so there's no
-// bundle-size hit for German/English/Italian reports.
+// Standard14 Helvetica uses WinAnsi (CP1252) which covers DE/EN/IT but
+// NOT the Turkish characters ğ, ı, ş, İ, Ğ, Ş — those live in Latin
+// Extended-A. For TR we lazy-load Noto Sans (Regular + Bold) TTFs and
+// register fontkit on the document so pdf-lib can subset Latin-Ext-A
+// glyphs. DE/EN/IT stay on zero-I/O Standard14 fonts.
+//
+// Vercel bundling: see next.config.ts → outputFileTracingIncludes.
+// The TTFs are only loaded on TR requests, and pdf-lib's `subset: true`
+// strips down to used-only glyphs → final PDF only grows ~30-50 KB.
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -21,26 +26,23 @@ export interface LocaleFonts {
 
 /**
  * Embed the pair of fonts (regular + bold) that match the given locale.
- * For Korean, lazy-loads Noto Sans KR TTFs from disk and registers
- * fontkit on the document so pdf-lib can parse non-WinAnsi glyphs.
- * For every other locale, uses the built-in Helvetica pair (fastest path,
- * zero I/O).
+ * For Turkish, embeds Noto Sans TTFs (Latin Extended-A).
+ * For every other locale, uses Standard14 Helvetica (zero I/O).
  */
 export async function embedLocaleFonts(
   doc: PDFDocument,
   locale: Locale,
 ): Promise<LocaleFonts> {
-  if (locale === "ko") {
-    // Dynamic import keeps fontkit out of the critical path for non-KR
-    // requests. On Vercel cold-start this saves ~30 ms and avoids the
-    // extra bundle weight for flows that never call it.
+  if (locale === "tr") {
+    // Dynamic import keeps fontkit out of the critical path for non-TR
+    // requests. Saves ~30 ms on every DE/EN/IT cold-start.
     const { default: fontkit } = await import("@pdf-lib/fontkit");
     doc.registerFontkit(fontkit);
 
     const fontsDir = path.join(process.cwd(), "lib", "pdf", "fonts");
     const [regBytes, boldBytes] = await Promise.all([
-      readFile(path.join(fontsDir, "NotoSansKR-Regular.ttf")),
-      readFile(path.join(fontsDir, "NotoSansKR-Bold.ttf")),
+      readFile(path.join(fontsDir, "NotoSans-Regular.ttf")),
+      readFile(path.join(fontsDir, "NotoSans-Bold.ttf")),
     ]);
 
     const [reg, bold] = await Promise.all([
@@ -50,7 +52,7 @@ export async function embedLocaleFonts(
     return { reg, bold };
   }
 
-  // Helvetica covers German/English/Italian (Latin-extended is built in).
+  // Helvetica covers German/English/Italian (WinAnsi is built in).
   const [reg, bold] = await Promise.all([
     doc.embedFont(StandardFonts.Helvetica),
     doc.embedFont(StandardFonts.HelveticaBold),

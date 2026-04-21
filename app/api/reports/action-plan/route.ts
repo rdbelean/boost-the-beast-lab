@@ -56,13 +56,13 @@ export async function POST(req: NextRequest) {
       de: ["KW 1", "KW 2", "KW 3", "KW 4"],
       en: ["Week 1", "Week 2", "Week 3", "Week 4"],
       it: ["Settimana 1", "Settimana 2", "Settimana 3", "Settimana 4"],
-      ko: ["1주차", "2주차", "3주차", "4주차"],
+      tr: ["1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"],
     };
     const LANG_DIRECTIVE: Record<string, string> = {
       de: 'Sprache: Deutsch, "du"-Form',
       en: "Language: English, second person",
       it: "Lingua: Italiano, forma 'tu'",
-      ko: "언어: 한국어, 친근한 존댓말 (~합니다)",
+      tr: 'Dil: Türkçe, samimi "sen" hitabı (resmi "siz" değil)',
     };
     const wk = WEEK_LABELS[locale] ?? WEEK_LABELS.en;
     const langDirective = LANG_DIRECTIVE[locale] ?? LANG_DIRECTIVE.en;
@@ -130,19 +130,19 @@ const WEEK_LABELS_ALL: Record<string, string[]> = {
   de: ["KW 1", "KW 2", "KW 3", "KW 4"],
   en: ["Week 1", "Week 2", "Week 3", "Week 4"],
   it: ["Settimana 1", "Settimana 2", "Settimana 3", "Settimana 4"],
-  ko: ["1주차", "2주차", "3주차", "4주차"],
+  tr: ["1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"],
 };
 const DEFAULT_TASKS: Record<string, string[]> = {
   de: ["Baseline erfassen und analysieren", "Erste Massnahmen umsetzen", "Intensität steigern", "Feintuning und Konsolidierung"],
   en: ["Establish baseline and analyze", "Implement first measures", "Increase intensity", "Fine-tune and consolidate"],
   it: ["Stabilire baseline e analizzare", "Attuare le prime misure", "Aumentare l'intensità", "Ottimizzazione e consolidamento"],
-  ko: ["기준선 측정 및 분석", "첫 조치 실행", "강도 증가", "미세 조정 및 통합"],
+  tr: ["Baseline'ı belirle ve analiz et", "İlk önlemleri uygula", "Yoğunluğu artır", "İnce ayar ve sağlamlaştırma"],
 };
 const DEFAULT_MILESTONES: Record<string, string[]> = {
   de: ["Ausgangswert dokumentiert", "Erste Verbesserung sichtbar", "Zwischenziel erreicht", "Zielwert erreicht"],
   en: ["Baseline documented", "First improvement visible", "Intermediate goal reached", "Target achieved"],
   it: ["Baseline documentata", "Primo miglioramento visibile", "Obiettivo intermedio raggiunto", "Obiettivo raggiunto"],
-  ko: ["기준선 기록 완료", "첫 개선 확인", "중간 목표 달성", "목표값 달성"],
+  tr: ["Baseline kaydedildi", "İlk iyileşme görünür", "Ara hedef tutturuldu", "Hedef değere ulaşıldı"],
 };
 
 function normalizeMilestones(
@@ -186,9 +186,9 @@ const DIM_MILESTONES: Record<string, Record<string, DimBundle>> = {
       tasks: ["Iniziare diario del sonno, stabilire baseline", "Niente schermi dopo le 21, orari di sonno fissi ±30min", "Ottimizzare ambiente (temp 17-19°C, buio)", "Ottimizzazione basata su dati wearable"],
       milestones: ["Baseline documentata", "Efficienza sonno +3%", "Sonno profondo +10 min", "Obiettivo raggiunto"],
     },
-    ko: {
-      tasks: ["수면 일지 시작, 기준선 확립", "저녁 9시 이후 화면 금지, 취침 시간 ±30분 고정", "수면 환경 최적화 (온도 17-19°C, 암실)", "웨어러블 데이터 기반 미세 조정"],
-      milestones: ["기준선 기록", "수면 효율 +3%", "깊은 수면 +10분", "목표 달성"],
+    tr: {
+      tasks: ["Uyku günlüğü başlat, baseline belirle", "21:00 sonrası ekran yok, uyku saatleri ±30dk sabit", "Uyku ortamı optimize (ısı 17-19°C, karanlık)", "Wearable verisine göre ince ayar"],
+      milestones: ["Baseline kaydedildi", "Uyku verimliliği +%3", "Derin uyku +10 dk", "Hedefe ulaşıldı"],
     },
   },
   activity: {
@@ -204,9 +204,9 @@ const DIM_MILESTONES: Record<string, Record<string, DimBundle>> = {
       tasks: ["Tracciare passi giornalieri, creare piano allenamento", "3 sessioni/settimana con controllo FC", "Aumentare intensità progressivamente (+10% volume)", "Superare plateau, aggiungere varietà"],
       milestones: ["Baseline attiva", "Passi +1000/giorno", "MET-minuti +15%", "Livello attività raggiunto"],
     },
-    ko: {
-      tasks: ["일일 걸음 추적, 트레이닝 계획 작성", "주 3회 심박수 관리 운동", "강도 점진적 증가 (+10% 볼륨)", "정체기 돌파, 변화 추가"],
-      milestones: ["기준선 활성화", "걸음수 +1000/일", "MET 분 +15%", "목표 활동 수준"],
+    tr: {
+      tasks: ["Günlük adımları takip et, antrenman planı oluştur", "Haftada 3 seans kalp atışı kontrolü ile", "Yoğunluğu aşamalı artır (+%10 hacim)", "Plato'yu kır, çeşitlilik ekle"],
+      milestones: ["Baseline aktif", "Adım +1000/gün", "MET-dakika +%15", "Hedef aktivite seviyesi"],
     },
   },
   metabolic: {
@@ -222,9 +222,9 @@ const DIM_MILESTONES: Record<string, Record<string, DimBundle>> = {
       tasks: ["Diario alimentare, misurare tempo seduti", "Interrompere seduta ogni 60min, +1L acqua/giorno", "Ottimizzare proteine (1.6-2g/kg peso)", "Rimisurare composizione corporea, adeguare"],
       milestones: ["Baseline documentata", "Ore attive +30min/giorno", "Idratazione costante", "Composizione misurata"],
     },
-    ko: {
-      tasks: ["식단 일지 작성, 좌식 시간 측정", "60분마다 좌식 중단, 물 +1L/일", "단백질 섭취 최적화 (1.6-2g/kg 체중)", "체성분 재측정, 조정"],
-      milestones: ["기준선 기록", "활동 시간 +30분/일", "수분 섭취 일정", "체성분 측정 완료"],
+    tr: {
+      tasks: ["Beslenme günlüğü, oturma süresini ölç", "60dk'da bir oturmaya ara, +1L su/gün", "Protein alımını optimize et (1.6-2g/kg vücut ağırlığı)", "Vücut kompozisyonunu yeniden ölç, ayarla"],
+      milestones: ["Baseline kaydedildi", "Aktif saat +30 dk/gün", "Hidrasyon tutarlı", "Vücut kompozisyonu ölçüldü"],
     },
   },
   stress: {
@@ -240,9 +240,9 @@ const DIM_MILESTONES: Record<string, Record<string, DimBundle>> = {
       tasks: ["Documentare trend HRV, identificare stressor", "10min respirazione al giorno, proteggere ore recupero", "Sessione di recupero (yoga/camminata)", "Consolidare routine gestione stress"],
       milestones: ["Baseline HRV registrata", "Trend HRV positivo", "Indice stress -10%", "HRV target raggiunto"],
     },
-    ko: {
-      tasks: ["HRV 추이 기록, 스트레스 요인 파악", "매일 10분 호흡 운동, 회복 시간 확보", "회복 세션 추가 (요가/산책)", "스트레스 관리 루틴 정착"],
-      milestones: ["HRV 기준선 확보", "HRV 추이 긍정적", "스트레스 지수 -10%", "목표 HRV 달성"],
+    tr: {
+      tasks: ["HRV trendini kaydet, stres kaynaklarını belirle", "Günlük 10 dk nefes egzersizi, toparlanma saatlerini koru", "Recovery seansı ekle (yoga/yürüyüş)", "Stres yönetim rutinini sağlamlaştır"],
+      milestones: ["HRV baseline alındı", "HRV trendi pozitif", "Stres indeksi -%10", "Hedef HRV'ye ulaşıldı"],
     },
   },
   vo2max: {
@@ -258,9 +258,9 @@ const DIM_MILESTONES: Record<string, Record<string, DimBundle>> = {
       tasks: ["2x allenamento Zona-2/settimana (60-70% FCmax, 45min)", "1x HIIT/settimana (intervalli 4x4min)", "Aumentare volume progressivamente", "Ritestare VO2max, regolare zone"],
       milestones: ["Base aerobica costruita", "FC a riposo -2 bpm", "Resistenza +5%", "VO2max +2 ml/kg/min"],
     },
-    ko: {
-      tasks: ["주 2회 존-2 트레이닝 (최대심박 60-70%, 45분)", "주 1회 HIIT 세션 (4x4분 인터벌)", "훈련 볼륨 점진적 증가", "VO2max 재측정, 강도 영역 조정"],
-      milestones: ["유산소 기반 구축", "안정 시 심박 -2 bpm", "지구력 +5%", "VO2max +2 ml/kg/분"],
+    tr: {
+      tasks: ["Haftada 2x Zon-2 antrenman (HRmax %60-70, 45 dk)", "Haftada 1x HIIT seans (4x4 dk interval)", "Antrenman hacmini aşamalı artır", "VO2max yeniden test et, yoğunluk zonlarını ayarla"],
+      milestones: ["Aerobik temel kuruldu", "İstirahat nabzı -2 bpm", "Dayanıklılık +%5", "VO2max +2 ml/kg/dk"],
     },
   },
 };
@@ -269,19 +269,19 @@ const GENERIC_TASKS: Record<string, string[]> = {
   de: ["Baseline erfassen", "Erste Anpassungen", "Intensivierung", "Feintuning"],
   en: ["Establish baseline", "First adjustments", "Intensify", "Fine-tuning"],
   it: ["Stabilire baseline", "Primi aggiustamenti", "Intensificare", "Ottimizzazione"],
-  ko: ["기준선 확립", "첫 조정", "강화", "미세 조정"],
+  tr: ["Baseline belirle", "İlk ayarlamalar", "Yoğunlaştır", "İnce ayar"],
 };
 const MEASURE_PROGRESS: Record<string, string> = {
   de: "Fortschritt messen",
   en: "Measure progress",
   it: "Misurare progresso",
-  ko: "진행 상황 측정",
+  tr: "İlerlemeyi ölç",
 };
 const HEADLINE_FMT: Record<string, (dim: string, target: number) => string> = {
   de: (dim, t) => `${dim.toUpperCase()} AUF ${t}/100 STEIGERN`,
   en: (dim, t) => `IMPROVE ${dim.toUpperCase()} TO ${t}/100`,
   it: (dim, t) => `MIGLIORARE ${dim.toUpperCase()} A ${t}/100`,
-  ko: (dim, t) => `${dim.toUpperCase()} ${t}/100 달성`,
+  tr: (dim, t) => `${dim.toUpperCase()} SKORUNU ${t}/100'E YÜKSELT`,
 };
 
 function buildStaticPlan(scores: Record<string, number>, locale: string): PlanGoal[] {

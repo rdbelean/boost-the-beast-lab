@@ -12,8 +12,9 @@ const nextConfig: NextConfig = {
 
   // Ensure the Chromium binary assets (.br, .tar.br) are included in the
   // plan-PDF serverless function output on Vercel.
-  // Also bundles the Noto Sans KR TTFs for Korean PDF rendering — both
-  // the report-generate route and the plan-PDF route need them.
+  // Also bundles the Noto Sans TTFs for Turkish PDF rendering (Latin Extended-A
+  // — ğ, ı, ş, İ, Ğ, Ş) — both the report-generate route and the plan-PDF
+  // route need them.
   outputFileTracingIncludes: {
     "/api/plan/pdf": [
       "./node_modules/@sparticuz/chromium/bin/**",

@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const amount = session.amount_total ?? 0;
     const metaLocale = session.metadata?.locale;
     const locale =
-      metaLocale === "de" || metaLocale === "en" || metaLocale === "it" || metaLocale === "ko"
+      metaLocale === "de" || metaLocale === "en" || metaLocale === "it" || metaLocale === "tr"
         ? metaLocale
         : null;
     const customerId =

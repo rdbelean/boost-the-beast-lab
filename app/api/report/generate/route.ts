@@ -223,7 +223,7 @@ const DISCLAIMER: Record<Locale, string> = {
   de: "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik. VO2max ist eine algorithmische Schätzung — keine Labormessung.",
   en: "All statements are model-based performance insights from self-reported data. Not a substitute for medical diagnostics. VO2max is an algorithmic estimate — not a lab measurement.",
   it: "Tutte le indicazioni sono insight di performance basati su modelli da dati auto-riportati. Non sostituiscono la diagnostica medica. Il VO2max è una stima algoritmica — non una misurazione di laboratorio.",
-  ko: "모든 내용은 자기 보고 데이터를 기반으로 한 모델 기반 퍼포먼스 인사이트입니다. 의학적 진단을 대체하지 않습니다. VO2max는 알고리즘 추정치이며 실험실 측정값이 아닙니다.",
+  tr: "Tüm ifadeler, kullanıcı tarafından bildirilen verilere dayalı model tabanlı performans içgörüleridir. Tıbbi teşhisin yerini almaz. VO2max algoritmik bir tahmindir — laboratuvar ölçümü değildir.",
 };
 
 // Language directive appended to SYSTEM_PROMPT per request. Claude is
@@ -261,20 +261,20 @@ TONO per l'output italiano:
 
 Il campo "disclaimer" DEVE essere esattamente:
 "${/* filled at request time */""}"`,
-  ko: `
+  tr: `
 
-OUTPUT LANGUAGE OVERRIDE — 필수:
-JSON 내 모든 사용자 대면 텍스트(headline, executive_summary, 모든 module 필드, top_priority, systemic_connections_overview, prognose_30_days, disclaimer)는 반드시 한국어로 작성해야 합니다. JSON 키는 영문 그대로 유지하세요.
+OUTPUT LANGUAGE OVERRIDE — KRİTİK:
+JSON'daki tüm kullanıcıya yönelik metin (headline, executive_summary, tüm module alanları, top_priority, systemic_connections_overview, prognose_30_days, disclaimer) TÜRKÇE yazılmalıdır. JSON anahtarları İngilizce kalır.
 
-한국어 출력 톤:
-- 직접적이고 간결한 엘리트 코치 목소리. 웰니스 블로그 톤 금지.
-- 과학적 근거 기반. 독자는 VO2max, HRV, HPA 축 개념을 이미 알고 있다고 전제.
-- 동기부여성 미사여구, 우회 표현, 이모지 금지.
-- 반말이 아닌 존댓말(~합니다 / ~입니다) 사용. 친근하지만 프리미엄 톤 유지.
-- 금지된 표현: "~하는 것이 중요합니다", "~해보세요", "~하는 것이 좋습니다", "잊지 마세요", "도움이 될 수 있습니다". 대신 근거와 함께 직설적 진술을 하세요.
-- 전문 용어(VO2max, HRV, HPA, BMI, MET, IPAQ 등)는 영문 그대로 유지. 번역하지 않습니다.
+Türkçe çıktı için TON:
+- Doğrudan, emir kipinde, kısa — elit koç sesi, wellness bloggeri değil.
+- Bilimsel temelli. Okuyucunun VO2max, HRV, HPA ekseni kavramlarını bildiğini varsay.
+- Motivasyonel dolgu, çekimser ifade ve emoji yok.
+- "Sen" hitabı kullan (resmi "siz" değil). Samimi ama premium ton.
+- YASAK İFADELER: "unutma ki", "dikkat etmelisin", "yapmaya çalışmalısın", "yardımcı olabilir", "önemli olan". Bunları doğrudan, gerekçeli ifadelerle değiştir.
+- Teknik terimler (VO2max, HRV, HPA, BMI, MET, IPAQ vb.) İngilizce kalır — çevrilmez.
 
-"disclaimer" 필드는 정확히 다음과 같아야 합니다:
+"disclaimer" alanı TAM OLARAK şu olmalıdır:
 "${/* filled at request time */""}"`,
 };
 
@@ -816,7 +816,7 @@ function demoBand(score: number): string {
 async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<NextResponse> {
   const r = ctx.result;
   const demoLocale: Locale =
-    ctx.locale === "en" || ctx.locale === "it" || ctx.locale === "ko"
+    ctx.locale === "en" || ctx.locale === "it" || ctx.locale === "tr"
       ? ctx.locale
       : "de";
 
@@ -1025,7 +1025,7 @@ export async function POST(req: NextRequest) {
     const locale: Locale =
       assessment.locale === "en" ||
       assessment.locale === "it" ||
-      assessment.locale === "ko"
+      assessment.locale === "tr"
         ? assessment.locale
         : "de";
 
@@ -1144,7 +1144,7 @@ export async function POST(req: NextRequest) {
           de: { dur: "Ø Schlafdauer", eff: "Schlafeffizienz", deep: "Tiefschlaf", rem: "REM", steps: "Ø Schritte", strain: "Ø Strain", kcal: "Ø Aktiv-kcal", hrv: "Ø HRV", rhr: "Ø Ruhepuls", rec: "Ø Recovery", vo2: "VO2max", bmi: "BMI", fat: "Körperfett", muscle: "Muskelmasse" },
           en: { dur: "Avg Sleep", eff: "Sleep Eff.", deep: "Deep Sleep", rem: "REM", steps: "Avg Steps", strain: "Avg Strain", kcal: "Active kcal", hrv: "Avg HRV", rhr: "Avg RHR", rec: "Avg Recovery", vo2: "VO2max", bmi: "BMI", fat: "Body Fat", muscle: "Muscle Mass" },
           it: { dur: "Durata Sonno", eff: "Efficienza Sonno", deep: "Sonno Profondo", rem: "REM", steps: "Passi Medi", strain: "Strain Medio", kcal: "kcal Attive", hrv: "HRV Medio", rhr: "FC a Riposo", rec: "Recupero Medio", vo2: "VO2max", bmi: "BMI", fat: "Grasso Corporeo", muscle: "Massa Muscolare" },
-          ko: { dur: "평균 수면", eff: "수면 효율", deep: "깊은 수면", rem: "REM", steps: "평균 걸음", strain: "평균 부하", kcal: "활동 kcal", hrv: "평균 HRV", rhr: "안정시 심박", rec: "평균 회복", vo2: "VO2max", bmi: "BMI", fat: "체지방", muscle: "근육량" },
+          tr: { dur: "Ort. Uyku", eff: "Uyku Verim.", deep: "Derin Uyku", rem: "REM", steps: "Ort. Adım", strain: "Ort. Strain", kcal: "Aktif kcal", hrv: "Ort. HRV", rhr: "İstirahat Nabzı", rec: "Ort. Recovery", vo2: "VO2max", bmi: "BMI", fat: "Vücut Yağı", muscle: "Kas Kütlesi" },
         };
         const wLabels = W_LABELS[locale] ?? W_LABELS.en;
         pdfWearableRows = {};
@@ -1326,7 +1326,7 @@ export async function POST(req: NextRequest) {
           de: "Fragebogen",
           en: "Questionnaire",
           it: "Questionario",
-          ko: "설문지",
+          tr: "Anket",
         };
         heroSources.push({ label: formLabel[locale] ?? "Questionnaire" });
       }
@@ -1399,7 +1399,7 @@ When the user has a specific nutrition_painpoint or stress_source, the related f
       const localeDirective =
         locale === "de" ? 'Language: German, du-Form.' :
         locale === "it" ? 'Lingua: Italiano, forma "tu".' :
-        locale === "ko" ? '언어: 한국어, 친근한 존댓말 (~합니다).' :
+        locale === "tr" ? 'Dil: Türkçe, samimi "sen" hitabı (resmi "siz" değil).' :
         "Language: English, second person.";
 
       // If goal = non-performance AND beginner/restart AND minimal/moderate time →
@@ -1452,8 +1452,8 @@ ${
     ? '- Language: German, du-Form. Week labels: "KW 1", "KW 2", "KW 3", "KW 4"'
     : locale === "it"
     ? '- Language: Italian, tu-form. Week labels: "Settimana 1", "Settimana 2", "Settimana 3", "Settimana 4"'
-    : locale === "ko"
-    ? '- Language: Korean (친근한 존댓말 ~합니다). Week labels: "1주차", "2주차", "3주차", "4주차"'
+    : locale === "tr"
+    ? '- Language: Turkish, informal "sen". Week labels: "1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"'
     : '- Language: English, second person. Week labels: "Week 1", "Week 2", "Week 3", "Week 4"'
 }
 

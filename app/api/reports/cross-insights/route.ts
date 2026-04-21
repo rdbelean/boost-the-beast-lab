@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       de: 'Sprache: Deutsch, "du"-Form',
       en: "Language: English, second person",
       it: "Lingua: Italiano, forma 'tu'",
-      ko: "언어: 한국어, 친근한 존댓말",
+      tr: 'Dil: Türkçe, samimi "sen" hitabı',
     };
     const langDirective = LANG_DIRECTIVE[locale] ?? LANG_DIRECTIVE.en;
 
@@ -71,7 +71,7 @@ Allowed dimension pairs:
 - Stress ↔ Sleep
 
 Per insight:
-- headline: "DIMENSION_A ↔ DIMENSION_B" (uppercase for Latin scripts, short & strong for Korean; max 40 characters)
+- headline: "DIMENSION_A ↔ DIMENSION_B" (uppercase; max 40 characters)
 - body: 2–3 sentences with concrete numbers from the data
 - Only insights supported by the data
 
@@ -127,11 +127,11 @@ function buildStaticInsights(scores: Record<string, number>, locale: string): Cr
       as_h: "ATTIVITÀ ↔ SONNO",
       as_b: `Il punteggio Attività ${activityScore}/100 e Sonno ${sleepScore}/100 mostrano una chiara relazione. L'attività fisica regolare migliora in modo comprovato la qualità e la durata del sonno.`,
     },
-    ko: {
-      ss_h: "수면 ↔ 스트레스",
-      ss_b: `수면 점수 ${sleepScore}/100과 스트레스 점수 ${stressScore}/100은 직접적으로 연결되어 있습니다. 수면의 질이 떨어지면 코르티솔 수치가 상승하며, 이것이 상관관계를 설명합니다.`,
-      as_h: "활동 ↔ 수면",
-      as_b: `활동 점수 ${activityScore}/100과 수면 점수 ${sleepScore}/100은 명확한 관계를 보입니다. 규칙적인 신체 활동은 수면의 질과 지속 시간을 개선한다는 것이 입증되어 있습니다.`,
+    tr: {
+      ss_h: "UYKU ↔ STRES",
+      ss_b: `${sleepScore}/100 uyku skorun ve ${stressScore}/100 stres skorun doğrudan bağlantılı. Kötü uyku kalitesi kortizolü yükseltir — bu korelasyonu açıklar.`,
+      as_h: "AKTİVİTE ↔ UYKU",
+      as_b: `${activityScore}/100 aktivite skoru ve ${sleepScore}/100 uyku skoru net bir ilişki gösteriyor. Düzenli fiziksel aktivite, uyku kalitesini ve süresini kanıtlanmış şekilde iyileştirir.`,
     },
   };
   const c = COPY[locale] ?? COPY.en;

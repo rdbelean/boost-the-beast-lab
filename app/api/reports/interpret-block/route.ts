@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       de: 'Sprache: Deutsch, "du"-Form (informal)',
       en: "Language: English, second person ('you')",
       it: "Lingua: Italiano, forma 'tu' (informale)",
-      ko: "언어: 한국어, 친근한 존댓말 (~합니다/~습니다)",
+      tr: 'Dil: Türkçe, samimi "sen" hitabı (resmi "siz" değil)',
     };
     const langDirective = LANG_DIRECTIVE[locale] ?? LANG_DIRECTIVE.en;
 

@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       de: 'Sprache: Deutsch, "du"-Form (informal). Überschriften auf Deutsch in Großbuchstaben.',
       en: "Language: English, second person ('you'). Headlines in English UPPERCASE.",
       it: "Lingua: Italiano, forma 'tu'. Titoli in italiano in MAIUSCOLO.",
-      ko: "언어: 한국어, 친근한 존댓말. 제목은 한국어로 작성 (대문자 개념 없음, 짧고 강하게).",
+      tr: 'Dil: Türkçe, samimi "sen" hitabı. Başlıklar Türkçe BÜYÜK HARFLERLE.',
     };
     const langDirective = LANG_DIRECTIVE[locale] ?? LANG_DIRECTIVE.en;
 
@@ -134,13 +134,13 @@ function buildStaticFindings(scores: Record<string, number>, locale: string): Ex
       connHead: "COLLEGAMENTO TRA DIMENSIONI",
       connBody: `Il tuo punteggio ${weakest[0]} influisce direttamente sul tuo punteggio ${strongest[0]}. Miglioramenti mirati qui generano effetti moltiplicatori sul tuo stato complessivo.`,
     },
-    ko: {
-      weakHead: `${wDim} 개선 필요`,
-      weakBody: `${weakest[0]} 점수는 ${wVal}/100으로 프로필에서 가장 낮은 수치입니다. 전반적 퍼포먼스 지수를 높이는 데 가장 큰 레버리지 포인트입니다.`,
-      strongHead: `${sDim} 강점 영역`,
-      strongBody: `${sVal}/100의 ${strongest[0]} 점수는 명확한 강점을 보여줍니다. 이 기반이 다른 영역의 퍼포먼스를 뒷받침합니다.`,
-      connHead: "차원 간 연결",
-      connBody: `${weakest[0]} 점수는 ${strongest[0]} 점수에 직접적으로 영향을 미칩니다. 이 영역의 타겟 개선은 전체 상태에 승수 효과를 만듭니다.`,
+    tr: {
+      weakHead: `${wDim} GELİŞTİRİLMELİ`,
+      weakBody: `${weakest[0]} skorun ${wVal}/100 ile profilindeki en düşük değer. Genel performans endeksini yükseltmek için en büyük kaldıraç noktası burası.`,
+      strongHead: `${sDim} GÜÇLÜ YÖNÜN`,
+      strongBody: `${sVal}/100 ile ${strongest[0]} skorun net bir güç. Bu temel, diğer boyutlardaki performansını destekler.`,
+      connHead: "BOYUTLAR ARASI BAĞ",
+      connBody: `${weakest[0]} skorun, ${strongest[0]} skorunu doğrudan etkiler. Burada yapılan hedefli iyileştirmeler genel durumun üzerinde çarpan etkisi yaratır.`,
     },
   };
   const c = COPY[locale] ?? COPY.en;

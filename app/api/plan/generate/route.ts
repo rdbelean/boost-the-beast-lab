@@ -599,7 +599,7 @@ export async function POST(req: NextRequest) {
     const langDirective =
       locale === "en" ? "\n\nIMPORTANT: Respond entirely in English." :
       locale === "it" ? "\n\nIMPORTANT: Rispondi interamente in italiano." :
-      locale === "ko" ? "\n\nIMPORTANT: 전적으로 한국어로 답변하십시오 (친근한 존댓말)." : "";
+      locale === "tr" ? "\n\nIMPORTANT: Yanıtı tamamen Türkçe ver, samimi 'sen' hitabı kullan (resmi 'siz' değil)." : "";
 
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",

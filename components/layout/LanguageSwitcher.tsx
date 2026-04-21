@@ -31,31 +31,17 @@ const FLAGS: Record<(typeof routing.locales)[number], React.ReactNode> = {
       <rect x="13.33" width="6.67" height="14" fill="#CE2B37" />
     </svg>
   ),
-  ko: (
+  tr: (
     <svg width="20" height="14" viewBox="0 0 60 42" aria-hidden>
-      <rect width="60" height="42" fill="#fff" />
-      {/* Red/blue taegeuk circle */}
-      <circle cx="30" cy="21" r="8.4" fill="#CD2E3A" />
-      <path d="M30 12.6 A4.2 4.2 0 0 1 30 21 A4.2 4.2 0 0 0 30 29.4 A8.4 8.4 0 0 0 30 12.6 Z" fill="#0047A0" />
-      {/* Four trigrams — stylized */}
-      <g stroke="#000" strokeWidth="1.4" fill="none">
-        {/* Top-left: heaven (3 unbroken) */}
-        <line x1="9" y1="8" x2="17" y2="8" />
-        <line x1="9" y1="10.5" x2="17" y2="10.5" />
-        <line x1="9" y1="13" x2="17" y2="13" />
-        {/* Top-right: water (broken-solid-broken) */}
-        <line x1="43" y1="8" x2="46.5" y2="8" /><line x1="49.5" y1="8" x2="53" y2="8" />
-        <line x1="43" y1="10.5" x2="53" y2="10.5" />
-        <line x1="43" y1="13" x2="46.5" y2="13" /><line x1="49.5" y1="13" x2="53" y2="13" />
-        {/* Bottom-left: fire (solid-broken-solid) */}
-        <line x1="9" y1="29" x2="17" y2="29" />
-        <line x1="9" y1="31.5" x2="12.5" y2="31.5" /><line x1="13.5" y1="31.5" x2="17" y2="31.5" />
-        <line x1="9" y1="34" x2="17" y2="34" />
-        {/* Bottom-right: earth (3 broken) */}
-        <line x1="43" y1="29" x2="46.5" y2="29" /><line x1="49.5" y1="29" x2="53" y2="29" />
-        <line x1="43" y1="31.5" x2="46.5" y2="31.5" /><line x1="49.5" y1="31.5" x2="53" y2="31.5" />
-        <line x1="43" y1="34" x2="46.5" y2="34" /><line x1="49.5" y1="34" x2="53" y2="34" />
-      </g>
+      <rect width="60" height="42" fill="#E30A17" />
+      {/* White crescent (Ay) — outer circle + inner red circle to carve crescent */}
+      <circle cx="24" cy="21" r="7.5" fill="#fff" />
+      <circle cx="26.4" cy="21" r="6" fill="#E30A17" />
+      {/* White five-pointed star (Yıldız) — approximated with triangle strokes */}
+      <path
+        d="M36 17.5 l1.18 3.63 h3.82 l-3.09 2.24 l1.18 3.63 l-3.09-2.24 l-3.09 2.24 l1.18-3.63 l-3.09-2.24 h3.82 z"
+        fill="#fff"
+      />
     </svg>
   ),
 };
@@ -64,7 +50,7 @@ const LABELS: Record<(typeof routing.locales)[number], string> = {
   de: "Deutsch",
   en: "English",
   it: "Italiano",
-  ko: "한국어",
+  tr: "Türkçe",
 };
 
 export default function LanguageSwitcher() {
