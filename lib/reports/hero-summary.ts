@@ -11,7 +11,7 @@ export interface HeroSummary {
   total_datapoints: number;
   sources: HeroSource[];
   has_any_data: boolean;
-  quality_level: "strong" | "good" | "minimal" | "none";
+  quality_level: "excellent" | "strong" | "good" | "secured";
   period_start?: string;
   period_end?: string;
 }
@@ -49,7 +49,7 @@ export function buildHeroSummary(
       total_datapoints: 0,
       sources: [],
       has_any_data: false,
-      quality_level: "none",
+      quality_level: "secured",
       period_start: periodStart,
       period_end: periodEnd,
     };
@@ -112,11 +112,20 @@ export function buildHeroSummary(
 
   const hasData = heroSources.length > 0 || total > 0;
 
-  // Quality level
-  let quality: HeroSummary["quality_level"] = "none";
-  if (total >= 100 || dominantDays >= 14) quality = "strong";
-  else if (total >= 30 || dominantDays >= 7) quality = "good";
-  else if (total > 0 || hasData) quality = "minimal";
+  // Quality level — all positive, no warning tones
+  // excellent: multiple sources OR wearable + body data combined
+  // strong:    one full wearable source with ≥14 days
+  // good:      any wearable data / GPX / body scan (< 14 days threshold)
+  // secured:   questionnaire only (no wearable data)
+  const multiSource = heroSources.length >= 2;
+  const hasBodyData = !!(merged.body?.bmi || merged.body?.body_fat_pct);
+  const hasWearable = heroSources.some(
+    (s) => s.type === "whoop" || s.type === "apple_health" || s.type === "gpx",
+  );
+  let quality: HeroSummary["quality_level"] = "secured";
+  if (hasWearable && (multiSource || (hasBodyData && hasWearable))) quality = "excellent";
+  else if (hasWearable && (dominantDays >= 14 || total >= 100)) quality = "strong";
+  else if (hasData) quality = "good";
 
   return {
     total_datapoints: total,

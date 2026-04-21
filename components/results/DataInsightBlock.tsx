@@ -16,8 +16,8 @@ export default function DataInsightBlock({ dimension, rows, interpretation }: Da
   return (
     <div
       style={{
-        marginTop: 12,
-        padding: "10px 14px",
+        marginTop: 20,
+        padding: "4px 14px 12px",
         background: "rgba(255,255,255,0.03)",
         borderRadius: 4,
         borderTop: "1px solid rgba(255,255,255,0.08)",
@@ -29,7 +29,8 @@ export default function DataInsightBlock({ dimension, rows, interpretation }: Da
           letterSpacing: "0.1em",
           color: "rgba(255,255,255,0.3)",
           fontFamily: "var(--font-jetbrains-mono), monospace",
-          marginBottom: 8,
+          marginTop: 14,
+          marginBottom: 6,
           textTransform: "uppercase",
         }}
       >

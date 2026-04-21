@@ -6,17 +6,22 @@ interface ReportDataHeroProps {
   summary: HeroSummary | null;
 }
 
+// All quality levels use green variants — never yellow/orange warning tones.
 const qualityColors: Record<string, string> = {
-  strong:  "#22C55E",
-  good:    "#86EFAC",
-  minimal: "#F59E0B",
-  none:    "rgba(255,255,255,0.3)",
+  excellent: "#16A34A",
+  strong:    "#22C55E",
+  good:      "#4ADE80",
+  secured:   "#22C55E",
+  // legacy fallbacks
+  minimal:   "#4ADE80",
+  none:      "#22C55E",
 };
 
 export default function ReportDataHero({ summary }: ReportDataHeroProps) {
   const t = useTranslations("results");
 
   if (!summary || !summary.has_any_data) {
+    const securedColor = qualityColors.secured;
     return (
       <section
         style={{
@@ -33,20 +38,27 @@ export default function ReportDataHero({ summary }: ReportDataHeroProps) {
         <div style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.85)", marginBottom: 6 }}>
           {t("hero.fallback_title")}
         </div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, maxWidth: 480 }}>
-          {t("hero.fallback_text")}
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, maxWidth: 480, marginBottom: 14 }}>
+          {t("hero.quality_secured_message")}
         </div>
-        <div style={{ marginTop: 12, display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", background: "rgba(255,255,255,0.05)", borderRadius: 4 }}>
-          <span style={{ fontSize: 10 }}>📋</span>
-          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.06em" }}>
-            {t("hero.quality_none")}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "4px 10px",
+          background: `${securedColor}14`,
+          borderRadius: 4,
+          border: `1px solid ${securedColor}40`,
+        }}>
+          <span style={{ fontSize: 10, color: securedColor, fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.06em", fontWeight: 600 }}>
+            {t("hero.quality_secured_badge")}
           </span>
         </div>
       </section>
     );
   }
 
-  const qColor = qualityColors[summary.quality_level] ?? qualityColors.none;
+  const qColor = qualityColors[summary.quality_level] ?? qualityColors.good;
+  const badgeKey = `hero.quality_${summary.quality_level}_badge` as "hero.quality_strong_badge";
+  const msgKey  = `hero.quality_${summary.quality_level}_message` as "hero.quality_strong_message";
 
   return (
     <section
@@ -62,7 +74,7 @@ export default function ReportDataHero({ summary }: ReportDataHeroProps) {
         {t("hero.label")}
       </div>
 
-      {/* Big datapoints number */}
+      {/* Big datapoints number — always green */}
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 16 }}>
         <span style={{ fontSize: 42, fontWeight: 700, color: qColor, fontFamily: "var(--font-jetbrains-mono), monospace", lineHeight: 1 }}>
           {summary.total_datapoints.toLocaleString()}
@@ -78,9 +90,7 @@ export default function ReportDataHero({ summary }: ReportDataHeroProps) {
           <div
             key={src.type}
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
+              display: "inline-flex", alignItems: "center", gap: 6,
               padding: "5px 10px",
               background: "rgba(255,255,255,0.06)",
               borderRadius: 4,
@@ -102,10 +112,21 @@ export default function ReportDataHero({ summary }: ReportDataHeroProps) {
         </div>
       )}
 
-      {/* Quality badge */}
-      <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", background: `${qColor}14`, borderRadius: 4, border: `1px solid ${qColor}40` }}>
+      {/* Quality message */}
+      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", lineHeight: 1.55, maxWidth: 520, marginBottom: 12 }}>
+        {t(msgKey)}
+      </div>
+
+      {/* Quality badge — always green */}
+      <div style={{
+        display: "inline-flex", alignItems: "center", gap: 6,
+        padding: "4px 10px",
+        background: `${qColor}14`,
+        borderRadius: 4,
+        border: `1px solid ${qColor}40`,
+      }}>
         <span style={{ fontSize: 10, color: qColor, fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.06em", fontWeight: 600 }}>
-          {t(`hero.quality_${summary.quality_level}` as "hero.quality_strong")}
+          {t(badgeKey)}
         </span>
       </div>
     </section>

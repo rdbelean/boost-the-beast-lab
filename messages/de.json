@@ -688,7 +688,19 @@
       "quality_strong": "STARKE DATENBASIS",
       "quality_good": "GUTE GRUNDLAGE",
       "quality_minimal": "GRUNDLAGE VORHANDEN",
-      "quality_none": "FRAGEBOGEN-REPORT"
+      "quality_none": "FRAGEBOGEN-REPORT",
+      "quality_excellent_badge": "EXZELLENTE DATENBASIS",
+      "quality_excellent_message": "Diese umfangreiche Datenmenge ermöglicht eine tiefgehende, präzise Analyse deiner Performance.",
+      "quality_strong_badge": "STARKE DATENBASIS",
+      "quality_strong_message": "Deine Daten bilden eine solide Grundlage für präzise Scores und fundierte Empfehlungen.",
+      "quality_good_badge": "GUTE DATENBASIS",
+      "quality_good_message": "Deine hochgeladenen Daten fließen direkt in die Auswertung ein und verbessern die Genauigkeit des Reports.",
+      "quality_secured_badge": "DATENBASIS GESICHERT",
+      "quality_secured_message": "Deine Angaben wurden sorgfältig ausgewertet und bilden die Basis deines Reports.",
+      "quality_minimal_badge": "GUTE DATENBASIS",
+      "quality_minimal_message": "Deine hochgeladenen Daten fließen direkt in die Auswertung ein und verbessern die Genauigkeit des Reports.",
+      "quality_none_badge": "DATENBASIS GESICHERT",
+      "quality_none_message": "Deine Angaben wurden sorgfältig ausgewertet und bilden die Basis deines Reports."
     }
   },
   "plans_detail": {

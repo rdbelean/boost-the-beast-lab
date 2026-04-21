@@ -688,7 +688,19 @@
       "quality_strong": "STRONG DATA BASIS",
       "quality_good": "GOOD FOUNDATION",
       "quality_minimal": "FOUNDATION AVAILABLE",
-      "quality_none": "QUESTIONNAIRE REPORT"
+      "quality_none": "QUESTIONNAIRE REPORT",
+      "quality_excellent_badge": "EXCELLENT DATA FOUNDATION",
+      "quality_excellent_message": "This extensive dataset enables an in-depth, precise analysis of your performance.",
+      "quality_strong_badge": "STRONG DATA FOUNDATION",
+      "quality_strong_message": "Your data provides a solid basis for accurate scores and well-founded recommendations.",
+      "quality_good_badge": "GOOD DATA FOUNDATION",
+      "quality_good_message": "Your uploaded data flows directly into the evaluation and improves the report accuracy.",
+      "quality_secured_badge": "DATA FOUNDATION SECURED",
+      "quality_secured_message": "Your answers have been carefully evaluated and form the basis of your report.",
+      "quality_minimal_badge": "GOOD DATA FOUNDATION",
+      "quality_minimal_message": "Your uploaded data flows directly into the evaluation and improves the report accuracy.",
+      "quality_none_badge": "DATA FOUNDATION SECURED",
+      "quality_none_message": "Your answers have been carefully evaluated and form the basis of your report."
     }
   },
   "plans_detail": {

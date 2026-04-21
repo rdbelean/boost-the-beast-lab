@@ -651,7 +651,7 @@ function buildCover(
     if (boxH > 40) {
       page.drawRectangle({ x: MX, y: sectionY - boxH, width: CW * 0.65, height: boxH, color: BG_CARD });
       page.drawRectangle({ x: MX, y: sectionY - 3, width: CW * 0.65, height: 3, color: ACCENT });
-      page.drawText("PERSOENLLICHE DATENBASIS", {
+      page.drawText("PERS\u00D6NLICHE DATENBASIS", {
         x: MX + 14, y: sectionY - 16, size: 6.5, font: f.bold, color: TXT_MUTED,
       });
       let sy = sectionY - 32;
@@ -665,8 +665,18 @@ function buildCover(
         page.drawText(per, { x: MX + 14, y: Math.max(sectionY - boxH + 14, sy), size: 7, font: f.reg, color: TXT_MUTED });
       }
       // Quality badge
-      const qLabels: Record<string, string> = { strong: "STARKE DATENBASIS", good: "GUTE GRUNDLAGE", minimal: "GRUNDLAGE VORHANDEN", none: "FRAGEBOGEN-REPORT" };
-      const qColors: Record<string, Color> = { strong: SC_GREEN, good: SC_GREEN, minimal: SC_ORANGE, none: TXT_MUTED };
+      const qLabels: Record<string, string> = {
+        excellent: "EXZELLENTE DATENBASIS",
+        strong:    "STARKE DATENBASIS",
+        good:      "GUTE DATENBASIS",
+        secured:   "DATENBASIS GESICHERT",
+        minimal:   "GUTE DATENBASIS",
+        none:      "DATENBASIS GESICHERT",
+      };
+      const qColors: Record<string, Color> = {
+        excellent: SC_GREEN, strong: SC_GREEN, good: SC_GREEN,
+        secured: SC_GREEN, minimal: SC_GREEN, none: SC_GREEN,
+      };
       const qLabel = qLabels[heroData.quality_level] ?? "DATENBASIS";
       const qColor = qColors[heroData.quality_level] ?? TXT_MUTED;
       const qW = f.bold.widthOfTextAtSize(qLabel, 7) + 18;
@@ -785,7 +795,7 @@ function buildExecutiveFindings(
   const typeColors: Record<string, Color> = { weakness: ACCENT, strength: SC_GREEN, connection: BLUE_INFO };
   const typeLabels: Record<string, [string, string]> = {
     weakness: ["SCHWACHSTELLE", "WEAKNESS"],
-    strength: ["STAERKE", "STRENGTH"],
+    strength: ["ST\u00C4RKE", "STRENGTH"],
     connection: ["ZUSAMMENHANG", "CONNECTION"],
   };
 
@@ -833,7 +843,7 @@ function buildCrossInsightsPage(
   let y = pageChrome(page, f, today);
 
   const isDE = currentLocale !== "en";
-  y = secLabel(page, isDE ? "ZUSAMMENHAENGE IN DEINEN DATEN" : "CONNECTIONS IN YOUR DATA", f, MX, y);
+  y = secLabel(page, isDE ? "ZUSAMMENH\u00C4NGE IN DEINEN DATEN" : "CONNECTIONS IN YOUR DATA", f, MX, y);
   y -= 8;
 
   for (const ins of insights.slice(0, 3)) {
@@ -890,15 +900,20 @@ function buildActionPlanPage(
     page.drawText(`${tvLabel} ${tx(g.target_value)}${g.delta_pct ? `  (${tx(g.delta_pct)})` : ""}`, { x: MX + 120, y: y - 46, size: 8, font: f.reg, color: SC_GREEN });
     page.drawText(`${srcLabel} ${tx(g.metric_source)}`, { x: MX + 14, y: y - 58, size: 7, font: f.reg, color: TXT_MUTED });
 
-    // Week milestones
+    // Week milestones — skip rows where task/week are empty (defensive)
     if (g.week_milestones && g.week_milestones.length > 0) {
       let my = y - 72;
       for (const ms of g.week_milestones.slice(0, 4)) {
         if (my < y - boxH + 12) break;
-        page.drawText(`${tx(ms.week)}: ${tx(ms.task)}`, { x: MX + 14, y: my, size: 7.5, font: f.reg, color: TXT_MUTED });
-        const mVal = tx(ms.milestone);
-        const mW = f.bold.widthOfTextAtSize(mVal, 7.5);
-        page.drawText(mVal, { x: PW - MX - mW - 14, y: my, size: 7.5, font: f.bold, color: SC_GREEN });
+        // Skip if milestone is a raw string (malformed) or fields are empty
+        if (typeof ms !== "object" || !ms.week || !ms.task) continue;
+        const rowText = `${tx(ms.week)}: ${tx(ms.task)}`;
+        page.drawText(rowText, { x: MX + 14, y: my, size: 7.5, font: f.reg, color: TXT_MUTED });
+        const mVal = ms.milestone ? tx(ms.milestone) : "";
+        if (mVal) {
+          const mW = f.bold.widthOfTextAtSize(mVal, 7.5);
+          page.drawText(mVal, { x: PW - MX - mW - 14, y: my, size: 7.5, font: f.bold, color: SC_GREEN });
+        }
         my -= 16;
       }
     }
@@ -987,9 +1002,9 @@ function buildModule(
 
   // ── Stat boxes ────────────────────────────────────────────────────────
   if (metrics.length > 0) {
-    y -= 8;
+    y -= 24;  // generous gap before heading (separates from previous section)
     secLabel(page, "KENNWERTE", f, MX, y);
-    y -= 18;
+    y -= 13;  // tight gap after heading (heading belongs to content below)
     statBoxes(page, metrics, f, y);
   }
 
@@ -1058,7 +1073,7 @@ export interface PdfWearableRows {
 
 export interface PdfHeroData {
   sources: Array<{ label: string }>;
-  quality_level: "strong" | "good" | "minimal" | "none";
+  quality_level: "excellent" | "strong" | "good" | "secured" | "minimal" | "none";
   period_start?: string;
   period_end?: string;
   total_datapoints: number;

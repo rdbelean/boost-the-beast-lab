@@ -587,7 +587,19 @@
       "quality_strong": "BASE DATI SOLIDA",
       "quality_good": "BUONA BASE",
       "quality_minimal": "BASE DISPONIBILE",
-      "quality_none": "REPORT QUESTIONARIO"
+      "quality_none": "REPORT QUESTIONARIO",
+      "quality_excellent_badge": "BASE DATI ECCELLENTE",
+      "quality_excellent_message": "Questo ampio set di dati consente un'analisi approfondita e precisa delle tue prestazioni.",
+      "quality_strong_badge": "BASE DATI SOLIDA",
+      "quality_strong_message": "I tuoi dati forniscono una base solida per punteggi accurati e raccomandazioni fondate.",
+      "quality_good_badge": "BUONA BASE DATI",
+      "quality_good_message": "I tuoi dati caricati confluiscono direttamente nella valutazione e migliorano la precisione del report.",
+      "quality_secured_badge": "BASE DATI ASSICURATA",
+      "quality_secured_message": "Le tue risposte sono state valutate con cura e costituiscono la base del tuo report.",
+      "quality_minimal_badge": "BUONA BASE DATI",
+      "quality_minimal_message": "I tuoi dati caricati confluiscono direttamente nella valutazione e migliorano la precisione del report.",
+      "quality_none_badge": "BASE DATI ASSICURATA",
+      "quality_none_message": "Le tue risposte sono state valutate con cura e costituiscono la base del tuo report."
     }
   },
   "plans_detail": {

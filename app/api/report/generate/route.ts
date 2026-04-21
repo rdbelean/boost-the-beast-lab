@@ -1142,10 +1142,11 @@ export async function POST(req: NextRequest) {
       if (pdfWearableRows.vo2max) dp += 1;
       if (pdfWearableRows.metabolic) dp += 3;
 
+      const multiSource = heroSources.length >= 2;
       const quality_level: PdfHeroData["quality_level"] =
-        dp >= 100 || days >= 14 ? "strong" :
-        dp >= 30  || days >= 7  ? "good" :
-        dp > 0                  ? "minimal" : "none";
+        multiSource || dp >= 200              ? "excellent" :
+        dp >= 100   || days >= 14             ? "strong" :
+        dp > 0      || heroSources.length > 0 ? "good" : "secured";
 
       heroData = { sources: heroSources, quality_level, total_datapoints: dp };
     }
@@ -1175,14 +1176,25 @@ Return ONLY valid JSON array, no markdown:
 [{"dimension_a":"sleep","dimension_b":"stress","headline":"...","body":"..."}]
 Body ≤50 words each. Only include pairs with meaningful interaction.`;
 
-      const buildPlanPrompt = () => `Generate a 30-day action plan with 3 goals for this athlete.
+      const buildPlanPrompt = () => `Generate a 30-day action plan with exactly 3 goals for this athlete.
 Scores: ${JSON.stringify(scoresObj)}
 User: age ${user.age}, gender ${user.gender}
 Locale: ${locale}
 
-Return ONLY valid JSON array with exactly 3 objects, no markdown:
-[{"headline":"...","current_value":"...","target_value":"...","delta_pct":15,"metric_source":"...","week_milestones":["wk1","wk2","wk3","wk4"]}]
-Focus on lowest-scored dimensions. week_milestones: 4 short action strings.`;
+MANDATORY rules:
+- Focus on the 3 lowest-scored dimensions
+- Each week_milestones array MUST contain exactly 4 objects — never strings, never empty
+- Each milestone object: {"week":"Week 1","task":"<concrete action max 70 chars>","milestone":"<measurable target>"}
+${locale !== "en" ? '- Language: German. week labels: "KW 1", "KW 2", "KW 3", "KW 4"' : '- Language: English. week labels: "Week 1", "Week 2", "Week 3", "Week 4"'}
+
+Return ONLY valid JSON array, no markdown:
+[{"headline":"...","current_value":"...","target_value":"...","delta_pct":15,"metric_source":"...",
+  "week_milestones":[
+    {"week":"KW 1","task":"specific measurable action","milestone":"intermediate target"},
+    {"week":"KW 2","task":"specific measurable action","milestone":"intermediate target"},
+    {"week":"KW 3","task":"specific measurable action","milestone":"intermediate target"},
+    {"week":"KW 4","task":"final push action","milestone":"goal reached"}
+  ]}]`;
 
       const [findingsRes, insightsRes, planRes] = await Promise.allSettled<Anthropic.Message>([
         anthropic.messages.create({ model: "claude-haiku-4-5-20251001", max_tokens: 1200, messages: [{ role: "user", content: buildFindingsPrompt() }] }) as Promise<Anthropic.Message>,
