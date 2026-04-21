@@ -52,39 +52,49 @@ export async function POST(req: NextRequest) {
 
     const scoresText = Object.entries(scores).map(([k, v]) => `${k}: ${v}/100`).join(", ");
     const metricsText = JSON.stringify(merged_metrics ?? {}).slice(0, 800);
-    const isDE = locale !== "en";
-    const wk = isDE
-      ? ["KW 1", "KW 2", "KW 3", "KW 4"]
-      : ["Week 1", "Week 2", "Week 3", "Week 4"];
+    const WEEK_LABELS: Record<string, string[]> = {
+      de: ["KW 1", "KW 2", "KW 3", "KW 4"],
+      en: ["Week 1", "Week 2", "Week 3", "Week 4"],
+      it: ["Settimana 1", "Settimana 2", "Settimana 3", "Settimana 4"],
+      ko: ["1주차", "2주차", "3주차", "4주차"],
+    };
+    const LANG_DIRECTIVE: Record<string, string> = {
+      de: 'Sprache: Deutsch, "du"-Form',
+      en: "Language: English, second person",
+      it: "Lingua: Italiano, forma 'tu'",
+      ko: "언어: 한국어, 친근한 존댓말 (~합니다)",
+    };
+    const wk = WEEK_LABELS[locale] ?? WEEK_LABELS.en;
+    const langDirective = LANG_DIRECTIVE[locale] ?? LANG_DIRECTIVE.en;
 
-    const prompt = `Du bist Performance Coach. Erstelle einen 30-Tage-Plan mit genau 3 konkreten Zielen.
+    const prompt = `You are a performance coach. Create a 30-day plan with exactly 3 concrete goals.
 
 Scores: ${scoresText}
-${user_profile.age ? `Nutzer: ${user_profile.age} Jahre, ${user_profile.gender || "unbekannt"}` : ""}
-Mess-Daten: ${metricsText}
+${user_profile.age ? `User: ${user_profile.age} years, ${user_profile.gender || "unknown"}` : ""}
+Measured data: ${metricsText}
 
-ZWINGEND:
-- Fokus auf die 3 schwächsten Dimensionen (niedrigste Scores)
-- week_milestones MUSS exakt 4 Objekte enthalten — niemals Strings, niemals leer
-- Jedes Milestone-Objekt: {"week":"${wk[0]}","task":"<konkrete Aktion max 70 Zeichen>","milestone":"<messbares Zwischenziel>"}
-- Wenn du keine spezifische Aktion kennst: wähle eine evidenzbasierte Standardmassnahme
-${isDE ? "- Sprache: Deutsch" : "- Language: English"}
+MANDATORY:
+- Focus on the 3 weakest dimensions (lowest scores)
+- week_milestones MUST contain exactly 4 objects — never strings, never empty
+- Each milestone object: {"week":"${wk[0]}","task":"<concrete action max 70 chars>","milestone":"<measurable intermediate goal>"}
+- If no specific action is known: choose an evidence-based standard measure
+- ${langDirective}
 
-Pro Ziel:
-- headline: max 55 Zeichen, klar & messbar (z.B. "DEEP SLEEP AUF >100 MIN")
-- current_value: IST-Wert aus den Daten (z.B. "72 min Tiefschlaf")
-- target_value: realistisches 30-Tage-Ziel (+10-25% Verbesserung)
-- delta_pct: z.B. "+18%"
-- metric_source: Wie messbar (z.B. "WHOOP Sleep Stages")
+Per goal:
+- headline: max 55 characters, clear & measurable (e.g. "DEEP SLEEP TO >100 MIN")
+- current_value: actual value from the data (e.g. "72 min deep sleep")
+- target_value: realistic 30-day goal (+10-25% improvement)
+- delta_pct: e.g. "+18%"
+- metric_source: how measurable (e.g. "WHOOP Sleep Stages")
 
-Antworte NUR als JSON:
+Respond ONLY as JSON:
 {"goals": [
   {"headline":"...","current_value":"...","target_value":"...","delta_pct":"...","metric_source":"...",
    "week_milestones":[
-     {"week":"${wk[0]}","task":"spezifische Aktion","milestone":"Zwischenziel"},
-     {"week":"${wk[1]}","task":"spezifische Aktion","milestone":"Zwischenziel"},
-     {"week":"${wk[2]}","task":"spezifische Aktion","milestone":"Zwischenziel"},
-     {"week":"${wk[3]}","task":"Feintuning","milestone":"Zielwert"}
+     {"week":"${wk[0]}","task":"specific action","milestone":"intermediate goal"},
+     {"week":"${wk[1]}","task":"specific action","milestone":"intermediate goal"},
+     {"week":"${wk[2]}","task":"specific action","milestone":"intermediate goal"},
+     {"week":"${wk[3]}","task":"fine-tuning","milestone":"target value"}
    ]}
 ]}`;
 
@@ -102,7 +112,7 @@ Antworte NUR als JSON:
       // Validate each goal has proper milestone objects
       goals = parsed.map((g) => ({
         ...g,
-        week_milestones: normalizeMilestones(g.week_milestones, isDE),
+        week_milestones: normalizeMilestones(g.week_milestones, locale),
       }));
     } catch {
       goals = buildStaticPlan(scores, locale);
@@ -116,17 +126,32 @@ Antworte NUR als JSON:
   }
 }
 
+const WEEK_LABELS_ALL: Record<string, string[]> = {
+  de: ["KW 1", "KW 2", "KW 3", "KW 4"],
+  en: ["Week 1", "Week 2", "Week 3", "Week 4"],
+  it: ["Settimana 1", "Settimana 2", "Settimana 3", "Settimana 4"],
+  ko: ["1주차", "2주차", "3주차", "4주차"],
+};
+const DEFAULT_TASKS: Record<string, string[]> = {
+  de: ["Baseline erfassen und analysieren", "Erste Massnahmen umsetzen", "Intensität steigern", "Feintuning und Konsolidierung"],
+  en: ["Establish baseline and analyze", "Implement first measures", "Increase intensity", "Fine-tune and consolidate"],
+  it: ["Stabilire baseline e analizzare", "Attuare le prime misure", "Aumentare l'intensità", "Ottimizzazione e consolidamento"],
+  ko: ["기준선 측정 및 분석", "첫 조치 실행", "강도 증가", "미세 조정 및 통합"],
+};
+const DEFAULT_MILESTONES: Record<string, string[]> = {
+  de: ["Ausgangswert dokumentiert", "Erste Verbesserung sichtbar", "Zwischenziel erreicht", "Zielwert erreicht"],
+  en: ["Baseline documented", "First improvement visible", "Intermediate goal reached", "Target achieved"],
+  it: ["Baseline documentata", "Primo miglioramento visibile", "Obiettivo intermedio raggiunto", "Obiettivo raggiunto"],
+  ko: ["기준선 기록 완료", "첫 개선 확인", "중간 목표 달성", "목표값 달성"],
+};
+
 function normalizeMilestones(
   raw: unknown,
-  isDE: boolean,
+  locale: string,
 ): Array<{ week: string; task: string; milestone: string }> {
-  const wk = isDE ? ["KW 1", "KW 2", "KW 3", "KW 4"] : ["Week 1", "Week 2", "Week 3", "Week 4"];
-  const defaultTasks = isDE
-    ? ["Baseline erfassen und analysieren", "Erste Massnahmen umsetzen", "Intensität steigern", "Feintuning und Konsolidierung"]
-    : ["Establish baseline and analyze", "Implement first measures", "Increase intensity", "Fine-tune and consolidate"];
-  const defaultMilestones = isDE
-    ? ["Ausgangswert dokumentiert", "Erste Verbesserung sichtbar", "Zwischenziel erreicht", "Zielwert erreicht"]
-    : ["Baseline documented", "First improvement visible", "Intermediate goal reached", "Target achieved"];
+  const wk = WEEK_LABELS_ALL[locale] ?? WEEK_LABELS_ALL.en;
+  const defaultTasks = DEFAULT_TASKS[locale] ?? DEFAULT_TASKS.en;
+  const defaultMilestones = DEFAULT_MILESTONES[locale] ?? DEFAULT_MILESTONES.en;
 
   if (!Array.isArray(raw) || raw.length === 0) {
     return wk.map((w, i) => ({ week: w, task: defaultTasks[i], milestone: defaultMilestones[i] }));
@@ -146,7 +171,8 @@ function normalizeMilestones(
   });
 }
 
-const DIM_MILESTONES: Record<string, { de: { tasks: string[]; milestones: string[] }; en: { tasks: string[]; milestones: string[] } }> = {
+type DimBundle = { tasks: string[]; milestones: string[] };
+const DIM_MILESTONES: Record<string, Record<string, DimBundle>> = {
   sleep: {
     de: {
       tasks: ["Schlaftagebuch starten, Baseline erfassen", "Kein Bildschirm ab 21 Uhr, Schlafzeit fixieren ±30min", "Schlafumgebung optimieren (Temperatur 17-19°C, Dunkelheit)", "Feintuning basierend auf Wearable-Daten"],
@@ -155,6 +181,14 @@ const DIM_MILESTONES: Record<string, { de: { tasks: string[]; milestones: string
     en: {
       tasks: ["Start sleep journal, establish baseline", "No screens after 9 PM, fix sleep times ±30min", "Optimize sleep environment (temp 17-19°C, dark)", "Fine-tune based on wearable data"],
       milestones: ["Baseline documented", "Sleep efficiency +3%", "Deep sleep +10 min", "Target reached"],
+    },
+    it: {
+      tasks: ["Iniziare diario del sonno, stabilire baseline", "Niente schermi dopo le 21, orari di sonno fissi ±30min", "Ottimizzare ambiente (temp 17-19°C, buio)", "Ottimizzazione basata su dati wearable"],
+      milestones: ["Baseline documentata", "Efficienza sonno +3%", "Sonno profondo +10 min", "Obiettivo raggiunto"],
+    },
+    ko: {
+      tasks: ["수면 일지 시작, 기준선 확립", "저녁 9시 이후 화면 금지, 취침 시간 ±30분 고정", "수면 환경 최적화 (온도 17-19°C, 암실)", "웨어러블 데이터 기반 미세 조정"],
+      milestones: ["기준선 기록", "수면 효율 +3%", "깊은 수면 +10분", "목표 달성"],
     },
   },
   activity: {
@@ -166,6 +200,14 @@ const DIM_MILESTONES: Record<string, { de: { tasks: string[]; milestones: string
       tasks: ["Track daily steps, create training plan", "3 sessions/week with heart rate control", "Progressively increase intensity (+10% volume)", "Break plateau, add variation"],
       milestones: ["Baseline active", "Steps +1000/day", "MET-minutes +15%", "Target activity level"],
     },
+    it: {
+      tasks: ["Tracciare passi giornalieri, creare piano allenamento", "3 sessioni/settimana con controllo FC", "Aumentare intensità progressivamente (+10% volume)", "Superare plateau, aggiungere varietà"],
+      milestones: ["Baseline attiva", "Passi +1000/giorno", "MET-minuti +15%", "Livello attività raggiunto"],
+    },
+    ko: {
+      tasks: ["일일 걸음 추적, 트레이닝 계획 작성", "주 3회 심박수 관리 운동", "강도 점진적 증가 (+10% 볼륨)", "정체기 돌파, 변화 추가"],
+      milestones: ["기준선 활성화", "걸음수 +1000/일", "MET 분 +15%", "목표 활동 수준"],
+    },
   },
   metabolic: {
     de: {
@@ -175,6 +217,14 @@ const DIM_MILESTONES: Record<string, { de: { tasks: string[]; milestones: string
     en: {
       tasks: ["Keep food journal, measure sitting time", "Break sitting every 60min, +1L water/day", "Optimize protein intake (1.6-2g/kg BW)", "Re-measure body composition, adjust"],
       milestones: ["Baseline documented", "Active hours +30min/day", "Hydration consistent", "Body composition measured"],
+    },
+    it: {
+      tasks: ["Diario alimentare, misurare tempo seduti", "Interrompere seduta ogni 60min, +1L acqua/giorno", "Ottimizzare proteine (1.6-2g/kg peso)", "Rimisurare composizione corporea, adeguare"],
+      milestones: ["Baseline documentata", "Ore attive +30min/giorno", "Idratazione costante", "Composizione misurata"],
+    },
+    ko: {
+      tasks: ["식단 일지 작성, 좌식 시간 측정", "60분마다 좌식 중단, 물 +1L/일", "단백질 섭취 최적화 (1.6-2g/kg 체중)", "체성분 재측정, 조정"],
+      milestones: ["기준선 기록", "활동 시간 +30분/일", "수분 섭취 일정", "체성분 측정 완료"],
     },
   },
   stress: {
@@ -186,6 +236,14 @@ const DIM_MILESTONES: Record<string, { de: { tasks: string[]; milestones: string
       tasks: ["Document HRV trend, identify stressors", "10min breathing exercise daily, protect recovery hours", "Add recovery session (yoga/walk)", "Consolidate stress management routine"],
       milestones: ["HRV baseline captured", "HRV trend positive", "Stress index -10%", "Target HRV reached"],
     },
+    it: {
+      tasks: ["Documentare trend HRV, identificare stressor", "10min respirazione al giorno, proteggere ore recupero", "Sessione di recupero (yoga/camminata)", "Consolidare routine gestione stress"],
+      milestones: ["Baseline HRV registrata", "Trend HRV positivo", "Indice stress -10%", "HRV target raggiunto"],
+    },
+    ko: {
+      tasks: ["HRV 추이 기록, 스트레스 요인 파악", "매일 10분 호흡 운동, 회복 시간 확보", "회복 세션 추가 (요가/산책)", "스트레스 관리 루틴 정착"],
+      milestones: ["HRV 기준선 확보", "HRV 추이 긍정적", "스트레스 지수 -10%", "목표 HRV 달성"],
+    },
   },
   vo2max: {
     de: {
@@ -196,26 +254,51 @@ const DIM_MILESTONES: Record<string, { de: { tasks: string[]; milestones: string
       tasks: ["2x Zone-2 training/week (60-70% HRmax, 45min)", "1x HIIT session/week (4x4min intervals)", "Progressively increase training volume", "Re-test VO2max, adjust intensity zones"],
       milestones: ["Aerobic base built", "Resting HR -2 bpm", "Endurance +5%", "VO2max +2 ml/kg/min"],
     },
+    it: {
+      tasks: ["2x allenamento Zona-2/settimana (60-70% FCmax, 45min)", "1x HIIT/settimana (intervalli 4x4min)", "Aumentare volume progressivamente", "Ritestare VO2max, regolare zone"],
+      milestones: ["Base aerobica costruita", "FC a riposo -2 bpm", "Resistenza +5%", "VO2max +2 ml/kg/min"],
+    },
+    ko: {
+      tasks: ["주 2회 존-2 트레이닝 (최대심박 60-70%, 45분)", "주 1회 HIIT 세션 (4x4분 인터벌)", "훈련 볼륨 점진적 증가", "VO2max 재측정, 강도 영역 조정"],
+      milestones: ["유산소 기반 구축", "안정 시 심박 -2 bpm", "지구력 +5%", "VO2max +2 ml/kg/분"],
+    },
   },
 };
 
+const GENERIC_TASKS: Record<string, string[]> = {
+  de: ["Baseline erfassen", "Erste Anpassungen", "Intensivierung", "Feintuning"],
+  en: ["Establish baseline", "First adjustments", "Intensify", "Fine-tuning"],
+  it: ["Stabilire baseline", "Primi aggiustamenti", "Intensificare", "Ottimizzazione"],
+  ko: ["기준선 확립", "첫 조정", "강화", "미세 조정"],
+};
+const MEASURE_PROGRESS: Record<string, string> = {
+  de: "Fortschritt messen",
+  en: "Measure progress",
+  it: "Misurare progresso",
+  ko: "진행 상황 측정",
+};
+const HEADLINE_FMT: Record<string, (dim: string, target: number) => string> = {
+  de: (dim, t) => `${dim.toUpperCase()} AUF ${t}/100 STEIGERN`,
+  en: (dim, t) => `IMPROVE ${dim.toUpperCase()} TO ${t}/100`,
+  it: (dim, t) => `MIGLIORARE ${dim.toUpperCase()} A ${t}/100`,
+  ko: (dim, t) => `${dim.toUpperCase()} ${t}/100 달성`,
+};
+
 function buildStaticPlan(scores: Record<string, number>, locale: string): PlanGoal[] {
-  const isDE = locale !== "en";
   const sorted = Object.entries(scores).sort((a, b) => a[1] - b[1]);
   const goals: PlanGoal[] = [];
-  const wk = isDE ? ["KW 1", "KW 2", "KW 3", "KW 4"] : ["Week 1", "Week 2", "Week 3", "Week 4"];
+  const wk = WEEK_LABELS_ALL[locale] ?? WEEK_LABELS_ALL.en;
+  const genericTasks = GENERIC_TASKS[locale] ?? GENERIC_TASKS.en;
+  const measureProgress = MEASURE_PROGRESS[locale] ?? MEASURE_PROGRESS.en;
+  const headlineFmt = HEADLINE_FMT[locale] ?? HEADLINE_FMT.en;
 
   for (const [dim, score] of sorted.slice(0, 3)) {
     const target = Math.min(100, Math.round(score * 1.15));
     const deltaPct = Math.round(((target - score) / score) * 100);
     const dimData = DIM_MILESTONES[dim];
-    const tasks = dimData ? (isDE ? dimData.de.tasks : dimData.en.tasks) : [
-      isDE ? "Baseline erfassen" : "Establish baseline",
-      isDE ? "Erste Anpassungen" : "First adjustments",
-      isDE ? "Intensivierung" : "Intensify",
-      isDE ? "Feintuning" : "Fine-tuning",
-    ];
-    const milestones = dimData ? (isDE ? dimData.de.milestones : dimData.en.milestones) : [
+    const bundle = dimData ? (dimData[locale] ?? dimData.en) : undefined;
+    const tasks = bundle ? bundle.tasks : genericTasks;
+    const milestones = bundle ? bundle.milestones : [
       `${Math.round(score + (target - score) * 0.1)}/100`,
       `${Math.round(score + (target - score) * 0.4)}/100`,
       `${Math.round(score + (target - score) * 0.7)}/100`,
@@ -223,14 +306,14 @@ function buildStaticPlan(scores: Record<string, number>, locale: string): PlanGo
     ];
 
     goals.push({
-      headline: isDE ? `${dim.toUpperCase()} AUF ${target}/100 STEIGERN` : `IMPROVE ${dim.toUpperCase()} TO ${target}/100`,
+      headline: headlineFmt(dim, target),
       current_value: `${score}/100`,
       target_value: `${target}/100`,
       delta_pct: `+${deltaPct}%`,
-      metric_source: isDE ? "Performance Score" : "Performance Score",
+      metric_source: "Performance Score",
       week_milestones: wk.map((w, i) => ({
         week: w,
-        task: tasks[i] ?? (isDE ? "Fortschritt messen" : "Measure progress"),
+        task: tasks[i] ?? measureProgress,
         milestone: milestones[i] ?? `${target}/100`,
       })),
     });

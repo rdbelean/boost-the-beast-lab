@@ -488,9 +488,16 @@ function AnalyseContent() {
       setErrorMsg(null);
 
       const payload = buildAssessmentPayload(form);
-      const payloadWithWearable = wearable
-        ? { ...payload, wearable_upload_id: wearable.uploadId }
-        : payload;
+      // Send the active URL locale so the assessment row gets stored with
+      // the correct language — /api/report/generate reads this back to
+      // drive the Claude prompt, PDF labels, and email copy. Without it
+      // the assessment would default to "de" and the report would land
+      // in German regardless of which locale the user saw.
+      const payloadWithWearable = {
+        ...payload,
+        locale,
+        ...(wearable ? { wearable_upload_id: wearable.uploadId } : {}),
+      };
 
       // ── Step 1: /api/assessment — scoring only (fast, ~2-4s) ────────────
       const res = await fetch("/api/assessment", {
@@ -526,10 +533,11 @@ function AnalyseContent() {
       const TASK_WEIGHTS = { report: 50, perPlan: 10 }; // total: 50 + 40 = 90 (+15 from scoring = 105, clamped to 100)
 
       const reportBody: Record<string, unknown> = json?.assessmentId
-        ? { assessmentId: json.assessmentId }
+        ? { assessmentId: json.assessmentId, locale }
         : {
             demoContext: {
               reportType: payload.reportType,
+              locale,
               user: {
                 email: payload.email,
                 age: payload.age,

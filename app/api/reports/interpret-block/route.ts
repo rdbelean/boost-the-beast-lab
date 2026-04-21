@@ -48,7 +48,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ interpretation: null });
     }
 
-    const isDE = locale !== "en";
+    const LANG_DIRECTIVE: Record<string, string> = {
+      de: 'Sprache: Deutsch, "du"-Form (informal)',
+      en: "Language: English, second person ('you')",
+      it: "Lingua: Italiano, forma 'tu' (informale)",
+      ko: "언어: 한국어, 친근한 존댓말 (~합니다/~습니다)",
+    };
+    const langDirective = LANG_DIRECTIVE[locale] ?? LANG_DIRECTIVE.en;
+
     const metricsText = metrics
       .map((m) => `${m.label_key}: ${m.value}${m.unit ? " " + m.unit : ""}`)
       .join(", ");
@@ -58,24 +65,24 @@ export async function POST(req: NextRequest) {
           .join(", ")
       : "";
 
-    const prompt = `Du bist Sportwissenschaftler. Analysiere diese Fitness-Daten und schreibe eine Kurzinterpretation.
+    const prompt = `You are a sports scientist. Analyze this fitness data and write a short interpretation.
 
 Dimension: ${dimension}
 Score: ${score}/100
-Gemessene Werte: ${metricsText}
-${otherText ? `Andere Dimensionen: ${otherText}` : ""}
-${user_profile.age ? `Alter: ${user_profile.age}, Geschlecht: ${user_profile.gender || "unbekannt"}` : ""}
+Measured values: ${metricsText}
+${otherText ? `Other dimensions: ${otherText}` : ""}
+${user_profile.age ? `Age: ${user_profile.age}, Gender: ${user_profile.gender || "unknown"}` : ""}
 
-Regeln:
-- ${isDE ? 'Sprache: Deutsch, "du"-Form' : "Language: English, second person"}
-- Exakt 2–3 Sätze, maximal 280 Zeichen
-- Satz 1: wichtigste Auffälligkeit mit konkreter Zahl
-- Satz 2: Bezug zu einer anderen Dimension oder Trainingskontext
-- Optional Satz 3: Implikation
-- KEINE Diagnosen, KEINE Handlungsempfehlungen, KEINE generischen Phrasen
-- Nur Werte verwenden, die oben angegeben sind
+Rules:
+- ${langDirective}
+- Exactly 2–3 sentences, max 280 characters
+- Sentence 1: most important finding with a concrete number
+- Sentence 2: relation to another dimension or training context
+- Optional sentence 3: implication
+- NO diagnoses, NO recommendations, NO generic phrases
+- Use only values given above
 
-Antworte NUR als JSON: {"interpretation": "..."}`;
+Respond ONLY as JSON: {"interpretation": "..."}`;
 
     const message = await getAnthropic().messages.create({
       model: "claude-sonnet-4-6",

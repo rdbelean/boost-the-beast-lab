@@ -646,6 +646,10 @@ Erstelle jetzt den vollständigen, ausführlichen Report im geforderten JSON-For
 
 interface DemoContext {
   reportType: string;
+  // URL locale captured when the client built the body. Drives Claude
+  // output language, PDF chrome, and disclaimer. Falls back to "de" on
+  // the server if the client forgot to send it.
+  locale?: Locale;
   user: { email: string; age: number; gender: string; height_cm: number; weight_kg: number };
   result: FullScoringResult;
   sleepDurationHours: number;
@@ -673,6 +677,10 @@ function demoBand(score: number): string {
 
 async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<NextResponse> {
   const r = ctx.result;
+  const demoLocale: Locale =
+    ctx.locale === "en" || ctx.locale === "it" || ctx.locale === "ko"
+      ? ctx.locale
+      : "de";
 
   const activityScore = r.activity.activity_score_0_100;
   const activityBand = demoBand(activityScore);
@@ -726,7 +734,7 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
       // task and keeps the total latency under the Vercel timeout.
       model: "claude-sonnet-4-6",
       max_tokens: 5000,
-      system: SYSTEM_PROMPT,
+      system: buildSystemPromptForLocale(demoLocale),
       messages: [{ role: "user", content: userPrompt }],
     });
     const content = message.content[0];
@@ -773,6 +781,7 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
       bmi,
       bmi_category: bmiCategory,
     },
+    demoLocale,
   );
 
   // In demo mode, try to save to /public/test-reports for local dev.
@@ -986,10 +995,13 @@ export async function POST(req: NextRequest) {
         };
 
         // Build localized PDF stat-box rows from raw wearable metrics.
-        const isDE = locale === "de";
-        const wLabels = isDE
-          ? { dur: "Ø Schlafdauer", eff: "Schlafeffizienz", deep: "Tiefschlaf", rem: "REM", steps: "Ø Schritte", strain: "Ø Strain", kcal: "Ø Aktiv-kcal", hrv: "Ø HRV", rhr: "Ø Ruhepuls", rec: "Ø Recovery", vo2: "VO2max", bmi: "BMI", fat: "Körperfett", muscle: "Muskelmasse" }
-          : { dur: "Avg Sleep", eff: "Sleep Eff.", deep: "Deep Sleep", rem: "REM", steps: "Avg Steps", strain: "Avg Strain", kcal: "Active kcal", hrv: "Avg HRV", rhr: "Avg RHR", rec: "Avg Recovery", vo2: "VO2max", bmi: "BMI", fat: "Body Fat", muscle: "Muscle Mass" };
+        const W_LABELS: Record<Locale, Record<string, string>> = {
+          de: { dur: "Ø Schlafdauer", eff: "Schlafeffizienz", deep: "Tiefschlaf", rem: "REM", steps: "Ø Schritte", strain: "Ø Strain", kcal: "Ø Aktiv-kcal", hrv: "Ø HRV", rhr: "Ø Ruhepuls", rec: "Ø Recovery", vo2: "VO2max", bmi: "BMI", fat: "Körperfett", muscle: "Muskelmasse" },
+          en: { dur: "Avg Sleep", eff: "Sleep Eff.", deep: "Deep Sleep", rem: "REM", steps: "Avg Steps", strain: "Avg Strain", kcal: "Active kcal", hrv: "Avg HRV", rhr: "Avg RHR", rec: "Avg Recovery", vo2: "VO2max", bmi: "BMI", fat: "Body Fat", muscle: "Muscle Mass" },
+          it: { dur: "Durata Sonno", eff: "Efficienza Sonno", deep: "Sonno Profondo", rem: "REM", steps: "Passi Medi", strain: "Strain Medio", kcal: "kcal Attive", hrv: "HRV Medio", rhr: "FC a Riposo", rec: "Recupero Medio", vo2: "VO2max", bmi: "BMI", fat: "Grasso Corporeo", muscle: "Massa Muscolare" },
+          ko: { dur: "평균 수면", eff: "수면 효율", deep: "깊은 수면", rem: "REM", steps: "평균 걸음", strain: "평균 부하", kcal: "활동 kcal", hrv: "평균 HRV", rhr: "안정시 심박", rec: "평균 회복", vo2: "VO2max", bmi: "BMI", fat: "체지방", muscle: "근육량" },
+        };
+        const wLabels = W_LABELS[locale] ?? W_LABELS.en;
         pdfWearableRows = {};
         if (m.sleep) {
           const sr: Array<[string, string]> = [];
@@ -1149,7 +1161,15 @@ export async function POST(req: NextRequest) {
       const heroSources: Array<{ label: string }> = [];
       if (dataSources.whoop) heroSources.push({ label: "WHOOP" });
       if (dataSources.apple_health) heroSources.push({ label: "Apple Health" });
-      if (dataSources.form) heroSources.push({ label: locale === "de" ? "Fragebogen" : "Questionnaire" });
+      if (dataSources.form) {
+        const formLabel: Record<Locale, string> = {
+          de: "Fragebogen",
+          en: "Questionnaire",
+          it: "Questionario",
+          ko: "설문지",
+        };
+        heroSources.push({ label: formLabel[locale] ?? "Questionnaire" });
+      }
 
       // Estimate datapoints: sleep(4) + activity(3) + recovery(3) + vo2(1) + body(3) per day/entry
       let dp = 0;
@@ -1203,7 +1223,15 @@ MANDATORY rules:
 - Focus on the 3 lowest-scored dimensions
 - Each week_milestones array MUST contain exactly 4 objects — never strings, never empty
 - Each milestone object: {"week":"Week 1","task":"<concrete action max 70 chars>","milestone":"<measurable target>"}
-${locale !== "en" ? '- Language: German. week labels: "KW 1", "KW 2", "KW 3", "KW 4"' : '- Language: English. week labels: "Week 1", "Week 2", "Week 3", "Week 4"'}
+${
+  locale === "de"
+    ? '- Language: German, du-Form. Week labels: "KW 1", "KW 2", "KW 3", "KW 4"'
+    : locale === "it"
+    ? '- Language: Italian, tu-form. Week labels: "Settimana 1", "Settimana 2", "Settimana 3", "Settimana 4"'
+    : locale === "ko"
+    ? '- Language: Korean (친근한 존댓말 ~합니다). Week labels: "1주차", "2주차", "3주차", "4주차"'
+    : '- Language: English, second person. Week labels: "Week 1", "Week 2", "Week 3", "Week 4"'
+}
 
 Return ONLY valid JSON array, no markdown:
 [{"headline":"...","current_value":"...","target_value":"...","delta_pct":15,"metric_source":"...",

@@ -293,7 +293,7 @@ export default function ResultsPage() {
       const res = await fetch("/api/report/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assessmentId }),
+        body: JSON.stringify({ assessmentId, locale }),
       });
       // Read raw text first — the server can return non-JSON on lambda crash
       const rawText = await res.text();
