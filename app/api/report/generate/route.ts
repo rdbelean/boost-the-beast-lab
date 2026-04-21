@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
-import { generatePDF, type PdfReportContent, type PdfWearableRows } from "@/lib/pdf/generateReport";
+import { generatePDF, type PdfReportContent, type PdfWearableRows, type PdfHeroData } from "@/lib/pdf/generateReport";
 import { sendReportEmail } from "@/lib/email/sendReport";
 import type { Locale } from "@/lib/supabase/types";
 import {
@@ -1125,6 +1125,91 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // 4b. Build heroData from wearable metrics (for PDF cover stamp).
+    let heroData: PdfHeroData | undefined;
+    if (pdfWearableRows && dataSources) {
+      const heroSources: Array<{ label: string }> = [];
+      if (dataSources.whoop) heroSources.push({ label: "WHOOP" });
+      if (dataSources.apple_health) heroSources.push({ label: "Apple Health" });
+      if (dataSources.form) heroSources.push({ label: locale === "de" ? "Fragebogen" : "Questionnaire" });
+
+      // Estimate datapoints: sleep(4) + activity(3) + recovery(3) + vo2(1) + body(3) per day/entry
+      let dp = 0;
+      const days = dataSources.whoop?.days ?? dataSources.apple_health?.days ?? 0;
+      if (pdfWearableRows.sleep) dp += days * 4;
+      if (pdfWearableRows.activity) dp += days * 3;
+      if (pdfWearableRows.stress) dp += days * 3;
+      if (pdfWearableRows.vo2max) dp += 1;
+      if (pdfWearableRows.metabolic) dp += 3;
+
+      const quality_level: PdfHeroData["quality_level"] =
+        dp >= 100 || days >= 14 ? "strong" :
+        dp >= 30  || days >= 7  ? "good" :
+        dp > 0                  ? "minimal" : "none";
+
+      heroData = { sources: heroSources, quality_level, total_datapoints: dp };
+    }
+
+    // 4c. Run premium AI calls in parallel (executive_findings, cross_insights, action_plan).
+    //     All are best-effort — failures silently leave the fields undefined.
+    if (anthropicConfigured() && assessmentId) {
+      const anthropic = getAnthropic();
+      const scoresObj = { activity: activityScore, sleep: sleepScore, vo2max: vo2ScoreNum, metabolic: metabolicScore, stress: stressScore };
+
+      const buildFindingsPrompt = () => `You are generating 3 executive performance findings for a fitness report.
+Scores: ${JSON.stringify(scoresObj)}
+User: age ${user.age}, gender ${user.gender}
+Locale: ${locale}
+
+Return ONLY valid JSON array with exactly 3 objects, no markdown:
+[{"type":"weakness","headline":"...","body":"...","related_dimension":"..."},
+ {"type":"strength","headline":"...","body":"...","related_dimension":"..."},
+ {"type":"connection","headline":"...","body":"...","related_dimension":"..."}]
+Each headline ≤8 words, body ≤60 words. No diagnoses. Reference actual score numbers.`;
+
+      const buildInsightsPrompt = () => `Generate 2-3 cross-dimension performance insights for this athlete.
+Scores: ${JSON.stringify(scoresObj)}
+Locale: ${locale}
+
+Return ONLY valid JSON array, no markdown:
+[{"dimension_a":"sleep","dimension_b":"stress","headline":"...","body":"..."}]
+Body ≤50 words each. Only include pairs with meaningful interaction.`;
+
+      const buildPlanPrompt = () => `Generate a 30-day action plan with 3 goals for this athlete.
+Scores: ${JSON.stringify(scoresObj)}
+User: age ${user.age}, gender ${user.gender}
+Locale: ${locale}
+
+Return ONLY valid JSON array with exactly 3 objects, no markdown:
+[{"headline":"...","current_value":"...","target_value":"...","delta_pct":15,"metric_source":"...","week_milestones":["wk1","wk2","wk3","wk4"]}]
+Focus on lowest-scored dimensions. week_milestones: 4 short action strings.`;
+
+      const [findingsRes, insightsRes, planRes] = await Promise.allSettled<Anthropic.Message>([
+        anthropic.messages.create({ model: "claude-haiku-4-5-20251001", max_tokens: 1200, messages: [{ role: "user", content: buildFindingsPrompt() }] }) as Promise<Anthropic.Message>,
+        anthropic.messages.create({ model: "claude-haiku-4-5-20251001", max_tokens: 800,  messages: [{ role: "user", content: buildInsightsPrompt() }] }) as Promise<Anthropic.Message>,
+        anthropic.messages.create({ model: "claude-haiku-4-5-20251001", max_tokens: 1200, messages: [{ role: "user", content: buildPlanPrompt() }] }) as Promise<Anthropic.Message>,
+      ]);
+
+      const parseJson = (res: PromiseSettledResult<Anthropic.Message>) => {
+        if (res.status !== "fulfilled") return null;
+        const c = res.value.content[0];
+        if (c.type !== "text") return null;
+        try {
+          const cleaned = c.text.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+          return JSON.parse(cleaned);
+        } catch { return null; }
+      };
+
+      const findings = parseJson(findingsRes);
+      if (Array.isArray(findings)) report.executive_findings = findings;
+
+      const insights = parseJson(insightsRes);
+      if (Array.isArray(insights)) report.cross_insights = insights;
+
+      const plan = parseJson(planRes);
+      if (Array.isArray(plan)) report.action_plan = plan;
+    }
+
     // 4. Generate PDF (pdf-lib — pure JS, no native deps, works on Vercel).
     let pdfBuffer: Uint8Array | null = null;
     let downloadUrl: string | null = null;
@@ -1161,6 +1246,7 @@ export async function POST(req: NextRequest) {
         },
         locale,
         pdfWearableRows,
+        heroData,
       );
     } catch (pdfErr) {
       const pdfErrMsg = pdfErr instanceof Error ? pdfErr.message : String(pdfErr);

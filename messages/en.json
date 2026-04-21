@@ -678,6 +678,17 @@
       ],
       "btn": "BOOK APPOINTMENT →",
       "note": "Personal consultation · Düsseldorf"
+    },
+    "hero": {
+      "label": "YOUR DATA BASIS",
+      "datapoints_label": "data points analyzed",
+      "fallback_title": "YOUR REPORT — BASED ON YOUR INPUTS",
+      "fallback_text": "Your report was generated based on your questionnaire answers. Connect a wearable for even more precise insights.",
+      "period_label": "Period:",
+      "quality_strong": "STRONG DATA BASIS",
+      "quality_good": "GOOD FOUNDATION",
+      "quality_minimal": "FOUNDATION AVAILABLE",
+      "quality_none": "QUESTIONNAIRE REPORT"
     }
   },
   "plans_detail": {

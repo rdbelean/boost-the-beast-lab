@@ -678,6 +678,17 @@
       ],
       "btn": "TERMIN BUCHEN →",
       "note": "Persönliche Beratung · Düsseldorf"
+    },
+    "hero": {
+      "label": "DEINE DATENBASIS",
+      "datapoints_label": "Datenpunkte analysiert",
+      "fallback_title": "DEIN REPORT — BASIEREND AUF DEINEN ANGABEN",
+      "fallback_text": "Dein Report wurde auf Basis deiner Fragebogen-Antworten erstellt. Verbinde ein Wearable für noch präzisere Insights.",
+      "period_label": "Zeitraum:",
+      "quality_strong": "STARKE DATENBASIS",
+      "quality_good": "GUTE GRUNDLAGE",
+      "quality_minimal": "GRUNDLAGE VORHANDEN",
+      "quality_none": "FRAGEBOGEN-REPORT"
     }
   },
   "plans_detail": {

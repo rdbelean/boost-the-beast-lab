@@ -343,7 +343,7 @@ function AnalyseContent() {
         const raw = sessionStorage.getItem("btb_wearable");
         if (!raw) return;
         const parsed = JSON.parse(raw) as WearableSession;
-        if (!parsed?.uploadId || !parsed.metrics) return;
+        if (!parsed?.metrics) return;
         const { computeFormPrefill } = await import("@/lib/wearable/formPrefill");
         const { values, prefilledFields: fields } = computeFormPrefill(parsed.metrics);
         if (cancelled) return;

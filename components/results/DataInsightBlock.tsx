@@ -5,9 +5,10 @@ import type { MetricRow } from "@/lib/reports/data-insights";
 interface DataInsightBlockProps {
   dimension: "sleep" | "activity" | "vo2max" | "metabolic" | "stress";
   rows: MetricRow[];
+  interpretation?: string | null;
 }
 
-export default function DataInsightBlock({ dimension, rows }: DataInsightBlockProps) {
+export default function DataInsightBlock({ dimension, rows, interpretation }: DataInsightBlockProps) {
   const t = useTranslations("results");
 
   if (!rows || rows.length === 0) return null;
@@ -34,6 +35,8 @@ export default function DataInsightBlock({ dimension, rows }: DataInsightBlockPr
       >
         {t("data_insights.section_title")}
       </div>
+
+      {/* Metric rows */}
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {rows.map((row) => {
           let labelText: string;
@@ -46,47 +49,17 @@ export default function DataInsightBlock({ dimension, rows }: DataInsightBlockPr
           return (
             <div
               key={row.label_key}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 8,
-              }}
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}
             >
-              <span
-                style={{
-                  fontSize: 11,
-                  color: "rgba(255,255,255,0.5)",
-                  fontFamily: "var(--font-inter), sans-serif",
-                  flexShrink: 0,
-                }}
-              >
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-inter), sans-serif", flexShrink: 0 }}>
                 {labelText}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: row.evaluation?.color ?? "rgba(255,255,255,0.85)",
-                    fontFamily: "var(--font-jetbrains-mono), monospace",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {row.value}
-                  {row.unit ? ` ${row.unit}` : ""}
+                <span style={{ fontSize: 12, fontWeight: 600, color: row.evaluation?.color ?? "rgba(255,255,255,0.85)", fontFamily: "var(--font-jetbrains-mono), monospace", whiteSpace: "nowrap" }}>
+                  {row.value}{row.unit ? ` ${row.unit}` : ""}
                 </span>
                 {row.evaluation && (
-                  <span
-                    style={{
-                      fontSize: 9,
-                      color: row.evaluation.color,
-                      opacity: 0.75,
-                      fontFamily: "var(--font-jetbrains-mono), monospace",
-                      letterSpacing: "0.02em",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                  <span style={{ fontSize: 9, color: row.evaluation.color, opacity: 0.75, fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
                     {row.evaluation.reference}
                   </span>
                 )}
@@ -95,6 +68,24 @@ export default function DataInsightBlock({ dimension, rows }: DataInsightBlockPr
           );
         })}
       </div>
+
+      {/* AI interpretation */}
+      {interpretation && (
+        <div
+          style={{
+            marginTop: 10,
+            paddingTop: 8,
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            fontSize: 11,
+            color: "rgba(255,255,255,0.55)",
+            lineHeight: 1.65,
+            fontFamily: "var(--font-inter), sans-serif",
+            fontStyle: "italic",
+          }}
+        >
+          {interpretation}
+        </div>
+      )}
     </div>
   );
 }

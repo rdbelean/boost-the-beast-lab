@@ -137,6 +137,29 @@ export interface PdfModule {
   fitness_context?: string;
 }
 
+export interface PdfFinding {
+  type: "weakness" | "strength" | "connection";
+  headline: string;
+  body: string;
+  related_dimension?: string;
+}
+
+export interface PdfCrossInsight {
+  dimension_a: string;
+  dimension_b: string;
+  headline: string;
+  body: string;
+}
+
+export interface PdfGoal {
+  headline: string;
+  current_value: string;
+  target_value: string;
+  delta_pct?: string;
+  metric_source: string;
+  week_milestones: Array<{ week: string; task: string; milestone: string }>;
+}
+
 export interface PdfReportContent {
   headline: string;
   executive_summary: string;
@@ -154,6 +177,10 @@ export interface PdfReportContent {
   systemic_connections?: string;
   prognose_30_days: string;
   disclaimer: string;
+  // Premium personalization (optional — omitted = no premium sections)
+  executive_findings?: PdfFinding[];
+  cross_insights?: PdfCrossInsight[];
+  action_plan?: PdfGoal[];
 }
 
 export interface PdfScoreEntry {
@@ -571,6 +598,7 @@ function buildCover(
   f: F,
   today: string,
   logo: PDFImage,
+  heroData?: PdfHeroData,
 ): void {
   const page = doc.addPage([PW, PH]);
   fillBg(page, BG_PAGE);
@@ -613,6 +641,41 @@ function buildCover(
     x: PW - MX - sW, y: 76,
     size: 110, font: f.bold, color: ACCENT, opacity: 0.12,
   });
+
+  // ── Data stamp section (heroData) ─────────────────────────────────────
+  if (heroData && heroData.sources.length > 0) {
+    y -= 28;
+    const sectionY = y;
+    // Box background
+    const boxH = Math.min(heroData.sources.length * 18 + 52, sectionY - 120);
+    if (boxH > 40) {
+      page.drawRectangle({ x: MX, y: sectionY - boxH, width: CW * 0.65, height: boxH, color: BG_CARD });
+      page.drawRectangle({ x: MX, y: sectionY - 3, width: CW * 0.65, height: 3, color: ACCENT });
+      page.drawText("PERSOENLLICHE DATENBASIS", {
+        x: MX + 14, y: sectionY - 16, size: 6.5, font: f.bold, color: TXT_MUTED,
+      });
+      let sy = sectionY - 32;
+      for (const src of heroData.sources.slice(0, 4)) {
+        if (sy < sectionY - boxH + 12) break;
+        page.drawText(tx(src.label), { x: MX + 14, y: sy, size: 8, font: f.reg, color: TXT_WHITE });
+        sy -= 16;
+      }
+      if (heroData.period_start && heroData.period_end) {
+        const per = tx(`${heroData.period_start} - ${heroData.period_end}`);
+        page.drawText(per, { x: MX + 14, y: Math.max(sectionY - boxH + 14, sy), size: 7, font: f.reg, color: TXT_MUTED });
+      }
+      // Quality badge
+      const qLabels: Record<string, string> = { strong: "STARKE DATENBASIS", good: "GUTE GRUNDLAGE", minimal: "GRUNDLAGE VORHANDEN", none: "FRAGEBOGEN-REPORT" };
+      const qColors: Record<string, Color> = { strong: SC_GREEN, good: SC_GREEN, minimal: SC_ORANGE, none: TXT_MUTED };
+      const qLabel = qLabels[heroData.quality_level] ?? "DATENBASIS";
+      const qColor = qColors[heroData.quality_level] ?? TXT_MUTED;
+      const qW = f.bold.widthOfTextAtSize(qLabel, 7) + 18;
+      const qX = MX + CW * 0.65 - qW - 8;
+      const qY = sectionY - 16;
+      page.drawRectangle({ x: qX, y: qY - 12, width: qW, height: 18, color: BG_INSET });
+      page.drawText(qLabel, { x: qX + 9, y: qY - 6, size: 7, font: f.bold, color: qColor });
+    }
+  }
 
   // Footer divider + metadata
   const fy = 50;
@@ -697,6 +760,150 @@ function buildSummary(
       x: MX + 16, y: y - 19, size: 7, font: f.bold, color: ACCENT,
     });
     drawW(page, content.top_priority, MX + 16, y - 33, CW - 32, f.bold, 10, TXT_WHITE, 1.65);
+  }
+
+  pageFooter(page, f, today);
+}
+
+// ── Executive Findings page ────────────────────────────────────────────────
+
+function buildExecutiveFindings(
+  doc: PDFDocument,
+  findings: PdfFinding[],
+  f: F,
+  today: string,
+): void {
+  if (!findings || findings.length === 0) return;
+  const page = doc.addPage([PW, PH]);
+  let y = pageChrome(page, f, today);
+
+  const isDE = currentLocale !== "en";
+  const title = isDE ? "DEINE 3 WICHTIGSTEN FINDINGS" : "YOUR 3 KEY FINDINGS";
+  y = secLabel(page, title, f, MX, y);
+  y -= 8;
+
+  const typeColors: Record<string, Color> = { weakness: ACCENT, strength: SC_GREEN, connection: BLUE_INFO };
+  const typeLabels: Record<string, [string, string]> = {
+    weakness: ["SCHWACHSTELLE", "WEAKNESS"],
+    strength: ["STAERKE", "STRENGTH"],
+    connection: ["ZUSAMMENHANG", "CONNECTION"],
+  };
+
+  for (let i = 0; i < Math.min(3, findings.length); i++) {
+    const f2 = findings[i];
+    const col = typeColors[f2.type] ?? TXT_MUTED;
+    const tLabel = (typeLabels[f2.type] ?? ["FINDING", "FINDING"])[isDE ? 0 : 1];
+    const bodyH = textH(f2.body, f.reg, 9.5, CW - 32, 1.6);
+    const headH = textH(f2.headline, f.bold, 11, CW - 32, 1.4);
+    const boxH = Math.min(Math.max(64, headH + bodyH + 46), Math.max(0, y - CB));
+    if (boxH < 40) break;
+
+    // Box
+    page.drawRectangle({ x: MX, y: y - boxH, width: CW, height: boxH, color: BG_CARD });
+    page.drawRectangle({ x: MX, y: y - boxH, width: 4, height: boxH, color: col });
+
+    // Type badge
+    page.drawText(`${i + 1}`, { x: MX + 14, y: y - 16, size: 9, font: f.bold, color: col });
+    page.drawText(tx(tLabel), { x: MX + 28, y: y - 16, size: 6.5, font: f.bold, color: col });
+
+    // Headline
+    drawW(page, tx(f2.headline), MX + 14, y - 32, CW - 32, f.bold, 11, TXT_WHITE, 1.4);
+
+    // Body
+    const headlineLines = wrapLines(tx(f2.headline), f.bold, 11, CW - 32);
+    const bodyStartY = y - 32 - headlineLines.length * 11 * 1.4 - 6;
+    drawW(page, tx(f2.body), MX + 14, Math.max(y - boxH + 14, bodyStartY), CW - 32, f.reg, 9.5, TXT_MUTED, 1.6);
+
+    y -= boxH + 10;
+  }
+
+  pageFooter(page, f, today);
+}
+
+// ── Cross-Insights page ────────────────────────────────────────────────────
+
+function buildCrossInsightsPage(
+  doc: PDFDocument,
+  insights: PdfCrossInsight[],
+  f: F,
+  today: string,
+): void {
+  if (!insights || insights.length === 0) return;
+  const page = doc.addPage([PW, PH]);
+  let y = pageChrome(page, f, today);
+
+  const isDE = currentLocale !== "en";
+  y = secLabel(page, isDE ? "ZUSAMMENHAENGE IN DEINEN DATEN" : "CONNECTIONS IN YOUR DATA", f, MX, y);
+  y -= 8;
+
+  for (const ins of insights.slice(0, 3)) {
+    const bodyH = textH(ins.body, f.reg, 10, CW - 32, 1.65);
+    const boxH = Math.min(Math.max(72, bodyH + 50), Math.max(0, y - CB));
+    if (boxH < 40) break;
+
+    page.drawRectangle({ x: MX, y: y - boxH, width: CW, height: boxH, color: BG_CARD });
+    page.drawRectangle({ x: MX, y: y - boxH, width: 4, height: boxH, color: BLUE_INFO });
+
+    page.drawText(tx(ins.headline).toUpperCase(), { x: MX + 14, y: y - 16, size: 9, font: f.bold, color: BLUE_INFO });
+    drawW(page, tx(ins.body), MX + 14, y - 34, CW - 32, f.reg, 10, TXT_WHITE, 1.65);
+
+    y -= boxH + 10;
+  }
+
+  pageFooter(page, f, today);
+}
+
+// ── Action Plan page ───────────────────────────────────────────────────────
+
+function buildActionPlanPage(
+  doc: PDFDocument,
+  goals: PdfGoal[],
+  f: F,
+  today: string,
+): void {
+  if (!goals || goals.length === 0) return;
+  const page = doc.addPage([PW, PH]);
+  let y = pageChrome(page, f, today);
+
+  const isDE = currentLocale !== "en";
+  y = secLabel(page, isDE ? "DEIN 30-TAGE PROTOKOLL" : "YOUR 30-DAY PROTOCOL", f, MX, y);
+  y -= 6;
+
+  for (let gi = 0; gi < Math.min(3, goals.length); gi++) {
+    const g = goals[gi];
+    const milesH = (g.week_milestones?.length ?? 0) * 16 + 8;
+    const boxH = Math.min(Math.max(96, milesH + 72), Math.max(0, y - CB));
+    if (boxH < 60) break;
+
+    page.drawRectangle({ x: MX, y: y - boxH, width: CW, height: boxH, color: BG_CARD });
+    page.drawRectangle({ x: MX, y: y - boxH, width: 4, height: boxH, color: SC_GREEN });
+
+    // Goal number + headline
+    page.drawText(`${isDE ? "ZIEL" : "GOAL"} ${gi + 1}`, { x: MX + 14, y: y - 16, size: 6.5, font: f.bold, color: SC_GREEN });
+    page.drawText(tx(g.headline).toUpperCase(), { x: MX + 14, y: y - 30, size: 10, font: f.bold, color: TXT_WHITE });
+
+    // IST / ZIEL / SOURCE
+    const cvLabel = isDE ? "IST:" : "NOW:";
+    const tvLabel = isDE ? "ZIEL:" : "TARGET:";
+    const srcLabel = isDE ? "MESSBAR:" : "TRACKED:";
+    page.drawText(`${cvLabel} ${tx(g.current_value)}`, { x: MX + 14, y: y - 46, size: 8, font: f.reg, color: TXT_MUTED });
+    page.drawText(`${tvLabel} ${tx(g.target_value)}${g.delta_pct ? `  (${tx(g.delta_pct)})` : ""}`, { x: MX + 120, y: y - 46, size: 8, font: f.reg, color: SC_GREEN });
+    page.drawText(`${srcLabel} ${tx(g.metric_source)}`, { x: MX + 14, y: y - 58, size: 7, font: f.reg, color: TXT_MUTED });
+
+    // Week milestones
+    if (g.week_milestones && g.week_milestones.length > 0) {
+      let my = y - 72;
+      for (const ms of g.week_milestones.slice(0, 4)) {
+        if (my < y - boxH + 12) break;
+        page.drawText(`${tx(ms.week)}: ${tx(ms.task)}`, { x: MX + 14, y: my, size: 7.5, font: f.reg, color: TXT_MUTED });
+        const mVal = tx(ms.milestone);
+        const mW = f.bold.widthOfTextAtSize(mVal, 7.5);
+        page.drawText(mVal, { x: PW - MX - mW - 14, y: my, size: 7.5, font: f.bold, color: SC_GREEN });
+        my -= 16;
+      }
+    }
+
+    y -= boxH + 8;
   }
 
   pageFooter(page, f, today);
@@ -849,12 +1056,21 @@ export interface PdfWearableRows {
   stress?: Array<[string, string]>;
 }
 
+export interface PdfHeroData {
+  sources: Array<{ label: string }>;
+  quality_level: "strong" | "good" | "minimal" | "none";
+  period_start?: string;
+  period_end?: string;
+  total_datapoints: number;
+}
+
 export async function generatePDF(
   content: PdfReportContent,
   scores: PdfScores,
   user: PdfUserProfile,
   locale: Locale = "de",
   wearableRows?: PdfWearableRows,
+  heroData?: PdfHeroData,
 ): Promise<Uint8Array> {
   currentLocale = locale;
   const L = PDF_LABELS[locale];
@@ -877,11 +1093,16 @@ export async function generatePDF(
   doc.setAuthor("BOOST THE BEAST LAB");
   doc.setCreationDate(new Date());
 
-  // Page 1 — Cover
-  buildCover(doc, content, scores, user, f, today, logo);
+  // Page 1 — Cover (enhanced with hero data)
+  buildCover(doc, content, scores, user, f, today, logo, heroData);
 
   // Page 2 — Summary / Gesamtbild
   buildSummary(doc, content, scores, user, f, today);
+
+  // Page 3 — Executive Findings (KI-generiert, optional)
+  if (content.executive_findings && content.executive_findings.length > 0) {
+    buildExecutiveFindings(doc, content.executive_findings, f, today);
+  }
 
   // Pages 3–7 — Module pages
   const wr = wearableRows ?? {};
@@ -942,7 +1163,17 @@ export async function generatePDF(
     f, today,
   );
 
-  // Page 8 — Disclaimer
+  // Cross-Insights page (optional)
+  if (content.cross_insights && content.cross_insights.length > 0) {
+    buildCrossInsightsPage(doc, content.cross_insights, f, today);
+  }
+
+  // Action Plan page (optional)
+  if (content.action_plan && content.action_plan.length > 0) {
+    buildActionPlanPage(doc, content.action_plan, f, today);
+  }
+
+  // Disclaimer page
   buildDisclaimer(doc, content, f, today);
 
   const bytes = await doc.save();

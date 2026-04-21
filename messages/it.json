@@ -193,16 +193,28 @@
       "4": "ALIMENTAZIONE, STRESS E LIFESTYLE"
     },
     "q": {
-      "age_sex": { "label": "ETÀ E SESSO" },
-      "age": { "input_label": "Età", "unit": "ANNI", "placeholder": "28" },
+      "age_sex": {
+        "label": "ETÀ E SESSO"
+      },
+      "age": {
+        "input_label": "Età",
+        "unit": "ANNI",
+        "placeholder": "28"
+      },
       "sex": {
         "label": "Sesso",
         "maennlich": "Maschio",
         "weiblich": "Femmina",
         "divers": "Non binario"
       },
-      "height": { "label": "ALTEZZA", "input": "Altezza" },
-      "weight": { "label": "PESO", "input": "Peso" },
+      "height": {
+        "label": "ALTEZZA",
+        "input": "Altezza"
+      },
+      "weight": {
+        "label": "PESO",
+        "input": "Peso"
+      },
       "fruit_veg": {
         "label": "VERDURA O FRUTTA A SETTIMANA",
         "fast_jede": "A quasi ogni pasto (18–21 a settimana)",
@@ -228,8 +240,12 @@
         "yoga": "Yoga / Mobilità",
         "gemischt": "Misto"
       },
-      "moderate_duration": { "label": "MINUTI PER SESSIONE DI ALLENAMENTO MODERATA" },
-      "intense_duration": { "label": "MINUTI PER SESSIONE DI ALLENAMENTO INTENSA" },
+      "moderate_duration": {
+        "label": "MINUTI PER SESSIONE DI ALLENAMENTO MODERATA"
+      },
+      "intense_duration": {
+        "label": "MINUTI PER SESSIONE DI ALLENAMENTO INTENSA"
+      },
       "duration_options": {
         "lt20": "< 20 min",
         "20_30": "20–30 min",
@@ -244,9 +260,19 @@
         "4_6": "4–6 ore",
         "gt6": "> 6 ore"
       },
-      "steps_q": { "label": "PASSI GIORNALIERI (media)", "input": "Passi al giorno", "unit": " passi" },
-      "sitting": { "label": "TEMPO SEDUTO GIORNALIERO", "input": "Ore seduto al giorno" },
-      "sleep_duration": { "label": "DURATA MEDIA DEL SONNO", "input": "Ore di sonno a notte" },
+      "steps_q": {
+        "label": "PASSI GIORNALIERI (media)",
+        "input": "Passi al giorno",
+        "unit": " passi"
+      },
+      "sitting": {
+        "label": "TEMPO SEDUTO GIORNALIERO",
+        "input": "Ore seduto al giorno"
+      },
+      "sleep_duration": {
+        "label": "DURATA MEDIA DEL SONNO",
+        "input": "Ore di sonno a notte"
+      },
       "sleep_quality": {
         "label": "QUALITÀ SOGGETTIVA DEL SONNO",
         "sehr_schlecht": "Molto scarsa",
@@ -279,7 +305,10 @@
         "30_60": "30–60 minuti",
         "gt60": "> 60 minuti"
       },
-      "water": { "label": "CONSUMO GIORNALIERO DI ACQUA", "input": "Litri di acqua al giorno" },
+      "water": {
+        "label": "CONSUMO GIORNALIERO DI ACQUA",
+        "input": "Litri di acqua al giorno"
+      },
       "stress": {
         "label": "LIVELLO DI STRESS GENERALE",
         "sehr_gering": "Molto basso",
@@ -437,13 +466,32 @@
     "hero_title": "OVERALL PERFORMANCE SCORE",
     "subscores_label": "SUBSCORE IN DETTAGLIO",
     "score_entries": {
-      "activity": { "label": "ACTIVITY PERFORMANCE", "desc": "{met} MET-min/settimana · Categoria IPAQ: {category}" },
-      "sleep": { "label": "SLEEP & RECOVERY", "desc": "Durata del sonno: {duration} · Qualità: {quality}" },
-      "vo2max": { "label": "VO2MAX FITNESS", "desc": "VO2max stimato: {vo2} ml/kg/min · Band: {band}" },
-      "metabolic": { "label": "METABOLIC HEALTH", "desc": "BMI: {bmi} ({category}) · Band: {band}" },
-      "stress": { "label": "STRESS & LIFESTYLE", "desc": "Band dello stress: {band}" }
+      "activity": {
+        "label": "ACTIVITY PERFORMANCE",
+        "desc": "{met} MET-min/settimana · Categoria IPAQ: {category}"
+      },
+      "sleep": {
+        "label": "SLEEP & RECOVERY",
+        "desc": "Durata del sonno: {duration} · Qualità: {quality}"
+      },
+      "vo2max": {
+        "label": "VO2MAX FITNESS",
+        "desc": "VO2max stimato: {vo2} ml/kg/min · Band: {band}"
+      },
+      "metabolic": {
+        "label": "METABOLIC HEALTH",
+        "desc": "BMI: {bmi} ({category}) · Band: {band}"
+      },
+      "stress": {
+        "label": "STRESS & LIFESTYLE",
+        "desc": "Band dello stress: {band}"
+      }
     },
-    "badges": { "good": "BUONO", "medium": "MEDIO", "low": "BASSO" },
+    "badges": {
+      "good": "BUONO",
+      "medium": "MEDIO",
+      "low": "BASSO"
+    },
     "derived_metrics_label": "DERIVED METRICS",
     "vo2max_card": {
       "label": "STIMA VO2MAX",
@@ -465,18 +513,46 @@
     },
     "sleep_detail_label": "SLEEP & RECOVERY — ANALISI DETTAGLIATA",
     "sleep_detail": {
-      "duration": { "label": "DURATA DEL SONNO", "desc": "Band: {band}" },
-      "quality": { "label": "QUALITÀ DEL SONNO", "desc": "Valutazione soggettiva (PSQI-adattata)" },
-      "wakeup": { "label": "RISVEGLI", "desc": "Interruzioni notturne" },
-      "recovery": { "label": "RECUPERO", "desc": "Sensazione di recupero al mattino" }
+      "duration": {
+        "label": "DURATA DEL SONNO",
+        "desc": "Band: {band}"
+      },
+      "quality": {
+        "label": "QUALITÀ DEL SONNO",
+        "desc": "Valutazione soggettiva (PSQI-adattata)"
+      },
+      "wakeup": {
+        "label": "RISVEGLI",
+        "desc": "Interruzioni notturne"
+      },
+      "recovery": {
+        "label": "RECUPERO",
+        "desc": "Sensazione di recupero al mattino"
+      }
     },
     "plans": {
       "heading": "I TUOI 4 PIANI PERSONALIZZATI",
       "subtitle": "Personalizzati sui tuoi punteggi — inclusi nel tuo pacchetto. Ogni piano contiene protocolli concreti, piani settimanali e raccomandazioni scientifiche.",
-      "activity": { "label": "PIANO ACTIVITY", "desc": "Volume di allenamento, piano settimanale e progressione secondo standard WHO/ACSM", "cta": "VAI AL PIANO ACTIVITY" },
-      "metabolic": { "label": "PIANO METABOLIC", "desc": "Protocollo alimentazione e idratazione secondo linee guida EFSA e DGE", "cta": "VAI AL PIANO METABOLIC" },
-      "recovery": { "label": "PIANO RECOVERY", "desc": "Igiene del sonno, protocollo di recupero e struttura settimanale secondo NSF", "cta": "VAI AL PIANO RECOVERY" },
-      "stress": { "label": "PIANO STRESS & LIFESTYLE", "desc": "Riduzione dello stress, ottimizzazione del lifestyle e sport come strumento anti-stress", "cta": "VAI AL PIANO STRESS" }
+      "activity": {
+        "label": "PIANO ACTIVITY",
+        "desc": "Volume di allenamento, piano settimanale e progressione secondo standard WHO/ACSM",
+        "cta": "VAI AL PIANO ACTIVITY"
+      },
+      "metabolic": {
+        "label": "PIANO METABOLIC",
+        "desc": "Protocollo alimentazione e idratazione secondo linee guida EFSA e DGE",
+        "cta": "VAI AL PIANO METABOLIC"
+      },
+      "recovery": {
+        "label": "PIANO RECOVERY",
+        "desc": "Igiene del sonno, protocollo di recupero e struttura settimanale secondo NSF",
+        "cta": "VAI AL PIANO RECOVERY"
+      },
+      "stress": {
+        "label": "PIANO STRESS & LIFESTYLE",
+        "desc": "Riduzione dello stress, ottimizzazione del lifestyle e sport come strumento anti-stress",
+        "cta": "VAI AL PIANO STRESS"
+      }
     },
     "urgency": {
       "critical": "CRITICO",
@@ -501,6 +577,17 @@
       ],
       "btn": "PRENOTA APPUNTAMENTO →",
       "note": "Consulenza personale · Düsseldorf"
+    },
+    "hero": {
+      "label": "LA TUA BASE DATI",
+      "datapoints_label": "punti dati analizzati",
+      "fallback_title": "IL TUO REPORT — BASATO SULLE TUE RISPOSTE",
+      "fallback_text": "Il tuo report è stato generato in base alle tue risposte al questionario. Connetti un wearable per insight ancora più precisi.",
+      "period_label": "Periodo:",
+      "quality_strong": "BASE DATI SOLIDA",
+      "quality_good": "BUONA BASE",
+      "quality_minimal": "BASE DISPONIBILE",
+      "quality_none": "REPORT QUESTIONARIO"
     }
   },
   "plans_detail": {

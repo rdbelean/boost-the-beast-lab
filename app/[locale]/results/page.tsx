@@ -1,12 +1,17 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "./results.module.css";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import DataInsightBlock from "@/components/results/DataInsightBlock";
+import ReportDataHero from "@/components/results/ReportDataHero";
+import ScoreDataBadge from "@/components/results/ScoreDataBadge";
 import { generateDataInsights, type DataInsights } from "@/lib/reports/data-insights";
+import { buildHeroSummary, type HeroSummary } from "@/lib/reports/hero-summary";
+import { computeScoreDataBasis } from "@/lib/reports/score-data-basis";
 import type { MergedWearableMetrics } from "@/lib/wearable/types";
+import type { Locale } from "@/lib/supabase/types";
 
 /* ─── Animated Counter ──────────────────────────────────────── */
 function useCountUp(target: number, duration = 1600) {
@@ -117,6 +122,7 @@ interface ResultsData {
 /* ─── Main Results Dashboard ────────────────────────────────── */
 export default function ResultsPage() {
   const t = useTranslations("results");
+  const locale = useLocale() as Locale;
   const [scores, setScores] = useState<ResultsData | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
@@ -125,6 +131,9 @@ export default function ResultsPage() {
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [dataInsights, setDataInsights] = useState<DataInsights | null>(null);
+  const [heroSummary, setHeroSummary] = useState<HeroSummary | null>(null);
+  const [wearableMetrics, setWearableMetrics] = useState<MergedWearableMetrics | null>(null);
+  const [interpretations, setInterpretations] = useState<Record<string, string>>({});
   const [saveEmail, setSaveEmail] = useState("");
   const [saveCode, setSaveCode] = useState("");
   const [saveSending, setSaveSending] = useState(false);
@@ -148,6 +157,40 @@ export default function ResultsPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!scores || !assessmentId || !wearableMetrics) return;
+    let cancelled = false;
+    const dimensions = ["activity", "sleep", "vo2max", "metabolic", "stress"] as const;
+    const dimensionScores: Record<string, number> = {
+      activity: scores.activity.activity_score_0_100,
+      sleep: scores.sleep.sleep_score_0_100,
+      vo2max: scores.vo2max.fitness_score_0_100,
+      metabolic: scores.metabolic.metabolic_score_0_100,
+      stress: scores.stress.stress_score_0_100,
+    };
+    for (const dim of dimensions) {
+      fetch("/api/reports/interpret-block", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assessment_id: assessmentId,
+          dimension: dim,
+          metrics: wearableMetrics,
+          score: dimensionScores[dim],
+          locale,
+        }),
+      })
+        .then((r) => r.json())
+        .then((data: { interpretation?: string | null }) => {
+          if (!cancelled && data.interpretation) {
+            setInterpretations((prev) => ({ ...prev, [dim]: data.interpretation! }));
+          }
+        })
+        .catch(() => {});
+    }
+    return () => { cancelled = true; };
+  }, [scores, assessmentId, wearableMetrics, locale]);
 
   async function handleSaveSendCode(e: React.FormEvent) {
     e.preventDefault();
@@ -228,12 +271,16 @@ export default function ResultsPage() {
       const wRaw = sessionStorage.getItem("btb_wearable");
       if (wRaw) {
         const w = JSON.parse(wRaw) as { metrics: MergedWearableMetrics };
-        if (w.metrics) setDataInsights(generateDataInsights(w.metrics));
+        if (w.metrics) {
+          setDataInsights(generateDataInsights(w.metrics));
+          setWearableMetrics(w.metrics);
+          setHeroSummary(buildHeroSummary(w.metrics, undefined, locale));
+        }
       }
     } catch {
       // wearable data is optional — silently skip
     }
-  }, []);
+  }, [locale]);
 
   async function retryPdfGeneration() {
     if (!assessmentId) {
@@ -571,6 +618,9 @@ export default function ResultsPage() {
           </section>
         )}
 
+        {/* ─── DATA HERO ───────────────────────────────── */}
+        {heroSummary && <ReportDataHero summary={heroSummary} />}
+
         {/* ─── HERO: Overall Score ──────────────────────── */}
         <section className={styles.heroSection}>
           <div className={styles.heroLabel}>{t("hero_label")}</div>
@@ -611,6 +661,9 @@ export default function ResultsPage() {
           <div className={styles.scoresGrid}>
             {scoreEntries.map((entry, i) => {
               const c = scoreColor(entry.score);
+              const dataBasis = wearableMetrics
+                ? computeScoreDataBasis(entry.key as "sleep" | "activity" | "vo2max" | "metabolic" | "stress", wearableMetrics, locale)
+                : null;
               return (
                 <div key={entry.key} className={styles.scoreCard} style={{ animationDelay: `${i * 0.1}s` }}>
                   <div className={styles.scoreCardTop}>
@@ -620,8 +673,11 @@ export default function ResultsPage() {
                         <AnimNum target={entry.score} /><span className={styles.scoreCardMax}>/100</span>
                       </div>
                     </div>
-                    <div className={styles.scoreCardBadge} style={{ background: `${c}18`, color: c }}>
-                      {t(`badges.${scoreBadgeKey(entry.score)}`)}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                      <div className={styles.scoreCardBadge} style={{ background: `${c}18`, color: c }}>
+                        {t(`badges.${scoreBadgeKey(entry.score)}`)}
+                      </div>
+                      {dataBasis && <ScoreDataBadge basis={dataBasis} />}
                     </div>
                   </div>
                   <div className={styles.scoreCardBar}>
@@ -632,6 +688,7 @@ export default function ResultsPage() {
                     <DataInsightBlock
                       dimension={entry.key as "sleep" | "activity" | "vo2max" | "metabolic" | "stress"}
                       rows={dataInsights[entry.key as keyof DataInsights]!}
+                      interpretation={interpretations[entry.key] ?? null}
                     />
                   )}
                 </div>
