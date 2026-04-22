@@ -60,7 +60,7 @@ export default function SamplePlanPage() {
       <div className={styles.page}>
         {/* Plan header — NOT sticky: scrolls away when user scrolls down.
             The amber banner above is the only persistent sticky element. */}
-        <div className={styles.header} style={{ position: "relative" }}>
+        <div className={styles.header} style={{ top: "50px" }}>
           <Link href="/beispielreport" className={styles.backLink}>{t("back_to_report_upper")}</Link>
           <div className={styles.headerTitle} style={{ color }}>{plan.title}</div>
           <button onClick={openSamplePdf} className={styles.printBtn}>
