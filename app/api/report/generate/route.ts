@@ -280,11 +280,12 @@ Türkçe çıktı için TON:
 
 function buildSystemPromptForLocale(locale: Locale): string {
   if (locale === "de") return SYSTEM_PROMPT;
-  // Swap the placeholder disclaimer string into the directive so Claude
-  // echoes back the exact locale-specific wording that the PDF and
-  // in-prompt instructions both expect.
+  // PREPEND (not append) the language override. Claude treats the opening
+  // of the system prompt as the most salient instruction — appending left
+  // the German body "in charge" and caused mixed-language output.
+  // Mirrors the fix made for plan/generate in commit 110fabb.
   const directive = LANGUAGE_DIRECTIVES[locale].replace(/""/g, `"${DISCLAIMER[locale]}"`);
-  return SYSTEM_PROMPT + directive;
+  return directive.trimStart() + "\n\n" + SYSTEM_PROMPT;
 }
 
 let anthropicClient: Anthropic | null = null;
@@ -438,30 +439,67 @@ interface ResponseRow {
  * These are keyed on the raw form values stored in the responses table so
  * the prompt can surface exact labels instead of enum codes.
  */
-const SLEEP_QUALITY_LABEL: Record<string, string> = {
-  sehr_gut: "sehr gut",
-  gut: "gut",
-  mittel: "mittel",
-  schlecht: "schlecht",
+// Locale-aware labels. Non-German locales need translated values so the
+// user prompt doesn't inject German words into the Claude context — which
+// was the root cause of mixed-language reports.
+const SLEEP_QUALITY_LABEL: Record<Locale, Record<string, string>> = {
+  de: { sehr_gut: "sehr gut", gut: "gut", mittel: "mittel", schlecht: "schlecht" },
+  en: { sehr_gut: "very good", gut: "good", mittel: "moderate", schlecht: "poor" },
+  it: { sehr_gut: "molto buona", gut: "buona", mittel: "moderata", schlecht: "scarsa" },
+  tr: { sehr_gut: "çok iyi", gut: "iyi", mittel: "orta", schlecht: "kötü" },
 };
 
-const WAKEUP_LABEL: Record<string, string> = {
-  nie: "nie",
-  selten: "selten",
-  oft: "oft",
-  immer: "fast jede Nacht",
+const WAKEUP_LABEL: Record<Locale, Record<string, string>> = {
+  de: { nie: "nie", selten: "selten", oft: "oft", immer: "fast jede Nacht" },
+  en: { nie: "never", selten: "rarely", oft: "often", immer: "almost every night" },
+  it: { nie: "mai", selten: "raramente", oft: "spesso", immer: "quasi ogni notte" },
+  tr: { nie: "hiç", selten: "nadiren", oft: "sık sık", immer: "neredeyse her gece" },
 };
 
-const FRUIT_VEG_LABEL: Record<string, string> = {
-  none: "kaum bis gar nicht (0–2 Mahlzeiten/Woche)",
-  low: "eher selten (3–7 Mahlzeiten/Woche)",
-  moderate: "ca. Hälfte der Mahlzeiten (8–11/Woche)",
-  good: "meisten Mahlzeiten (12–17/Woche)",
-  optimal: "fast jeder Mahlzeit (18–21/Woche)",
+const FRUIT_VEG_LABEL: Record<Locale, Record<string, string>> = {
+  de: {
+    none: "kaum bis gar nicht (0–2 Mahlzeiten/Woche)",
+    low: "eher selten (3–7 Mahlzeiten/Woche)",
+    moderate: "ca. Hälfte der Mahlzeiten (8–11/Woche)",
+    good: "meisten Mahlzeiten (12–17/Woche)",
+    optimal: "fast jeder Mahlzeit (18–21/Woche)",
+  },
+  en: {
+    none: "barely or not at all (0–2 meals/week)",
+    low: "rarely (3–7 meals/week)",
+    moderate: "about half of meals (8–11/week)",
+    good: "most meals (12–17/week)",
+    optimal: "almost every meal (18–21/week)",
+  },
+  it: {
+    none: "quasi mai (0–2 pasti/settimana)",
+    low: "raramente (3–7 pasti/settimana)",
+    moderate: "circa metà dei pasti (8–11/settimana)",
+    good: "la maggior parte dei pasti (12–17/settimana)",
+    optimal: "quasi ogni pasto (18–21/settimana)",
+  },
+  tr: {
+    none: "neredeyse hiç (0–2 öğün/hafta)",
+    low: "nadiren (3–7 öğün/hafta)",
+    moderate: "öğünlerin yaklaşık yarısı (8–11/hafta)",
+    good: "öğünlerin çoğu (12–17/hafta)",
+    optimal: "neredeyse her öğün (18–21/hafta)",
+  },
+};
+
+const FALLBACK_NOT_SPECIFIED: Record<Locale, string> = {
+  de: "nicht angegeben",
+  en: "not specified",
+  it: "non specificato",
+  tr: "belirtilmedi",
 };
 
 export interface PremiumPromptContext {
   reportType: string;
+  /** Output locale — drives every human-readable label inside the prompt AND
+   *  the final output language. Without this, German labels leaked into
+   *  non-German Claude responses (root cause of the mixed-language bug). */
+  locale: Locale;
   age: number;
   gender: string;
   result: FullScoringResult;
@@ -503,15 +541,43 @@ export interface PremiumPromptContext {
   };
 }
 
-function trainingIntensityLabel(result: FullScoringResult): string {
-  const ratio = result.recovery.stress_multiplier; // unused — real label derived below
-  void ratio;
+function trainingIntensityLabel(
+  result: FullScoringResult,
+  locale: Locale = "de",
+): string {
+  const TABLE: Record<Locale, { none: string; vigorous: string; mixed: string; moderate: string }> = {
+    de: {
+      none: "keine",
+      vigorous: "überwiegend intensiv",
+      mixed: "gemischt (moderat + intensiv)",
+      moderate: "überwiegend moderat",
+    },
+    en: {
+      none: "none",
+      vigorous: "predominantly vigorous",
+      mixed: "mixed (moderate + vigorous)",
+      moderate: "predominantly moderate",
+    },
+    it: {
+      none: "nessuno",
+      vigorous: "prevalentemente intenso",
+      mixed: "misto (moderato + intenso)",
+      moderate: "prevalentemente moderato",
+    },
+    tr: {
+      none: "yok",
+      vigorous: "ağırlıklı olarak yoğun",
+      mixed: "karışık (orta + yoğun)",
+      moderate: "ağırlıklı olarak orta",
+    },
+  };
+  const t = TABLE[locale];
   const totalMet = result.activity.total_met_minutes_week;
-  if (totalMet === 0) return "keine";
+  if (totalMet === 0) return t.none;
   const vigFraction = result.activity.vigorous_met / totalMet;
-  if (vigFraction > 0.5) return "überwiegend intensiv";
-  if (vigFraction > 0.25) return "gemischt (moderat + intensiv)";
-  return "überwiegend moderat";
+  if (vigFraction > 0.5) return t.vigorous;
+  if (vigFraction > 0.25) return t.mixed;
+  return t.moderate;
 }
 
 function buildPremiumUserPrompt(ctx: PremiumPromptContext): string {
@@ -551,34 +617,81 @@ Provenance-Map (welche Scores basieren auf gemessenen vs. selbstberichteten Date
 `
     : "";
 
+  const locale = ctx.locale;
   // Personalisierungs-Block. Wenn eines der Felder null ist, wird ein
   // sinnvoller Default angenommen — der Prompt adaptiert aber deutlich
   // stärker wenn der User echte Antworten geliefert hat.
   const mainGoal = ctx.main_goal ?? "feel_better";
   const timeBudget = ctx.time_budget ?? "moderate";
   const experience = ctx.experience_level ?? "intermediate";
-  const timeBudgetMinutes: Record<string, string> = {
-    minimal: "10–20 Min/Tag",
-    moderate: "20–45 Min/Tag",
-    committed: "45–90 Min/Tag",
-    athlete: "90+ Min/Tag",
+  const TIME_BUDGET_BY_LOCALE: Record<Locale, Record<string, string>> = {
+    de: { minimal: "10–20 Min/Tag", moderate: "20–45 Min/Tag", committed: "45–90 Min/Tag", athlete: "90+ Min/Tag" },
+    en: { minimal: "10–20 min/day", moderate: "20–45 min/day", committed: "45–90 min/day", athlete: "90+ min/day" },
+    it: { minimal: "10–20 min/giorno", moderate: "20–45 min/giorno", committed: "45–90 min/giorno", athlete: "90+ min/giorno" },
+    tr: { minimal: "10–20 dk/gün", moderate: "20–45 dk/gün", committed: "45–90 dk/gün", athlete: "90+ dk/gün" },
   };
-  const timeBudgetHuman = timeBudgetMinutes[timeBudget] ?? "20–45 Min/Tag";
+  const timeBudgetHuman = TIME_BUDGET_BY_LOCALE[locale][timeBudget] ?? TIME_BUDGET_BY_LOCALE[locale].moderate;
   const screenTime = ctx.screen_time_before_sleep ?? null;
 
-  const goalHumanDE: Record<string, string> = {
-    feel_better: "Im Alltag energievoller + fitter werden",
-    body_comp: "Körperfett reduzieren / Muskeln aufbauen",
-    performance: "Sportliche Leistung steigern",
-    stress_sleep: "Besser schlafen + Stress reduzieren",
-    longevity: "Langfristige Gesundheit / Prävention",
+  const GOAL_BY_LOCALE: Record<Locale, Record<string, string>> = {
+    de: {
+      feel_better: "Im Alltag energievoller + fitter werden",
+      body_comp: "Körperfett reduzieren / Muskeln aufbauen",
+      performance: "Sportliche Leistung steigern",
+      stress_sleep: "Besser schlafen + Stress reduzieren",
+      longevity: "Langfristige Gesundheit / Prävention",
+    },
+    en: {
+      feel_better: "Feel more energetic and fitter in daily life",
+      body_comp: "Reduce body fat / build muscle",
+      performance: "Improve athletic performance",
+      stress_sleep: "Better sleep + lower stress",
+      longevity: "Long-term health / prevention",
+    },
+    it: {
+      feel_better: "Più energia e forma nella vita quotidiana",
+      body_comp: "Ridurre grasso corporeo / costruire muscoli",
+      performance: "Aumentare la performance atletica",
+      stress_sleep: "Dormire meglio + ridurre lo stress",
+      longevity: "Salute a lungo termine / prevenzione",
+    },
+    tr: {
+      feel_better: "Günlük yaşamda daha enerjik ve formda olmak",
+      body_comp: "Vücut yağını azaltmak / kas kazanmak",
+      performance: "Atletik performansı artırmak",
+      stress_sleep: "Daha iyi uyku + daha az stres",
+      longevity: "Uzun vadeli sağlık / önleyici bakım",
+    },
   };
-  const experienceHumanDE: Record<string, string> = {
-    beginner: "Neuling — noch nie regelmäßig trainiert",
-    restart: "Wiedereinsteiger — länger Pause",
-    intermediate: "Intermediate — 1–3 Jahre konsistent",
-    advanced: "Fortgeschritten — 5+ Jahre Erfahrung",
+  const EXPERIENCE_BY_LOCALE: Record<Locale, Record<string, string>> = {
+    de: {
+      beginner: "Neuling — noch nie regelmäßig trainiert",
+      restart: "Wiedereinsteiger — länger Pause",
+      intermediate: "Intermediate — 1–3 Jahre konsistent",
+      advanced: "Fortgeschritten — 5+ Jahre Erfahrung",
+    },
+    en: {
+      beginner: "Beginner — never trained consistently",
+      restart: "Returning — long break",
+      intermediate: "Intermediate — 1–3 years consistent",
+      advanced: "Advanced — 5+ years experience",
+    },
+    it: {
+      beginner: "Principiante — mai allenato con costanza",
+      restart: "Rientro — lunga pausa",
+      intermediate: "Intermedio — 1–3 anni costanti",
+      advanced: "Avanzato — 5+ anni di esperienza",
+    },
+    tr: {
+      beginner: "Yeni başlayan — hiç düzenli antrenman yapmamış",
+      restart: "Yeniden başlayan — uzun ara",
+      intermediate: "Orta seviye — 1–3 yıl düzenli",
+      advanced: "İleri seviye — 5+ yıl deneyim",
+    },
   };
+  const goalHuman = GOAL_BY_LOCALE[locale];
+  const experienceHuman = EXPERIENCE_BY_LOCALE[locale];
+  const notSpecified = FALLBACK_NOT_SPECIFIED[locale];
 
   // Harte Regeln aus User-Input ableiten, damit Claude nicht aus Gewohnheit
   // einen 5×/Woche-Plan empfiehlt. Die Regeln kommen direkt in den Prompt.
@@ -612,7 +725,34 @@ ${trainingRealismRules.map((r) => `- ${r}`).join("\n")}
 `
     : "";
 
-  return `Erstelle einen ausführlichen, persönlichen Performance Report für dieses Profil. Nutze alle Daten präzise. Mache den Report so spezifisch wie möglich — jeder Satz soll sich auf genau diese Person beziehen, nicht auf ein Template.
+  // Aggressive language lock — Claude has been observed to leak German
+  // words when the context is in German but output is requested in
+  // en/it/tr. A loud, explicit reminder at the top of the user turn
+  // (repeated at the bottom) is far more reliable than relying on the
+  // system prompt alone.
+  const LANG_LOCK_HEADER: Record<Locale, string> = {
+    de: "",
+    en: `⚠️ OUTPUT LANGUAGE LOCK — READ FIRST ⚠️
+Every user-facing string in your JSON response MUST be written in ENGLISH.
+The context dossier below is in German because it is raw internal data — translate every concept into English for the output. Do NOT quote German words verbatim, do NOT mix German sentences with English. If you find yourself writing a German word (e.g. "Schlaf", "Hauptziel", "sehr gut"), stop and write the English equivalent instead. Only technical acronyms stay as-is: VO2max, HRV, HPA, MET, BMI, IPAQ, RHR.
+JSON keys stay in English (already English). All VALUES must be English.
+
+`,
+    it: `⚠️ BLOCCO LINGUA OUTPUT — LEGGI PRIMA ⚠️
+Ogni stringa rivolta all'utente nella tua risposta JSON DEVE essere scritta in ITALIANO.
+Il dossier di contesto qui sotto è in tedesco perché è un dato interno grezzo — traduci ogni concetto in italiano per l'output. NON citare parole tedesche testualmente, NON mescolare frasi tedesche con italiano. Se ti accorgi di scrivere una parola tedesca (es. "Schlaf", "Hauptziel", "sehr gut"), fermati e scrivi l'equivalente italiano. Solo gli acronimi tecnici restano invariati: VO2max, HRV, HPA, MET, BMI, IPAQ, RHR.
+Le chiavi JSON restano in inglese. Tutti i VALORI devono essere in italiano.
+
+`,
+    tr: `⚠️ ÇIKTI DİLİ KİLİDİ — ÖNCE OKU ⚠️
+JSON yanıtındaki kullanıcıya yönelik her metin TÜRKÇE yazılmalıdır.
+Aşağıdaki bağlam dosyası Almanca çünkü iç veri — her kavramı çıktı için Türkçeye çevir. Almanca kelimeleri aynen yazma, Almanca cümleleri Türkçe ile karıştırma. Almanca bir kelime yazdığını fark edersen (örn. "Schlaf", "Hauptziel", "sehr gut"), dur ve Türkçe karşılığını yaz. Yalnızca teknik kısaltmalar aynı kalır: VO2max, HRV, HPA, MET, BMI, IPAQ, RHR.
+JSON anahtarları İngilizce kalır. Tüm DEĞERLER Türkçe olmalıdır.
+
+`,
+  };
+
+  return `${LANG_LOCK_HEADER[locale]}Erstelle einen ausführlichen, persönlichen Performance Report für dieses Profil. Nutze alle Daten präzise. Mache den Report so spezifisch wie möglich — jeder Satz soll sich auf genau diese Person beziehen, nicht auf ein Template.
 
 REGELN:
 - Paraphrasiere die vorformulierten Interpretationen. Erfinde nichts.
@@ -624,17 +764,17 @@ REGELN:
 ═══════════════════════════════════════════════════════════
 PERSONALISIERUNG (treibt Priorisierung + Ton)
 ═══════════════════════════════════════════════════════════
-Hauptziel: ${goalHumanDE[mainGoal] ?? mainGoal}
+Hauptziel: ${goalHuman[mainGoal] ?? mainGoal}
 Zeitbudget: ${timeBudgetHuman}
-Erfahrungslevel: ${experienceHumanDE[experience] ?? experience}
-Bildschirmzeit vor dem Schlaf: ${screenTime ?? "nicht angegeben"}
+Erfahrungslevel: ${experienceHuman[experience] ?? experience}
+Bildschirmzeit vor dem Schlaf: ${screenTime ?? notSpecified}
 
 ═══════════════════════════════════════════════════════════
 TIEFEN-INPUTS (PFLICHT-ZITATION im daily_life_protocol)
 ═══════════════════════════════════════════════════════════
-Ernährungs-Painpoint: ${ctx.nutrition_painpoint ?? "nicht angegeben"}
-Haupt-Stressor: ${ctx.stress_source ?? "nicht angegeben"}
-Liebstes Erholungs-Ritual: ${ctx.recovery_ritual ?? "nicht angegeben"}
+Ernährungs-Painpoint: ${ctx.nutrition_painpoint ?? notSpecified}
+Haupt-Stressor: ${ctx.stress_source ?? notSpecified}
+Liebstes Erholungs-Ritual: ${ctx.recovery_ritual ?? notSpecified}
 
 HARTE REGEL: Mindestens 3 der Habits im daily_life_protocol MÜSSEN diese drei Inputs NAMENTLICH adressieren.
 - Wenn nutrition_painpoint = "cravings_evening": mindestens 1 Evening- oder Nutrition-Habit, die Heißhunger adressiert (z.B. "30 g Protein beim Abendessen — stabilisiert Blutzucker → weniger Cravings").
@@ -770,7 +910,15 @@ ${activeWarnings}
 
 REPORT TYP: ${ctx.reportType}
 
-Erstelle jetzt den vollständigen, ausführlichen Report im geforderten JSON-Format. Jedes Modul mindestens 15–20 Sätze insgesamt. Mache ihn persönlich, präzise und wissenschaftlich fundiert.`;
+Erstelle jetzt den vollständigen, ausführlichen Report im geforderten JSON-Format. Jedes Modul mindestens 15–20 Sätze insgesamt. Mache ihn persönlich, präzise und wissenschaftlich fundiert.${
+    locale === "en"
+      ? "\n\n⚠️ FINAL REMINDER: Every user-facing value in the JSON MUST be in ENGLISH. No German words anywhere in the output. Only VO2max/HRV/HPA/MET/BMI/IPAQ/RHR stay as-is."
+      : locale === "it"
+        ? "\n\n⚠️ PROMEMORIA FINALE: Ogni valore rivolto all'utente nel JSON DEVE essere in ITALIANO. Nessuna parola tedesca nell'output. Solo VO2max/HRV/HPA/MET/BMI/IPAQ/RHR restano invariati."
+        : locale === "tr"
+          ? "\n\n⚠️ SON HATIRLATMA: JSON'daki kullanıcıya yönelik her değer TÜRKÇE olmalıdır. Çıktıda hiç Almanca kelime olmamalı. Yalnızca VO2max/HRV/HPA/MET/BMI/IPAQ/RHR aynı kalır."
+          : ""
+  }`;
 }
 
 // ── Offline Demo Mode ─────────────────────────────────────────────────────
@@ -848,21 +996,22 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
   if (anthropicConfigured()) {
     const userPrompt = buildPremiumUserPrompt({
       reportType: ctx.reportType,
+      locale: demoLocale,
       age: ctx.user.age,
       gender: ctx.user.gender,
       result: r,
       sleep_duration_hours: ctx.sleepDurationHours,
-      sleep_quality_label: ctx.sleep_quality_label ?? "nicht angegeben",
-      wakeup_frequency_label: ctx.wakeup_frequency_label ?? "nicht angegeben",
+      sleep_quality_label: ctx.sleep_quality_label ?? FALLBACK_NOT_SPECIFIED[demoLocale],
+      wakeup_frequency_label: ctx.wakeup_frequency_label ?? FALLBACK_NOT_SPECIFIED[demoLocale],
       morning_recovery_1_10: ctx.morning_recovery_1_10 ?? 5,
       stress_level_1_10: ctx.stress_level_1_10 ?? 5,
       meals_per_day: ctx.meals_per_day ?? 3,
       water_litres: ctx.water_litres ?? 2,
-      fruit_veg_label: ctx.fruit_veg_label ?? "nicht angegeben",
+      fruit_veg_label: ctx.fruit_veg_label ?? FALLBACK_NOT_SPECIFIED[demoLocale],
       standing_hours_per_day: ctx.standing_hours_per_day ?? 3,
       sitting_hours_per_day: ctx.sitting_hours_per_day ?? r.metabolic.sitting_hours,
       training_days: ctx.training_days ?? 0,
-      training_intensity_label: trainingIntensityLabel(r),
+      training_intensity_label: trainingIntensityLabel(r, demoLocale),
       daily_steps: ctx.daily_steps ?? 0,
       screen_time_before_sleep: ctx.screen_time_before_sleep ?? null,
       main_goal: ctx.main_goal ?? null,
@@ -1199,24 +1348,28 @@ export async function POST(req: NextRequest) {
     // 3. Build the premium v3 user prompt (shared with the demo handler).
     const userPrompt = buildPremiumUserPrompt({
       reportType: assessment.report_type ?? "complete",
+      locale,
       age: reconstructed.age,
       gender: reconstructed.gender,
       result,
       sleep_duration_hours: sleepDuration,
       sleep_quality_label:
-        SLEEP_QUALITY_LABEL[reconstructed.sleep.quality] ?? "mittel",
+        SLEEP_QUALITY_LABEL[locale][reconstructed.sleep.quality] ??
+        SLEEP_QUALITY_LABEL[locale].mittel,
       wakeup_frequency_label:
-        WAKEUP_LABEL[reconstructed.sleep.wakeups] ?? "selten",
+        WAKEUP_LABEL[locale][reconstructed.sleep.wakeups] ??
+        WAKEUP_LABEL[locale].selten,
       morning_recovery_1_10: reconstructed.sleep.recovery_1_10,
       stress_level_1_10: reconstructed.stress.stress_level_1_10,
       meals_per_day: reconstructed.metabolic.meals_per_day,
       water_litres: reconstructed.metabolic.water_litres,
       fruit_veg_label:
-        FRUIT_VEG_LABEL[reconstructed.metabolic.fruit_veg] ?? "moderat",
+        FRUIT_VEG_LABEL[locale][reconstructed.metabolic.fruit_veg] ??
+        FRUIT_VEG_LABEL[locale].moderate,
       standing_hours_per_day: standingHours,
       sitting_hours_per_day: reconstructed.metabolic.sitting_hours,
       training_days: trainingDays,
-      training_intensity_label: trainingIntensityLabel(result),
+      training_intensity_label: trainingIntensityLabel(result, locale),
       daily_steps: num("schrittzahl", 0),
       // Neue v2-Felder — aus responses-Tabelle gelesen. Fehlende Werte
       // werden im Prompt als "nicht angegeben" ausgespielt und dort per
@@ -1360,25 +1513,31 @@ export async function POST(req: NextRequest) {
       // Wir reichen denselben Kontext durch den `buildPremiumUserPrompt` bekommt.
       const subCtx = {
         sleep_duration_h: reconstructed.sleep.duration_hours,
-        sleep_quality: SLEEP_QUALITY_LABEL[reconstructed.sleep.quality] ?? "mittel",
-        wakeups: WAKEUP_LABEL[reconstructed.sleep.wakeups] ?? "selten",
+        sleep_quality:
+          SLEEP_QUALITY_LABEL[locale][reconstructed.sleep.quality] ??
+          SLEEP_QUALITY_LABEL[locale].mittel,
+        wakeups:
+          WAKEUP_LABEL[locale][reconstructed.sleep.wakeups] ??
+          WAKEUP_LABEL[locale].selten,
         morning_recovery_1_10: reconstructed.sleep.recovery_1_10,
         stress_1_10: reconstructed.stress.stress_level_1_10,
         training_days: trainingDays,
-        training_intensity: trainingIntensityLabel(result),
+        training_intensity: trainingIntensityLabel(result, locale),
         sitting_h: reconstructed.metabolic.sitting_hours,
         standing_h: standingHours,
         daily_steps: num("schrittzahl", 0),
         meals: reconstructed.metabolic.meals_per_day,
         water_l: reconstructed.metabolic.water_litres,
-        fruit_veg: FRUIT_VEG_LABEL[reconstructed.metabolic.fruit_veg] ?? "moderat",
-        screen_time_before_sleep: respMap.get("screen_time_before_sleep") ?? "nicht angegeben",
+        fruit_veg:
+          FRUIT_VEG_LABEL[locale][reconstructed.metabolic.fruit_veg] ??
+          FRUIT_VEG_LABEL[locale].moderate,
+        screen_time_before_sleep: respMap.get("screen_time_before_sleep") ?? FALLBACK_NOT_SPECIFIED[locale],
         main_goal: respMap.get("main_goal") ?? "feel_better",
         time_budget: respMap.get("time_budget") ?? "moderate",
         experience_level: respMap.get("experience_level") ?? "intermediate",
-        nutrition_painpoint: respMap.get("nutrition_painpoint") ?? "nicht angegeben",
-        stress_source: respMap.get("stress_source") ?? "nicht angegeben",
-        recovery_ritual: respMap.get("recovery_ritual") ?? "nicht angegeben",
+        nutrition_painpoint: respMap.get("nutrition_painpoint") ?? FALLBACK_NOT_SPECIFIED[locale],
+        stress_source: respMap.get("stress_source") ?? FALLBACK_NOT_SPECIFIED[locale],
+        recovery_ritual: respMap.get("recovery_ritual") ?? FALLBACK_NOT_SPECIFIED[locale],
       };
       const rawContextBlock = `
 User profile: age ${user.age}, gender ${user.gender}, BMI ${bmi}
