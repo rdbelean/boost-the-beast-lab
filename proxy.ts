@@ -57,6 +57,19 @@ export default function proxy(request: NextRequest): NextResponse {
         maxAge: 60 * 60 * 24 * 365,
         sameSite: "lax",
       });
+      // Persist the Stripe checkout session id so guest (non-logged-in) paid
+      // users can still be identified across reloads — backend routes look
+      // up email via paid_sessions when no Supabase auth session exists.
+      const sessionId = searchParams.get("session_id");
+      if (sessionId && /^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) {
+        res.cookies.set("btb_stripe_session", sessionId, {
+          path: "/",
+          maxAge: 60 * 60 * 24 * 30,
+          sameSite: "lax",
+          httpOnly: true,
+          secure: true,
+        });
+      }
       return res;
     }
   }

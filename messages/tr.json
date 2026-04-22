@@ -448,7 +448,11 @@
       "error_server": "Sunucu hatası ({status})",
       "error_unknown": "Bilinmeyen bir hata oluştu.",
       "btn": "ANALİZİ BAŞLAT →",
-      "loading": "İŞLENİYOR..."
+      "loading": "İŞLENİYOR...",
+      "email_label": "E-POSTAN",
+      "email_placeholder": "seninadres@ornek.com",
+      "email_hint": "Raporunu bu adrese göndereceğiz.",
+      "email_fallback_hint": "E-posta adresini otomatik olarak yükleyemedik — lütfen elle gir."
     },
     "loading_overlay": {
       "label": "BOOST THE BEAST LAB · BİLİMSEL VERİ TABANIYLA EŞLEŞTİRİLİYOR",

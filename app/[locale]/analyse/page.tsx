@@ -415,14 +415,39 @@ function AnalyseContent() {
     email: "",
   });
 
-  // Pre-populate email from the authenticated user session.
+  // Pre-populate email. Logged-in users → from Supabase session. Paid Stripe
+  // guests (no session) → from /api/session/identity which reads the
+  // btb_stripe_session cookie and looks up paid_sessions.email. If neither
+  // source yields an email, we fall back to a visible input further below.
+  const [emailPrefillAttempted, setEmailPrefillAttempted] = useState(false);
   useEffect(() => {
-    const supabase = getSupabaseBrowserClient();
-    supabase.auth.getUser().then(({ data }) => {
+    let cancelled = false;
+    (async () => {
+      const supabase = getSupabaseBrowserClient();
+      const { data } = await supabase.auth.getUser();
+      if (cancelled) return;
       if (data.user?.email) {
         setForm((prev) => ({ ...prev, email: data.user!.email! }));
+        setEmailPrefillAttempted(true);
+        return;
       }
-    });
+      try {
+        const res = await fetch("/api/session/identity", { cache: "no-store" });
+        const json = (await res.json().catch(() => null)) as {
+          email?: string | null;
+        } | null;
+        if (!cancelled && json?.email) {
+          setForm((prev) => ({ ...prev, email: json.email! }));
+        }
+      } catch {
+        /* network error — fallback input will show */
+      } finally {
+        if (!cancelled) setEmailPrefillAttempted(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ── Wearable prefill (from /analyse/prepare) ──────────────────────────
@@ -581,7 +606,8 @@ function AnalyseContent() {
   ].filter(Boolean).length;
 
   const progressPct = Math.round((answeredCount / totalQuestions) * 100);
-  const canSubmit = answeredCount === totalQuestions;
+  const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
+  const canSubmit = answeredCount === totalQuestions && hasValidEmail;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -1476,6 +1502,56 @@ function AnalyseContent() {
                 - Report Typ aus Stripe Session Metadata übernehmen
                 - Test-Modus-Banner + isTestMode entfernen */}
             <section className={styles.submitSection}>
+              {emailPrefillAttempted && !hasValidEmail && (
+                <div
+                  style={{
+                    marginBottom: 18,
+                    fontFamily: "Helvetica, Arial, sans-serif",
+                  }}
+                >
+                  <label
+                    htmlFor="btb-email-fallback"
+                    style={{
+                      display: "block",
+                      fontSize: 11,
+                      letterSpacing: "0.1em",
+                      color: "#9ca3af",
+                      marginBottom: 8,
+                    }}
+                  >
+                    {t("submit.email_label")}
+                  </label>
+                  <input
+                    id="btb-email-fallback"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={form.email}
+                    onChange={(e) => set("email", e.target.value)}
+                    placeholder={t("submit.email_placeholder")}
+                    style={{
+                      width: "100%",
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      color: "#fff",
+                      padding: "12px 14px",
+                      fontSize: 15,
+                      fontFamily: "inherit",
+                      outline: "none",
+                    }}
+                  />
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "#9ca3af",
+                      marginTop: 6,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {t("submit.email_fallback_hint")}
+                  </div>
+                </div>
+              )}
               {errorMsg && (
                 <div
                   style={{

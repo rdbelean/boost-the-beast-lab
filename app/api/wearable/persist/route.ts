@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  getSupabaseServerClient,
-  getSupabaseServiceClient,
-} from "@/lib/supabase/server";
+import { getSupabaseServiceClient } from "@/lib/supabase/server";
+import { resolveIdentity } from "@/lib/supabase/guestIdentity";
 
 export const runtime = "nodejs";
 export const maxDuration = 10;
@@ -89,14 +87,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Payload too large" }, { status: 413 });
     }
 
-    // 2. Auth — require Supabase session.
-    const userClient = await getSupabaseServerClient();
-    const {
-      data: { user: authUser },
-    } = await userClient.auth.getUser();
-    if (!authUser?.id) {
+    // 2. Identity — accept a Supabase session OR a paid Stripe guest
+    //    (btb_stripe_session cookie set by proxy.ts on first post-checkout
+    //    visit). resolveIdentity returns the users.id either way.
+    const identity = await resolveIdentity();
+    if (!identity) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const userId = identity.userId;
 
     // 3. Parse + validate body.
     const raw = await req.json();
@@ -105,37 +103,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error }, { status: 400 });
     }
 
-    // 4. Look up the users row by auth_user_id. If the user has never completed
-    //    an assessment, they won't have a row yet — create one on the fly.
     const service = getSupabaseServiceClient();
-    let userId: string | null = null;
-    {
-      const { data: u } = await service
-        .from("users")
-        .select("id")
-        .eq("auth_user_id", authUser.id)
-        .maybeSingle();
-      if (u?.id) {
-        userId = u.id;
-      } else if (authUser.email) {
-        // Upsert by email, link auth_user_id.
-        const { data: upserted, error: upErr } = await service
-          .from("users")
-          .upsert(
-            { email: authUser.email, auth_user_id: authUser.id },
-            { onConflict: "email" },
-          )
-          .select("id")
-          .single();
-        if (upErr) throw upErr;
-        userId = upserted.id;
-      }
-    }
-    if (!userId) {
-      return NextResponse.json({ error: "User row not resolvable" }, { status: 500 });
-    }
 
-    // 5. Dedupe: if there's an unlinked upload from the same source in the
+    // 4. Dedupe: if there's an unlinked upload from the same source in the
     //    last 10 minutes, delete it before inserting (user retried).
     const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
     await service
@@ -146,7 +116,7 @@ export async function POST(req: NextRequest) {
       .is("assessment_id", null)
       .gt("created_at", tenMinAgo);
 
-    // 6. Insert the row.
+    // 5. Insert the row.
     const { data: inserted, error: insertErr } = await service
       .from("wearable_uploads")
       .insert({

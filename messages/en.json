@@ -448,7 +448,11 @@
       "error_server": "Server error ({status})",
       "error_unknown": "An unknown error occurred.",
       "btn": "START ANALYSIS →",
-      "loading": "PROCESSING..."
+      "loading": "PROCESSING...",
+      "email_label": "YOUR EMAIL",
+      "email_placeholder": "your@email.com",
+      "email_hint": "We'll send your report to this address.",
+      "email_fallback_hint": "We couldn't load your email automatically — please enter it."
     },
     "loading_overlay": {
       "label": "BOOST THE BEAST LAB · MATCHING SCIENTIFIC DATABASE",

@@ -448,7 +448,11 @@
       "error_server": "Errore del server ({status})",
       "error_unknown": "Si è verificato un errore sconosciuto.",
       "btn": "AVVIA L'ANALISI →",
-      "loading": "IN ELABORAZIONE..."
+      "loading": "IN ELABORAZIONE...",
+      "email_label": "LA TUA EMAIL",
+      "email_placeholder": "tua@email.com",
+      "email_hint": "Invieremo il tuo report a questo indirizzo.",
+      "email_fallback_hint": "Non siamo riusciti a caricare la tua email automaticamente — inseriscila manualmente."
     },
     "loading_overlay": {
       "label": "BOOST THE BEAST LAB · CONFRONTO CON DATABASE SCIENTIFICO",

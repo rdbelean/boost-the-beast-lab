@@ -448,7 +448,11 @@
       "error_server": "Server-Fehler ({status})",
       "error_unknown": "Ein unbekannter Fehler ist aufgetreten.",
       "btn": "ANALYSE STARTEN →",
-      "loading": "WIRD VERARBEITET..."
+      "loading": "WIRD VERARBEITET...",
+      "email_label": "DEINE E-MAIL",
+      "email_placeholder": "deine@email.de",
+      "email_hint": "An diese Adresse senden wir deinen Report.",
+      "email_fallback_hint": "Wir konnten deine E-Mail nicht automatisch laden — bitte eintragen."
     },
     "loading_overlay": {
       "label": "BOOST THE BEAST LAB · WISSENSCHAFTLICHE DATENBANK WIRD ABGEGLICHEN",
