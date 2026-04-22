@@ -15,9 +15,9 @@ import TrustSection from "@/components/landing/TrustSection";
 //   PainPoints — "we see you"
 //   HowItWorks — the mechanism
 //   FounderMarco — who is behind this, earned trust
+//   SocialProof — 5,0★ + athlete testimonials reinforce Marco's credibility
 //   WearableSync — data depth argument
 //   Products — the offer + anchor pricing
-//   SocialProof — 5,0★ + 3 real testimonials + Google link
 //   TrustSection — science/credibility closers
 export default function HomePage() {
   return (
@@ -29,9 +29,9 @@ export default function HomePage() {
         <PainPoints />
         <HowItWorks />
         <FounderMarco />
+        <SocialProof />
         <WearableSync />
         <Products />
-        <SocialProof />
         <TrustSection />
       </main>
       <Footer />
