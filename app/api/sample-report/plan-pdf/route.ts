@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { generatePlanPDF } from "@/lib/pdf/generatePlan";
-import { buildPlan, type PlanType } from "@/lib/plan/buildPlan";
-import { SAMPLE_SCORES_DISPLAY } from "@/lib/sample-report/data";
+import { getSamplePlan } from "@/lib/sample-report/samplePlans";
+import type { PlanType } from "@/lib/plan/buildPlan";
 import type { Locale } from "@/lib/supabase/types";
 
 const VALID_TYPES: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
@@ -15,14 +15,14 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Invalid or missing type" }, { status: 400 });
   }
 
-  const plan = buildPlan(type, SAMPLE_SCORES_DISPLAY);
+  const plan = getSamplePlan(locale, type);
   const bytes = await generatePlanPDF({ ...plan, locale, isSample: true });
 
   return new NextResponse(Buffer.from(bytes), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="btb-beispiel-plan-${type}.pdf"`,
+      "Content-Disposition": `inline; filename="btb-sample-plan-${type}-${locale}.pdf"`,
       "Cache-Control": "public, max-age=3600",
     },
   });

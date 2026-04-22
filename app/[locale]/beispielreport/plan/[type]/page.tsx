@@ -2,9 +2,8 @@
 import { useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useRef, useState, useEffect } from "react";
-import { buildPlan, type PlanType } from "@/lib/plan/buildPlan";
-import { SAMPLE_SCORES_DISPLAY } from "@/lib/sample-report/data";
+import { type PlanType, PLAN_COLORS } from "@/lib/plan/buildPlan";
+import { getSamplePlan } from "@/lib/sample-report/samplePlans";
 import styles from "@/app/[locale]/plans/[type]/plan.module.css";
 import SampleReportBanner from "@/components/sample-report/SampleReportBanner";
 import { CensoredItem } from "@/components/sample-report/CensoredItem";
@@ -20,10 +19,6 @@ function urgencyBucket(score: number): { key: UrgencyKey; color: string } {
   return                 { key: "top",       color: "#15803D" };
 }
 
-// Dummy placeholder text for censored items — never reveals real content.
-const CENSORED_PLACEHOLDER = "Detaillierte Empfehlung und Protokoll für diesen Bereich — vollständig personalisiert auf deine Werte";
-const CENSORED_RATIONALE   = "Wissenschaftliche Einordnung und Evidenz-Basis für diese Maßnahmen aus validierten Studien verfügbar in der Vollversion deines Plans";
-
 export default function SamplePlanPage() {
   const t = useTranslations("plans_detail");
   const tResults = useTranslations("results");
@@ -31,20 +26,11 @@ export default function SamplePlanPage() {
   const locale = useLocale();
   const { type } = useParams() as { type: string };
 
-  const bannerRef = useRef<HTMLDivElement>(null);
-  const [bannerH, setBannerH] = useState(0);
-  useEffect(() => {
-    const el = bannerRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => setBannerH(entry.contentRect.height));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
   if (!VALID_TYPES.includes(type as PlanType)) {
     return (
       <>
-        <div ref={bannerRef}><SampleReportBanner /></div>
+        {/* Amber banner — sticky, outside .page to avoid overflow trapping */}
+        <SampleReportBanner />
         <div className={styles.page}>
           <div className={styles.errorBox}>
             <p>{t("error_unknown_type")}</p>
@@ -55,26 +41,29 @@ export default function SamplePlanPage() {
     );
   }
 
-  const plan = buildPlan(type as PlanType, SAMPLE_SCORES_DISPLAY);
+  const plan = getSamplePlan(locale, type);
+  const color = plan.color ?? PLAN_COLORS[type as PlanType];
   const urgency = plan.score != null ? urgencyBucket(plan.score) : null;
 
   function openSamplePdf() {
-    const newTab = window.open("", "_blank");
     const url = `/api/sample-report/plan-pdf?type=${type}&locale=${locale}`;
-    if (newTab && !newTab.closed) newTab.location.href = url;
+    const tab = window.open("", "_blank");
+    if (tab && !tab.closed) tab.location.href = url;
     else window.open(url, "_blank");
   }
 
   return (
     <>
-      {/* Sticky amber banner outside .page so overflow-x:hidden cannot trap it */}
-      <div ref={bannerRef}><SampleReportBanner /></div>
+      {/* Amber banner — sticky at top:0 z-index:100. Must live OUTSIDE .page
+          so no overflow:hidden ancestor can break position:sticky on Safari. */}
+      <SampleReportBanner />
 
       <div className={styles.page}>
-        {/* Header sits sticky below the banner */}
-        <div className={styles.header} style={{ top: bannerH }}>
+        {/* Plan header — NOT sticky: scrolls away when user scrolls down.
+            The amber banner above is the only persistent sticky element. */}
+        <div className={styles.header} style={{ position: "relative" }}>
           <Link href="/beispielreport" className={styles.backLink}>{t("back_to_report_upper")}</Link>
-          <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
+          <div className={styles.headerTitle} style={{ color }}>{plan.title}</div>
           <button onClick={openSamplePdf} className={styles.printBtn}>
             {t("pdf_download")}
           </button>
@@ -82,12 +71,12 @@ export default function SamplePlanPage() {
 
         <div className={styles.container} id="plan-content">
           <div className={styles.hero}>
-            <span className={styles.tag} style={{ color: plan.color, borderColor: plan.color }}>{t("tag")}</span>
+            <span className={styles.tag} style={{ color, borderColor: color }}>{t("tag")}</span>
             <h1 className={styles.title}>{plan.title}</h1>
 
             {plan.score != null && (
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <span style={{ fontSize: 28, fontWeight: 700, color: plan.color, fontFamily: "var(--font-oswald), sans-serif", letterSpacing: "0.04em" }}>
+                <span style={{ fontSize: 28, fontWeight: 700, color, fontFamily: "var(--font-oswald), sans-serif", letterSpacing: "0.04em" }}>
                   {plan.score}<span style={{ fontSize: 14, fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>/100</span>
                 </span>
                 {urgency && (
@@ -127,29 +116,26 @@ export default function SamplePlanPage() {
                 <ul className={styles.blockList}>
                   {visibleItems.map((item) => (
                     <li key={item} className={styles.blockItem}>
-                      <span className={styles.bullet} style={{ color: plan.color }}>▸</span>
+                      <span className={styles.bullet} style={{ color }}>▸</span>
                       {item}
                     </li>
                   ))}
-                  {/* Censored items: dummy text with blur + lock overlay */}
                   {Array.from({ length: censoredCount }).map((_, i) => (
-                    <CensoredItem key={`censored-item-${i}`} variant="line">
+                    <CensoredItem key={`censored-${i}`} variant="line">
                       <li className={styles.blockItem}>
-                        <span className={styles.bullet} style={{ color: plan.color }}>▸</span>
-                        {CENSORED_PLACEHOLDER}
+                        <span className={styles.bullet} style={{ color }}>▸</span>
+                        {visibleItems[0]}
                       </li>
                     </CensoredItem>
                   ))}
                 </ul>
 
-                {/* Hint below censored items */}
                 {censoredCount > 0 && (
-                  <p style={{ marginTop: "0.75rem", fontSize: "0.7rem", color: "#555", letterSpacing: "0.04em", margin: "0.75rem 0 0" }}>
+                  <p style={{ marginTop: "0.75rem", fontSize: "0.7rem", color: "#555", letterSpacing: "0.04em" }}>
                     {tSample("censored_habits_hint", { count: censoredCount })}
                   </p>
                 )}
 
-                {/* Rationale: visible for block 0, censored for all others */}
                 {block.rationale && (
                   isFirstBlock ? (
                     <div style={{
@@ -173,7 +159,7 @@ export default function SamplePlanPage() {
                           {t("rationale_label")}
                         </div>
                         <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.65, margin: 0 }}>
-                          {CENSORED_RATIONALE}
+                          {block.rationale}
                         </p>
                       </div>
                     </CensoredItem>
