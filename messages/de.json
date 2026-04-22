@@ -62,26 +62,22 @@
     "badge_rating": "5,0",
     "badge_reviews_count": "80 GOOGLE-BEWERTUNGEN",
     "badge_source": "Verifiziert bei Marco Colella Personal Training",
-    "eyebrow": "ECHTE MENSCHEN. ECHTE ERGEBNISSE.",
-    "headline": "ÜBER 80 MENSCHEN. EIN COACH. NULL 1-STERN-BEWERTUNGEN.",
-    "context_disclaimer": "Die folgenden Stimmen beziehen sich auf Marcos 1:1-Coaching. Das Lab ist dieselbe Methodik — destilliert in Software.",
-    "testimonials": {
-      "1": {
-        "quote": "30 Kilo sind nun insgesamt wieder weg, was ich selber nie geglaubt hätte.",
-        "name": "Melanie Manusch",
-        "meta": "36 Jahre · 1:1-Coaching Kundin"
+    "eyebrow": "PROFI-REFERENZEN",
+    "headline": "DIE METHODE, DIE PROFIS BRINGT, WO SIE HINWOLLEN.",
+    "context_disclaimer": "Marco coached seit über 15 Jahren. Unter seinen Athleten sind auch Profi-Fußballer — hier zwei Beispiele. Dasselbe System steckt im Lab.",
+    "case_studies": {
+      "jens": {
+        "name": "Jens Castrop",
+        "club": "BORUSSIA MÖNCHENGLADBACH · NATIONALSPIELER SÜDKOREA",
+        "story": "Jahrelang von Marco gecoached. Heute Bundesliga-Profi bei Gladbach und Nationalspieler für Südkorea. Aufgebaut mit derselben Methodik, die im Lab steckt — Baseline, Recovery, Progression, Tag für Tag."
       },
-      "2": {
-        "quote": "Marco hat mich vom Couch-Potato zum Sportjunkie gebracht und den Tough Mudder erfolgreich absolviert.",
-        "name": "Svenja Herbergs",
-        "meta": "29 Jahre · 1:1-Coaching Kundin"
-      },
-      "3": {
-        "quote": "Er geht auf unsere Wünsche und Bedürfnisse gezielt ein — kein Schema F.",
-        "name": "Annika Solty",
-        "meta": "30 Jahre · 1:1-Coaching Kundin"
+      "mehmet": {
+        "name": "Mehmet Aydin",
+        "club": "FC SCHALKE 04",
+        "story": "Von Marco begleitet auf dem Weg in den Profi-Fußball. Heute beim FC Schalke 04. Struktur statt Zufall — exakt das, was das Lab für dich übersetzt."
       }
     },
+    "case_studies_more_hint": "Und weitere Athleten aus Marcos Coaching-Historie.",
     "all_reviews_cta": "ALLE 80 BEWERTUNGEN LESEN"
   },
   "pain_points": {

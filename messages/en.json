@@ -62,26 +62,22 @@
     "badge_rating": "5.0",
     "badge_reviews_count": "80 GOOGLE REVIEWS",
     "badge_source": "Verified at Marco Colella Personal Training",
-    "eyebrow": "REAL PEOPLE. REAL RESULTS.",
-    "headline": "80 PEOPLE. ONE COACH. ZERO 1-STAR REVIEWS.",
-    "context_disclaimer": "The voices below refer to Marco's 1:1 coaching. The Lab is the same methodology — distilled into software.",
-    "testimonials": {
-      "1": {
-        "quote": "I've lost 30 kilos in total, which I never thought I'd be able to do.",
-        "name": "Melanie Manusch",
-        "meta": "Age 36 · 1:1 coaching client"
+    "eyebrow": "PRO-LEVEL TRACK RECORD",
+    "headline": "THE METHOD THAT TAKES PROS WHERE THEY WANT TO GO.",
+    "context_disclaimer": "Marco has been coaching for over 15 years. His roster includes pro footballers — two examples below. Same system. Now distilled into the Lab.",
+    "case_studies": {
+      "jens": {
+        "name": "Jens Castrop",
+        "club": "BORUSSIA MÖNCHENGLADBACH · SOUTH KOREA NATIONAL TEAM",
+        "story": "Coached by Marco for years. Today a Bundesliga pro at Gladbach and a South Korea national-team player. Built with the same methodology that powers the Lab — baseline, recovery, progression, day by day."
       },
-      "2": {
-        "quote": "Marco turned me from couch potato to sports junkie — and I finished the Tough Mudder.",
-        "name": "Svenja Herbergs",
-        "meta": "Age 29 · 1:1 coaching client"
-      },
-      "3": {
-        "quote": "He actually engages with our goals and needs — no one-size-fits-all plan.",
-        "name": "Annika Solty",
-        "meta": "Age 30 · 1:1 coaching client"
+      "mehmet": {
+        "name": "Mehmet Aydin",
+        "club": "FC SCHALKE 04",
+        "story": "Guided by Marco on the road to pro football. Now at FC Schalke 04. Structure instead of guesswork — exactly what the Lab translates for you."
       }
     },
+    "case_studies_more_hint": "And more athletes from Marco's coaching history.",
     "all_reviews_cta": "READ ALL 80 REVIEWS"
   },
   "pain_points": {

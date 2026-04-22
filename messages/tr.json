@@ -62,26 +62,22 @@
     "badge_rating": "5,0",
     "badge_reviews_count": "80 GOOGLE DEĞERLENDİRMESİ",
     "badge_source": "Marco Colella Personal Training'de doğrulandı",
-    "eyebrow": "GERÇEK İNSANLAR. GERÇEK SONUÇLAR.",
-    "headline": "80 KİŞİ. BİR KOÇ. SIFIR 1-YILDIZ DEĞERLENDİRME.",
-    "context_disclaimer": "Aşağıdaki ifadeler Marco'nun 1:1 koçluğuna ait. Lab, aynı metodolojinin yazılım hâli.",
-    "testimonials": {
-      "1": {
-        "quote": "Toplam 30 kilo verdim — kendim bile inanamadım.",
-        "name": "Melanie Manusch",
-        "meta": "36 yaşında · 1:1 koçluk müşterisi"
+    "eyebrow": "PROFESYONEL REFERANSLAR",
+    "headline": "PROFESYONELLERİ HEDEFLERİNE GÖTÜREN YÖNTEM.",
+    "context_disclaimer": "Marco 15 yılı aşkın süredir koçluk yapıyor. Sporcuları arasında profesyonel futbolcular da var — işte iki örnek. Aynı sistem Lab'in içinde.",
+    "case_studies": {
+      "jens": {
+        "name": "Jens Castrop",
+        "club": "BORUSSIA MÖNCHENGLADBACH · GÜNEY KORE MİLLİ TAKIM",
+        "story": "Yıllarca Marco tarafından çalıştırıldı. Bugün Gladbach'ta Bundesliga profesyoneli ve Güney Kore milli takım oyuncusu. Lab'in içindeki aynı metodolojiyle inşa edildi — baseline, recovery, progression, gün be gün."
       },
-      "2": {
-        "quote": "Marco beni kanepe patatesinden spor bağımlısına çevirdi — Tough Mudder'ı da bitirdim.",
-        "name": "Svenja Herbergs",
-        "meta": "29 yaşında · 1:1 koçluk müşterisi"
-      },
-      "3": {
-        "quote": "Bizim isteklerimize ve ihtiyaçlarımıza gerçekten giriyor — tek beden her kalıp değil.",
-        "name": "Annika Solty",
-        "meta": "30 yaşında · 1:1 koçluk müşterisi"
+      "mehmet": {
+        "name": "Mehmet Aydin",
+        "club": "FC SCHALKE 04",
+        "story": "Marco tarafından profesyonel futbola giden yolda desteklendi. Bugün FC Schalke 04'te. Tesadüf yerine yapı — Lab'in senin için tercüme ettiği tam olarak budur."
       }
     },
+    "case_studies_more_hint": "Ve Marco'nun koçluk tarihinden daha fazla sporcu.",
     "all_reviews_cta": "80 DEĞERLENDİRMENİN HEPSİNİ OKU"
   },
   "pain_points": {

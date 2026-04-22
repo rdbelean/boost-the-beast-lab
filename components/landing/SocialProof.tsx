@@ -1,13 +1,30 @@
 "use client";
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 
-// Real testimonials lifted verbatim from boostthebeast.com/krasse-stimmen (Marcos
-// Personal-Training site). We label them honestly: "these speak about Marco's 1:1
-// coaching — the Lab is the same methodology as software". Doesn't feel manipulative,
-// and it's the only social proof available before Lab-customer testimonials pile up.
-const TESTIMONIAL_KEYS = ["1", "2", "3"] as const;
+// Case-study subjects: pro footballers Marco coached for years. Swapping out
+// the old 1:1-coaching testimonials because elite-athlete pedigree is stronger
+// social proof than anonymous weight-loss quotes, and ties the Lab methodology
+// to measurable pro-level outcomes. More athletes exist — we surface two to
+// avoid bloat and signal "more available" via a footer hint.
+const CASE_STUDIES = [
+  {
+    id: "jens",
+    photoSrc: "/jens-castrop.jpg",
+    hasPhoto: false,
+    photoAlt: "Jens Castrop",
+    initials: "JC",
+  },
+  {
+    id: "mehmet",
+    photoSrc: "/mehmet-aydin.jpg",
+    hasPhoto: true,
+    photoAlt: "Mehmet Aydin mit Marco",
+    initials: "MA",
+  },
+] as const;
 
 // Marco's Google Business link surfaces on the "all 80 reviews" CTA. Keep
 // externalized here instead of hardcoding in every locale string since the
@@ -72,25 +89,38 @@ export default function SocialProof() {
         </div>
 
         <div className={styles.socialProofGrid}>
-          {TESTIMONIAL_KEYS.map((id, i) => (
+          {CASE_STUDIES.map((study, i) => (
             <div
-              key={id}
+              key={study.id}
               ref={(el) => { if (el) cardRefs.current[i] = el; }}
-              className={`${styles.socialProofCard} ${styles.reveal}`}
+              className={`${styles.socialProofCard} ${styles.caseStudyCard} ${styles.reveal}`}
             >
-              <div className={styles.socialProofCardStars} aria-hidden>
-                {STAR}{STAR}{STAR}{STAR}{STAR}
+              <div className={styles.caseStudyPhoto}>
+                {study.hasPhoto ? (
+                  <Image
+                    src={study.photoSrc}
+                    alt={study.photoAlt}
+                    width={600}
+                    height={600}
+                    sizes="(max-width: 900px) 90vw, 440px"
+                    className={styles.caseStudyPhotoImg}
+                  />
+                ) : (
+                  <div className={styles.caseStudyPhotoFallback} aria-hidden>
+                    <span className={styles.caseStudyInitials}>{study.initials}</span>
+                  </div>
+                )}
               </div>
-              <blockquote className={styles.socialProofQuote}>
-                &ldquo;{t(`testimonials.${id}.quote`)}&rdquo;
-              </blockquote>
-              <div className={styles.socialProofAttribution}>
-                <span className={styles.socialProofName}>{t(`testimonials.${id}.name`)}</span>
-                <span className={styles.socialProofMeta}>{t(`testimonials.${id}.meta`)}</span>
+              <div className={styles.caseStudyBody}>
+                <span className={styles.caseStudyClub}>{t(`case_studies.${study.id}.club`)}</span>
+                <h3 className={styles.caseStudyName}>{t(`case_studies.${study.id}.name`)}</h3>
+                <p className={styles.caseStudyStory}>{t(`case_studies.${study.id}.story`)}</p>
               </div>
             </div>
           ))}
         </div>
+
+        <p className={styles.caseStudiesMoreHint}>{t("case_studies_more_hint")}</p>
 
         <div className={styles.socialProofFooter}>
           <a

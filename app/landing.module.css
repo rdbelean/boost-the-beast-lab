@@ -1166,56 +1166,99 @@
 }
 .socialProofGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 48px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+  max-width: 960px;
+  margin: 0 auto 32px;
 }
 .socialProofCard {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 32px 28px;
   display: flex;
   flex-direction: column;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  overflow: hidden;
 }
 .socialProofCard:hover {
   transform: translateY(-4px);
   border-color: rgba(245, 166, 35, 0.35);
 }
-.socialProofCardStars {
-  display: inline-flex;
-  gap: 2px;
-  margin-bottom: 20px;
+.caseStudyCard {
+  padding: 0;
 }
-.socialProofQuote {
-  font-family: var(--font-inter), sans-serif;
-  font-size: 15px;
-  line-height: 1.65;
+.caseStudyPhoto {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #111113;
+  overflow: hidden;
+}
+.caseStudyPhotoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.caseStudyPhotoFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(230, 50, 34, 0.18), transparent 55%),
+    linear-gradient(135deg, #1a1a1d 0%, #0f0f11 100%);
+}
+.caseStudyInitials {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 88px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   color: #fff;
-  margin: 0 0 24px;
-  flex: 1;
-  font-weight: 400;
+  opacity: 0.9;
 }
-.socialProofAttribution {
+.caseStudyBody {
+  padding: 26px 28px 30px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-top: 18px;
-  border-top: 1px solid var(--border);
+  gap: 10px;
 }
-.socialProofName {
-  font-family: var(--font-oswald), sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #fff;
+.caseStudyClub {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(230, 50, 34, 0.35);
+  padding: 6px 10px;
+  align-self: flex-start;
+  line-height: 1.4;
 }
-.socialProofMeta {
+.caseStudyName {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 4px 0 0;
+  line-height: 1.1;
+}
+.caseStudyStory {
   font-family: var(--font-inter), sans-serif;
-  font-size: 11px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary, #c7c7cc);
+  margin: 6px 0 0;
+}
+.caseStudiesMoreHint {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-align: center;
   color: var(--text-muted, #7a7a80);
-  letter-spacing: 0.02em;
+  font-style: italic;
+  margin: 0 0 36px;
 }
 .socialProofFooter {
   text-align: center;
@@ -1238,10 +1281,13 @@
   border-bottom-color: var(--accent);
 }
 @media (max-width: 900px) {
-  .socialProofGrid { grid-template-columns: 1fr; }
+  .socialProofGrid { grid-template-columns: 1fr; gap: 20px; }
   .socialProofSection { padding: 64px 0; }
   .socialProofHeader { margin-bottom: 36px; }
   .socialProofBadge { width: 100%; }
+  .caseStudyBody { padding: 22px 22px 26px; }
+  .caseStudyName { font-size: 22px; }
+  .caseStudyInitials { font-size: 72px; }
 }
 
 /* ─── TRUST / FEATURES ──────────────────────────────────────── */

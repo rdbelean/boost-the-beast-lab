@@ -62,26 +62,22 @@
     "badge_rating": "5,0",
     "badge_reviews_count": "80 RECENSIONI GOOGLE",
     "badge_source": "Verificato presso Marco Colella Personal Training",
-    "eyebrow": "PERSONE VERE. RISULTATI VERI.",
-    "headline": "80 PERSONE. UN SOLO COACH. ZERO RECENSIONI DA 1 STELLA.",
-    "context_disclaimer": "Le testimonianze che seguono si riferiscono al coaching 1:1 di Marco. Il Lab è la stessa metodologia — distillata in software.",
-    "testimonials": {
-      "1": {
-        "quote": "Ho perso 30 chili in totale, una cosa che non avrei mai creduto possibile.",
-        "name": "Melanie Manusch",
-        "meta": "36 anni · cliente coaching 1:1"
+    "eyebrow": "REFERENZE DA PROFESSIONISTI",
+    "headline": "IL METODO CHE PORTA I PRO DOVE VOGLIONO ARRIVARE.",
+    "context_disclaimer": "Marco allena da oltre 15 anni. Tra i suoi atleti ci sono anche calciatori professionisti — qui due esempi. Lo stesso sistema è dentro al Lab.",
+    "case_studies": {
+      "jens": {
+        "name": "Jens Castrop",
+        "club": "BORUSSIA MÖNCHENGLADBACH · NAZIONALE COREA DEL SUD",
+        "story": "Seguito da Marco per anni. Oggi professionista in Bundesliga al Gladbach e nazionale della Corea del Sud. Costruito con la stessa metodologia del Lab — baseline, recupero, progressione, giorno dopo giorno."
       },
-      "2": {
-        "quote": "Marco mi ha trasformata da divanista a sports junkie — e ho completato la Tough Mudder.",
-        "name": "Svenja Herbergs",
-        "meta": "29 anni · cliente coaching 1:1"
-      },
-      "3": {
-        "quote": "Entra davvero nelle nostre esigenze — niente piani standard.",
-        "name": "Annika Solty",
-        "meta": "30 anni · cliente coaching 1:1"
+      "mehmet": {
+        "name": "Mehmet Aydin",
+        "club": "FC SCHALKE 04",
+        "story": "Accompagnato da Marco verso il calcio professionistico. Oggi all'FC Schalke 04. Struttura al posto del caso — esattamente ciò che il Lab traduce per te."
       }
     },
+    "case_studies_more_hint": "E altri atleti dalla storia di coaching di Marco.",
     "all_reviews_cta": "LEGGI TUTTE LE 80 RECENSIONI"
   },
   "pain_points": {
