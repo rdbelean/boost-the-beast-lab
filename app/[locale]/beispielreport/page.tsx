@@ -159,9 +159,6 @@ export default function BeispielreportPage() {
             <Link href="/kaufen" className={`${styles.headerBtnSecondary} ${styles.hideOnMobile}`}>
               {ts("cta_btn_primary")}
             </Link>
-            <button onClick={openSamplePdf} className={styles.headerBtnPrimary}>
-              {ts("cta_btn_pdf")}
-            </button>
           </div>
         </div>
 
