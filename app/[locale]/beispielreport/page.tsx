@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import styles from "@/app/[locale]/results/results.module.css";
 import lockedStyles from "@/components/sample-report/LockedSection.module.css";
 import { SAMPLE_SCORES_DISPLAY, SAMPLE_PDF_CONTENT } from "@/lib/sample-report/data";
+import { PLAN_COLORS } from "@/lib/plan/buildPlan";
 import SampleReportBanner from "@/components/sample-report/SampleReportBanner";
 import SampleReportCta from "@/components/sample-report/SampleReportCta";
 import UnlockOverlay from "@/components/sample-report/UnlockOverlay";
@@ -100,9 +101,7 @@ export default function BeispielreportPage() {
       <div className={styles.header}>
         <Link href="/" className={styles.headerBtnSecondary}>{t("back_home")}</Link>
         <div className={styles.headerTitle}>{ts("page_title")}</div>
-        <div className={styles.headerActions}>
-          <Link href="/analyse" className={`${styles.headerBtnPrimary}`}>{ts("header_cta")}</Link>
-        </div>
+        <div className={styles.headerActions} />
       </div>
 
       <div className={styles.container} id="results-content">
@@ -313,26 +312,81 @@ export default function BeispielreportPage() {
           />
         </section>
 
-        {/* 30-DAY FORECAST (fully blurred) */}
-        <section className={`${styles.scoresSection} ${lockedStyles.wrap}`}>
+        {/* 30-DAY FORECAST — 3 goal cards: headline visible, details blurred per-card */}
+        <section className={styles.scoresSection}>
           <div className={lockedStyles.sectionLabel}>{ts("unlock.forecast_title")}</div>
-          <div className={lockedStyles.blurred} aria-hidden="true">
-            <div className={lockedStyles.cardFull}>
-              <div className={lockedStyles.cardHeadline}>{ts("unlock.forecast_title")}</div>
-              <p className={lockedStyles.cardBody}>{SAMPLE_PDF_CONTENT.prognose_30_days}</p>
-            </div>
-            <div className={lockedStyles.cardFull}>
-              <div className={lockedStyles.cardHeadline}>{SAMPLE_PDF_CONTENT.action_plan?.[0]?.headline}</div>
-              <p className={lockedStyles.cardBody}>
-                {SAMPLE_PDF_CONTENT.action_plan?.[0]?.current_value} →{" "}
-                {SAMPLE_PDF_CONTENT.action_plan?.[0]?.target_value}
-              </p>
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {SAMPLE_PDF_CONTENT.action_plan?.map((goal, i) => (
+              <div key={i} style={{
+                background: "#111",
+                border: "1px solid #1e1e1e",
+                padding: "1.25rem 1.5rem",
+              }}>
+                {/* Visible headline */}
+                <div style={{
+                  fontFamily: "var(--font-oswald), sans-serif",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.04em",
+                  color: "#fff",
+                  marginBottom: "0.75rem",
+                }}>
+                  {goal.headline}
+                </div>
+                {/* Blurred details + lock badge */}
+                <div style={{ position: "relative" }}>
+                  <div style={{ filter: "blur(5px)", userSelect: "none", pointerEvents: "none" }} aria-hidden="true">
+                    <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.8rem", color: "#888", marginBottom: "0.5rem" }}>
+                      <span>{goal.current_value}</span>
+                      <span>→</span>
+                      <span>{goal.target_value}</span>
+                    </div>
+                    {goal.week_milestones?.slice(0, 2).map((m, j) => (
+                      <div key={j} style={{ fontSize: "0.75rem", color: "#666", marginBottom: "0.25rem" }}>
+                        {m.week}: {m.task}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                  }}>
+                    <span style={{
+                      fontFamily: "var(--font-oswald), sans-serif",
+                      fontSize: 9,
+                      fontWeight: 700,
+                      letterSpacing: "0.12em",
+                      color: "rgba(255,255,255,0.4)",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      padding: "3px 8px",
+                      background: "rgba(0,0,0,0.6)",
+                    }}>
+                      {ts("unlock.lock_badge")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          <UnlockOverlay
-            title={ts("unlock.forecast_title")}
-            description={ts("unlock.forecast_desc")}
-          />
+          {/* Standalone CTA — no full UnlockOverlay covering the headlines */}
+          <div style={{ marginTop: "1.25rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Link href="/analyse" style={{
+              fontFamily: "var(--font-oswald), sans-serif",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: "#1A1A1A",
+              background: "#FCD34D",
+              padding: "0.75rem 1.75rem",
+              textDecoration: "none",
+              display: "inline-block",
+            }}>
+              {ts("unlock.cta")} →
+            </Link>
+          </div>
         </section>
 
         {/* DAILY LIFE PROTOCOL (first 2 habits in Morning visible, rest blurred) */}
@@ -360,6 +414,50 @@ export default function BeispielreportPage() {
             title={ts("unlock.protocol_title")}
             description={ts("unlock.protocol_desc")}
           />
+        </section>
+
+        {/* ─── 4 SAMPLE PLANS ──────────────────────────── */}
+        <section className={styles.scoresSection}>
+          <div className={lockedStyles.sectionLabel}>{t("plans.heading")}</div>
+          <p style={{ fontSize: "0.8rem", color: "#666", marginBottom: "1.5rem", lineHeight: 1.6 }}>
+            {t("plans.subtitle")}
+          </p>
+          <div className={styles.scoresGrid}>
+            {(["activity", "metabolic", "recovery", "stress"] as const).map((type) => (
+              <Link
+                key={type}
+                href={`/beispielreport/plan/${type}`}
+                style={{ textDecoration: "none" }}
+              >
+                <div className={styles.scoreCard} style={{
+                  cursor: "pointer",
+                  transition: "border-color 0.2s",
+                  borderLeft: `3px solid ${PLAN_COLORS[type]}`,
+                }}>
+                  <div className={styles.scoreCardTop}>
+                    <div>
+                      <div className={styles.scoreCardLabel} style={{ color: PLAN_COLORS[type] }}>
+                        {t(`plans.${type}.label`)}
+                      </div>
+                      <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "0.25rem", lineHeight: 1.4 }}>
+                        {t(`plans.${type}.desc`)}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{
+                    marginTop: "0.875rem",
+                    fontFamily: "var(--font-oswald), sans-serif",
+                    fontSize: "0.7rem",
+                    fontWeight: 600,
+                    letterSpacing: "0.1em",
+                    color: PLAN_COLORS[type],
+                  }}>
+                    {t(`plans.${type}.cta`)} →
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </section>
 
         {/* ─── CONVERSION CTA ──────────────────────────── */}

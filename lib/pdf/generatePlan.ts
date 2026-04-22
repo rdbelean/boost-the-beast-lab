@@ -2,7 +2,7 @@
 // Pure JavaScript — zero native dependencies, works reliably on Vercel.
 // Dark warm-grey theme matching the main Performance Intelligence Report.
 
-import { PDFDocument, rgb, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
+import { PDFDocument, rgb, degrees, type PDFPage, type PDFFont, type PDFImage, type Color } from "pdf-lib";
 import { embedLocaleFonts } from "./fonts";
 import type { Locale } from "@/lib/supabase/types";
 import { LOGO_WHITE_PNG_BASE64 } from "./logo";
@@ -21,6 +21,7 @@ export interface PlanPdfInput {
   score?: number;      // Used for urgency label on cover
   blocks: PlanBlock[];
   locale?: string;     // "de" | "en" | "it" — defaults to "de"
+  isSample?: boolean;  // Adds diagonal BEISPIEL watermark on every page
 }
 
 // ── Page dimensions ────────────────────────────────────────────────────────
@@ -569,6 +570,24 @@ export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
 
   buildPlanCover(doc, plan, accentColor, f, today, logo);
   buildPlanContent(doc, plan, accentColor, f, today);
+
+  if (plan.isSample) {
+    for (const page of doc.getPages()) {
+      const { width, height } = page.getSize();
+      const text = "BEISPIEL";
+      const size = 96;
+      const tw = f.bold.widthOfTextAtSize(text, size);
+      page.drawText(text, {
+        x: width / 2 - tw / 2,
+        y: height / 2 - size / 2,
+        size,
+        font: f.bold,
+        color: rgb(1, 1, 1),
+        opacity: 0.07,
+        rotate: degrees(45),
+      });
+    }
+  }
 
   const bytes = await doc.save();
   return new Uint8Array(bytes);

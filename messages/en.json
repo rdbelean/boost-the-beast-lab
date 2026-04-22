@@ -936,6 +936,8 @@
     "cta_desc": "Answer 26 precise questions about your body, training, sleep, and lifestyle — and receive your personalized performance report with real scores and individual recommendations.",
     "cta_btn_primary": "START ANALYSIS",
     "cta_btn_pdf": "DOWNLOAD SAMPLE PDF",
+    "sample_plan_banner": "SAMPLE PLAN · This is a sample plan with demo data",
+    "sample_plan_cta_start": "Start your own analysis",
     "unlock": {
       "lock_badge": "ONLY IN YOUR REAL REPORT",
       "cta": "UNLOCK NOW — €39.90",

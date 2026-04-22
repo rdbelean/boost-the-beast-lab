@@ -936,6 +936,8 @@
     "cta_desc": "Vücut, antrenman, uyku ve yaşam tarzı hakkında 26 net soruyu cevapla — ve gerçek skorlar ile bireysel eylem önerileri içeren kişisel performans raporunu al.",
     "cta_btn_primary": "ANALİZİ BAŞLAT",
     "cta_btn_pdf": "ÖRNEK PDF'İ İNDİR",
+    "sample_plan_banner": "ÖRNEK PLAN · Bu örnek verilerle hazırlanmış bir örnek plandır",
+    "sample_plan_cta_start": "Kendi analizini başlat",
     "unlock": {
       "lock_badge": "SADECE GERÇEK RAPORUNDA",
       "cta": "ŞİMDİ KİLİDİ AÇ — 39,90 €",
