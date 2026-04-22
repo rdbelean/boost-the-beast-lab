@@ -56,6 +56,7 @@ const PLAN_LABELS: Record<string, {
   footerNote: string;
   dateLocale: string;
   urgency: [string, string, string, string, string];
+  censorHint: string;
 }> = {
   de: {
     scientificBasis: "WISSENSCHAFTLICHE EINORDNUNG",
@@ -64,6 +65,7 @@ const PLAN_LABELS: Record<string, {
     footerNote: "PERFORMANCE LAB  |  Kein Ersatz f\u00FCr medizinische Beratung",
     dateLocale: "de-DE",
     urgency: ["KRITISCH", "HANDLUNGSBEDARF", "OPTIMIERUNGSPOTENZIAL", "FEINTUNING", "TOP-LEVEL"],
+    censorHint: "IN DER VOLLVERSION",
   },
   en: {
     scientificBasis: "SCIENTIFIC BASIS",
@@ -72,6 +74,7 @@ const PLAN_LABELS: Record<string, {
     footerNote: "PERFORMANCE LAB  |  Not a substitute for medical advice",
     dateLocale: "en-GB",
     urgency: ["CRITICAL", "ACTION NEEDED", "OPTIMIZATION POTENTIAL", "FINE-TUNING", "TOP-LEVEL"],
+    censorHint: "IN FULL VERSION",
   },
   it: {
     scientificBasis: "BASE SCIENTIFICA",
@@ -80,6 +83,7 @@ const PLAN_LABELS: Record<string, {
     footerNote: "PERFORMANCE LAB  |  Non sostituisce la consulenza medica",
     dateLocale: "it-IT",
     urgency: ["CRITICO", "AZIONE RICHIESTA", "POTENZIALE DI OTTIMIZZAZIONE", "FINE-TUNING", "TOP-LEVEL"],
+    censorHint: "NELLA VERSIONE COMPLETA",
   },
   tr: {
     scientificBasis: "BİLİMSEL AÇIKLAMA",
@@ -88,6 +92,7 @@ const PLAN_LABELS: Record<string, {
     footerNote: "PERFORMANCE LAB  |  Tıbbi tavsiyenin yerini almaz",
     dateLocale: "tr-TR",
     urgency: ["KRİTİK", "EYLEM GEREKLİ", "OPTİMİZASYON POTANSİYELİ", "İNCE AYAR", "EN \u00DCST SEVİYE"],
+    censorHint: "TAM VERSIYONDA",
   },
 };
 
@@ -96,6 +101,10 @@ const PLAN_LABELS: Record<string, {
 // render wider Unicode (Turkish → Noto Sans covers Latin Extended-A;
 // everything else → Helvetica WinAnsi only).
 let currentPlanLocale: Locale = "de";
+
+// When true, items 3+ per block (except block 0) are replaced with grey
+// redaction bars + censor hint text. Set by generatePlanPDF.
+let isSamplePlan = false;
 
 // Urgency label derived from score (matches web urgencyLabel() helper)
 function urgencyInfo(score: number, locale = "de"): { text: string; color: Color } {
@@ -352,22 +361,30 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
 // ── Block rendering ────────────────────────────────────────────────────────
 // Returns new y after the block + gap.
 
-function blockHeight(block: PlanBlock, f: F): number {
+// Height of a single censored item bar (matching drawBlock rendering).
+const CENSOR_BAR_H = 14;
+const CENSOR_BAR_GAP = 6;
+
+function blockHeight(block: PlanBlock, f: F, blockIndex = 0): number {
   const innerW = CW - 32;
-  // headingH = 44: heading drawn at startY-22, separator at startY-31,
-  //   items start at startY-44 → 44pt consumed before first item.
   const headingH = 44;
-  // +4 per item matches the drawBlock `itemY -= 4` inter-item gap.
-  const itemsH = block.items.reduce(
+
+  const censorBlock = isSamplePlan && blockIndex > 0;
+  const visibleItems = censorBlock ? block.items.slice(0, 2) : block.items;
+  const censoredCount = censorBlock ? Math.max(0, block.items.length - 2) : 0;
+
+  const itemsH = visibleItems.reduce(
     (acc, item) => acc + textH(item, f.reg, 9.5, innerW - 14, 1.55) + 4,
     0,
   );
-  // Rationale overhead: 12pt gap + separator + 12pt gap + label + 12pt gap = 36pt.
+  const censoredH = censoredCount > 0 ? censoredCount * (CENSOR_BAR_H + CENSOR_BAR_GAP) + 10 : 0;
+
+  // Rationale: full for block 0, one small bar for censored blocks.
   const rationaleH = block.rationale
-    ? 36 + textH(block.rationale, f.reg, 8.5, innerW - 8, 1.5)
+    ? (censorBlock ? CENSOR_BAR_H + 20 : 36 + textH(block.rationale, f.reg, 8.5, innerW - 8, 1.5))
     : 0;
-  // 20pt bottom pad + 20pt inter-block gap (stripped in drawBlock via - 20).
-  return Math.max(70, headingH + itemsH + rationaleH + 20) + 20;
+
+  return Math.max(70, headingH + itemsH + censoredH + rationaleH + 20) + 20;
 }
 
 function drawBlock(
@@ -377,15 +394,16 @@ function drawBlock(
   accentColor: Color,
   startY: number,
   locale = "de",
+  blockIndex = 0,
 ): number {
-  const innerW = CW - 32;  // 16pt left (3pt bar + 13pt gap) + 16pt right
-  const bh = blockHeight(block, f) - 20;  // strip inter-block gap to get card height
+  const innerW = CW - 32;
+  const bh = blockHeight(block, f, blockIndex) - 20;
+  const censorBlock = isSamplePlan && blockIndex > 0;
+  const PL = PLAN_LABELS[locale] ?? PLAN_LABELS["de"];
 
-  // Card background + left accent bar
   page.drawRectangle({ x: MX, y: startY - bh, width: CW, height: bh, color: BG_CARD });
   page.drawRectangle({ x: MX, y: startY - bh, width: 3, height: bh, color: accentColor });
 
-  // Heading — 22pt from card top gives generous breathing room
   const headY = startY - 22;
   page.drawText(tx(block.heading).toUpperCase(), {
     x: MX + 16, y: headY, size: 7.5, font: f.bold, color: accentColor,
@@ -396,32 +414,66 @@ function drawBlock(
     thickness: 0.5, color: BORDER_C,
   });
 
-  // Items — start 22pt below separator baseline
-  let itemY = headY - 22;  // = startY - 44
-  for (const item of block.items) {
-    if (itemY < 80) break;  // respect footer zone
+  let itemY = headY - 22;
+  const visibleItems = censorBlock ? block.items.slice(0, 2) : block.items;
+  const censoredCount = censorBlock ? Math.max(0, block.items.length - 2) : 0;
+
+  for (const item of visibleItems) {
+    if (itemY < 80) break;
     page.drawText("-", { x: MX + 16, y: itemY, size: 8, font: f.bold, color: accentColor });
     itemY = drawW(page, item, MX + 28, itemY, innerW - 14, f.reg, 9.5, TXT_WHITE, 1.55);
     itemY -= 4;
   }
 
-  // Rationale section — 12pt gap before separator matches the 36pt overhead in blockHeight
-  if (block.rationale && itemY > 90) {
-    itemY -= 12;  // generous gap above separator
-    page.drawLine({
-      start: { x: MX + 16, y: itemY },
-      end: { x: MX + CW - 16, y: itemY },
-      thickness: 0.5, color: BORDER_C,
-    });
-    itemY -= 12;
-    page.drawText((PLAN_LABELS[locale] ?? PLAN_LABELS["de"]).scientificBasis, {
-      x: MX + 16, y: itemY, size: 6, font: f.bold, color: TXT_MUTED,
-    });
-    itemY -= 12;
-    drawW(page, block.rationale, MX + 16, itemY, innerW - 8, f.reg, 8.5, TXT_MUTED, 1.5);
+  // Censored items: grey redaction bar + hint text
+  if (censoredCount > 0 && itemY > 80) {
+    itemY -= 4;
+    for (let ci = 0; ci < censoredCount; ci++) {
+      if (itemY - CENSOR_BAR_H < 80) break;
+      const barW = innerW - 14;
+      page.drawRectangle({ x: MX + 28, y: itemY - CENSOR_BAR_H, width: barW, height: CENSOR_BAR_H, color: BG_INSET });
+      const hint = PL.censorHint;
+      const hintW = f.reg.widthOfTextAtSize(hint, 5.5);
+      page.drawText(hint, {
+        x: MX + 28 + barW / 2 - hintW / 2,
+        y: itemY - CENSOR_BAR_H + 4,
+        size: 5.5, font: f.bold, color: TXT_MUTED,
+      });
+      itemY -= CENSOR_BAR_H + CENSOR_BAR_GAP;
+    }
   }
 
-  return startY - bh - 20;  // = startY - blockHeight(block, f)
+  // Rationale section
+  if (block.rationale && itemY > 90) {
+    if (censorBlock) {
+      // Single redaction bar for the rationale block
+      itemY -= 8;
+      const barW = innerW - 8;
+      page.drawRectangle({ x: MX + 16, y: itemY - CENSOR_BAR_H, width: barW, height: CENSOR_BAR_H, color: BG_INSET });
+      const hint = PL.censorHint;
+      const hintW = f.reg.widthOfTextAtSize(hint, 5.5);
+      page.drawText(hint, {
+        x: MX + 16 + barW / 2 - hintW / 2,
+        y: itemY - CENSOR_BAR_H + 4,
+        size: 5.5, font: f.bold, color: TXT_MUTED,
+      });
+    } else {
+      itemY -= 12;
+      page.drawLine({
+        start: { x: MX + 16, y: itemY },
+        end: { x: MX + CW - 16, y: itemY },
+        thickness: 0.5, color: BORDER_C,
+      });
+      itemY -= 12;
+      page.drawText(PL.scientificBasis, {
+        x: MX + 16, y: itemY, size: 6, font: f.bold, color: TXT_MUTED,
+      });
+      itemY -= 12;
+      drawW(page, block.rationale, MX + 16, itemY, innerW - 8, f.reg, 8.5, TXT_MUTED, 1.5);
+    }
+  }
+
+  return startY - bh - 20;
 }
 
 // ── Key takeaways card ─────────────────────────────────────────────────────
@@ -482,8 +534,9 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
   y = drawW(page, tx(plan.subtitle), MX, y, CW, f.reg, 8.5, TXT_MUTED);
   y -= 16;
 
-  for (const block of plan.blocks) {
-    const bh = blockHeight(block, f);
+  for (let bi = 0; bi < plan.blocks.length; bi++) {
+    const block = plan.blocks[bi];
+    const bh = blockHeight(block, f, bi);
 
     if (y - bh < 80) {  // 80pt = SAFE_Y; footer line is at 45pt
       pageFooter(page, f, today, plan.locale);
@@ -500,7 +553,7 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
       y -= 20;
     }
 
-    y = drawBlock(page, block, f, accentColor, y, plan.locale ?? "de");
+    y = drawBlock(page, block, f, accentColor, y, plan.locale ?? "de", bi);
   }
 
   // ── Key takeaways card ────────────────────────────────────────────────────
@@ -557,6 +610,7 @@ export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
 
   const planLocale = (plan.locale ?? "de") as Locale;
   currentPlanLocale = planLocale;
+  isSamplePlan = plan.isSample === true;
   const doc = await PDFDocument.create();
   const { reg, bold } = await embedLocaleFonts(doc, planLocale);
   const f: F = { reg, bold };

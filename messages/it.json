@@ -824,6 +824,15 @@
     "policy_link": "Cookie Policy",
     "dismiss": "Capito"
   },
+  "sample": {
+    "unlock_to_see": "Nella versione completa",
+    "unlock_hint": "Disponibile nella versione completa",
+    "unlock_cta": "Sblocca ora",
+    "censored_milestones_hint": "{count} altre settimane nella versione completa",
+    "censored_habits_hint": "{count} altri consigli nella versione completa",
+    "censored_findings_hint": "{count} altre scoperte nella versione completa",
+    "censored_insights_hint": "{count} altre connessioni nella versione completa"
+  },
   "sample_report": {
     "banner_label": "REPORT ESEMPIO",
     "banner_desc": "Questo è un report esempio con dati dimostrativi — non un output di analisi reale.",

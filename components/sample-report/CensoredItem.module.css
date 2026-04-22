@@ -1,0 +1,42 @@
+/* Censored content wrapper — blurs children and shows a lock overlay.
+   Used in Beispielreport plan pages to hide items 3+ per block. */
+
+.censored_line {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.censored_block {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 2px solid rgba(255, 255, 255, 0.08);
+  min-height: 3rem;
+}
+
+.content {
+  filter: blur(7px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-family: var(--font-oswald), sans-serif;
+  cursor: default;
+}

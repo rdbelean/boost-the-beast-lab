@@ -925,6 +925,15 @@
     "policy_link": "Çerez politikası",
     "dismiss": "Anladım"
   },
+  "sample": {
+    "unlock_to_see": "Tam versiyonda",
+    "unlock_hint": "Tam versiyonda mevcut",
+    "unlock_cta": "Hemen aç",
+    "censored_milestones_hint": "{count} hafta daha tam versiyonda",
+    "censored_habits_hint": "{count} öneri daha tam versiyonda",
+    "censored_findings_hint": "{count} bulgu daha tam versiyonda",
+    "censored_insights_hint": "{count} bağlantı daha tam versiyonda"
+  },
   "sample_report": {
     "banner_label": "ÖRNEK RAPOR",
     "banner_desc": "Bu örnek verilerle hazırlanmış bir örnek rapordur — gerçek analiz çıktısı değildir.",

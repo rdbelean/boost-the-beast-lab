@@ -925,6 +925,15 @@
     "policy_link": "Cookie-Richtlinie",
     "dismiss": "Verstanden"
   },
+  "sample": {
+    "unlock_to_see": "In der Vollversion",
+    "unlock_hint": "In der Vollversion verfügbar",
+    "unlock_cta": "Jetzt freischalten",
+    "censored_milestones_hint": "{count} weitere Wochen in der Vollversion",
+    "censored_habits_hint": "{count} weitere Empfehlungen in der Vollversion",
+    "censored_findings_hint": "{count} weitere Erkenntnisse in der Vollversion",
+    "censored_insights_hint": "{count} weitere Zusammenhänge in der Vollversion"
+  },
   "sample_report": {
     "banner_label": "BEISPIELREPORT",
     "banner_desc": "Dies ist ein Beispielreport mit Musterdaten — kein echter Analyse-Output.",

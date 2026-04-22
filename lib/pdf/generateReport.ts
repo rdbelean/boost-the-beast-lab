@@ -12,6 +12,11 @@ import type { Locale } from "@/lib/supabase/types";
 // Vercel serverless (one invocation per request, no concurrent mutation).
 let currentLocale: Locale = "de";
 
+// When true, interpretive texts are censored: first N sentences shown,
+// the rest replaced with a hint. Action-plan milestones 3-4 are redacted.
+// Set by generatePDF — safe for serverless single-invocation semantics.
+let isSampleReport = false;
+
 // Localized labels used by the PDF generator. Claude-generated narrative
 // is already in the target language when the caller provides `locale`;
 // this table handles only the STRUCTURAL PDF chrome (section headers,
@@ -70,6 +75,8 @@ const PDF_LABELS: Record<Locale, {
   qSecured: string;
   disclaimer1: string;
   disclaimer2: string;
+  censorHint: string;
+  censorMilestonesHint: string;
 }> = {
   de: {
     footerStrip: "PERFORMANCE LAB  |  Kein Ersatz f\u00FCr medizinische Beratung",
@@ -125,6 +132,8 @@ const PDF_LABELS: Record<Locale, {
     qSecured: "DATENBASIS GESICHERT",
     disclaimer1: "Alle Angaben basieren auf selbstberichteten Daten und modellbasierten Berechnungen nach IPAQ, NSF/AASM, WHO und ACSM Leitlinien. VO2max ist eine algorithmische Sch\u00E4tzung nach dem Jackson Non-Exercise Prediction Model. Dieses Dokument stellt keine Heilaussagen dar und ist kein Medizinprodukt im Sinne der MDR.",
     disclaimer2: "Dieser Report wurde auf Basis wissenschaftlicher Scoring-Modelle erstellt. Er ersetzt keine \u00E4rztliche Untersuchung, keine Labordiagnostik und keine individualisierte medizinische Beratung. Wende dich bei gesundheitlichen Beschwerden oder spezifischen Fragen an einen qualifizierten Arzt oder Therapeuten.",
+    censorHint: "In der Vollversion verfugbar",
+    censorMilestonesHint: "In der Vollversion",
   },
   en: {
     footerStrip: "PERFORMANCE LAB  |  Not a substitute for medical advice",
@@ -180,6 +189,8 @@ const PDF_LABELS: Record<Locale, {
     qSecured: "DATA BASIS SECURED",
     disclaimer1: "All data is based on self-reported information and model-based calculations per IPAQ, NSF/AASM, WHO and ACSM guidelines. VO2max is an algorithmic estimate based on the Jackson Non-Exercise Prediction Model. This document does not constitute medical claims and is not a medical device per MDR.",
     disclaimer2: "This report was generated using scientific scoring models. It does not replace medical examination, laboratory diagnostics, or individualised medical consultation. For health concerns or specific questions, please consult a qualified physician or therapist.",
+    censorHint: "Available in full version",
+    censorMilestonesHint: "In full version",
   },
   it: {
     footerStrip: "PERFORMANCE LAB  |  Non sostituisce la consulenza medica",
@@ -235,6 +246,8 @@ const PDF_LABELS: Record<Locale, {
     qSecured: "BASE DATI GARANTITA",
     disclaimer1: "Tutti i dati si basano su informazioni fornite dall'utente e calcoli modellistici secondo le linee guida IPAQ, NSF/AASM, WHO e ACSM. Il VO2max \u00E8 una stima algoritmica basata sul modello Jackson Non-Exercise Prediction. Questo documento non costituisce dichiarazioni mediche e non \u00E8 un dispositivo medico ai sensi del MDR.",
     disclaimer2: "Questo report \u00E8 stato generato utilizzando modelli di scoring scientifici. Non sostituisce la visita medica, la diagnostica di laboratorio o la consulenza medica individualizzata. Per problemi di salute o domande specifiche, consultare un medico o terapista qualificato.",
+    censorHint: "Nella versione completa",
+    censorMilestonesHint: "Nella versione completa",
   },
   tr: {
     footerStrip: "PERFORMANCE LAB  |  Tıbbi tavsiyenin yerini almaz",
@@ -290,6 +303,8 @@ const PDF_LABELS: Record<Locale, {
     qSecured: "VERİ TABANI G\u00DCVENCE ALTINDA",
     disclaimer1: "T\u00FCm veriler, kullan\u0131c\u0131 taraf\u0131ndan bildirilen bilgilere ve IPAQ, NSF/AASM, WHO, ACSM k\u0131lavuzlar\u0131na uygun model tabanl\u0131 hesaplamalara dayanmaktad\u0131r. VO2max, Jackson Non-Exercise Prediction Model'e dayal\u0131 algoritmik bir tahmindir. Bu belge t\u0131bbi beyan i\u00E7ermez ve MDR anlam\u0131nda t\u0131bbi cihaz de\u011Fildir.",
     disclaimer2: "Bu rapor bilimsel skorlama modelleri kullan\u0131larak olu\u015Fturulmu\u015Ftur. T\u0131bbi muayene, laboratuvar tan\u0131 veya bireysel t\u0131bbi dan\u0131\u015Fmanl\u0131\u011F\u0131n yerini almaz. Sa\u011Fl\u0131k sorunlar\u0131 veya spesifik sorular i\u00E7in l\u00FCtfen yetkin bir doktor veya terapiste dan\u0131\u015F.",
+    censorHint: "Tam versiyonda mevcut",
+    censorMilestonesHint: "Tam versiyonda",
   },
 };
 
@@ -580,6 +595,45 @@ function drawW(
 function textH(text: string, font: PDFFont, size: number, maxW: number, lhMul = 1.6): number {
   if (!text || !tx(text).trim()) return 0;
   return wrapLines(text, font, size, maxW).length * size * lhMul;
+}
+
+// Split text into first N sentences (visible) + hidden count.
+// Used in sample mode to censor interpretive text in the PDF.
+function censorText(text: string, visibleSentences = 1): { visible: string; hiddenCount: number } {
+  if (!text) return { visible: "", hiddenCount: 0 };
+  // Split on sentence boundaries: period/!/? followed by whitespace + capital/digit.
+  const parts = text.split(/(?<=[.!?])\s+(?=[A-ZÜÖÄA-Z\d])/);
+  if (parts.length <= visibleSentences) return { visible: text, hiddenCount: 0 };
+  return {
+    visible: parts.slice(0, visibleSentences).join(" "),
+    hiddenCount: parts.length - visibleSentences,
+  };
+}
+
+// Draw text censored: visible portion first, then a muted hint line.
+// Returns new y after the hint (or after visible text if nothing was hidden).
+function drawCensored(
+  page: PDFPage,
+  text: string,
+  x: number,
+  y: number,
+  maxW: number,
+  font: PDFFont,
+  size: number,
+  color: Color,
+  lhMul: number,
+  visibleSentences: number,
+  f: F,
+): number {
+  if (!isSampleReport) return drawW(page, text, x, y, maxW, font, size, color, lhMul);
+  const { visible, hiddenCount } = censorText(text, visibleSentences);
+  y = drawW(page, visible, x, y, maxW, font, size, color, lhMul);
+  if (hiddenCount > 0 && y > CB) {
+    const hint = `+${hiddenCount} ${PDF_LABELS[currentLocale].censorHint}`;
+    page.drawText(tx(hint), { x, y, size: 7.5, font: f.reg, color: TXT_MUTED });
+    y -= 12;
+  }
+  return y;
 }
 
 // ── Drawing primitives ─────────────────────────────────────────────────────
@@ -1092,10 +1146,11 @@ function buildExecutiveFindings(
     // Headline — kept left-aligned; justified bold headlines look stretched.
     drawW(page, tx(f2.headline), MX + 14, y - 32, CW - 32, f.bold, 11, TXT_WHITE, 1.4, false);
 
-    // Body
+    // Body — censored to 1 sentence in sample mode
     const headlineLines = wrapLines(tx(f2.headline), f.bold, 11, CW - 32);
     const bodyStartY = y - 32 - headlineLines.length * 11 * 1.4 - 6;
-    drawW(page, tx(f2.body), MX + 14, Math.max(y - boxH + 14, bodyStartY), CW - 32, f.reg, 9.5, TXT_MUTED, 1.6);
+    const bodyText = isSampleReport ? censorText(tx(f2.body), 1).visible : tx(f2.body);
+    drawW(page, bodyText, MX + 14, Math.max(y - boxH + 14, bodyStartY), CW - 32, f.reg, 9.5, TXT_MUTED, 1.6);
 
     y -= boxH + 10;
   }
@@ -1127,7 +1182,8 @@ function buildCrossInsightsPage(
     page.drawRectangle({ x: MX, y: y - boxH, width: 4, height: boxH, color: BLUE_INFO });
 
     page.drawText(tx(ins.headline).toUpperCase(), { x: MX + 14, y: y - 16, size: 9, font: f.bold, color: BLUE_INFO });
-    drawW(page, tx(ins.body), MX + 14, y - 34, CW - 32, f.reg, 10, TXT_WHITE, 1.65);
+    const insBody = isSampleReport ? censorText(tx(ins.body), 1).visible : tx(ins.body);
+    drawW(page, insBody, MX + 14, y - 34, CW - 32, f.reg, 10, TXT_WHITE, 1.65);
 
     y -= boxH + 10;
   }
@@ -1172,19 +1228,30 @@ function buildActionPlanPage(
     page.drawText(`${tvLabel} ${tx(g.target_value)}${g.delta_pct ? `  (${tx(g.delta_pct)})` : ""}`, { x: MX + 120, y: y - 46, size: 8, font: f.reg, color: SC_GREEN });
     page.drawText(`${srcLabel} ${tx(g.metric_source)}`, { x: MX + 14, y: y - 58, size: 7, font: f.reg, color: TXT_MUTED });
 
-    // Week milestones — skip rows where task/week are empty (defensive)
+    // Week milestones — milestones 3-4 are redacted in sample mode
     if (g.week_milestones && g.week_milestones.length > 0) {
       let my = y - 72;
-      for (const ms of g.week_milestones.slice(0, 4)) {
+      const milestones = g.week_milestones.slice(0, 4);
+      for (let mi = 0; mi < milestones.length; mi++) {
         if (my < y - boxH + 12) break;
-        // Skip if milestone is a raw string (malformed) or fields are empty
+        const ms = milestones[mi];
         if (typeof ms !== "object" || !ms.week || !ms.task) continue;
-        const rowText = `${tx(ms.week)}: ${tx(ms.task)}`;
-        page.drawText(rowText, { x: MX + 14, y: my, size: 7.5, font: f.reg, color: TXT_MUTED });
-        const mVal = ms.milestone ? tx(ms.milestone) : "";
-        if (mVal) {
-          const mW = f.bold.widthOfTextAtSize(mVal, 7.5);
-          page.drawText(mVal, { x: PW - MX - mW - 14, y: my, size: 7.5, font: f.bold, color: SC_GREEN });
+
+        if (isSampleReport && mi >= 2) {
+          // Grey redaction bar for milestones 3-4
+          const barW = CW - 32;
+          page.drawRectangle({ x: MX + 14, y: my - 10, width: barW, height: 13, color: BG_INSET });
+          const cHint = PDF_LABELS[currentLocale].censorMilestonesHint;
+          const cW = f.reg.widthOfTextAtSize(cHint, 5.5);
+          page.drawText(cHint, { x: MX + 14 + barW / 2 - cW / 2, y: my - 8, size: 5.5, font: f.bold, color: TXT_MUTED });
+        } else {
+          const rowText = `${tx(ms.week)}: ${tx(ms.task)}`;
+          page.drawText(rowText, { x: MX + 14, y: my, size: 7.5, font: f.reg, color: TXT_MUTED });
+          const mVal = ms.milestone ? tx(ms.milestone) : "";
+          if (mVal) {
+            const mW = f.bold.widthOfTextAtSize(mVal, 7.5);
+            page.drawText(mVal, { x: PW - MX - mW - 14, y: my, size: 7.5, font: f.bold, color: SC_GREEN });
+          }
         }
         my -= 16;
       }
@@ -1314,33 +1381,36 @@ function buildModule(
   // ── EINORDNUNG ────────────────────────────────────────────────────────
   if (mod.score_context) {
     y = secLabel(page, PL.einordnung, f, MX, y);
-    y -= 10;  // tight gap: heading belongs to content below, not above
-    y = drawW(page, mod.score_context, MX, y, CW, f.reg, L.bodySize, TXT_WHITE, L.lhBody);
+    y -= 10;
+    y = drawCensored(page, mod.score_context, MX, y, CW, f.reg, L.bodySize, TXT_WHITE, L.lhBody, 2, f);
     y -= L.sectionGap;
   }
 
   // ── HAUPTBEFUND ───────────────────────────────────────────────────────
   const finding = mod.key_finding ?? mod.main_finding ?? mod.interpretation ?? "";
   if (finding) {
-    y -= 12;  // extra pre-heading gap: visually separates from previous section
+    y -= 12;
     y = secLabel(page, PL.hauptbefund, f, MX, y);
-    y -= 10;  // tight gap: heading belongs to content below
-    y = drawW(page, finding, MX, y, CW, f.bold, L.findingSize, TXT_WHITE, L.lhBody);
+    y -= 10;
+    y = drawCensored(page, finding, MX, y, CW, f.bold, L.findingSize, TXT_WHITE, L.lhBody, 1, f);
     y -= L.sectionGap;
   }
 
   // ── Info boxes ────────────────────────────────────────────────────────
   const systemic = mod.systemic_connection ?? mod.systemic_impact ?? "";
   if (systemic && tx(systemic).trim()) {
-    y = infoBox(page, PL.systemischeVerbindung, systemic, f, MX, y, CW, BLUE_INFO,
+    const systemicText = isSampleReport ? censorText(systemic, 1).visible : systemic;
+    y = infoBox(page, PL.systemischeVerbindung, systemicText, f, MX, y, CW, BLUE_INFO,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
   if (mod.limitation && tx(mod.limitation).trim()) {
-    y = infoBox(page, PL.limitierung, mod.limitation, f, MX, y, CW, ACCENT,
+    const limitText = isSampleReport ? censorText(mod.limitation, 1).visible : mod.limitation;
+    y = infoBox(page, PL.limitierung, limitText, f, MX, y, CW, ACCENT,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
   if (mod.recommendation && tx(mod.recommendation).trim()) {
-    y = infoBox(page, PL.naechsterSchritt, mod.recommendation, f, MX, y, CW, SC_GREEN,
+    const recText = isSampleReport ? censorText(mod.recommendation, 1).visible : mod.recommendation;
+    y = infoBox(page, PL.naechsterSchritt, recText, f, MX, y, CW, SC_GREEN,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
 
@@ -1425,6 +1495,7 @@ export async function generatePDF(
   isSample = false,
 ): Promise<Uint8Array> {
   currentLocale = locale;
+  isSampleReport = isSample;
   const L = PDF_LABELS[locale];
   const today = new Date().toLocaleDateString(L.dateLocale, {
     year: "numeric",

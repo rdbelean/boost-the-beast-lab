@@ -925,6 +925,15 @@
     "policy_link": "Cookie Policy",
     "dismiss": "Got it"
   },
+  "sample": {
+    "unlock_to_see": "In full version",
+    "unlock_hint": "Available in full version",
+    "unlock_cta": "Unlock now",
+    "censored_milestones_hint": "{count} more weeks in the full version",
+    "censored_habits_hint": "{count} more recommendations in the full version",
+    "censored_findings_hint": "{count} more insights in the full version",
+    "censored_insights_hint": "{count} more connections in the full version"
+  },
   "sample_report": {
     "banner_label": "SAMPLE REPORT",
     "banner_desc": "This is a sample report with demo data — not a real analysis output.",
