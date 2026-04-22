@@ -85,9 +85,33 @@ const PLAN_META_IT: PlanMeta = {
   },
 };
 
+const PLAN_META_TR: PlanMeta = {
+  activity: {
+    title: "AKTİVİTE PLANI",
+    subtitle: "Aktivite değerlerini geliştirmek için bireysel plan",
+    source: "Kaynak: WHO Küresel Eylem Planı 2018–2030, ACSM Egzersiz Yönergeleri, IPAQ Kısa Form",
+  },
+  metabolic: {
+    title: "METABOLİK PLAN",
+    subtitle: "Metabolik performansını optimize etmek için bireysel plan",
+    source: "Kaynak: WHO BMI Sınıflandırması, EFSA Beslenme Önerileri, ISSN Pozisyon Bildirisi, JAMA Network Open 2024",
+  },
+  recovery: {
+    title: "İYİLEŞME PLANI",
+    subtitle: "Yenilenme kapasiteni geliştirmek için bireysel plan",
+    source: "Kaynak: NSF/AASM Uyku Yönergeleri, PSQI Ölçeği, ACSM İyileşme Protokolleri, Kaczmarek et al. MDPI 2025",
+  },
+  stress: {
+    title: "STRES & YAŞAMBİÇİMİ PLANI",
+    subtitle: "Stres ve yaşam biçimini optimize etmek için bireysel plan",
+    source: "Kaynak: WHO Ruh Sağlığı Yönergeleri, Psychoneuroendocrinology Meta-Analizi 2024, MBSR (Kabat-Zinn)",
+  },
+};
+
 function getPlanMeta(locale: string): PlanMeta {
   if (locale === "en") return PLAN_META_EN;
   if (locale === "it") return PLAN_META_IT;
+  if (locale === "tr") return PLAN_META_TR;
   return PLAN_META_DE;
 }
 
@@ -128,25 +152,23 @@ TON-REGELN:
 - Stattdessen: direkte Aussagen. Statt "Es ist wichtig, genug zu schlafen" → "Dein Recovery-Deckel liegt bei einem Sleep-Score unter 65 — jedes weitere Training läuft gegen diese Grenze."
 - Nutze die echten Zahlen aus dem Input: MET-Minuten, BMI, VO2max-Schätzung, Score-Werte, Bänder
 
-FORMAT: Ausschließlich valides JSON. Keine Markdown-Backticks. Beginne direkt mit {
+FORMAT: Valid JSON only. No markdown backticks. Start directly with {
 
-STRUKTUR — genau 6 Blöcke mit je 5–8 Einträgen:
+STRUCTURE — exactly 6 blocks with 5–8 items each:
 {
   "blocks": [
-    { "heading": "Deine Ausgangslage", "items": ["...", "...", "...", "...", "...", "..."] },
+    { "heading": "[BLOCK_1_HEADING]", "items": ["...", "...", "...", "...", "...", "..."] },
     { "heading": "...", "items": ["...", "...", "...", "...", "...", "..."] },
     { "heading": "...", "items": ["...", "...", "...", "...", "...", "..."] },
     { "heading": "...", "items": ["...", "...", "...", "...", "...", "..."] },
     { "heading": "...", "items": ["...", "...", "...", "...", "...", "..."] },
-    { "heading": "Monitoring & Fortschritt", "items": ["...", "...", "...", "...", "...", "..."] }
+    { "heading": "[BLOCK_6_HEADING]", "items": ["...", "...", "...", "...", "...", "..."] }
   ]
 }
 
-Block 1 "Deine Ausgangslage": Alle relevanten Scores mit Einordnung, Vergleich mit Referenzwerten, was die Zahlen konkret bedeuten.
-Blöcke 2–5: Konkrete, evidenzbasierte Protokolle und Maßnahmen spezifisch für den Plan-Typ. Jeder Eintrag ist ein vollständiger Satz mit Begründung und konkreten Zahlen.
-Block 6 "Monitoring & Fortschritt": Wie misst man Fortschritt, in welchem Zeitraum, welche Indikatoren, wann eine Neue Analyse sinnvoll ist.
-
-SPRACHE: Deutsch, professionell, direkt, fachlich fundiert.`;
+Block 1 [BLOCK_1_HEADING]: All relevant scores with context, comparison to reference values, what the numbers mean concretely.
+Blocks 2–5: Concrete, evidence-based protocols and measures specific to the plan type. Each item is a complete sentence with reasoning and concrete numbers.
+Block 6 [BLOCK_6_HEADING]: How to measure progress, over what timeframe, which indicators, when a new analysis makes sense.`;
 
 // ── Fallback (no API key) ────────────────────────────────────────────────────
 
@@ -596,15 +618,22 @@ export async function POST(req: NextRequest) {
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const userPrompt = buildUserPrompt(planType, scores, personalization);
-    const langDirective =
-      locale === "en" ? "\n\nIMPORTANT: Respond entirely in English." :
-      locale === "it" ? "\n\nIMPORTANT: Rispondi interamente in italiano." :
-      locale === "tr" ? "\n\nIMPORTANT: Yanıtı tamamen Türkçe ver, samimi 'sen' hitabı kullan (resmi 'siz' değil)." : "";
+
+    // Build the language instruction — replaces the removed SPRACHE line.
+    // Placed at the end so heading names override the [BLOCK_*_HEADING] placeholders.
+    const languageInstruction =
+      locale === "en"
+        ? "LANGUAGE: English. Write the entire response in English. Professional, direct elite-coaching tone.\nBlock 1 heading: \"Your Starting Point\". Block 6 heading: \"Monitoring & Progress\"."
+        : locale === "it"
+        ? "LINGUA: Italiano. Scrivi l'intera risposta in italiano. Tono professionale e diretto da coach d'élite.\nBlocco 1 titolo: \"La Tua Situazione Attuale\". Blocco 6 titolo: \"Monitoraggio & Progressi\"."
+        : locale === "tr"
+        ? "DİL: Türkçe. Tüm yanıtı Türkçe yaz. Samimi 'sen' hitabı kullan (resmi 'siz' değil). Profesyonel, doğrudan elit antrenör tonu.\nBlok 1 başlığı: \"Mevcut Durumun\". Blok 6 başlığı: \"İzleme & İlerleme\"."
+        : "SPRACHE: Deutsch, professionell, direkt, fachlich fundiert.\nBlock 1 Überschrift: \"Deine Ausgangslage\". Block 6 Überschrift: \"Monitoring & Fortschritt\".";
 
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 3000,
-      system: SYSTEM_PROMPT + langDirective,
+      system: SYSTEM_PROMPT + "\n\n" + languageInstruction,
       messages: [{ role: "user", content: userPrompt }],
     });
 

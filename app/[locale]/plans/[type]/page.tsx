@@ -63,17 +63,18 @@ export default function PlanPage() {
       const cached = data.plans?.[type as PlanType];
       if (cached?.blocks?.length) {
         // Use the pre-generated content directly — no second API call.
+        const base = buildPlan(type as PlanType, data.scores, locale);
         setPlan({
-          ...buildPlan(type as PlanType, data.scores),
+          ...base,
           blocks: cached.blocks,
-          source: cached.source ?? buildPlan(type as PlanType, data.scores).source,
+          source: cached.source ?? base.source,
         });
         if (cached.pdfBase64) setCachedPdfBase64(cached.pdfBase64);
         return;
       }
 
       // 2. No cache (legacy flow / manual nav) — build static + fetch AI
-      const initial = buildPlan(type as PlanType, data.scores);
+      const initial = buildPlan(type as PlanType, data.scores, locale);
       setPlan(initial);
 
       fetch("/api/plan/generate", {
@@ -84,7 +85,13 @@ export default function PlanPage() {
         .then((r) => r.ok ? r.json() : null)
         .then((ai) => {
           if (ai?.blocks?.length) {
-            setPlan((prev) => prev ? { ...prev, blocks: ai.blocks, source: ai.source ?? prev.source } : prev);
+            setPlan((prev) => prev ? {
+              ...prev,
+              blocks: ai.blocks,
+              source: ai.source ?? prev.source,
+              ...(ai.title    ? { title: ai.title }       : {}),
+              ...(ai.subtitle ? { subtitle: ai.subtitle } : {}),
+            } : prev);
           }
         })
         .catch(() => {});

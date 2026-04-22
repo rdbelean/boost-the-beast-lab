@@ -1,7 +1,8 @@
 "use client";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import styles from "./analyse.module.css";
 import SliderInput from "@/components/analyse/SliderInput";
@@ -35,7 +36,7 @@ async function generatePlanBundle(
   personalization: PlanPersonalization = {},
 ): Promise<PlanBundle | null> {
   // 1. Build static fallback content locally
-  const basePlan = buildPlan(planType, scores);
+  const basePlan = buildPlan(planType, scores, locale);
 
   // 2. Try to get AI-enhanced blocks (non-blocking if it fails)
   let blocks = basePlan.blocks;
@@ -338,7 +339,8 @@ export default function AnalysePage() {
 
 function AnalyseContent() {
   const t = useTranslations("analyse");
-  const locale = useLocale();
+  const { locale: localeParam } = useParams() as { locale: string };
+  const locale = localeParam ?? "de";
   const searchParams = useSearchParams();
   const router = useRouter();
   const preselectedProduct = searchParams.get("product") ?? "complete-analysis";

@@ -4,6 +4,44 @@
 
 export type PlanType = "activity" | "metabolic" | "recovery" | "stress";
 
+interface PlanMeta { title: string; subtitle: string; source: string }
+type PlanMetaMap = Record<PlanType, PlanMeta>;
+
+const META_DE: PlanMetaMap = {
+  activity: { title: "ACTIVITY-PLAN", subtitle: "Individueller Plan zur Verbesserung deiner Aktivitätswerte", source: "Basiert auf: WHO Global Action Plan 2018–2030, ACSM Exercise Guidelines, IPAQ Short Form, Ainsworth MET Compendium (2011)" },
+  metabolic: { title: "METABOLIC-PLAN", subtitle: "Individueller Plan zur Optimierung deiner metabolischen Performance", source: "Basiert auf: WHO BMI-Klassifikation, EFSA Nährwertempfehlungen, DGE Ernährungskreis, ISSN Position Stand 2017" },
+  recovery: { title: "RECOVERY-PLAN", subtitle: "Individueller Plan zur Verbesserung deiner Regeneration", source: "Basiert auf: NSF Sleep Guidelines, PSQI-Skala, ACSM Recovery Protocols, Walker (2017) Why We Sleep" },
+  stress: { title: "STRESS & LIFESTYLE-PLAN", subtitle: "Individueller Plan zur Optimierung von Stress und Lifestyle", source: "Basiert auf: WHO Mental Health Guidelines, APA Stress Management, MBSR Kabat-Zinn, Cohen PSS-10 Skala" },
+};
+
+const META_EN: PlanMetaMap = {
+  activity: { title: "ACTIVITY PLAN", subtitle: "Individual plan to improve your activity metrics", source: "Based on: WHO Global Action Plan 2018–2030, ACSM Exercise Guidelines, IPAQ Short Form, Ainsworth MET Compendium (2011)" },
+  metabolic: { title: "METABOLIC PLAN", subtitle: "Individual plan to optimise your metabolic performance", source: "Based on: WHO BMI Classification, EFSA Nutrition Recommendations, ISSN Position Stand, JAMA Network Open Meal Timing 2024" },
+  recovery: { title: "RECOVERY PLAN", subtitle: "Individual plan to improve your recovery", source: "Based on: NSF/AASM Sleep Guidelines, PSQI Scale, ACSM Recovery Protocols, Kaczmarek et al. MDPI 2025" },
+  stress: { title: "STRESS & LIFESTYLE PLAN", subtitle: "Individual plan to optimise stress and lifestyle", source: "Based on: WHO Mental Health Guidelines, Psychoneuroendocrinology Meta-Analysis 2024, MBSR (Kabat-Zinn)" },
+};
+
+const META_IT: PlanMetaMap = {
+  activity: { title: "PIANO ATTIVITÀ", subtitle: "Piano individuale per migliorare i tuoi valori di attività", source: "Basato su: WHO Global Action Plan 2018–2030, ACSM Exercise Guidelines, IPAQ Short Form" },
+  metabolic: { title: "PIANO METABOLICO", subtitle: "Piano individuale per ottimizzare la tua performance metabolica", source: "Basato su: Classificazione BMI WHO, Raccomandazioni nutrizionali EFSA, ISSN Position Stand, JAMA Network Open 2024" },
+  recovery: { title: "PIANO RECOVERY", subtitle: "Piano individuale per migliorare la tua rigenerazione", source: "Basato su: NSF/AASM Sleep Guidelines, Scala PSQI, ACSM Recovery Protocols, Kaczmarek et al. MDPI 2025" },
+  stress: { title: "PIANO STRESS & LIFESTYLE", subtitle: "Piano individuale per ottimizzare stress e stile di vita", source: "Basato su: WHO Mental Health Guidelines, Meta-Analysis Psychoneuroendocrinology 2024, MBSR (Kabat-Zinn)" },
+};
+
+const META_TR: PlanMetaMap = {
+  activity: { title: "AKTİVİTE PLANI", subtitle: "Aktivite değerlerini geliştirmek için bireysel plan", source: "Kaynak: WHO Küresel Eylem Planı 2018–2030, ACSM Egzersiz Yönergeleri, IPAQ Kısa Form" },
+  metabolic: { title: "METABOLİK PLAN", subtitle: "Metabolik performansını optimize etmek için bireysel plan", source: "Kaynak: WHO BMI Sınıflandırması, EFSA Beslenme Önerileri, ISSN Pozisyon Bildirisi, JAMA Network Open 2024" },
+  recovery: { title: "İYİLEŞME PLANI", subtitle: "Yenilenme kapasiteni geliştirmek için bireysel plan", source: "Kaynak: NSF/AASM Uyku Yönergeleri, PSQI Ölçeği, ACSM İyileşme Protokolleri, Kaczmarek et al. MDPI 2025" },
+  stress: { title: "STRES & YAŞAMBİÇİMİ PLANI", subtitle: "Stres ve yaşam biçimini optimize etmek için bireysel plan", source: "Kaynak: WHO Ruh Sağlığı Yönergeleri, Psychoneuroendocrinology Meta-Analizi 2024, MBSR (Kabat-Zinn)" },
+};
+
+function getPlanMeta(locale?: string): PlanMetaMap {
+  if (locale === "en") return META_EN;
+  if (locale === "it") return META_IT;
+  if (locale === "tr") return META_TR;
+  return META_DE;
+}
+
 export interface PlanBlock {
   heading: string;
   items: string[];
@@ -26,7 +64,8 @@ export const PLAN_COLORS: Record<PlanType, string> = {
   stress: "#22C55E",
 };
 
-export function buildPlan(type: PlanType, scores: Record<string, unknown>): PlanContent {
+export function buildPlan(type: PlanType, scores: Record<string, unknown>, locale?: string): PlanContent {
+  const meta = getPlanMeta(locale)[type];
   const s = scores as {
     activity: { activity_score_0_100: number; activity_category: string; total_met_minutes_week: number };
     sleep: { sleep_score_0_100: number; sleep_duration_band: string };
@@ -42,10 +81,10 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>): Plan
     const whoTarget = 600;
     const gap = Math.max(0, whoTarget - met);
     return {
-      title: "ACTIVITY-PLAN",
-      subtitle: "Individueller Plan zur Verbesserung deiner Aktivitätswerte",
+      title: meta.title,
+      subtitle: meta.subtitle,
       color: PLAN_COLORS.activity,
-      source: "Basiert auf: WHO Global Action Plan 2018–2030, ACSM Exercise Guidelines, IPAQ Short Form, Ainsworth MET Compendium (2011)",
+      source: meta.source,
       score,
       blocks: [
         {
@@ -117,10 +156,10 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>): Plan
     const bmi = s.metabolic.bmi;
     const cat = s.metabolic.bmi_category;
     return {
-      title: "METABOLIC-PLAN",
-      subtitle: "Individueller Plan zur Optimierung deiner metabolischen Performance",
+      title: meta.title,
+      subtitle: meta.subtitle,
       color: PLAN_COLORS.metabolic,
-      source: "Basiert auf: WHO BMI-Klassifikation, EFSA Nährwertempfehlungen, DGE Ernährungskreis, ISSN Position Stand 2017",
+      source: meta.source,
       score,
       blocks: [
         {
@@ -183,10 +222,10 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>): Plan
     const score = s.sleep.sleep_score_0_100;
     const band = s.sleep.sleep_duration_band;
     return {
-      title: "RECOVERY-PLAN",
-      subtitle: "Individueller Plan zur Verbesserung deiner Regeneration",
+      title: meta.title,
+      subtitle: meta.subtitle,
       color: PLAN_COLORS.recovery,
-      source: "Basiert auf: NSF Sleep Guidelines, PSQI-Skala, ACSM Recovery Protocols, Walker (2017) Why We Sleep",
+      source: meta.source,
       score,
       blocks: [
         {
@@ -248,10 +287,10 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>): Plan
   const score = s.stress.stress_score_0_100;
   const band = s.stress.stress_band;
   return {
-    title: "STRESS & LIFESTYLE-PLAN",
-    subtitle: "Individueller Plan zur Optimierung von Stress und Lifestyle",
+    title: meta.title,
+    subtitle: meta.subtitle,
     color: PLAN_COLORS.stress,
-    source: "Basiert auf: WHO Mental Health Guidelines, APA Stress Management, MBSR Kabat-Zinn, Cohen PSS-10 Skala",
+    source: meta.source,
     score,
     blocks: [
       {
