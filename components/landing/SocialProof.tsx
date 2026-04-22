@@ -12,9 +12,9 @@ import styles from "@/app/landing.module.css";
 const CASE_STUDIES = [
   {
     id: "jens",
-    photoSrc: "/jens-castrop.jpg",
-    hasPhoto: false,
-    photoAlt: "Jens Castrop",
+    photoSrc: "/marco-jens.jpg",
+    hasPhoto: true,
+    photoAlt: "Jens Castrop mit Marco",
     initials: "JC",
   },
   {
