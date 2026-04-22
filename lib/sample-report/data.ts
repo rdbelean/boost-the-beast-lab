@@ -1,4 +1,7 @@
 import type { PdfReportContent, PdfScores, PdfUserProfile } from "@/lib/pdf/generateReport";
+import type { HeroSummary } from "@/lib/reports/hero-summary";
+import type { DataInsights } from "@/lib/reports/data-insights";
+import type { ScoreDataBasis } from "@/lib/reports/score-data-basis";
 
 export const SAMPLE_SCORES_DISPLAY = {
   activity: {
@@ -250,4 +253,72 @@ export const SAMPLE_PDF_CONTENT: PdfReportContent = {
         "1× pro Woche 4×4-Intervall (4 Min bei 90–95% HFmax, 3 Min aktive Pause). Norwegian 4×4 Protocol.",
     },
   },
+};
+
+/* ─── Sample Data for Beispielreport Components ─────────────── */
+
+export function getSampleHeroSummary(locale: string): HeroSummary {
+  const isEN = locale === "en";
+  const isIT = locale === "it";
+  const days = 24;
+  const label = isEN
+    ? `${days} Days WHOOP Tracking`
+    : isIT
+    ? `${days} giorni WHOOP Tracking`
+    : `${days} Tage WHOOP Tracking`;
+  return {
+    total_datapoints: 168,
+    sources: [{ type: "whoop", icon: "🔥", label }],
+    has_any_data: true,
+    quality_level: "strong",
+    period_start: isEN ? "Mar 28, 2026" : isIT ? "28 mar 2026" : "28. Mär. 2026",
+    period_end:   isEN ? "Apr 20, 2026" : isIT ? "20 apr 2026" : "20. Apr. 2026",
+  };
+}
+
+export const SAMPLE_DATA_INSIGHTS: DataInsights = {
+  sleep: [
+    { label_key: "duration",  value: "7.2",  unit: "h",   evaluation: { status: "borderline", reference: "NSF: 7–9h",        color: "#F59E0B" } },
+    { label_key: "deep_sleep",value: "84",   unit: "min", evaluation: { status: "borderline", reference: "Opt: 90–120 min",   color: "#F59E0B" } },
+    { label_key: "rem",       value: "98",   unit: "min", evaluation: { status: "good",       reference: "Opt: 90–120 min",   color: "#22C55E" } },
+    { label_key: "wakeups",   value: "2.1",              evaluation: { status: "good",       reference: "NSF: ≤2",           color: "#22C55E" } },
+  ],
+  activity: [
+    { label_key: "steps",     value: "9500", unit: "Schr.", evaluation: { status: "good",    reference: "WHO: 8–10k",        color: "#22C55E" } },
+    { label_key: "strain",    value: "14.2",              evaluation: { status: "good",       reference: "Opt: 12–16",        color: "#22C55E" } },
+    { label_key: "active_kcal",value: "520",unit: "kcal", evaluation: { status: "optimal",  reference: "Opt: >400 kcal",    color: "#22C55E" } },
+  ],
+  vo2max: [
+    { label_key: "value",     value: "46.2", unit: "ml/kg/min", evaluation: { status: "good", reference: "P70 Altersgruppe", color: "#22C55E" } },
+  ],
+  metabolic: [
+    { label_key: "bmi",       value: "23.8", unit: "kg/m²", evaluation: { status: "optimal", reference: "WHO: 18.5–24.9",  color: "#22C55E" } },
+    { label_key: "weight",    value: "78.0", unit: "kg" },
+  ],
+  stress: [
+    { label_key: "hrv",       value: "48",   unit: "ms",  evaluation: { status: "borderline", reference: "Opt: ≥55ms",     color: "#F59E0B" } },
+    { label_key: "rhr",       value: "57",   unit: "bpm", evaluation: { status: "optimal",   reference: "Opt: 50–65 bpm",  color: "#22C55E" } },
+    { label_key: "whoop_recovery", value: "65", unit: "%", evaluation: { status: "good",     reference: "Opt: ≥67%",       color: "#22C55E" } },
+  ],
+};
+
+export const SAMPLE_SCORE_DATA_BASIS: Record<string, ScoreDataBasis> = {
+  activity:  { icon: "🔥", label: "24T WHOOP", type: "positive" },
+  sleep:     { icon: "🔥", label: "24T WHOOP", type: "positive" },
+  vo2max:    { icon: "🔥", label: "24T WHOOP", type: "positive" },
+  metabolic: { icon: "📝", label: "Fragebogen", type: "neutral" },
+  stress:    { icon: "🔥", label: "24T WHOOP", type: "positive" },
+};
+
+export const SAMPLE_INTERPRETATIONS: Record<string, string> = {
+  activity:
+    "Mit Ø 9.500 Schritten täglich und einem Ø Strain von 14,2 liegst du solide im aktiven Bereich. Die 4 Trainingstage pro Woche spiegeln sich im hohen MET-Wert (1.640 MET-min/Woche). Zone-2-Cardio als Ergänzung würde deine aerobe Basis und Recovery mittelfristig verbessern.",
+  sleep:
+    "Deine Schlafdauer von Ø 7,2h liegt knapp unterhalb des NSF-Optimums für dein Trainingspensum. Der Deep Sleep mit 84min ist der limitierende Faktor — direkte Ursache für schwankende Recovery-Scores. Koffein-Cutoff vor 14 Uhr und konsistente Schlafzeiten sind die schnellsten Hebel.",
+  vo2max:
+    "Ein geschätzter VO2max von 46,2 ml/kg/min entspricht dem 70. Perzentil für Männer deiner Altersgruppe. Deine aerobe Kapazität ist ausreichend für intensive Kraft- und Ausdauereinheiten ohne kardiovaskuläre Einschränkungen.",
+  metabolic:
+    "BMI 23,8 liegt ideal im Normalbereich. Ohne Körperkompositionsmessung (InBody/DEXA) bleibt der Metabolic Score eine Näherung. Ein Scan in den nächsten 4 Wochen würde Fett- und Muskelanteil präzisieren und den Score schärfen.",
+  stress:
+    "HRV 48ms liegt unter dem Optimum für dein Trainingsvolumen. In Kombination mit eingeschränktem Deep Sleep zeigt das: Dein autonomes Nervensystem regeneriert nicht vollständig. Box Breathing 2× täglich und 1 Deload-Woche pro Monat sind die direkten Hebel.",
 };
