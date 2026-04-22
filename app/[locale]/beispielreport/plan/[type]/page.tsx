@@ -2,6 +2,7 @@
 import { useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { useRef, useState, useEffect } from "react";
 import { buildPlan, type PlanType } from "@/lib/plan/buildPlan";
 import { SAMPLE_SCORES_DISPLAY } from "@/lib/sample-report/data";
 import styles from "@/app/[locale]/plans/[type]/plan.module.css";
@@ -30,10 +31,20 @@ export default function SamplePlanPage() {
   const locale = useLocale();
   const { type } = useParams() as { type: string };
 
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const [bannerH, setBannerH] = useState(0);
+  useEffect(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setBannerH(entry.contentRect.height));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   if (!VALID_TYPES.includes(type as PlanType)) {
     return (
       <>
-        <SampleReportBanner />
+        <div ref={bannerRef}><SampleReportBanner /></div>
         <div className={styles.page}>
           <div className={styles.errorBox}>
             <p>{t("error_unknown_type")}</p>
@@ -57,11 +68,11 @@ export default function SamplePlanPage() {
   return (
     <>
       {/* Sticky amber banner outside .page so overflow-x:hidden cannot trap it */}
-      <SampleReportBanner />
+      <div ref={bannerRef}><SampleReportBanner /></div>
 
       <div className={styles.page}>
-        {/* Header */}
-        <div className={styles.header}>
+        {/* Header sits sticky below the banner */}
+        <div className={styles.header} style={{ top: bannerH }}>
           <Link href="/beispielreport" className={styles.backLink}>{t("back_to_report_upper")}</Link>
           <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
           <button onClick={openSamplePdf} className={styles.printBtn}>

@@ -1605,9 +1605,10 @@ export async function generatePDF(
   buildDisclaimer(doc, content, f, today);
 
   if (isSample) {
+    const watermarkText: Record<string, string> = { de: "BEISPIEL", en: "SAMPLE", it: "ESEMPIO", tr: "ÖRNEK" };
     for (const page of doc.getPages()) {
       const { width, height } = page.getSize();
-      const text = "BEISPIEL";
+      const text = watermarkText[locale] ?? "BEISPIEL";
       const size = 96;
       const tw = f.bold.widthOfTextAtSize(text, size);
       page.drawText(text, {

@@ -1,9 +1,16 @@
 "use client";
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function SampleReportBanner() {
   const t = useTranslations("sample_report");
+  const locale = useLocale();
+
+  function openSamplePdf() {
+    const url = `/api/sample-report/pdf?locale=${locale}`;
+    const tab = window.open("", "_blank");
+    if (tab && !tab.closed) tab.location.href = url;
+    else window.open(url, "_blank");
+  }
 
   return (
     <div
@@ -50,8 +57,8 @@ export default function SampleReportBanner() {
           {t("banner_desc")}
         </span>
       </div>
-      <Link
-        href="/analyse"
+      <button
+        onClick={openSamplePdf}
         style={{
           fontFamily: "var(--font-oswald), sans-serif",
           fontSize: 11,
@@ -61,13 +68,14 @@ export default function SampleReportBanner() {
           background: "#FCD34D",
           padding: "8px 18px",
           borderRadius: 2,
-          textDecoration: "none",
+          border: "none",
+          cursor: "pointer",
           whiteSpace: "nowrap",
           transition: "background 0.2s",
         }}
       >
-        {t("banner_cta")} →
-      </Link>
+        {t("cta_btn_pdf")} ↓
+      </button>
     </div>
   );
 }

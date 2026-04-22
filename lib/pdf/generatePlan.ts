@@ -626,9 +626,10 @@ export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
   buildPlanContent(doc, plan, accentColor, f, today);
 
   if (plan.isSample) {
+    const watermarkText: Record<string, string> = { de: "BEISPIEL", en: "SAMPLE", it: "ESEMPIO", tr: "ÖRNEK" };
     for (const page of doc.getPages()) {
       const { width, height } = page.getSize();
-      const text = "BEISPIEL";
+      const text = watermarkText[planLocale] ?? "BEISPIEL";
       const size = 96;
       const tw = f.bold.widthOfTextAtSize(text, size);
       page.drawText(text, {
