@@ -6,23 +6,21 @@ import { Link } from "@/i18n/navigation";
 import styles from "./plan.module.css";
 import { buildPlan, type PlanType, type PlanContent } from "@/lib/plan/buildPlan";
 
-// Uses <a download> click — works in any async context, never blocked by popup blocker.
-function triggerDownload(href: string, filename: string) {
-  const a = document.createElement("a");
-  a.href = href;
-  a.download = filename;
-  a.rel = "noopener noreferrer";
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  if (href.startsWith("blob:")) setTimeout(() => URL.revokeObjectURL(href), 60_000);
+// Sets the URL on a pre-opened tab so the PDF renders inline.
+// Falls back to window.open if the tab reference is lost.
+function showPdfInTab(tab: Window | null, url: string) {
+  if (tab && !tab.closed) {
+    tab.location.href = url;
+  } else {
+    window.open(url, "_blank");
+  }
 }
 
-function downloadBytes(bytes: Uint8Array<ArrayBuffer> | ArrayBuffer, filename: string) {
+function showBytesInTab(tab: Window | null, bytes: Uint8Array | ArrayBuffer) {
   const blob = new Blob([bytes as ArrayBuffer], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
-  triggerDownload(url, filename);
+  showPdfInTab(tab, url);
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 /* ─── Urgency bucket ─────────────────────────────────────── */
@@ -101,9 +99,11 @@ export default function PlanPage() {
     setPdfDownloading(true);
     console.log("[Download] Button clicked", { type, assessmentId, hasBase64: !!cachedPdfBase64 });
 
-    try {
-      const filename = `btb-plan-${type}.pdf`;
+    // Open a blank tab SYNCHRONOUSLY before any await so popup blockers
+    // treat it as a direct user gesture.
+    const newTab = window.open("", "_blank");
 
+    try {
       // Fast path: Storage-backed signed URL (single check, no polling)
       if (assessmentId) {
         try {
@@ -113,8 +113,8 @@ export default function PlanPage() {
           );
           const json = await res.json() as { ready?: boolean; url?: string };
           if (json.ready && json.url) {
-            console.log("[Download] Storage URL ready — triggering download");
-            triggerDownload(json.url, filename);
+            console.log("[Download] Storage URL ready — opening in tab");
+            showPdfInTab(newTab, json.url);
             return;
           }
           console.log("[Download] Storage not ready, using local fallback");
@@ -129,7 +129,7 @@ export default function PlanPage() {
         const byteChars = atob(cachedPdfBase64);
         const bytes = new Uint8Array(byteChars.length);
         for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
-        downloadBytes(bytes, filename);
+        showBytesInTab(newTab, bytes);
         console.log("[Download] Done (base64)");
         return;
       }
@@ -143,11 +143,12 @@ export default function PlanPage() {
       });
       if (!res.ok) throw new Error(`API error ${res.status}`);
       const buf = await res.arrayBuffer();
-      downloadBytes(buf, filename);
+      showBytesInTab(newTab, buf);
       console.log("[Download] Done (on-demand)");
     } catch (err) {
       console.error("[Download] Failed:", err);
-      alert("PDF-Download fehlgeschlagen. Bitte versuche es erneut oder lade die Seite neu.");
+      if (newTab && !newTab.closed) newTab.close();
+      alert("PDF konnte nicht geöffnet werden. Bitte versuche es erneut oder lade die Seite neu.");
     } finally {
       setPdfDownloading(false);
     }

@@ -305,57 +305,59 @@ export default function ResultsPage() {
     }).catch(() => {});
   }, [assessmentId, locale]);
 
-  // Cache-first PDF download for the main report.
-  // Uses <a download> anchor click throughout — never window.open — so popup
-  // blockers cannot interfere regardless of async timing.
+  // Opens the main report PDF in a new browser tab so the user can view it
+  // inline before optionally saving. A blank tab is pre-opened synchronously
+  // inside the click handler so popup blockers treat it as a direct gesture.
   async function openReportPdf(e: React.MouseEvent<HTMLAnchorElement>) {
     if (!downloadUrl) return;
     e.preventDefault();
     console.log("[Download] Main report clicked", { assessmentId, downloadUrl: downloadUrl.slice(0, 60) });
 
-    function triggerAnchorDownload(href: string) {
-      const a = document.createElement("a");
-      a.href = href;
-      a.download = assessmentId ? `btb-report-${assessmentId}.pdf` : "btb-report.pdf";
-      a.rel = "noopener noreferrer";
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      if (href.startsWith("blob:")) setTimeout(() => URL.revokeObjectURL(href), 60_000);
+    // Open blank tab SYNCHRONOUSLY before any await.
+    const newTab = window.open("", "_blank");
+
+    function showInTab(url: string) {
+      if (newTab && !newTab.closed) {
+        newTab.location.href = url;
+      } else {
+        window.open(url, "_blank");
+      }
     }
 
     try {
-      // IndexedDB cache hit → instant local blob download
+      // IndexedDB cache hit → instant blob URL in new tab
       if (assessmentId) {
         const key = cacheKeyFor(assessmentId, "report");
         const cached = await getCachedPdf(key);
         if (cached && cached.byteLength > 0) {
-          console.log("[Download] Cache hit — downloading from IndexedDB");
+          console.log("[Download] Cache hit — opening from IndexedDB");
           const blob = new Blob([cached.buffer as ArrayBuffer], { type: "application/pdf" });
-          triggerAnchorDownload(URL.createObjectURL(blob));
+          const url = URL.createObjectURL(blob);
+          showInTab(url);
+          setTimeout(() => URL.revokeObjectURL(url), 60_000);
           return;
         }
       }
 
-      // Cache miss: fetch bytes, trigger download, cache for next time
+      // Cache miss: fetch bytes, show in tab, cache for next time
       console.log("[Download] Cache miss — fetching from server");
       const bytes = await fetchPdfBytes(downloadUrl);
       if (bytes && bytes.byteLength > 0) {
-        console.log("[Download] Bytes received, triggering download");
+        console.log("[Download] Bytes received, opening in tab");
         const blob = new Blob([bytes.buffer as ArrayBuffer], { type: "application/pdf" });
-        triggerAnchorDownload(URL.createObjectURL(blob));
+        const url = URL.createObjectURL(blob);
+        showInTab(url);
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
         if (assessmentId) cachePdf(cacheKeyFor(assessmentId, "report"), bytes).catch(() => {});
         return;
       }
 
-      // Last resort: direct navigation to server URL
-      console.log("[Download] Byte fetch failed, falling back to direct URL");
-      triggerAnchorDownload(downloadUrl);
+      // Last resort: navigate the pre-opened tab to the server URL directly
+      console.log("[Download] Byte fetch failed, opening server URL in tab");
+      showInTab(downloadUrl);
     } catch (err) {
       console.error("[Download] Main report error:", err);
-      // Absolute last resort
-      triggerAnchorDownload(downloadUrl);
+      showInTab(downloadUrl);
     }
   }
 
