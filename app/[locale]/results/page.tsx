@@ -283,6 +283,28 @@ export default function ResultsPage() {
     }
   }, [locale]);
 
+  // Trigger background PDF pre-generation once we know the assessmentId.
+  // Passes pre-computed plan PDF base64 strings so Storage upload is instant.
+  useEffect(() => {
+    if (!assessmentId) return;
+    const raw = sessionStorage.getItem("btb_results");
+    if (!raw) return;
+    let data: { plans?: Record<string, { pdfBase64?: string }> } = {};
+    try { data = JSON.parse(raw); } catch { return; }
+
+    const planPdfs: Record<string, string> = {};
+    for (const key of ["activity", "metabolic", "recovery", "stress"]) {
+      const b64 = data.plans?.[key]?.pdfBase64;
+      if (b64) planPdfs[`plan_${key}`] = b64;
+    }
+
+    fetch("/api/reports/prepare-pdfs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ assessment_id: assessmentId, locale, plan_pdfs: planPdfs }),
+    }).catch(() => {});
+  }, [assessmentId, locale]);
+
   // Cache-first PDF-Open: wenn das PDF direkt nach der Analyse in IndexedDB
   // gelandet ist, öffnen wir es blob-local (0 ms Server-Roundtrip).
   // Sonst: fallback auf downloadUrl, parallel im Hintergrund cachen damit der

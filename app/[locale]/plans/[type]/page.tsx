@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -51,7 +51,10 @@ export default function PlanPage() {
   const { type } = useParams() as { type: string };
   const [plan, setPlan] = useState<PlanContent | null>(null);
   const [cachedPdfBase64, setCachedPdfBase64] = useState<string | null>(null);
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
+  const [pdfDownloading, setPdfDownloading] = useState(false);
   const [error, setError] = useState("");
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     try {
@@ -61,6 +64,8 @@ export default function PlanPage() {
       if (!data?.scores) { setError(t("error_no_scores")); return; }
       const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
       if (!validTypes.includes(type as PlanType)) { setError(t("error_unknown_type")); return; }
+
+      if (data.assessmentId) setAssessmentId(data.assessmentId);
 
       // 1. Check sessionStorage for a pre-generated plan (from /analyse)
       const cached = data.plans?.[type as PlanType];
@@ -96,6 +101,64 @@ export default function PlanPage() {
     }
   }, [type, t]);
 
+  // Stop polling on unmount
+  useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
+
+  async function handleDownload() {
+    if (pdfDownloading) return;
+
+    // Fast path: Storage-backed signed URL
+    if (assessmentId) {
+      setPdfDownloading(true);
+      const pdfType = `plan_${type}`;
+      try {
+        const res = await fetch(
+          `/api/reports/pdf-url?assessment_id=${assessmentId}&pdf_type=${pdfType}&locale=${locale}`,
+        );
+        const json = await res.json() as { ready?: boolean; url?: string; status?: string };
+
+        if (json.ready && json.url) {
+          window.open(json.url, "_blank", "noopener,noreferrer");
+          setPdfDownloading(false);
+          return;
+        }
+
+        if (json.status === "generating" || json.status === "pending") {
+          // Poll until ready (max 60 s)
+          let elapsed = 0;
+          pollRef.current = setInterval(async () => {
+            elapsed += 2000;
+            if (elapsed > 60_000) {
+              clearInterval(pollRef.current!);
+              setPdfDownloading(false);
+              return;
+            }
+            const r2 = await fetch(
+              `/api/reports/pdf-url?assessment_id=${assessmentId}&pdf_type=${pdfType}&locale=${locale}`,
+            ).then((r) => r.json()) as { ready?: boolean; url?: string };
+            if (r2.ready && r2.url) {
+              clearInterval(pollRef.current!);
+              window.open(r2.url, "_blank", "noopener,noreferrer");
+              setPdfDownloading(false);
+            }
+          }, 2000);
+          return;
+        }
+      } catch {
+        // fall through to local generation
+      }
+      setPdfDownloading(false);
+    }
+
+    // Fallback: cached base64 or on-demand generation
+    if (!plan) return;
+    try {
+      await openPlanAsPDF(plan, type, cachedPdfBase64, locale);
+    } catch {
+      // silent — user sees nothing is happening which is acceptable
+    }
+  }
+
   if (error) return (
     <div className={styles.page}>
       <div className={styles.errorBox}>
@@ -121,8 +184,8 @@ export default function PlanPage() {
       <div className={styles.header}>
         <Link href="/results" className={styles.backLink}>{t("back_to_report_upper")}</Link>
         <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
-        <button onClick={() => openPlanAsPDF(plan, type, cachedPdfBase64, locale)} className={styles.printBtn}>
-          {t("pdf_download")}
+        <button onClick={handleDownload} disabled={pdfDownloading} className={styles.printBtn}>
+          {pdfDownloading ? "..." : t("pdf_download")}
         </button>
       </div>
 
