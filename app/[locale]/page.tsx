@@ -1,4 +1,5 @@
 import Header from "@/components/layout/Header";
+import ScrollToTop from "@/components/util/ScrollToTop";
 import Footer from "@/components/layout/Footer";
 import Hero from "@/components/landing/Hero";
 import PainPoints from "@/components/landing/PainPoints";
@@ -21,6 +22,7 @@ import TrustSection from "@/components/landing/TrustSection";
 export default function HomePage() {
   return (
     <>
+      <ScrollToTop />
       <Header />
       <main>
         <Hero />
