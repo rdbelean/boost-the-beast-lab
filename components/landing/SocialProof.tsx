@@ -16,6 +16,7 @@ const CASE_STUDIES = [
     hasPhoto: true,
     photoAlt: "Jens Castrop mit Marco",
     initials: "JC",
+    objectPosition: "center 15%",
   },
   {
     id: "mehmet",
@@ -23,6 +24,7 @@ const CASE_STUDIES = [
     hasPhoto: true,
     photoAlt: "Mehmet Aydin mit Marco",
     initials: "MA",
+    objectPosition: "center top",
   },
 ] as const;
 
@@ -104,6 +106,7 @@ export default function SocialProof() {
                     height={600}
                     sizes="(max-width: 900px) 90vw, 440px"
                     className={styles.caseStudyPhotoImg}
+                    style={{ objectPosition: study.objectPosition }}
                   />
                 ) : (
                   <div className={styles.caseStudyPhotoFallback} aria-hidden>
