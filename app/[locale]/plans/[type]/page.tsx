@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "./plan.module.css";
 import { buildPlan, type PlanType, type PlanContent } from "@/lib/plan/buildPlan";
@@ -41,8 +41,7 @@ function urgencyBucket(score: number): { key: UrgencyKey; color: string } {
 export default function PlanPage() {
   const t = useTranslations("plans_detail");
   const tResults = useTranslations("results");
-  const locale = useLocale();
-  const { type } = useParams() as { type: string };
+  const { locale, type } = useParams() as { locale: string; type: string };
   const [plan, setPlan] = useState<PlanContent | null>(null);
   const [cachedPdfBase64, setCachedPdfBase64] = useState<string | null>(null);
   const [assessmentId, setAssessmentId] = useState<string | null>(null);

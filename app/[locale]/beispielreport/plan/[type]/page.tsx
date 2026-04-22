@@ -1,6 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { type PlanType, PLAN_COLORS } from "@/lib/plan/buildPlan";
 import { getSamplePlan } from "@/lib/sample-report/samplePlans";
@@ -23,8 +23,7 @@ export default function SamplePlanPage() {
   const t = useTranslations("plans_detail");
   const tResults = useTranslations("results");
   const tSample = useTranslations("sample");
-  const locale = useLocale();
-  const { type } = useParams() as { type: string };
+  const { locale, type } = useParams() as { locale: string; type: string };
 
   if (!VALID_TYPES.includes(type as PlanType)) {
     return (

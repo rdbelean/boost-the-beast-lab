@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "@/app/[locale]/results/results.module.css";
 import DataInsightBlock from "@/components/results/DataInsightBlock";
@@ -102,7 +103,8 @@ function RadarChart({ scores }: { scores: RadarScores }) {
 /* ─── Main Page ─────────────────────────────────────────────── */
 export default function BeispielreportPage() {
   const t = useTranslations("results");
-  const locale = useLocale() as Locale;
+  const { locale: localeParam } = useParams() as { locale: string };
+  const locale = localeParam as Locale;
 
   const scores = getSampleScoresDisplay(locale);
   const overall = scores.overall_score_0_100;
