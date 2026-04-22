@@ -26,7 +26,7 @@ export async function GET(req: Request) {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="btb-beispielreport.pdf"`,
-      "Cache-Control": "public, max-age=3600",
+      "Cache-Control": "private, no-store",
     },
   });
 }

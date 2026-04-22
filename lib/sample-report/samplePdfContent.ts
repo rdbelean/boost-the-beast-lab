@@ -1,4 +1,4 @@
-import type { PdfReportContent } from "@/lib/pdf/generateReport";
+import type { PdfReportContent, PdfScores } from "@/lib/pdf/generateReport";
 
 // DE — same as the original in data.ts, kept here for the 3-locale map
 const DE: PdfReportContent = {
@@ -594,8 +594,6 @@ const LOCALE_MAP: Record<string, PdfReportContent> = { de: DE, en: EN, it: IT };
 export function getSamplePdfContent(locale: string): PdfReportContent {
   return LOCALE_MAP[locale] ?? DE;
 }
-
-import type { PdfScores } from "@/lib/pdf/generateReport";
 
 export function getSamplePdfScores(locale: string): PdfScores {
   const BANDS: Record<string, { overall: string; activity: string; sleep: string; vo2max: string; metabolic: string; stress: string; recovery: string }> = {
