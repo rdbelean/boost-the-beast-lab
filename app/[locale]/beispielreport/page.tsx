@@ -1,13 +1,9 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "@/app/[locale]/results/results.module.css";
-import lockedStyles from "@/components/sample-report/LockedSection.module.css";
 import { SAMPLE_SCORES_DISPLAY, SAMPLE_PDF_CONTENT } from "@/lib/sample-report/data";
-import { PLAN_COLORS } from "@/lib/plan/buildPlan";
 import SampleReportBanner from "@/components/sample-report/SampleReportBanner";
-import SampleReportCta from "@/components/sample-report/SampleReportCta";
-import UnlockOverlay from "@/components/sample-report/UnlockOverlay";
 
 /* ─── Helpers ───────────────────────────────────────────────── */
 function scoreColor(score: number): string {
@@ -66,6 +62,7 @@ function RadarChart({ scores }: { scores: RadarScores }) {
 export default function BeispielreportPage() {
   const t = useTranslations("results");
   const ts = useTranslations("sample_report");
+  const locale = useLocale();
 
   const scores = SAMPLE_SCORES_DISPLAY;
   const overall = scores.overall_score_0_100;
@@ -93,377 +90,322 @@ export default function BeispielreportPage() {
     stress: scores.stress.stress_score_0_100,
   };
 
+  function openSamplePdf() {
+    const newTab = window.open("", "_blank");
+    const url = `/api/sample-report/pdf?locale=${locale}`;
+    if (newTab && !newTab.closed) newTab.location.href = url;
+    else window.open(url, "_blank");
+  }
+
   return (
-    <div className={styles.page}>
+    <>
+      {/* Sticky amber banner lives OUTSIDE .page so overflow-x:hidden on .page
+          cannot trap it. z-index 100 keeps it above all other content. */}
       <SampleReportBanner />
 
-      {/* Header */}
-      <div className={styles.header}>
-        <Link href="/" className={styles.headerBtnSecondary}>{t("back_home")}</Link>
-        <div className={styles.headerTitle}>{ts("page_title")}</div>
-        <div className={styles.headerActions} />
-      </div>
-
-      <div className={styles.container} id="results-content">
-
-        {/* ─── HERO: Overall Score ──────────────────────── */}
-        <section className={styles.heroSection}>
-          <div className={styles.heroLabel}>{t("hero_label")}</div>
-          <h1 className={styles.heroTitle}>{t("hero_title")}</h1>
-
-          <div className={styles.ringWrap}>
-            <svg className={styles.ringBg} width="100%" height="100%" viewBox={`0 0 ${ringSize} ${ringSize}`}>
-              <circle cx={ringSize / 2} cy={ringSize / 2} r={ringR} />
-            </svg>
-            <svg
-              className={styles.ringFg}
-              width="100%" height="100%"
-              viewBox={`0 0 ${ringSize} ${ringSize}`}
-              style={{ transform: "rotate(-90deg)" } as React.CSSProperties}
-            >
-              <circle
-                cx={ringSize / 2} cy={ringSize / 2} r={ringR}
-                stroke={labelColor}
-                strokeDasharray={circumference}
-                strokeDashoffset={offset}
-              />
-            </svg>
-            <div className={styles.ringCenter}>
-              <span className={styles.ringValue} style={{ color: labelColor }}>{overall}</span>
-              <span className={styles.ringSuffix}>/100</span>
-            </div>
+      <div className={styles.page}>
+        {/* Header */}
+        <div className={styles.header}>
+          <Link href="/" className={styles.headerBtnSecondary}>{t("back_home")}</Link>
+          <div className={styles.headerTitle}>{ts("page_title")}</div>
+          <div className={styles.headerActions}>
+            <button onClick={openSamplePdf} className={styles.headerBtnSecondary} style={{ cursor: "pointer", background: "none", border: "1px solid #333" }}>
+              {ts("cta_btn_pdf")}
+            </button>
           </div>
+        </div>
 
-          <div className={styles.labelBadge} style={{ color: labelColor, borderColor: labelColor, background: `${labelColor}18` }}>
-            {scores.overall_band.toUpperCase()}
-          </div>
-        </section>
+        <div className={styles.container} id="results-content">
 
-        {/* ─── SCORE CARDS ─────────────────────────────── */}
-        <section className={styles.scoresSection}>
-          <div className={styles.sectionLabel}>{t("subscores_label")}</div>
-          <div className={styles.scoresGrid}>
-            {scoreEntries.map((entry, i) => {
-              const c = scoreColor(entry.score);
-              return (
-                <div key={entry.key} className={styles.scoreCard} style={{ animationDelay: `${i * 0.1}s` }}>
-                  <div className={styles.scoreCardTop}>
-                    <div>
-                      <div className={styles.scoreCardLabel}>{entry.label}</div>
-                      <div className={styles.scoreCardValue} style={{ color: c }}>
-                        {entry.score}<span className={styles.scoreCardMax}>/100</span>
-                      </div>
-                    </div>
-                    <div className={styles.scoreCardBadge} style={{ background: `${c}18`, color: c }}>
-                      {t(`badges.${scoreBadgeKey(entry.score)}`)}
-                    </div>
-                  </div>
-                  <div className={styles.scoreCardBar}>
-                    <div className={styles.scoreCardBarFill} style={{ width: `${entry.score}%`, background: c }} />
-                  </div>
-                  <div className={styles.scoreCardDesc}>{entry.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+          {/* ─── HERO: Overall Score ──────────────────────── */}
+          <section className={styles.heroSection}>
+            <div className={styles.heroLabel}>{t("hero_label")}</div>
+            <h1 className={styles.heroTitle}>{t("hero_title")}</h1>
 
-        {/* ─── DERIVED METRICS ──────────────────────────── */}
-        <section className={styles.scoresSection}>
-          <div className={styles.sectionLabel}>{t("derived_metrics_label")}</div>
-          <div className={styles.scoresGrid}>
-            <div className={styles.scoreCard}>
-              <div className={styles.scoreCardTop}>
-                <div>
-                  <div className={styles.scoreCardLabel}>{t("vo2max_card.label")}</div>
-                  <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.vo2max.fitness_score_0_100) }}>
-                    {scores.vo2max.vo2max_estimated}<span className={styles.scoreCardMax}> ml/kg/min</span>
-                  </div>
-                </div>
-                <div className={styles.scoreCardBadge} style={{ background: `${scoreColor(scores.vo2max.fitness_score_0_100)}18`, color: scoreColor(scores.vo2max.fitness_score_0_100) }}>
-                  {scores.vo2max.vo2max_band}
-                </div>
-              </div>
-              <div className={styles.scoreCardDesc}>{t("vo2max_card.desc")}</div>
-            </div>
-
-            <div className={styles.scoreCard}>
-              <div className={styles.scoreCardTop}>
-                <div>
-                  <div className={styles.scoreCardLabel}>{t("bmi_card.label")}</div>
-                  <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.metabolic.metabolic_score_0_100) }}>
-                    {scores.metabolic.bmi}<span className={styles.scoreCardMax}> kg/m²</span>
-                  </div>
-                </div>
-                <div className={styles.scoreCardBadge} style={{ background: `${scoreColor(scores.metabolic.metabolic_score_0_100)}18`, color: scoreColor(scores.metabolic.metabolic_score_0_100) }}>
-                  {scores.metabolic.bmi_category.toUpperCase()}
-                </div>
-              </div>
-              <div className={styles.scoreCardDesc}>{t("bmi_card.desc")}</div>
-            </div>
-
-            <div className={styles.scoreCard}>
-              <div className={styles.scoreCardTop}>
-                <div>
-                  <div className={styles.scoreCardLabel}>{t("met_card.label")}</div>
-                  <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.activity.activity_score_0_100) }}>
-                    {scores.activity.total_met_minutes_week}<span className={styles.scoreCardMax}> MET-min</span>
-                  </div>
-                </div>
-                <div className={styles.scoreCardBadge} style={{ background: `${scoreColor(scores.activity.activity_score_0_100)}18`, color: scoreColor(scores.activity.activity_score_0_100) }}>
-                  {scores.activity.activity_category}
-                </div>
-              </div>
-              <div className={styles.scoreCardDesc}>{t("met_card.desc")}</div>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── RADAR CHART ─────────────────────────────── */}
-        <section className={styles.radarSection}>
-          <div className={styles.sectionLabel}>{t("radar_label")}</div>
-          <div className={styles.radarGrid}>
-            <RadarChart scores={radarScores} />
-            <div className={styles.radarMeta}>
-              {scoreEntries.map((entry, i) => (
-                <div key={entry.key} className={styles.radarItem} style={{ animationDelay: `${0.4 + i * 0.08}s` }}>
-                  <div className={styles.radarDot} style={{ background: entry.color }} />
-                  <div className={styles.radarItemLabel}>{entry.label}</div>
-                  <div className={styles.radarItemValue} style={{ color: scoreColor(entry.score) }}>{entry.score}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─── BENCHMARK COMPARISON ────────────────────── */}
-        <section className={styles.benchmarkSection}>
-          <div className={styles.sectionLabel}>{t("benchmark_label")}</div>
-          {scoreEntries.map((entry, i) => (
-            <div key={entry.key} className={styles.benchmarkRow} style={{ animationDelay: `${i * 0.1}s` }}>
-              <div className={styles.benchmarkLabel}>{entry.label}</div>
-              <div className={styles.benchmarkBars}>
-                <div className={styles.benchmarkBarWrap}>
-                  <div className={styles.benchmarkBarFill} style={{ width: `${entry.score}%`, background: entry.color }} />
-                  <span className={styles.benchmarkBarLabel}>{entry.score}</span>
-                </div>
-                <div className={styles.benchmarkBarRef}>
-                  <div className={styles.benchmarkBarRefFill} style={{ width: `${benchmarks[entry.key]}%` }} />
-                  <span className={styles.benchmarkBarRefLabel}>⌀ {benchmarks[entry.key]}</span>
-                </div>
+            <div className={styles.ringWrap}>
+              <svg className={styles.ringBg} width="100%" height="100%" viewBox={`0 0 ${ringSize} ${ringSize}`}>
+                <circle cx={ringSize / 2} cy={ringSize / 2} r={ringR} />
+              </svg>
+              <svg
+                className={styles.ringFg}
+                width="100%" height="100%"
+                viewBox={`0 0 ${ringSize} ${ringSize}`}
+                style={{ transform: "rotate(-90deg)" } as React.CSSProperties}
+              >
+                <circle
+                  cx={ringSize / 2} cy={ringSize / 2} r={ringR}
+                  stroke={labelColor}
+                  strokeDasharray={circumference}
+                  strokeDashoffset={offset}
+                />
+              </svg>
+              <div className={styles.ringCenter}>
+                <span className={styles.ringValue} style={{ color: labelColor }}>{overall}</span>
+                <span className={styles.ringSuffix}>/100</span>
               </div>
             </div>
-          ))}
-          <div className={styles.benchmarkLegend}>
-            <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "var(--accent)" }} />{t("benchmark_legend.your_score")}</div>
-            <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "rgba(255,255,255,0.15)" }} />{t("benchmark_legend.average")}</div>
-          </div>
-        </section>
 
-        {/* ─── SLEEP DETAIL ────────────────────────────── */}
-        <section className={styles.scoresSection}>
-          <div className={styles.sectionLabel}>{t("sleep_detail_label")}</div>
-          <div className={styles.scoresGrid}>
-            {[
-              { key: "duration", label: t("sleep_detail.duration.label"), score: scores.sleep.sleep_duration_score, desc: t("sleep_detail.duration.desc", { band: scores.sleep.sleep_duration_band }) },
-              { key: "quality", label: t("sleep_detail.quality.label"), score: scores.sleep.sleep_quality_score, desc: t("sleep_detail.quality.desc") },
-              { key: "wakeup", label: t("sleep_detail.wakeup.label"), score: scores.sleep.wakeup_score, desc: t("sleep_detail.wakeup.desc") },
-              { key: "recovery", label: t("sleep_detail.recovery.label"), score: scores.sleep.recovery_score, desc: t("sleep_detail.recovery.desc") },
-            ].map((s, i) => {
-              const c = scoreColor(s.score);
-              return (
-                <div key={s.key} className={styles.scoreCard} style={{ animationDelay: `${i * 0.08}s` }}>
-                  <div className={styles.scoreCardTop}>
-                    <div>
-                      <div className={styles.scoreCardLabel}>{s.label}</div>
-                      <div className={styles.scoreCardValue} style={{ color: c }}>{s.score}<span className={styles.scoreCardMax}>/100</span></div>
-                    </div>
-                    <div className={styles.scoreCardBadge} style={{ background: `${c}18`, color: c }}>{t(`badges.${scoreBadgeKey(s.score)}`)}</div>
-                  </div>
-                  <div className={styles.scoreCardBar}>
-                    <div className={styles.scoreCardBarFill} style={{ width: `${s.score}%`, background: c }} />
-                  </div>
-                  <div className={styles.scoreCardDesc}>{s.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ─── LOCKED PREMIUM SECTIONS ─────────────────── */}
-        {/* Three "upgrade to unlock" blocks that sit between the free preview
-            and the final CTA. Each shows a teaser (section label + 1–2 real
-            rows from the sample data), then a blurred body with an overlay
-            linking back to /kaufen. This converts the sample-report page
-            from a passive preview into an active sales funnel. */}
-
-        {/* TOP PRIORITY (partial — first 2 lines readable, rest blurred) */}
-        <section className={`${styles.scoresSection} ${lockedStyles.wrap}`}>
-          <div className={lockedStyles.sectionLabel}>{ts("unlock.top_priority_title")}</div>
-          <div className={lockedStyles.blurredPartial} aria-hidden="true">
-            <div className={lockedStyles.cardFull}>
-              <div className={lockedStyles.cardHeadline}>{ts("unlock.top_priority_title")}</div>
-              <p className={lockedStyles.cardBody}>{SAMPLE_PDF_CONTENT.top_priority}</p>
+            <div className={styles.labelBadge} style={{ color: labelColor, borderColor: labelColor, background: `${labelColor}18` }}>
+              {scores.overall_band.toUpperCase()}
             </div>
-          </div>
-          <UnlockOverlay
-            title={ts("unlock.top_priority_title")}
-            description={ts("unlock.top_priority_desc")}
-          />
-        </section>
+          </section>
 
-        {/* 30-DAY FORECAST — 3 goal cards: headline visible, details blurred per-card */}
-        <section className={styles.scoresSection}>
-          <div className={lockedStyles.sectionLabel}>{ts("unlock.forecast_title")}</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {SAMPLE_PDF_CONTENT.action_plan?.map((goal, i) => (
-              <div key={i} style={{
-                background: "#111",
-                border: "1px solid #1e1e1e",
-                padding: "1.25rem 1.5rem",
-              }}>
-                {/* Visible headline */}
-                <div style={{
-                  fontFamily: "var(--font-oswald), sans-serif",
-                  fontSize: "0.95rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.04em",
-                  color: "#fff",
-                  marginBottom: "0.75rem",
-                }}>
-                  {goal.headline}
-                </div>
-                {/* Blurred details + lock badge */}
-                <div style={{ position: "relative" }}>
-                  <div style={{ filter: "blur(5px)", userSelect: "none", pointerEvents: "none" }} aria-hidden="true">
-                    <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.8rem", color: "#888", marginBottom: "0.5rem" }}>
-                      <span>{goal.current_value}</span>
-                      <span>→</span>
-                      <span>{goal.target_value}</span>
-                    </div>
-                    {goal.week_milestones?.slice(0, 2).map((m, j) => (
-                      <div key={j} style={{ fontSize: "0.75rem", color: "#666", marginBottom: "0.25rem" }}>
-                        {m.week}: {m.task}
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                  }}>
-                    <span style={{
-                      fontFamily: "var(--font-oswald), sans-serif",
-                      fontSize: 9,
-                      fontWeight: 700,
-                      letterSpacing: "0.12em",
-                      color: "rgba(255,255,255,0.4)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      padding: "3px 8px",
-                      background: "rgba(0,0,0,0.6)",
-                    }}>
-                      {ts("unlock.lock_badge")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          {/* Standalone CTA — no full UnlockOverlay covering the headlines */}
-          <div style={{ marginTop: "1.25rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Link href="/analyse" style={{
-              fontFamily: "var(--font-oswald), sans-serif",
-              fontSize: "0.75rem",
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              color: "#1A1A1A",
-              background: "#FCD34D",
-              padding: "0.75rem 1.75rem",
-              textDecoration: "none",
-              display: "inline-block",
-            }}>
-              {ts("unlock.cta")} →
-            </Link>
-          </div>
-        </section>
-
-        {/* DAILY LIFE PROTOCOL (first 2 habits in Morning visible, rest blurred) */}
-        <section className={`${styles.scoresSection} ${lockedStyles.wrap}`}>
-          <div className={lockedStyles.sectionLabel}>{ts("unlock.protocol_title")}</div>
-          <div className={lockedStyles.blurredPartial} aria-hidden="true">
-            <div className={lockedStyles.protocolGrid}>
-              {(["morning", "work_day", "evening", "nutrition_micro"] as const).map((slot) => {
-                const habits = SAMPLE_PDF_CONTENT.daily_life_protocol?.[slot] ?? [];
+          {/* ─── SCORE CARDS ─────────────────────────────── */}
+          <section className={styles.scoresSection}>
+            <div className={styles.sectionLabel}>{t("subscores_label")}</div>
+            <div className={styles.scoresGrid}>
+              {scoreEntries.map((entry, i) => {
+                const c = scoreColor(entry.score);
                 return (
-                  <div key={slot} className={lockedStyles.protocolCol}>
-                    <div className={lockedStyles.protocolColTitle}>{ts(`unlock.protocol_${slot}`)}</div>
-                    {habits.slice(0, 2).map((h, i) => (
-                      <div key={i} className={lockedStyles.protocolHabit}>
-                        <span className={lockedStyles.protocolHabitTitle}>{h.habit}</span>
-                        <span className={lockedStyles.protocolHabitWhy}>{h.why_specific_to_user}</span>
+                  <div key={entry.key} className={styles.scoreCard} style={{ animationDelay: `${i * 0.1}s` }}>
+                    <div className={styles.scoreCardTop}>
+                      <div>
+                        <div className={styles.scoreCardLabel}>{entry.label}</div>
+                        <div className={styles.scoreCardValue} style={{ color: c }}>
+                          {entry.score}<span className={styles.scoreCardMax}>/100</span>
+                        </div>
                       </div>
-                    ))}
+                      <div className={styles.scoreCardBadge} style={{ background: `${c}18`, color: c }}>
+                        {t(`badges.${scoreBadgeKey(entry.score)}`)}
+                      </div>
+                    </div>
+                    <div className={styles.scoreCardBar}>
+                      <div className={styles.scoreCardBarFill} style={{ width: `${entry.score}%`, background: c }} />
+                    </div>
+                    <div className={styles.scoreCardDesc}>{entry.desc}</div>
                   </div>
                 );
               })}
             </div>
-          </div>
-          <UnlockOverlay
-            title={ts("unlock.protocol_title")}
-            description={ts("unlock.protocol_desc")}
-          />
-        </section>
+          </section>
 
-        {/* ─── 4 SAMPLE PLANS ──────────────────────────── */}
-        <section className={styles.scoresSection}>
-          <div className={lockedStyles.sectionLabel}>{t("plans.heading")}</div>
-          <p style={{ fontSize: "0.8rem", color: "#666", marginBottom: "1.5rem", lineHeight: 1.6 }}>
-            {t("plans.subtitle")}
-          </p>
-          <div className={styles.scoresGrid}>
-            {(["activity", "metabolic", "recovery", "stress"] as const).map((type) => (
-              <Link
-                key={type}
-                href={`/beispielreport/plan/${type}`}
-                style={{ textDecoration: "none" }}
-              >
-                <div className={styles.scoreCard} style={{
-                  cursor: "pointer",
-                  transition: "border-color 0.2s",
-                  borderLeft: `3px solid ${PLAN_COLORS[type]}`,
-                }}>
-                  <div className={styles.scoreCardTop}>
-                    <div>
-                      <div className={styles.scoreCardLabel} style={{ color: PLAN_COLORS[type] }}>
-                        {t(`plans.${type}.label`)}
-                      </div>
-                      <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "0.25rem", lineHeight: 1.4 }}>
-                        {t(`plans.${type}.desc`)}
-                      </div>
+          {/* ─── DERIVED METRICS ──────────────────────────── */}
+          <section className={styles.scoresSection}>
+            <div className={styles.sectionLabel}>{t("derived_metrics_label")}</div>
+            <div className={styles.scoresGrid}>
+              <div className={styles.scoreCard}>
+                <div className={styles.scoreCardTop}>
+                  <div>
+                    <div className={styles.scoreCardLabel}>{t("vo2max_card.label")}</div>
+                    <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.vo2max.fitness_score_0_100) }}>
+                      {scores.vo2max.vo2max_estimated}<span className={styles.scoreCardMax}> ml/kg/min</span>
                     </div>
                   </div>
-                  <div style={{
-                    marginTop: "0.875rem",
-                    fontFamily: "var(--font-oswald), sans-serif",
-                    fontSize: "0.7rem",
-                    fontWeight: 600,
-                    letterSpacing: "0.1em",
-                    color: PLAN_COLORS[type],
-                  }}>
-                    {t(`plans.${type}.cta`)} →
+                  <div className={styles.scoreCardBadge} style={{ background: `${scoreColor(scores.vo2max.fitness_score_0_100)}18`, color: scoreColor(scores.vo2max.fitness_score_0_100) }}>
+                    {scores.vo2max.vo2max_band}
                   </div>
                 </div>
-              </Link>
+                <div className={styles.scoreCardDesc}>{t("vo2max_card.desc")}</div>
+              </div>
+
+              <div className={styles.scoreCard}>
+                <div className={styles.scoreCardTop}>
+                  <div>
+                    <div className={styles.scoreCardLabel}>{t("bmi_card.label")}</div>
+                    <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.metabolic.metabolic_score_0_100) }}>
+                      {scores.metabolic.bmi}<span className={styles.scoreCardMax}> kg/m²</span>
+                    </div>
+                  </div>
+                  <div className={styles.scoreCardBadge} style={{ background: `${scoreColor(scores.metabolic.metabolic_score_0_100)}18`, color: scoreColor(scores.metabolic.metabolic_score_0_100) }}>
+                    {scores.metabolic.bmi_category.toUpperCase()}
+                  </div>
+                </div>
+                <div className={styles.scoreCardDesc}>{t("bmi_card.desc")}</div>
+              </div>
+
+              <div className={styles.scoreCard}>
+                <div className={styles.scoreCardTop}>
+                  <div>
+                    <div className={styles.scoreCardLabel}>{t("met_card.label")}</div>
+                    <div className={styles.scoreCardValue} style={{ color: scoreColor(scores.activity.activity_score_0_100) }}>
+                      {scores.activity.total_met_minutes_week}<span className={styles.scoreCardMax}> MET-min</span>
+                    </div>
+                  </div>
+                  <div className={styles.scoreCardBadge} style={{ background: `${scoreColor(scores.activity.activity_score_0_100)}18`, color: scoreColor(scores.activity.activity_score_0_100) }}>
+                    {scores.activity.activity_category}
+                  </div>
+                </div>
+                <div className={styles.scoreCardDesc}>{t("met_card.desc")}</div>
+              </div>
+            </div>
+          </section>
+
+          {/* ─── RADAR CHART ─────────────────────────────── */}
+          <section className={styles.radarSection}>
+            <div className={styles.sectionLabel}>{t("radar_label")}</div>
+            <div className={styles.radarGrid}>
+              <RadarChart scores={radarScores} />
+              <div className={styles.radarMeta}>
+                {scoreEntries.map((entry, i) => (
+                  <div key={entry.key} className={styles.radarItem} style={{ animationDelay: `${0.4 + i * 0.08}s` }}>
+                    <div className={styles.radarDot} style={{ background: entry.color }} />
+                    <div className={styles.radarItemLabel}>{entry.label}</div>
+                    <div className={styles.radarItemValue} style={{ color: scoreColor(entry.score) }}>{entry.score}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ─── BENCHMARK COMPARISON ────────────────────── */}
+          <section className={styles.benchmarkSection}>
+            <div className={styles.sectionLabel}>{t("benchmark_label")}</div>
+            {scoreEntries.map((entry, i) => (
+              <div key={entry.key} className={styles.benchmarkRow} style={{ animationDelay: `${i * 0.1}s` }}>
+                <div className={styles.benchmarkLabel}>{entry.label}</div>
+                <div className={styles.benchmarkBars}>
+                  <div className={styles.benchmarkBarWrap}>
+                    <div className={styles.benchmarkBarFill} style={{ width: `${entry.score}%`, background: entry.color }} />
+                    <span className={styles.benchmarkBarLabel}>{entry.score}</span>
+                  </div>
+                  <div className={styles.benchmarkBarRef}>
+                    <div className={styles.benchmarkBarRefFill} style={{ width: `${benchmarks[entry.key]}%` }} />
+                    <span className={styles.benchmarkBarRefLabel}>⌀ {benchmarks[entry.key]}</span>
+                  </div>
+                </div>
+              </div>
             ))}
-          </div>
-        </section>
+            <div className={styles.benchmarkLegend}>
+              <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "var(--accent)" }} />{t("benchmark_legend.your_score")}</div>
+              <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "rgba(255,255,255,0.15)" }} />{t("benchmark_legend.average")}</div>
+            </div>
+          </section>
 
-        {/* ─── CONVERSION CTA ──────────────────────────── */}
-        <SampleReportCta />
+          {/* ─── SLEEP DETAIL ────────────────────────────── */}
+          <section className={styles.scoresSection}>
+            <div className={styles.sectionLabel}>{t("sleep_detail_label")}</div>
+            <div className={styles.scoresGrid}>
+              {[
+                { key: "duration", label: t("sleep_detail.duration.label"), score: scores.sleep.sleep_duration_score, desc: t("sleep_detail.duration.desc", { band: scores.sleep.sleep_duration_band }) },
+                { key: "quality", label: t("sleep_detail.quality.label"), score: scores.sleep.sleep_quality_score, desc: t("sleep_detail.quality.desc") },
+                { key: "wakeup", label: t("sleep_detail.wakeup.label"), score: scores.sleep.wakeup_score, desc: t("sleep_detail.wakeup.desc") },
+                { key: "recovery", label: t("sleep_detail.recovery.label"), score: scores.sleep.recovery_score, desc: t("sleep_detail.recovery.desc") },
+              ].map((s, i) => {
+                const c = scoreColor(s.score);
+                return (
+                  <div key={s.key} className={styles.scoreCard} style={{ animationDelay: `${i * 0.08}s` }}>
+                    <div className={styles.scoreCardTop}>
+                      <div>
+                        <div className={styles.scoreCardLabel}>{s.label}</div>
+                        <div className={styles.scoreCardValue} style={{ color: c }}>{s.score}<span className={styles.scoreCardMax}>/100</span></div>
+                      </div>
+                      <div className={styles.scoreCardBadge} style={{ background: `${c}18`, color: c }}>{t(`badges.${scoreBadgeKey(s.score)}`)}</div>
+                    </div>
+                    <div className={styles.scoreCardBar}>
+                      <div className={styles.scoreCardBarFill} style={{ width: `${s.score}%`, background: c }} />
+                    </div>
+                    <div className={styles.scoreCardDesc}>{s.desc}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
+          {/* ─── TOP PRIORITY ────────────────────────────── */}
+          <section className={styles.scoresSection}>
+            <div className={styles.sectionLabel}>{ts("unlock.top_priority_title")}</div>
+            <div className={styles.scoreCard} style={{ padding: "1.5rem" }}>
+              <p style={{ fontSize: "0.875rem", color: "#d0d0d0", lineHeight: 1.7, margin: 0 }}>
+                {SAMPLE_PDF_CONTENT.top_priority}
+              </p>
+            </div>
+          </section>
+
+          {/* ─── 30-DAY FORECAST ─────────────────────────── */}
+          <section className={styles.scoresSection}>
+            <div className={styles.sectionLabel}>{ts("unlock.forecast_title")}</div>
+            <div style={{ marginBottom: "1rem" }}>
+              <p style={{ fontSize: "0.8rem", color: "#888", lineHeight: 1.6, margin: "0 0 1.5rem" }}>
+                {SAMPLE_PDF_CONTENT.prognose_30_days}
+              </p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {SAMPLE_PDF_CONTENT.action_plan?.map((goal, i) => (
+                <div key={i} style={{
+                  background: "#111",
+                  border: "1px solid #1e1e1e",
+                  padding: "1.25rem 1.5rem",
+                }}>
+                  <div style={{
+                    fontFamily: "var(--font-oswald), sans-serif",
+                    fontSize: "0.95rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.04em",
+                    color: "#fff",
+                    marginBottom: "0.625rem",
+                  }}>
+                    {goal.headline}
+                  </div>
+                  <div style={{ display: "flex", gap: "1rem", fontSize: "0.8rem", color: "#888", marginBottom: "0.75rem", flexWrap: "wrap" }}>
+                    <span>{goal.current_value}</span>
+                    <span style={{ color: "#555" }}>→</span>
+                    <span style={{ color: "#bbb" }}>{goal.target_value}</span>
+                  </div>
+                  {goal.week_milestones?.map((m, j) => (
+                    <div key={j} style={{
+                      display: "flex",
+                      gap: "0.75rem",
+                      fontSize: "0.75rem",
+                      color: "#666",
+                      paddingTop: "0.375rem",
+                      borderTop: j === 0 ? "1px solid #1a1a1a" : undefined,
+                    }}>
+                      <span style={{ color: "#555", flexShrink: 0, minWidth: "4.5rem" }}>{m.week}</span>
+                      <span>{m.task}</span>
+                      <span style={{ color: "#444", marginLeft: "auto", flexShrink: 0 }}>→ {m.milestone}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ─── DAILY LIFE PROTOCOL ─────────────────────── */}
+          <section className={styles.scoresSection}>
+            <div className={styles.sectionLabel}>{ts("unlock.protocol_title")}</div>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "1rem",
+            }}>
+              {(["morning", "work_day", "evening", "nutrition_micro"] as const).map((slot) => {
+                const habits = SAMPLE_PDF_CONTENT.daily_life_protocol?.[slot] ?? [];
+                return (
+                  <div key={slot} style={{
+                    background: "#111",
+                    border: "1px solid #1e1e1e",
+                    padding: "1.25rem",
+                  }}>
+                    <div style={{
+                      fontFamily: "var(--font-oswald), sans-serif",
+                      fontSize: "0.65rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.2em",
+                      color: "#E63222",
+                      marginBottom: "0.875rem",
+                    }}>
+                      {ts(`unlock.protocol_${slot}`)}
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+                      {habits.map((h, i) => (
+                        <div key={i}>
+                          <div style={{ fontSize: "0.8rem", color: "#d0d0d0", lineHeight: 1.45, marginBottom: "0.25rem" }}>
+                            {h.habit}
+                          </div>
+                          <div style={{ fontSize: "0.7rem", color: "#666", lineHeight: 1.5 }}>
+                            {h.why_specific_to_user}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+        </div>
       </div>
-    </div>
+    </>
   );
 }

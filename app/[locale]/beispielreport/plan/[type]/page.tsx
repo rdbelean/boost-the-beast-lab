@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { buildPlan, type PlanType } from "@/lib/plan/buildPlan";
 import { SAMPLE_SCORES_DISPLAY } from "@/lib/sample-report/data";
 import styles from "@/app/[locale]/plans/[type]/plan.module.css";
+import SampleReportBanner from "@/components/sample-report/SampleReportBanner";
 
 const VALID_TYPES: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
 
@@ -19,19 +20,21 @@ function urgencyBucket(score: number): { key: UrgencyKey; color: string } {
 
 export default function SamplePlanPage() {
   const t = useTranslations("plans_detail");
-  const ts = useTranslations("sample_report");
   const tResults = useTranslations("results");
   const locale = useLocale();
   const { type } = useParams() as { type: string };
 
   if (!VALID_TYPES.includes(type as PlanType)) {
     return (
-      <div className={styles.page}>
-        <div className={styles.errorBox}>
-          <p>{t("error_unknown_type")}</p>
-          <Link href="/beispielreport" className={styles.backLink}>{t("back_to_report")}</Link>
+      <>
+        <SampleReportBanner />
+        <div className={styles.page}>
+          <div className={styles.errorBox}>
+            <p>{t("error_unknown_type")}</p>
+            <Link href="/beispielreport" className={styles.backLink}>{t("back_to_report")}</Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -41,212 +44,102 @@ export default function SamplePlanPage() {
   function openSamplePdf() {
     const newTab = window.open("", "_blank");
     const url = `/api/sample-report/plan-pdf?type=${type}&locale=${locale}`;
-    if (newTab && !newTab.closed) {
-      newTab.location.href = url;
-    } else {
-      window.open(url, "_blank");
-    }
+    if (newTab && !newTab.closed) newTab.location.href = url;
+    else window.open(url, "_blank");
   }
 
   return (
-    <div className={styles.page}>
-      {/* Amber sample banner */}
-      <div
-        role="banner"
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-          background: "linear-gradient(90deg, #92400E 0%, #B45309 50%, #92400E 100%)",
-          borderBottom: "1px solid #D97706",
-          padding: "10px 24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "var(--font-oswald), sans-serif",
-            fontSize: 13,
-            fontWeight: 500,
-            color: "#FEF3C7",
-            letterSpacing: "0.02em",
-          }}
-        >
-          {ts("sample_plan_banner")}
-        </span>
-        <Link
-          href="/analyse"
-          style={{
-            fontFamily: "var(--font-oswald), sans-serif",
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            color: "#1A1A1A",
-            background: "#FCD34D",
-            padding: "8px 18px",
-            borderRadius: 2,
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {ts("sample_plan_cta_start")} →
-        </Link>
-      </div>
+    <>
+      {/* Sticky amber banner outside .page so overflow-x:hidden cannot trap it */}
+      <SampleReportBanner />
 
-      {/* Header */}
-      <div className={styles.header}>
-        <Link href="/beispielreport" className={styles.backLink}>{t("back_to_report_upper")}</Link>
-        <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
-        <button onClick={openSamplePdf} className={styles.printBtn}>
-          {t("pdf_download")}
-        </button>
-      </div>
-
-      <div className={styles.container} id="plan-content">
-        <div className={styles.hero}>
-          <span className={styles.tag} style={{ color: plan.color, borderColor: plan.color }}>{t("tag")}</span>
-          <h1 className={styles.title}>{plan.title}</h1>
-
-          {plan.score != null && (
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-              <span style={{ fontSize: 28, fontWeight: 700, color: plan.color, fontFamily: "var(--font-oswald), sans-serif", letterSpacing: "0.04em" }}>
-                {plan.score}<span style={{ fontSize: 14, fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>/100</span>
-              </span>
-              {urgency && (
-                <span style={{
-                  display: "inline-block",
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  color: urgency.color,
-                  border: `1px solid ${urgency.color}`,
-                  background: `${urgency.color}18`,
-                  padding: "3px 10px",
-                  borderRadius: 2,
-                  fontFamily: "var(--font-oswald), sans-serif",
-                  textTransform: "uppercase",
-                  lineHeight: 1.35,
-                }}>
-                  {tResults(`urgency.${urgency.key}`)}
-                </span>
-              )}
-            </div>
-          )}
-
-          <p className={styles.subtitle}>{plan.subtitle}</p>
-          <p className={styles.source}>{plan.source}</p>
+      <div className={styles.page}>
+        {/* Header */}
+        <div className={styles.header}>
+          <Link href="/beispielreport" className={styles.backLink}>{t("back_to_report_upper")}</Link>
+          <div className={styles.headerTitle} style={{ color: plan.color }}>{plan.title}</div>
+          <button onClick={openSamplePdf} className={styles.printBtn}>
+            {t("pdf_download")}
+          </button>
         </div>
 
-        {plan.blocks.map((block) => (
-          <section key={block.heading} className={styles.block}>
-            <h2 className={styles.blockHeading}>{block.heading}</h2>
+        <div className={styles.container} id="plan-content">
+          <div className={styles.hero}>
+            <span className={styles.tag} style={{ color: plan.color, borderColor: plan.color }}>{t("tag")}</span>
+            <h1 className={styles.title}>{plan.title}</h1>
 
-            {/* First 2 items visible, rest blurred */}
-            <ul className={styles.blockList}>
-              {block.items.slice(0, 2).map((item) => (
-                <li key={item} className={styles.blockItem}>
-                  <span className={styles.bullet} style={{ color: plan.color }}>▸</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-
-            {block.items.length > 2 && (
-              <div style={{ position: "relative", marginTop: "0.75rem" }}>
-                <ul className={styles.blockList} style={{ filter: "blur(5px)", userSelect: "none", pointerEvents: "none" }} aria-hidden="true">
-                  {block.items.slice(2).map((item, i) => (
-                    <li key={i} className={styles.blockItem}>
-                      <span className={styles.bullet} style={{ color: plan.color }}>▸</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 12,
-                }}>
+            {plan.score != null && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <span style={{ fontSize: 28, fontWeight: 700, color: plan.color, fontFamily: "var(--font-oswald), sans-serif", letterSpacing: "0.04em" }}>
+                  {plan.score}<span style={{ fontSize: 14, fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>/100</span>
+                </span>
+                {urgency && (
                   <span style={{
-                    fontFamily: "var(--font-oswald), sans-serif",
-                    fontSize: 9,
+                    display: "inline-block",
+                    fontSize: 10,
                     fontWeight: 700,
-                    letterSpacing: "0.12em",
-                    color: "rgba(255,255,255,0.4)",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    padding: "4px 10px",
-                    background: "rgba(0,0,0,0.5)",
+                    letterSpacing: "0.08em",
+                    color: urgency.color,
+                    border: `1px solid ${urgency.color}`,
+                    background: `${urgency.color}18`,
+                    padding: "3px 10px",
+                    borderRadius: 2,
+                    fontFamily: "var(--font-oswald), sans-serif",
+                    textTransform: "uppercase",
+                    lineHeight: 1.35,
                   }}>
-                    {ts("unlock.lock_badge")}
+                    {tResults(`urgency.${urgency.key}`)}
                   </span>
-                </div>
+                )}
               </div>
             )}
-          </section>
-        ))}
 
-        {/* CTA */}
-        <div style={{
-          marginTop: "3rem",
-          padding: "2rem",
-          background: "#111",
-          border: "1px solid #222",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "1rem",
-          textAlign: "center",
-        }}>
-          <div style={{
-            fontFamily: "var(--font-oswald), sans-serif",
-            fontSize: "0.65rem",
-            fontWeight: 700,
-            letterSpacing: "0.2em",
-            color: "#FCD34D",
-          }}>
-            {ts("cta_label")}
+            <p className={styles.subtitle}>{plan.subtitle}</p>
+            <p className={styles.source}>{plan.source}</p>
           </div>
-          <div style={{
-            fontFamily: "var(--font-oswald), sans-serif",
-            fontSize: "clamp(1.25rem, 3vw, 1.75rem)",
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            color: "#fff",
-          }}>
-            {ts("cta_title")}
+
+          {/* All blocks fully visible — no blur, no lock badges */}
+          {plan.blocks.map((block) => (
+            <section key={block.heading} className={styles.block}>
+              <h2 className={styles.blockHeading}>{block.heading}</h2>
+              <ul className={styles.blockList}>
+                {block.items.map((item) => (
+                  <li key={item} className={styles.blockItem}>
+                    <span className={styles.bullet} style={{ color: plan.color }}>▸</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              {block.rationale && (
+                <div style={{
+                  marginTop: 14,
+                  padding: "12px 16px",
+                  background: "rgba(255,255,255,0.04)",
+                  borderLeft: `2px solid rgba(255,255,255,0.12)`,
+                  borderRadius: "0 4px 4px 0",
+                }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginBottom: 6, fontFamily: "var(--font-oswald), sans-serif" }}>
+                    {t("rationale_label")}
+                  </div>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.65, margin: 0 }}>
+                    {block.rationale}
+                  </p>
+                </div>
+              )}
+            </section>
+          ))}
+
+          <div className={styles.actions}>
+            <Link href="/beispielreport" className={styles.btnSecondary}>
+              {t("back_to_report_upper")}
+            </Link>
           </div>
-          <Link href="/analyse" style={{
-            fontFamily: "var(--font-oswald), sans-serif",
-            fontSize: "0.8rem",
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            color: "#1A1A1A",
-            background: "#FCD34D",
-            padding: "0.875rem 2rem",
-            textDecoration: "none",
-            display: "inline-block",
-            marginTop: "0.5rem",
-          }}>
-            {ts("cta_btn_primary")} →
-          </Link>
-        </div>
 
-        <div className={styles.actions} style={{ marginTop: "1.5rem" }}>
-          <Link href="/beispielreport" className={styles.btnSecondary}>
-            {t("back_to_report_upper")}
-          </Link>
+          <p className={styles.disclaimer}>
+            {t("disclaimer")}
+          </p>
         </div>
-
-        <p className={styles.disclaimer}>
-          {t("disclaimer")}
-        </p>
       </div>
-    </div>
+    </>
   );
 }
