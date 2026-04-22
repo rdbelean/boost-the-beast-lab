@@ -255,6 +255,28 @@ export const SAMPLE_PDF_CONTENT: PdfReportContent = {
   },
 };
 
+/* ─── Locale-aware band strings for Beispielreport web view ─── */
+const SCORE_BANDS: Record<string, {
+  sleep: string; vo2max: string; metabolic: string; stress: string; overall: string;
+}> = {
+  de: { sleep: "Ausreichend", vo2max: "Gut",  metabolic: "Solide",  stress: "Erhöht",   overall: "Gut"  },
+  en: { sleep: "Adequate",    vo2max: "Good", metabolic: "Solid",   stress: "Elevated", overall: "Good" },
+  it: { sleep: "Sufficiente", vo2max: "Buono", metabolic: "Solido", stress: "Elevato",  overall: "Buono" },
+  tr: { sleep: "Yeterli",     vo2max: "İyi",  metabolic: "Sağlam",  stress: "Yüksek",   overall: "İyi"  },
+};
+
+export function getSampleScoresDisplay(locale: string) {
+  const b = SCORE_BANDS[locale] ?? SCORE_BANDS.de;
+  return {
+    ...SAMPLE_SCORES_DISPLAY,
+    sleep:     { ...SAMPLE_SCORES_DISPLAY.sleep,     sleep_band: b.sleep },
+    vo2max:    { ...SAMPLE_SCORES_DISPLAY.vo2max,    vo2max_band: b.vo2max },
+    metabolic: { ...SAMPLE_SCORES_DISPLAY.metabolic, metabolic_band: b.metabolic },
+    stress:    { ...SAMPLE_SCORES_DISPLAY.stress,    stress_band: b.stress },
+    overall_band: b.overall,
+  };
+}
+
 /* ─── Sample Data for Beispielreport Components ─────────────── */
 
 export function getSampleHeroSummary(locale: string): HeroSummary {

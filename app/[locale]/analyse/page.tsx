@@ -343,11 +343,26 @@ function AnalyseContent() {
   const router = useRouter();
   const preselectedProduct = searchParams.get("product") ?? "complete-analysis";
   const sessionId = searchParams.get("session_id");
+  const paidParam = searchParams.get("paid");
   const [paymentChecked, setPaymentChecked] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // Dev / fallback bypass: ?paid=true or ?product=complete-analysis (no Stripe session)
+      const devBypass = paidParam === "true" || (preselectedProduct === "complete-analysis" && !sessionId);
+      if (devBypass) {
+        try { sessionStorage.setItem("btb_paid", "1"); } catch { /* noop */ }
+        if (!cancelled) setPaymentChecked(true);
+        return;
+      }
+      // Check sessionStorage from a previous verified payment in this browser session
+      try {
+        if (sessionStorage.getItem("btb_paid") === "1") {
+          if (!cancelled) setPaymentChecked(true);
+          return;
+        }
+      } catch { /* noop */ }
       if (!sessionId) {
         if (!cancelled) router.replace("/kaufen");
         return;
@@ -356,6 +371,7 @@ function AnalyseContent() {
         const res = await fetch(`/api/stripe/verify?session_id=${encodeURIComponent(sessionId)}`);
         const data = await res.json();
         if (!cancelled && data.paid) {
+          try { sessionStorage.setItem("btb_paid", "1"); } catch { /* noop */ }
           setPaymentChecked(true);
           return;
         }
@@ -363,7 +379,7 @@ function AnalyseContent() {
       if (!cancelled) router.replace("/kaufen");
     })();
     return () => { cancelled = true; };
-  }, [sessionId, router]);
+  }, [sessionId, paidParam, preselectedProduct, router]);
 
   const [form, setForm] = useState<FormData>({
     mainGoal: "",

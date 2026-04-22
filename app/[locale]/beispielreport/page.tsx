@@ -8,11 +8,11 @@ import ReportDataHero from "@/components/results/ReportDataHero";
 import ScoreDataBadge from "@/components/results/ScoreDataBadge";
 import SampleReportBanner from "@/components/sample-report/SampleReportBanner";
 import {
-  SAMPLE_SCORES_DISPLAY,
   SAMPLE_DATA_INSIGHTS,
   SAMPLE_SCORE_DATA_BASIS,
   SAMPLE_INTERPRETATIONS,
   getSampleHeroSummary,
+  getSampleScoresDisplay,
 } from "@/lib/sample-report/data";
 import type { Locale } from "@/lib/supabase/types";
 
@@ -104,7 +104,7 @@ export default function BeispielreportPage() {
   const t = useTranslations("results");
   const locale = useLocale() as Locale;
 
-  const scores = SAMPLE_SCORES_DISPLAY;
+  const scores = getSampleScoresDisplay(locale);
   const overall = scores.overall_score_0_100;
   const labelColor = scoreColor(overall);
 
@@ -146,12 +146,12 @@ export default function BeispielreportPage() {
       <SampleReportBanner />
 
       <div className={styles.page}>
-        {/* Header — mirrors real report header */}
-        <div className={styles.header}>
+        {/* Header — NOT sticky so only the amber banner sticks. */}
+        <div className={styles.header} style={{ position: "relative" }}>
           <Link href="/" className={styles.headerBtnSecondary}>{t("back_home")}</Link>
           <div className={styles.headerTitle}>{ts("page_title")}</div>
           <div className={styles.headerActions}>
-            <Link href="/analyse" className={`${styles.headerBtnSecondary} ${styles.hideOnMobile}`}>
+            <Link href="/kaufen" className={`${styles.headerBtnSecondary} ${styles.hideOnMobile}`}>
               {ts("cta_btn_primary")}
             </Link>
             <button onClick={openSamplePdf} className={styles.headerBtnPrimary}>

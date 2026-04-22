@@ -65,7 +65,7 @@ export default function SampleReportCta() {
       </p>
       <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
         <Link
-          href="/analyse"
+          href="/kaufen"
           style={{
             fontFamily: "var(--font-oswald), sans-serif",
             fontSize: 14,
