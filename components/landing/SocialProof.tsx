@@ -16,7 +16,7 @@ const CASE_STUDIES = [
     hasPhoto: true,
     photoAlt: "Jens Castrop mit Marco",
     initials: "JC",
-    objectPosition: "center 15%",
+    objectPosition: "center 5%",
   },
   {
     id: "mehmet",
