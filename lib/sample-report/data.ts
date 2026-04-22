@@ -298,49 +298,106 @@ export function getSampleHeroSummary(locale: string): HeroSummary {
   };
 }
 
-export const SAMPLE_DATA_INSIGHTS: DataInsights = {
-  sleep: [
-    { label_key: "duration",  value: "7.2",  unit: "h",   evaluation: { status: "borderline", reference: "NSF: 7–9h",        color: "#F59E0B" } },
-    { label_key: "deep_sleep",value: "84",   unit: "min", evaluation: { status: "borderline", reference: "Opt: 90–120 min",   color: "#F59E0B" } },
-    { label_key: "rem",       value: "98",   unit: "min", evaluation: { status: "good",       reference: "Opt: 90–120 min",   color: "#22C55E" } },
-    { label_key: "wakeups",   value: "2.1",              evaluation: { status: "good",       reference: "NSF: ≤2",           color: "#22C55E" } },
-  ],
-  activity: [
-    { label_key: "steps",     value: "9500", unit: "Schr.", evaluation: { status: "good",    reference: "WHO: 8–10k",        color: "#22C55E" } },
-    { label_key: "strain",    value: "14.2",              evaluation: { status: "good",       reference: "Opt: 12–16",        color: "#22C55E" } },
-    { label_key: "active_kcal",value: "520",unit: "kcal", evaluation: { status: "optimal",  reference: "Opt: >400 kcal",    color: "#22C55E" } },
-  ],
-  vo2max: [
-    { label_key: "value",     value: "46.2", unit: "ml/kg/min", evaluation: { status: "good", reference: "P70 Altersgruppe", color: "#22C55E" } },
-  ],
-  metabolic: [
-    { label_key: "bmi",       value: "23.8", unit: "kg/m²", evaluation: { status: "optimal", reference: "WHO: 18.5–24.9",  color: "#22C55E" } },
-    { label_key: "weight",    value: "78.0", unit: "kg" },
-  ],
-  stress: [
-    { label_key: "hrv",       value: "48",   unit: "ms",  evaluation: { status: "borderline", reference: "Opt: ≥55ms",     color: "#F59E0B" } },
-    { label_key: "rhr",       value: "57",   unit: "bpm", evaluation: { status: "optimal",   reference: "Opt: 50–65 bpm",  color: "#22C55E" } },
-    { label_key: "whoop_recovery", value: "65", unit: "%", evaluation: { status: "good",     reference: "Opt: ≥67%",       color: "#22C55E" } },
-  ],
+export function getSampleDataInsights(locale: string): DataInsights {
+  const stepsRef = locale === "de" ? "P70 Altersgruppe" : locale === "it" ? "P70 fascia d'eta" : locale === "tr" ? "P70 yas grubu" : "P70 age group";
+  const stepsUnit = locale === "de" ? "Schr." : "";
+  return {
+    sleep: [
+      { label_key: "duration",  value: "7.2",  unit: "h",   evaluation: { status: "borderline", reference: "NSF: 7–9h",        color: "#F59E0B" } },
+      { label_key: "deep_sleep",value: "84",   unit: "min", evaluation: { status: "borderline", reference: "Opt: 90–120 min",   color: "#F59E0B" } },
+      { label_key: "rem",       value: "98",   unit: "min", evaluation: { status: "good",       reference: "Opt: 90–120 min",   color: "#22C55E" } },
+      { label_key: "wakeups",   value: "2.1",              evaluation: { status: "good",       reference: "NSF: ≤2",       color: "#22C55E" } },
+    ],
+    activity: [
+      { label_key: "steps",     value: "9500", unit: stepsUnit, evaluation: { status: "good",   reference: "WHO: 8–10k",        color: "#22C55E" } },
+      { label_key: "strain",    value: "14.2",               evaluation: { status: "good",      reference: "Opt: 12–16",        color: "#22C55E" } },
+      { label_key: "active_kcal",value: "520", unit: "kcal", evaluation: { status: "optimal",   reference: "Opt: >400 kcal",    color: "#22C55E" } },
+    ],
+    vo2max: [
+      { label_key: "value",     value: "46.2", unit: "ml/kg/min", evaluation: { status: "good", reference: stepsRef,           color: "#22C55E" } },
+    ],
+    metabolic: [
+      { label_key: "bmi",       value: "23.8", unit: "kg/m²", evaluation: { status: "optimal", reference: "WHO: 18.5–24.9", color: "#22C55E" } },
+      { label_key: "weight",    value: "78.0", unit: "kg" },
+    ],
+    stress: [
+      { label_key: "hrv",       value: "48",   unit: "ms",  evaluation: { status: "borderline", reference: "Opt: ≥55ms",  color: "#F59E0B" } },
+      { label_key: "rhr",       value: "57",   unit: "bpm", evaluation: { status: "optimal",   reference: "Opt: 50–65 bpm",    color: "#22C55E" } },
+      { label_key: "whoop_recovery", value: "65", unit: "%", evaluation: { status: "good",     reference: "Opt: ≥67%",    color: "#22C55E" } },
+    ],
+  };
+}
+
+export function getSampleScoreDataBasis(locale: string): Record<string, ScoreDataBasis> {
+  const whoop = locale === "de" ? "24T WHOOP" : locale === "it" ? "24g WHOOP" : locale === "tr" ? "24G WHOOP" : "24D WHOOP";
+  const questionnaire = locale === "de" ? "Fragebogen" : locale === "it" ? "Questionario" : locale === "tr" ? "Anket" : "Questionnaire";
+  return {
+    activity:  { icon: "🔥", label: whoop,        type: "positive" },
+    sleep:     { icon: "🔥", label: whoop,        type: "positive" },
+    vo2max:    { icon: "🔥", label: whoop,        type: "positive" },
+    metabolic: { icon: "📝", label: questionnaire, type: "neutral"  },
+    stress:    { icon: "🔥", label: whoop,        type: "positive" },
+  };
+}
+
+const INTERPRETATIONS: Record<string, Record<string, string>> = {
+  de: {
+    activity:
+      "Mit Ø 9.500 Schritten täglich und einem Ø Strain von 14,2 liegst du solide im aktiven Bereich. Die 4 Trainingstage pro Woche spiegeln sich im hohen MET-Wert (1.640 MET-min/Woche). Zone-2-Cardio als Ergänzung würde deine aerobe Basis und Recovery mittelfristig verbessern.",
+    sleep:
+      "Deine Schlafdauer von Ø 7,2h liegt knapp unterhalb des NSF-Optimums für dein Trainingspensum. Der Deep Sleep mit 84min ist der limitierende Faktor — direkte Ursache für schwankende Recovery-Scores. Koffein-Cutoff vor 14 Uhr und konsistente Schlafzeiten sind die schnellsten Hebel.",
+    vo2max:
+      "Ein geschätzter VO2max von 46,2 ml/kg/min entspricht dem 70. Perzentil für Männer deiner Altersgruppe. Deine aerobe Kapazität ist ausreichend für intensive Kraft- und Ausdauereinheiten ohne kardiovaskuläre Einschränkungen.",
+    metabolic:
+      "BMI 23,8 liegt ideal im Normalbereich. Ohne Körperkompositionsmessung (InBody/DEXA) bleibt der Metabolic Score eine Näherung. Ein Scan in den nächsten 4 Wochen würde Fett- und Muskelanteil präzisieren und den Score schärfen.",
+    stress:
+      "HRV 48ms liegt unter dem Optimum für dein Trainingsvolumen. In Kombination mit eingeschränktem Deep Sleep zeigt das: Dein autonomes Nervensystem regeneriert nicht vollständig. Box Breathing 2× täglich und 1 Deload-Woche pro Monat sind die direkten Hebel.",
+  },
+  en: {
+    activity:
+      "With an avg. 9,500 steps/day and avg. Strain of 14.2, you are solidly in the active range. The 4 training days per week are reflected in the high MET value (1,640 MET-min/week). Zone-2 cardio as a supplement would improve your aerobic base and recovery in the medium term.",
+    sleep:
+      "Your avg. sleep duration of 7.2h is just below the NSF optimum for your training load. Deep sleep at 84 min is the limiting factor — the direct cause of fluctuating recovery scores. Caffeine cut-off before 14:00 and consistent sleep times are the fastest levers.",
+    vo2max:
+      "An estimated VO2max of 46.2 ml/kg/min corresponds to the 70th percentile for men in your age group. Your aerobic capacity is sufficient for intensive strength and endurance sessions without cardiovascular limitations.",
+    metabolic:
+      "BMI 23.8 is ideally in the normal range. Without body composition measurement (InBody/DEXA), the metabolic score remains an estimate. A scan in the next 4 weeks would refine fat and muscle percentages and sharpen the score.",
+    stress:
+      "HRV 48ms is below the optimum for your training volume. Combined with restricted deep sleep, this shows your autonomic nervous system is not recovering fully. Box breathing 2× daily and 1 deload week per month are the direct levers.",
+  },
+  it: {
+    activity:
+      "Con una media di 9.500 passi/giorno e uno Strain medio di 14,2, sei solidamente nel range attivo. I 4 giorni di allenamento a settimana si riflettono nell'alto valore MET (1.640 MET-min/settimana). Il cardio Zona 2 come integrazione migliorerebbe la tua base aerobica e il recupero nel medio termine.",
+    sleep:
+      "La tua durata del sonno media di 7,2h è appena al di sotto dell'ottimale NSF per il tuo carico di allenamento. Il sonno profondo a 84 min è il fattore limitante — causa diretta dei recovery score oscillanti. Il limite della caffeina prima delle 14:00 e orari di sonno coerenti sono i leverè più rapidi.",
+    vo2max:
+      "Un VO2max stimato di 46,2 ml/kg/min corrisponde al 70° percentile per uomini della tua fascia d'età. La tua capacità aerobica è sufficiente per intense sessioni di forza e resistenza senza limitazioni cardiovascolari.",
+    metabolic:
+      "BMI 23,8 è idealmente nel range normale. Senza misurazione della composizione corporea (InBody/DEXA), il metabolic score rimane una stima. Una scansione nelle prossime 4 settimane precisherebbe la percentuale di grasso e muscoli e affinerebbe il punteggio.",
+    stress:
+      "HRV 48ms è al di sotto dell'ottimale per il tuo volume di allenamento. Combinato con un sonno profondo ridotto, questo mostra che il tuo sistema nervoso autonomo non si recupera completamente. La respirazione box 2× al giorno e 1 settimana di deload al mese sono le leve dirette.",
+  },
+  tr: {
+    activity:
+      "Gunlük ort. 9.500 adim ve ort. 14,2 Strain ile aktif aralıktasın. Haftadaki 4 antrenman günü yüksek MET değerinde (1.640 MET-dak/hafta) yansıyor. Tamamlayıcı olarak Zon-2 kardiyo orta vadede aerobik bazini ve iyilesmeyi geliştirir.",
+    sleep:
+      "Ort. 7,2 saatlik uyku süren antrenman yükleri icin NSF optimumunun hemen altında. Derin uyku 84 dk ile sınırlayıcı faktör — dalgalı recovery skorlarının doğrudan nedeni. 14:00 önce kafein kesimi ve tutarlı uyku saatleri en hızlı kaldıraclardır.",
+    vo2max:
+      "Tahmini 46,2 ml/kg/dak VO2max, yaş grubundaki erkekler için 70. persentile karşılık gelir. Aerobik kapasiteniz kardiyovasküler kısıtlama olmaksızın yoğun kuvvet ve dayanıklılık antrenmanları için yeterlidir.",
+    metabolic:
+      "BMI 23,8 ideal olarak normal aralıkta. Vücut kompozisyonu ölçümü (InBody/DEXA) olmadan metabolik skor bir tahmin olmaya devam ediyor. Önce 4 haftada bir tarama yag ve kas yüzdesini netlestirir ve skoru keskinlestirir.",
+    stress:
+      "HRV 48ms antrenman hacmin için optimumun altında. Kısıtlı derin uyku ile birleşince bu, otonom sinir sisteminin tam olarak iyileşmediğini gösteriyor. Günde 2× box breathing ve ayda 1 deload haftası doğrudan kaldıraclardır.",
+  },
 };
 
-export const SAMPLE_SCORE_DATA_BASIS: Record<string, ScoreDataBasis> = {
-  activity:  { icon: "🔥", label: "24T WHOOP", type: "positive" },
-  sleep:     { icon: "🔥", label: "24T WHOOP", type: "positive" },
-  vo2max:    { icon: "🔥", label: "24T WHOOP", type: "positive" },
-  metabolic: { icon: "📝", label: "Fragebogen", type: "neutral" },
-  stress:    { icon: "🔥", label: "24T WHOOP", type: "positive" },
-};
+export function getSampleInterpretations(locale: string): Record<string, string> {
+  return INTERPRETATIONS[locale] ?? INTERPRETATIONS.de;
+}
 
-export const SAMPLE_INTERPRETATIONS: Record<string, string> = {
-  activity:
-    "Mit Ø 9.500 Schritten täglich und einem Ø Strain von 14,2 liegst du solide im aktiven Bereich. Die 4 Trainingstage pro Woche spiegeln sich im hohen MET-Wert (1.640 MET-min/Woche). Zone-2-Cardio als Ergänzung würde deine aerobe Basis und Recovery mittelfristig verbessern.",
-  sleep:
-    "Deine Schlafdauer von Ø 7,2h liegt knapp unterhalb des NSF-Optimums für dein Trainingspensum. Der Deep Sleep mit 84min ist der limitierende Faktor — direkte Ursache für schwankende Recovery-Scores. Koffein-Cutoff vor 14 Uhr und konsistente Schlafzeiten sind die schnellsten Hebel.",
-  vo2max:
-    "Ein geschätzter VO2max von 46,2 ml/kg/min entspricht dem 70. Perzentil für Männer deiner Altersgruppe. Deine aerobe Kapazität ist ausreichend für intensive Kraft- und Ausdauereinheiten ohne kardiovaskuläre Einschränkungen.",
-  metabolic:
-    "BMI 23,8 liegt ideal im Normalbereich. Ohne Körperkompositionsmessung (InBody/DEXA) bleibt der Metabolic Score eine Näherung. Ein Scan in den nächsten 4 Wochen würde Fett- und Muskelanteil präzisieren und den Score schärfen.",
-  stress:
-    "HRV 48ms liegt unter dem Optimum für dein Trainingsvolumen. In Kombination mit eingeschränktem Deep Sleep zeigt das: Dein autonomes Nervensystem regeneriert nicht vollständig. Box Breathing 2× täglich und 1 Deload-Woche pro Monat sind die direkten Hebel.",
-};
+/** @deprecated Use getSampleDataInsights(locale), getSampleScoreDataBasis(locale), getSampleInterpretations(locale) */
+export const SAMPLE_DATA_INSIGHTS = getSampleDataInsights("de");
+/** @deprecated Use getSampleScoreDataBasis(locale) */
+export const SAMPLE_SCORE_DATA_BASIS = getSampleScoreDataBasis("de");
+/** @deprecated Use getSampleInterpretations(locale) */
+export const SAMPLE_INTERPRETATIONS = getSampleInterpretations("de");

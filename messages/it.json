@@ -671,6 +671,35 @@
         "cta": "VAI AL PIANO STRESS"
       }
     },
+    "data_insights": {
+      "section_title": "DAI TUOI DATI",
+      "sleep": {
+        "duration": "Durata del sonno media",
+        "efficiency": "Efficienza del sonno",
+        "deep_sleep": "Sonno profondo",
+        "rem": "Sonno REM",
+        "wakeups": "Risvegli medi"
+      },
+      "activity": {
+        "steps": "Passi medi/giorno",
+        "strain": "Strain medio",
+        "active_kcal": "Kcal attive medie"
+      },
+      "stress": {
+        "hrv": "HRV media",
+        "rhr": "FC a riposo media",
+        "whoop_recovery": "Recovery media"
+      },
+      "vo2max": {
+        "value": "VO2max (misurato)"
+      },
+      "metabolic": {
+        "bmi": "BMI",
+        "body_fat": "Grasso corporeo",
+        "skeletal_muscle": "Massa muscolare scheletrica",
+        "weight": "Peso corporeo"
+      }
+    },
     "urgency": {
       "critical": "CRITICO",
       "action": "AZIONE RICHIESTA",

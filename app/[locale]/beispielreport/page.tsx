@@ -8,9 +8,9 @@ import ReportDataHero from "@/components/results/ReportDataHero";
 import ScoreDataBadge from "@/components/results/ScoreDataBadge";
 import SampleReportBanner from "@/components/sample-report/SampleReportBanner";
 import {
-  SAMPLE_DATA_INSIGHTS,
-  SAMPLE_SCORE_DATA_BASIS,
-  SAMPLE_INTERPRETATIONS,
+  getSampleDataInsights,
+  getSampleScoreDataBasis,
+  getSampleInterpretations,
   getSampleHeroSummary,
   getSampleScoresDisplay,
 } from "@/lib/sample-report/data";
@@ -109,6 +109,9 @@ export default function BeispielreportPage() {
   const labelColor = scoreColor(overall);
 
   const heroSummary = getSampleHeroSummary(locale);
+  const sampleDataInsights = getSampleDataInsights(locale);
+  const sampleScoreDataBasis = getSampleScoreDataBasis(locale);
+  const sampleInterpretations = getSampleInterpretations(locale);
 
   const scoreEntries = [
     { key: "activity",  label: t("score_entries.activity.label"),  color: "#E63222", score: scores.activity.activity_score_0_100,  desc: t("score_entries.activity.desc",  { met: scores.activity.total_met_minutes_week, category: scores.activity.activity_category }) },
@@ -205,9 +208,9 @@ export default function BeispielreportPage() {
             <div className={styles.scoresGrid}>
               {scoreEntries.map((entry, i) => {
                 const c = scoreColor(entry.score);
-                const dataBasis = SAMPLE_SCORE_DATA_BASIS[entry.key] ?? null;
-                const rows = SAMPLE_DATA_INSIGHTS[entry.key as keyof typeof SAMPLE_DATA_INSIGHTS] ?? [];
-                const interpretation = SAMPLE_INTERPRETATIONS[entry.key] ?? null;
+                const dataBasis = sampleScoreDataBasis[entry.key] ?? null;
+                const rows = sampleDataInsights[entry.key as keyof typeof sampleDataInsights] ?? [];
+                const interpretation = sampleInterpretations[entry.key] ?? null;
                 return (
                   <div key={entry.key} className={styles.scoreCard} style={{ animationDelay: `${i * 0.1}s` }}>
                     <div className={styles.scoreCardTop}>
