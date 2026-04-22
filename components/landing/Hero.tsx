@@ -70,12 +70,21 @@ export default function Hero() {
 
         {/* CTAs */}
         <div className={styles.ctaRow}>
-          <a href="#products" className={styles.btnPrimary}>
+          <button
+            className={styles.btnPrimary}
+            onClick={() => {
+              const target = document.getElementById("products");
+              if (target) {
+                const top = window.scrollY + target.getBoundingClientRect().top;
+                window.scrollTo({ top, behavior: "auto" });
+              }
+            }}
+          >
             {t("cta_primary")}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-          </a>
+          </button>
           <a href="#how-it-works" className={styles.btnSecondary}>
             {t("cta_secondary")}
           </a>
