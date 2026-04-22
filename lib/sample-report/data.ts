@@ -282,25 +282,25 @@ export function getSampleScoresDisplay(locale: string) {
 export function getSampleHeroSummary(locale: string): HeroSummary {
   const isEN = locale === "en";
   const isIT = locale === "it";
+  const isTR = locale === "tr";
   const days = 24;
-  const label = isEN
-    ? `${days} Days WHOOP Tracking`
-    : isIT
-    ? `${days} giorni WHOOP Tracking`
+  const label = isEN ? `${days} Days WHOOP Tracking`
+    : isIT ? `${days} giorni WHOOP Tracking`
+    : isTR ? `${days} Gün WHOOP Takip`
     : `${days} Tage WHOOP Tracking`;
   return {
     total_datapoints: 168,
     sources: [{ type: "whoop", icon: "🔥", label }],
     has_any_data: true,
     quality_level: "strong",
-    period_start: isEN ? "Mar 28, 2026" : isIT ? "28 mar 2026" : "28. Mär. 2026",
-    period_end:   isEN ? "Apr 20, 2026" : isIT ? "20 apr 2026" : "20. Apr. 2026",
+    period_start: isEN ? "Mar 28, 2026" : isIT ? "28 mar 2026" : isTR ? "28 Mar 2026" : "28. Mär. 2026",
+    period_end:   isEN ? "Apr 20, 2026" : isIT ? "20 apr 2026" : isTR ? "20 Nis 2026" : "20. Apr. 2026",
   };
 }
 
 export function getSampleDataInsights(locale: string): DataInsights {
   const stepsRef = locale === "de" ? "P70 Altersgruppe" : locale === "it" ? "P70 fascia d'eta" : locale === "tr" ? "P70 yas grubu" : "P70 age group";
-  const stepsUnit = locale === "de" ? "Schr." : "";
+  const stepsUnit = locale === "de" ? "Schr." : locale === "tr" ? "adım" : "";
   return {
     sleep: [
       { label_key: "duration",  value: "7.2",  unit: "h",   evaluation: { status: "borderline", reference: "NSF: 7–9h",        color: "#F59E0B" } },

@@ -589,7 +589,203 @@ const IT: PdfReportContent = {
   },
 };
 
-const LOCALE_MAP: Record<string, PdfReportContent> = { de: DE, en: EN, it: IT };
+const TR: PdfReportContent = {
+  headline: "Performans Endeksi 65/100 — net optimizasyon potansiyeliyle iyi.",
+  executive_summary:
+    "Overall Performans Endeksin 65/100 (İyi). Beş boyut net bir tablo çiziyor: Uyku 58, Toparlanma 51, Aktivite 67, Metabolizma 71 ve Stres 52. Bir sonraki kalite sıçraması için en güçlü kaldıraç Uyku ve Stres Yönetimi alanında yatıyor.",
+  critical_flag: null,
+  top_priority:
+    "Kaldıraç No. 1: Uyku & Toparlanma. 7,5–8 saatlik hedef uyku süresiyle tutarlı bir uyku rutini, Overall Skorunu 30 gün içinde +8 ile +12 puan artırabilir — ve Stres, Toparlanma ile Aktivite kalitesini otomatik olarak yukarı çeker.",
+  systemic_connections_overview:
+    "Uyku, Stres ve Toparlanma bir üçgen oluşturur: üç faktörün her biri diğer ikisini sınırlar. Aktivite (67) ve Metabolizma (71) değerlerin sağlam bir başlangıç noktası gösteriyor — ama istikrarlı toparlanma olmadan bu boyutlar uzun vadede durağanlaşacak.",
+  prognose_30_days:
+    "Uyku ve stres önerilerinin tutarlı uygulanmasıyla, Overall'da gerçekçi bir +8 ile +14 puanlık artış mümkün — tedbirlerin haftanın en az 5/7 günü uygulandığı varsayımıyla.",
+  disclaimer:
+    "Tüm bilgiler, örnek veriler temel alınarak hazırlanmış model tabanlı performans içgörüleridir. Tıbbi tanının yerini tutmaz.",
+  executive_findings: [
+    {
+      type: "weakness",
+      headline: "Uyku sınırlayıcı faktör olarak",
+      body: "Uyku Skoru 58/100 ve tahmini uyku süresi 7,5 saatin altında — bu en büyük kaldıracın bulunduğu yer. Yetersiz derin uyku testosteron salgısını kısıtlar, glikojen yeniden sentezini engeller ve iyileşme süresini %40'a kadar uzatır.",
+      related_dimension: "sleep",
+    },
+    {
+      type: "strength",
+      headline: "Sağlam metabolik temel",
+      body: "BMI 23,8 (Normal) ve Metabolik Skor 71, sağlıklı bir vücut kompozisyonuna işaret ediyor. Bu temel, insülin direnci kaynaklı performans kayıplarına karşı koruma sağlar ve sürdürülebilir ilerlemenin zeminini oluşturur.",
+      related_dimension: "metabolic",
+    },
+    {
+      type: "connection",
+      headline: "Stres–Uyku–Toparlanma kaskadı",
+      body: "Stres Skoru (52) ile Uyku Skoru (58) birbirini negatif pekiştiriyor. Kronik olarak yüksek kortizol uyku başlangıcını geciktirir ve REM fazlarını azaltır — bu da ertesi gün için stres tamponunu düşürür.",
+      related_dimension: "stress",
+    },
+  ],
+  cross_insights: [
+    {
+      dimension_a: "sleep",
+      dimension_b: "stress",
+      headline: "Uyku × Stres: Günlük geri besleme döngüsü",
+      body: "7 saatin altındaki her gece ertesi gün kortisolü ölçülebilir biçimde artırır. Stres Skoru'nun (52) orta düzey aktiviteye rağmen 65'in üzerine çıkamamasının nedeni bu: 'uyku yoksunluğu' stresi diğer tüm müdahalelere karşı çalışıyor.",
+    },
+    {
+      dimension_a: "vo2max",
+      dimension_b: "activity",
+      headline: "VO2max × Aktivite: Yoğunluk açığı",
+      body: "VO2max değerin (74) Aktivite Skorunu (67) geçiyor. Bu, yeterli kardiyovasküler kapasiten olduğunu ancak antrenman yoğunluğunun VO2max'la ilgili bölgeye (>%80 MHR) tutarlı biçimde ulaşmadığını gösteriyor.",
+    },
+    {
+      dimension_a: "metabolic",
+      dimension_b: "activity",
+      headline: "Metabolizma × Oturma süresi: Sessiz antagonist",
+      body: "Sağlam BMI ve Metabolik Skor'a (71) rağmen, günlük yaklaşık 8 saatlik oturma süresi sonucu sınırlıyor. Araştırmalar gösteriyor: günde >6 saat oturma, antrenman hacminden bağımsız bir KVH risk faktörü.",
+    },
+  ],
+  daily_life_protocol: {
+    morning: [
+      { habit: "İlk kahveden önce 500 ml su + 10 dk güneş ışığı", why_specific_to_user: "Stres 52 ile sabah kortizolün zaten yüksek — güneş ışığı onu stabilize eder ve öğleden sonraki çöküşü önler.", time_cost_min: 10 },
+      { habit: "Kahvaltıda 30 g protein (örn. lor peyniri + meyveler + kuruyemiş)", why_specific_to_user: "Bir sonraki 4 saat için kan şekerini stabilize eder ve öğle öncesi açlık krizlerini önler.", time_cost_min: 5 },
+      { habit: "Telefona bakmadan önce 3 derin nefes", why_specific_to_user: "Sempatik tetikleyiciyi 2–3 dakika geciktirir — gün boyu ölçülebilir biçimde daha az stres reaktivitesi.", time_cost_min: 1 },
+    ],
+    work_day: [
+      { habit: "Her 45–60 dk'da 2 dk ayağa kalk ve hareket et", why_specific_to_user: "Günlük 8 saatlik oturman Metabolik Skoru (71) için en büyük kaldıraç — kısa molalar KVH riskini ölçülebilir biçimde azaltır.", time_cost_min: 2 },
+      { habit: "Öğle arası 10 dk dışarıda yürüyüş (telefonsuz)", why_specific_to_user: "Kortizol zirvesini düşürür ve parasempatik toparlanmayı etkinleştirir — Stres 52 için önemli.", time_cost_min: 10 },
+    ],
+    evening: [
+      { habit: "Kafein kesim saati 14:00", why_specific_to_user: "Kafeinin yarılanma ömrü 5–7 saat — Uyku Skoru 58 ile derin uyku için en hızlı kaldıraç bu.", time_cost_min: 0 },
+      { habit: "Yatmadan 45 dk önce ekran kesim", why_specific_to_user: "Mavi ışık melatonini baskılar ve REM fazını bozar — sabah Toparlanma Skoru üzerinde doğrudan etki.", time_cost_min: 0 },
+      { habit: "Yatak odası sıcaklığı 17–19°C", why_specific_to_user: "Uyku başlangıcı için vücut çekirdeğinin soğuması gerekiyor — düzensiz rutin ile bu en güvenilir uyku tetikleyici.", time_cost_min: 2 },
+    ],
+    nutrition_micro: [
+      { habit: "Protein hedefi: 3–4 öğüne dağıtılmış 1,6 g/kg vücut ağırlığı", why_specific_to_user: "Orta düzey antrenman aktiviten (67) için kas korumanın temeli.", time_cost_min: 0 },
+      { habit: "Günlük standart olarak 4+ porsiyon sebze", why_specific_to_user: "Metabolik Skoru (71) stabilize eder ve toparlanmayı doğrudan destekleyen mikro besinler sağlar.", time_cost_min: 5 },
+    ],
+    total_time_min_per_day: 35,
+  },
+  action_plan: [
+    {
+      headline: "Uyku süresini 7,5–8 saate sabitle",
+      current_value: "Ort. 7,2 saat, düzensiz",
+      target_value: "Ort. 7,8 saat, ±20 dk sapma",
+      metric_source: "7 günlük uyku süresi takibi",
+      week_milestones: [
+        { week: "H1", task: "Uyku saatini sabitle", milestone: "7× zamanında yatakta" },
+        { week: "H2", task: "Ekran süresini azalt", milestone: "Yatmadan 45 dk önce ekran yok" },
+        { week: "H3–4", task: "Rutini stabilize et", milestone: "Ort. 7,8 saat ulaşıldı" },
+      ],
+    },
+    {
+      headline: "Stres aşağı regulasyonu kur",
+      current_value: "Günlük protokol yok",
+      target_value: "Günde 2× 5 dk mola",
+      metric_source: "14 günlük seri",
+      week_milestones: [
+        { week: "H1", task: "Sabah slotu", milestone: "Box Breathing 7× sabah" },
+        { week: "H2", task: "Öğle slotu ekle", milestone: "14 günlük seri başladı" },
+        { week: "H3–4", task: "Otomatikleştir", milestone: "Alışkanlık yerleşti" },
+      ],
+    },
+    {
+      headline: "VO2max uyarıları ekle",
+      current_value: "Ayrılmış interval antrenmanı yok",
+      target_value: "Haftada 1× 4×4 interval",
+      metric_source: "30 günde Fitness Skoru +3 puan",
+      week_milestones: [
+        { week: "H1", task: "İlk 4×4 interval", milestone: "Test seansı tamamlandı" },
+        { week: "H2–3", task: "Tutarlılık oluştur", milestone: "2× interval entegre edildi" },
+        { week: "H4", task: "Skor kontrolü", milestone: "VO2max +3 puan bekleniyor" },
+      ],
+    },
+  ],
+  modules: {
+    sleep: {
+      score_context:
+        "Uyku Skoru 58/100, ortalama uyku süresi 7,2 saat. Değerlendirme seni 'Yeterli' bandına yerleştiriyor — yeterince uyuyorsun ama optimal değil.",
+      key_finding:
+        "Uyku süresinin (optimumun hemen altında) ve düzensiz rutinin birleşimi, derin uyku rejenerasyonunun tamamlanmamasına yol açıyor. Toparlanma çarpanı genel skoru aşağı çekiyor.",
+      systemic_connection:
+        "Uyku toparlanmanın düzenleyicisi: uyku çarpanı rejenerasyonu sınırlandırıyor — antrenman kalitesinden bağımsız olarak.",
+      limitation:
+        "Uyku kalitesi ve rutin tutarlılığı birincil darboğazlardır. Hafta içi ve hafta sonu arasındaki değişkenlik sirkadiyen ritmi bozuyor.",
+      recommendation:
+        "Yatma ve kalkma saatlerini 7 günün tamamında ±30 dk içinde sabitle. Yatak odası sıcaklığı 17–19°C. Yatmadan 45 dk önce ekran yok.",
+    },
+    recovery: {
+      score_context:
+        "Toparlanma Skoru 51/100, 'Orta' bandında — antrenman yükü, öznel toparlanma ve uyku ile stres düzenleyicilerinden hesaplandı.",
+      key_finding:
+        "Toparlanma kapasiten antrenman yüküne ayak uyduruyor ama rezerv kalmıyor. Uyku ve stres çarpanları genel sonucu sınırlıyor.",
+      systemic_connection:
+        "Toparlanma, antrenman sinyali × uyku × stres çarpımıdır. Üç faktörden biri sınırlıysa tek bir kaldıraç yeterli değil.",
+      overtraining_signal: null,
+      limitation:
+        "Uyku ve stres çarpanları kapasitesinin altında çalışıyor ve genel değeri aşağı çekiyor.",
+      recommendation:
+        "Periyodizasyon: bir yüksek yoğunluklu hafta, ardından bir deload haftası. Aynı anda uykuyu 7,5 saatin üzerinde stabilize et.",
+    },
+    activity: {
+      score_context:
+        "Aktivite Skoru 67/100, haftada 1.640 MET-dakikasına dayanıyor — IPAQ kategorisi ORTA.",
+      key_finding:
+        "Antrenman ve günlük aktivite seni 'Orta' bandına yerleştiriyor. Sayısal olarak önerilen aralıktasın — ama ancak.",
+      systemic_connection:
+        "Aktivite, VO2max'ı doğrudan yönlendiriyor ve uyku kalitesi ile metabolik sağlık üzerinde olumlu ikincil etkisi var.",
+      met_context:
+        "DSÖ referansı: haftada 150–300 dk orta aktivite ≈ %20–21 daha düşük mortalite riski (AHA 2022).",
+      sitting_flag: null,
+      limitation:
+        "Antrenman hacmi DSÖ minimum önerisinin sınırında. Yoğunluk zirveleri ve Zon-2 kardiyo büyük ölçüde eksik.",
+      recommendation:
+        "Mevcut 3 antrenman gününe haftada 1 VO2max interval ve 1 Zon-2 seansı (45–60 dk, %60–70 MHR) ekle.",
+    },
+    metabolic: {
+      score_context:
+        "Metabolik Skor 71/100, BMI 23,8 (Normal) — vücut kompozisyonu, hidrasyon, öğün zamanlaması ve oturma süresinin etkileşimi.",
+      key_finding:
+        "Metabolik değerlendirme 'Sağlam' bandına iniyor. Vücut kompozisyonu optimal ama yüksek oturma süresi (8 saat/gün) potansiyeli kısıtlıyor.",
+      systemic_connection:
+        "Oturma süresi, spordan bağımsız bir KVH risk faktörüdür (AHA Bilim Danışmanlığı). Metabolizma, BMI üzerinden VO2max'ı dolaylı etkiliyor.",
+      bmi_context:
+        "BMI popülasyon tabanlı bir tahmindir, bireysel sağlık göstergesi değil. Kaslı vücut kompozisyonu onu yukarı doğru saptırır.",
+      limitation:
+        "Oturma süresi ve öğün ritmi metabolik temel yükü kısıtlıyor.",
+      recommendation:
+        "Günlük 30–35 ml/kg vücut ağırlığı su iç. Oturma bloklarını en fazla 45 dk sonra böl. Günlük standart olarak 4+ sebze porsiyonu.",
+    },
+    stress: {
+      score_context:
+        "Stres Skoru 52/100 (Yüksek) — kişi-bildirimi stres seviyesi ile uyku/toparlanma tamponunun ağırlıklı kombinasyonu.",
+      key_finding:
+        "Stres yönetimi 'Yüksek' bandında. Kronik yük seviyesi, adaptasyona akacak kaynakları tüketiyor.",
+      systemic_connection:
+        "Kronik stres HPG eksenini baskılar (testosteron ↓) VE insülin duyarlılığını bozar — sistemdeki en geniş etkili kaldıraç.",
+      hpa_context: null,
+      limitation:
+        "Bilinçli aşağı regulasyonun yokluğu, tam parasempatik toparlanmayı engelliyor.",
+      recommendation:
+        "Günde iki 5 dk'lık aşağı regulasyon penceresi kur: sabah + öğle Box Breathing 4-4-4-4.",
+    },
+    vo2max: {
+      score_context:
+        "Tahmini VO2max: 46,2 ml/kg/dk (İyi) — yaş, BMI ve aktivite kategorisine dayalı algoritmik tahmin.",
+      key_finding:
+        "Kardiyorespiratuar performans 'İyi' bandında. VO2max, uzun vadeli performans ve uzun ömür için en güçlü tek tahmin edicilerden biridir.",
+      systemic_connection:
+        "VO2max, aktivite düzeyiyle doğrudan bağlantılı — iyileştirmenin tek kaldıracı yoğunluk bileşeni olan aktivitedir.",
+      fitness_context:
+        "46,2 ml/kg/dk, 32 yaşındaki bir erkeği üst-orta aralığa yerleştiriyor (Cooper Institute / ACSM normları).",
+      estimation_note:
+        "Egzersiz dışı tahmin, ölçülmüş laboratuvar değeri değil. Yüksek hassasiyetli tanı için: kardiyopulmoner egzersiz testi.",
+      limitation:
+        "Periyodize yoğunluk ilerlemesi olmadan plato riski.",
+      recommendation:
+        "Haftada 1× 4×4 interval (4 dk %90–95 MHR, 3 dk aktif dinlenme). Norveç 4×4 Protokolü.",
+    },
+  },
+};
+
+const LOCALE_MAP: Record<string, PdfReportContent> = { de: DE, en: EN, it: IT, tr: TR };
 
 export function getSamplePdfContent(locale: string): PdfReportContent {
   return LOCALE_MAP[locale] ?? DE;

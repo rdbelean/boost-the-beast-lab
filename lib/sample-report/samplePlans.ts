@@ -810,7 +810,276 @@ const IT: SamplePlansMap = {
   },
 };
 
-const LOCALE_MAP: Record<string, SamplePlansMap> = { de: DE, en: EN, it: IT };
+const TR: SamplePlansMap = {
+  activity: {
+    title: "AKTİVİTE PLANI",
+    subtitle: "Aktivite değerlerini geliştirmek için kişisel plan",
+    color: PLAN_COLORS.activity,
+    source: "Baz alınan: DSÖ Küresel Eylem Planı 2018–2030, ACSM Egzersiz Kılavuzları, IPAQ Kısa Form, Ainsworth MET Compendium (2011)",
+    score: 67,
+    blocks: [
+      {
+        heading: "Mevcut Durumun",
+        items: [
+          "Aktivite Skoru: 67/100 (iyi)",
+          "MET dakikası/hafta: 1.640 (DSÖ hedefi: ≥600 MET-dak/hafta)",
+          "DSÖ minimum önerisi karşılandı.",
+        ],
+        rationale:
+          "Aktivite Skorun, 50'den fazla ülkede klinik olarak test edilmiş, dünya genelinde geçerliliği kanıtlanmış bir değerlendirme aracı olan IPAQ Kısa Formu'na (International Physical Activity Questionnaire) dayanıyor (Craig ve ark., 2003). MET dakikaları (Metabolik Eşdeğer × dakika), dinlenme oranına göre enerji harcamasını sayısallaştırır. Yürüyüş 3,3 MET, orta yoğunluklu aktivite 4,0 MET, yoğun aktivite ise Ainsworth Compendium'a göre 8,0 MET'e karşılık gelir. DSÖ minimumunu karşılamak zaten güçlü bir temel — bundan sonraki potansiyel optimizasyonda, başlangıçta değil.",
+      },
+      {
+        heading: "Haftalık Hedef (DSÖ/ACSM Standardı)",
+        items: [
+          "Haftada ≥150 dk orta yoğunluklu aktivite VEYA ≥75 dk yoğun aktivite",
+          "Haftada ≥2× kuvvet antrenmanı (tüm büyük kas grupları)",
+          "Oturmayı günde maks. 8 saatle sınırla — her saat kısa hareket molası",
+          "Performans: 5×/hafta yapılandırılmış antrenman, periyodizasyon uygula",
+        ],
+        rationale:
+          "Haftada 150 dk orta aktivite önerisi keyfi değil: 655.000'den fazla katılımcıyla yapılan prospektif çalışmalar, bu minimumun bile hareketsizliğe kıyasla mortalite riskini %31 azalttığını gösteriyor (Arem ve ark., JAMA Internal Medicine, 2015). Haftada 2× kuvvet antrenmanı zorunlu çünkü dayanıklılık antrenmanı tek başına yeterli kas protein sentezi aktivasyonu sağlamıyor — kas kütlesi metabolik sağlık ve uzun ömrün bağımsız bir belirleyicisi (McLeod ve ark., 2019). Her 60 dk'da bir oturma molası, toplam antrenman hacminden bağımsız olarak postprandiyal glükoz düzeylerini ölçülebilir biçimde düşürüyor (Dunstan ve ark., Diabetes Care, 2012).",
+      },
+      {
+        heading: "Haftalık Plan (Örnek)",
+        items: [
+          "Pazartesi: 30–45 dk dayanıklılık (koşu/bisiklet) — orta yoğunluk",
+          "Salı: 30 dk kuvvet antrenmanı (tüm vücut)",
+          "Çarşamba: Aktif toparlanma — 20–30 dk yürüyüş veya yoga",
+          "Perşembe: 30–45 dk dayanıklılık — daha yüksek yoğunluk (intervallar)",
+          "Cuma: 30 dk kuvvet antrenmanı (tüm vücut)",
+          "Cumartesi: 45–60 dk tercih ettiğin spor",
+          "Pazar: Toparlanma — hafif hareket isteğe bağlı",
+        ],
+        rationale:
+          "Haftalık yapı, ACSM'nin FITT modeline (Frekans, Yoğunluk, Süre, Tür) ve periyodizasyon ilkesine dayanıyor. Değişen yoğunluklar (orta dayanıklılık + intervallar) hem aerobik kapasiteyi hem anaerobik eşiği optimize ediyor. Aktif toparlanma günü (Çarşamba) venöz dönüşü destekler ve toparlanmayı yavaşlatmadan kas ağrısını (DOMS) azaltır. Her biri arasında bir dinlenme günü olan iki kuvvet seansı, kas gelişimi için ACSM standardını karşılıyor.",
+      },
+      {
+        heading: "İzleme ve İlerleme",
+        items: [
+          "Adım hedefi: temel olarak günde ≥8.000 adım",
+          "Haftalık MET dakikalarını bir fitness uygulamasıyla takip et",
+          "Her 4 haftada bir: antrenman hacmini %5–10 artır (progresif aşırı yükleme, ACSM)",
+          "Her 8 haftada bir: ilerlemeyi ölçmek için yeni analiz",
+        ],
+        rationale:
+          "Günde 8.000 adım, kardiyovasküler mortalite ve diyabet insidansında anlamlı azalmaların ölçülebildiği bilimsel olarak doğrulanmış eşik değeridir (Paluch ve ark., JAMA Neurology, 2022). Aylık %5–10 artış kuralı, DeLorme'un (1945) progresif aşırı yükleme ilkesine dayanıyor. Her 8 haftada yeni bir analiz mantıklı çünkü kardiyorespiratuar form 6–8 haftalık tutarlı antrenmanın ardından ölçülebilir biçimde değişiyor.",
+      },
+      {
+        heading: "Birinci Haftan — Başlangıç Protokolü",
+        items: [
+          "H1–2: 30 dk %65 MHR'de dayanıklılık seansı — temel çizgiyi belirle",
+          "H3: İlk kuvvet antrenmanı — 3 tüm vücut egzersizi (squat, şınav, kürek çekme), her biri 3×10",
+          "H4: Aktif mola — 20 dk yürüyüş, yapılandırılmış antrenman yok",
+          "H5–6: Haftalık şemayı tekrarla — dayanıklılık + kuvveti dönüşümlü uygula",
+          "H7: Dinlenme günü — değerlendirme: ne işe yaradı? Ne ayarlanmalı?",
+          "2. Hafta: Hacmi %10 artır (1 set daha veya 5 dk daha uzun)",
+        ],
+        rationale:
+          "İlk adım en zorlu: alışkanlık oluşturma araştırmaları, yeni bir alışkanlığın otomatik hale gelmesinin ortalama 66 gün aldığını gösteriyor (Lally ve ark., 2010). 1. haftadaki anahtar maksimum performans değil, tutarlılık. 'Minimum Etkili Doz' — hâlâ adaptasyon üretebilen en küçük antrenman — ilk haftadaki en akıllı strateji.",
+      },
+    ],
+  },
+
+  metabolic: {
+    title: "METABOLİK PLAN",
+    subtitle: "Metabolik performansını optimize etmek için kişisel plan",
+    color: PLAN_COLORS.metabolic,
+    source: "Baz alınan: DSÖ BMI Sınıflandırması, EFSA Beslenme Önerileri, ISSN Pozisyon Bildirisi 2017",
+    score: 71,
+    blocks: [
+      {
+        heading: "Mevcut Durumun",
+        items: [
+          "Metabolik Skor: 71/100",
+          "BMI: 23,8 kg/m² — Kategori: Normal (DSÖ Sınıflandırması)",
+          "DSÖ normal aralığı: 18,5–24,9 kg/m²",
+        ],
+        rationale:
+          "BMI (Beden Kitle İndeksi = vücut ağırlığı / boy²), DSÖ'nün kardiyovasküler ve metabolik riskler için standart tarama aracı. BMI 23,8 (Normal) ile: 25'in üzerindeki her BMI noktası tip 2 diyabet riskini yaklaşık %7, hipertansiyonu yaklaşık %5 ve kardiyovasküler hastalığı yaklaşık %4 artırıyor (Prospective Studies Collaboration, Lancet, 2009). Metabolik Skor, BMI'yi aktivite verileriyle birleştiriyor çünkü kas kütlesi BMI değerini sağlık riski olmadan artırabilir — bu da skoru tek başına BMI'ye kıyasla daha bağlama duyarlı yapıyor.",
+      },
+      {
+        heading: "Beslenme Protokolü",
+        items: [
+          "Öğün sıklığı: 3 ana öğün, 1–2 ara öğün — dengeli enerji dağılımı",
+          "Protein alımı: günde 1,6–2,2 g/kg vücut ağırlığı (aktif bireyler için ISSN önerisi)",
+          "Karbonhidratlar: karmaşık ve lif bakımından zengin (tam tahıllar, baklagiller, sebzeler)",
+          "Yağ: toplam enerjinin ≥%20'si, doymamış yağ asitlerine odak",
+          "Sebze ve meyve: günde ≥400 g (DSÖ minimum önerisi)",
+        ],
+        rationale:
+          "Günde 1,6–2,2 g/kg protein, optimal kas protein sentezi için ISSN kanıta dayalı aralığı (Morton ve ark., British Journal of Sports Medicine, 2018). Düşük glisemik indeksli kompleks karbonhidratlar postprandiyal insülin düzeylerini azaltır ve enerjiyi stabilize eder. Doymamış yağ asitleri (Omega-3, zeytinyağı) anti-inflamatuar yolları etkinleştirir ve insülin duyarlılığını ölçülebilir biçimde iyileştirir. Günde ≥400 g sebze/meyve kanser riskini %10–15 azaltır ve enerji metabolizması enzimleri için mikro besinler sağlar.",
+      },
+      {
+        heading: "Hidrasyon Protokolü",
+        items: [
+          "Su ihtiyacı: kılavuz olarak günde yaklaşık 35 ml × vücut ağırlığı (kg)",
+          "Yoğun antrenman sırasında: antrenman saati başına +500–750 ml",
+          "Sabah: uyanır uyanmaz 300–500 ml su",
+          "Şekerli içecekleri tamamen su veya şekersiz çayla değiştir",
+        ],
+        rationale:
+          "Sadece %2 dehidrasyon bile bilişsel performansı bozuyor ve kuvveti %6'ya kadar azaltıyor (Sawka ve ark., Medicine & Science in Sports & Exercise, 2007). Sabah suyu (300–500 ml), doğal gece dehidrasyonundan sonra rehydrasyonu sağlar ve termojenik etki yoluyla 30–40 dk boyunca bazal metabolik hızı yaklaşık %30 kısa süreliğine artırır. Şekerli içecekler tokluk etkisi olmadan ortalama 150–300 kcal/gün katkısında bulunuyor — bunları ortadan kaldırmak kalori azaltma için en etkili tek önlemlerden biri.",
+      },
+      {
+        heading: "İzleme",
+        items: [
+          "2 hafta boyunca öğünleri takip et (uygulama) — kalıpları belirle",
+          "Vücut ağırlığı 1×/hafta (aynı saatte, aç karnına) ölçümü",
+          "Hedef: sürdürülebilir kilo kaybı maks. 0,5–1 kg/hafta (DSÖ önerisi)",
+          "Her 8 haftada bir: yeni analiz",
+        ],
+        rationale:
+          "Beslenme öz-izlemi en iyi kanıtlanmış davranışsal müdahalelerden biri: bir meta-analiz, beslenme takibinin kilo kaybı sonuçlarını ortalama iki katına çıkardığını gösteriyor (Burke ve ark., 2011). Haftalık ağırlık ölçümü (günlük yerine) su tutma varyasyonunu azaltır. 0,5–1 kg/hafta hedefi, kilo kaybının öncelikle yağ dokusundan geldiğini güvence altına alır.",
+      },
+      {
+        heading: "Birinci Haftan — Beslenme Sıfırlama",
+        items: [
+          "H1: Buzdolabı denetimi — şekerli içecekleri ve ultra-işlenmiş gıdaları çıkar",
+          "H2: İlk takip günü — yediğin her şeyi bir uygulamaya kaydet",
+          "H3–4: Protein hedefini test et — her öğüne bir protein kaynağı ekle",
+          "H5: Sabah su şişesini (1,5 L) doldur — hedef: 18:00'e kadar biter",
+          "H6–7: Meal prep — gelecek hafta için 2 öğün önceden pişir",
+          "2. Hafta: Makro takibini etkinleştir — protein hedefi: günde 1,6 g/kg'a ulaş",
+        ],
+        rationale:
+          "Diyet değişiklikleri vakaların %90'ında motivasyon eksikliği nedeniyle değil, çevresel tasarım eksikliği nedeniyle başarısız olur (Wansink & Sobal, 2007). 1. haftadaki buzdolabı denetimi 'sürtünme azaltma' ilkesini kullanıyor: fast food mevcut değilse yenmez. Meal prep karar yorgunluğunu azaltır — günlük ne kadar çok yemek kararı alınırsa o kadar kötü alınır. 2. haftadaki protein takibi en önemli diyet kaldıracı.",
+      },
+    ],
+  },
+
+  recovery: {
+    title: "TOPARLANMA PLANI",
+    subtitle: "Rejenerasyonunu geliştirmek için kişisel plan",
+    color: PLAN_COLORS.recovery,
+    source: "Baz alınan: NSF Uyku Kılavuzları, PSQI Ölçeği, ACSM Toparlanma Protokolleri, Walker (2017) Why We Sleep",
+    score: 58,
+    blocks: [
+      {
+        heading: "Mevcut Durumun",
+        items: [
+          "Uyku & Toparlanma Skoru: 58/100",
+          "Uyku süresi bandı: 7–8 saat",
+          "NSF yetişkin (18–64 yaş) önerisi: 7–9 saat/gece",
+        ],
+        rationale:
+          "Uyku Skorun, polisomnografik ölçümlerle karşılaştırıldığında 0,75 Kappa değerine (iyi uyum) sahip, klinik olarak doğrulanmış bir araç olan PSQI'ya (Pittsburgh Sleep Quality Index) dayanıyor. Skor uyku süresini, kalitesini, uyku başlangıç latansını ve toparlanma hissini entegre ediyor. 7 saatin altındaki uyku süresinde yüksek kortizol düzeyleri, azalmış insülin duyarlılığı (−%20–30) ve bozulmuş bağışıklık fonksiyonu (−%70 NK hücre aktivitesi) belgelenmiş (Walker, 2017; Spiegel ve ark., Lancet, 1999).",
+      },
+      {
+        heading: "Uyku Hijyeni Protokolü",
+        items: [
+          "Sabit yatma ve uyanma saati — hafta sonları da dahil (±30 dk tolerans)",
+          "Yatak odası: 16–18°C, tamamen karartılmış, ekran yok",
+          "Son öğün uykudan ≥2 saat önce",
+          "Kafein: 14:00'dan sonra tüketim yok",
+          "Ekranlar (mavi ışık): uykudan ≥60 dk önce kapat veya mavi ışık filtresi kullan",
+        ],
+        rationale:
+          "Uyku saati tutarlılığı kritik çünkü sirkadiyen ritim düzenli ışık-karanlık döngüleriyle senkronize oluyor — hafta sonlarında >1 saatlik sapmalar, 1,5 kat artmış obezite riskiyle ilişkili 'sosyal jet lag'a neden oluyor (Roenneberg ve ark., 2012). 16–18°C oda sıcaklığı, uyku başlangıcı için gereken doğal vücut sıcaklığı düşüşünü destekler. Kafeinin yarılanma ömrü 5–6 saat — 14:00'dan sonra alınan kafein 23:00'de hâlâ %25–50 aktif.",
+      },
+      {
+        heading: "Antrenman Toparlanma Protokolü",
+        items: [
+          "Yoğun antrenman sonrası: aynı kas grubu için ≥48 saat toparlanma süresi",
+          "Aktif toparlanma: dinlenme günlerinde 20 dk hafif aerobik antrenman veya yürüyüş",
+          "Soğuk uygulama (soğuk banyo 10–15°C, 10–15 dk): kanıtlanmış anti-inflamatuar",
+          "Birincil toparlanma aracı olarak uyku: her ek uyku saati kortisolü azaltır",
+        ],
+        rationale:
+          "Kas toparlanması için 48 saatlik kural, kas protein sentezi (MPS) kinetiğine dayanıyor: MPS yoğun antrenman sonrası 24–48 saat yüksek kalıyor; aynı grubu bu pencerede çalıştırmak sentez fazını bozuyor (Damas ve ark., 2016). Soğuk banyolar noradrenerjik sistemleri etkinleştirir, pro-inflamatuar sitokinleri azaltır ve meta-analizlerde DOMS azalmasını yaklaşık %20 hızlandırıyor (Hohenauer ve ark., PLOS ONE, 2015). Uyku en güçlü toparlanma aracı: günlük büyüme hormonunun %70'i derin uyku sırasında salınıyor.",
+      },
+      {
+        heading: "Haftalık Yapı",
+        items: [
+          "Haftada en az 1 yapılandırılmış antrenman olmadan tam dinlenme günü",
+          "Her 4–6 antrenman haftasında deload haftası: hacmi %40–50 azalt",
+          "Günlük uyku kalitesini değerlendir (1–10) — 2 hafta boyunca kalıpları takip et",
+        ],
+        rationale:
+          "Dinlenme günleri zayıflık değil — fizyolojik zorunluluk: düzenli yüklenme olmadan kortizol kronik olarak yükseliyor (Aşırı Antrenman Sendromu, Kreher & Schwartz, 2012). Her 4–6 haftada deload haftası, tam nöronal ve yapısal adaptasyona olanak tanır — genellikle 'süperkompanzasyon sıçraması'na yol açar. 14 gün boyunca günlük uyku takibi, tek günler için görünmez olan kalıpları ortaya koyar.",
+      },
+      {
+        heading: "Birinci Haftan — Uyku Protokolü",
+        items: [
+          "Bugün: Yatma saatini belirle (örn. 23:00) ve yarın için aynı saate alarm kur",
+          "Hemen şimdi: 14:00'den sonra kafeini kes — 7 gün test et",
+          "H2: Yatak odası kontrolü — karartma, sıcaklık (16–18°C), cihazları dışarıda şarj et",
+          "H3–7: Uykudan 30 dk önce ekran yok — alternatif: kitap, hafif esneme, günlük tutma",
+          "Her gün: Sabah uyku kalitesini 1–10 ölçeğinde değerlendir",
+          "7 gün sonra: ortalama hesapla — 6'nın altı daha fazla hijyen optimizasyonu gerektirir",
+        ],
+        rationale:
+          "Uyku hijyeni müdahaleleri, uyku sorunları için kanıta dayalı birinci basamak tedavisi (BDT-U) — herhangi bir ilaçtan önce. En önemli tek faktör tutarlı uyanma saati: sirkadiyen ritmi demirler. 30 dk'lık ekran molası, melatonin baskılanmasına %85'e kadar neden olabilen mavi ışığı (460–490 nm) azaltır (Harvard Medical School, 2012).",
+      },
+    ],
+  },
+
+  stress: {
+    title: "STRES VE YAŞAM TARZI PLANI",
+    subtitle: "Stres ve yaşam tarzını optimize etmek için kişisel plan",
+    color: PLAN_COLORS.stress,
+    source: "Baz alınan: DSÖ Ruh Sağlığı Kılavuzları, APA Stres Yönetimi, MBSR Kabat-Zinn, Cohen PSS-10 Ölçeği",
+    score: 52,
+    blocks: [
+      {
+        heading: "Mevcut Durumun",
+        items: [
+          "Stres & Yaşam Tarzı Skoru: 52/100",
+          "Stres bandı: Yüksek",
+          "Kronik stres kortisolü artırır → uyku, metabolizma ve bağışıklık sistemini bozar",
+        ],
+        rationale:
+          "Stres Skorun, dünyanın en sık atıfta bulunulan stres ölçüm aracı olan PSS-10'a (Perceived Stress Scale, Cohen ve ark., 1983) dayanıyor. 'Yüksek' stres bandı, algılanan kontrol edilebilirliği ve aşırı yüklenmeyi yansıtıyor. Kronik olarak yüksek kortizol: hipokampus atrofisi (−%5–10 hacim azalması), artmış visseral yağ birikimi, bozulmuş glükoz düzenlemesi ve baskılanmış bağışıklık yanıtıyla nedensel olarak ilişkili (McEwen, 2007). Hedefli müdahaleler 8 hafta içinde ölçülebilir nörobiyolojik değişiklikler üretebilir.",
+      },
+      {
+        heading: "Günlük Stres Protokolü",
+        items: [
+          "Sabah rutini: 10 dk yapılandırılmış rahatlama (nefes egzersizi, meditasyon veya günlük tutma)",
+          "4-7-8 nefes tekniği: 4 sn nefes al, 7 sn tut, 8 sn ver — parasempatik sistemi etkinleştirir",
+          "Öğle arası: 15–20 dk ekransız ve iş bağlantısı olmadan",
+          "Akşam rutini: yarınki yapılacaklar listesini yaz → düşünceleri kafadan boşalt",
+        ],
+        rationale:
+          "Sadece 8 hafta boyunca günlük 10 dk meditasyon, MR'da ölçülebilir biçimde amigdala yoğunluğunu azaltıp prefrontal korteks aktivitesini artırıyor — MBSR'nin altındaki nörobiyolojik mekanizma bu (Hölzel ve ark., Psychiatry Research, 2011). 4-7-8 nefes tekniği uzatılmış nefes verme yoluyla vagus sinirini uyarır ve kalp hızı değişkenliğini (HRV) artırır. Günlük tutma, bilişsel yeniden yapılandırma yoluyla ölçülebilir biçimde duygusal sıkıntıyı azaltıyor (Pennebaker & Smyth, 2016).",
+      },
+      {
+        heading: "Yaşam Tarzı Optimizasyonu",
+        items: [
+          "Dijital detoks: günde 1–2 saat tamamen çevrimdışı (akıllı telefon yok, sosyal medya yok)",
+          "Sosyal temas: düzenli yüz yüze etkileşimler — kanıtlanmış stres azaltıcı",
+          "Doğa: doğal ortamda 20 dk kortisolü ölçülebilir biçimde düşürür (Univ. Michigan çalışması)",
+          "Alkol kısıtla: haftada >14 birim stres eksenini yükseltir ve uykuyu bozar",
+        ],
+        rationale:
+          "Günde >3 saat sosyal medya kullanımı, prospektif çalışmalarda 2,7 kat artmış depresyon riskiyle ilişkili (Twenge ve ark., 2018). Yüz yüze sosyalleşme oksitosin salgılanmasını uyarır ve HPA ekseni aktivitesini doğrudan baskılar. 'Shinrin-Yoku' (orman terapisi) sadece 20 dk sonra %12–16 kortizol azalması ve kan basıncı düşüşleri gösteriyor (Li, 2010). Alkol kısa vadede GABA'yı artırır ve glutamatı düşürür — uzun vadede anksiyete ve stres reaktivitesini artırır.",
+      },
+      {
+        heading: "Stres Aracı Olarak Spor",
+        items: [
+          "Orta yoğunluklu aerobik aktivite (%65–75 MHR) 3×/hafta uzun vadede kortizol düzeylerini düşürür",
+          "Yoga/Pilates: 2×/hafta — hareketi ve rahatlamayı birleştirir",
+          "Akut stres >8/10 iken YOĞUN antrenman YAPMA — yaralanma riskini artırır",
+        ],
+        rationale:
+          "Maksimum kalp hızının %65–75'inde aerobik antrenman, stres direncini üç mekanizma yoluyla artırır: (1) beta-endorfin ve BDNF salınımı, (2) tekrarlayan orta düzeyli kortizol artışı ve toparlanma yoluyla HPA ekseni duyarsızlaşması, (3) daha iyi otonom stres düzenlemesinin göstergesi olarak artmış HRV (Blumenthal ve ark., JAMA Psychiatry, 1999). Yoga, hareketi, nefes kontrolünü ve farkındalığı birleştirir — meta-analizler bilişsel davranışçı terapiye benzer iyileşmeler gösteriyor (Cramer ve ark., 2013).",
+      },
+      {
+        heading: "Birinci Haftan — Günlük Sıfırlama",
+        items: [
+          "Sabah 1: Uyandıktan hemen sonra 4-7-8 nefes egzersizi — 4 döngü (< 2 dakika)",
+          "H1–3: Ekransız ve telefonsuz öğle arası — sadece 10 dk bile sayılır",
+          "H2: Doğada 20 dk (park, orman, yeşil alan) — kulaklık yok, telefon yok",
+          "H3'ten itibaren: Akşam ritüeli kur — yatmadan önce yarınki yapılacaklar listesini yaz",
+          "H4–7: Sabah ve akşam 1–10 ölçeğinde günlük stres seviyesi",
+          "7 gün sonra: kalıpları analiz et — stresi ne artırıyor? Ne azaltıyor?",
+        ],
+        rationale:
+          "Bir stres programının ilk haftası uyum açısından kritik: küçük, hemen fark edilebilir etkiler (4-7-8 nefes egzersizi gibi) öz-yeterliliği artırır. Stres günlükleri 'gözlemci etkisi'ni kullanır: stres tepkilerini yalnızca gözlemleyip yazmak yoğunluklarını azaltır çünkü bilişsel işleme prefrontal korteksi etkinleştirir ve amigdalayi baskılar (Lieberman ve ark., Psychological Science, 2007).",
+      },
+    ],
+  },
+};
+
+const LOCALE_MAP: Record<string, SamplePlansMap> = { de: DE, en: EN, it: IT, tr: TR };
 
 export function getSamplePlan(locale: string, type: string): PlanContent {
   const plans = LOCALE_MAP[locale] ?? DE;
