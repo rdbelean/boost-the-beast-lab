@@ -609,14 +609,19 @@ export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
   })();
 
   const planLocale = (plan.locale ?? "de") as Locale;
-  currentPlanLocale = planLocale;
-  isSamplePlan = plan.isSample === true;
   const doc = await PDFDocument.create();
   const { reg, bold } = await embedLocaleFonts(doc, planLocale);
   const f: F = { reg, bold };
 
   const logoBytes = Buffer.from(LOGO_WHITE_PNG_BASE64, "base64");
   const logo = await doc.embedPng(logoBytes);
+
+  // Assign module-level state AFTER all setup awaits. This way the
+  // synchronous rendering phase (tx() calls, page drawing) always sees
+  // the locale for THIS request, even if dev-mode handles requests
+  // concurrently on the same Node.js process.
+  currentPlanLocale = planLocale;
+  isSamplePlan = plan.isSample === true;
 
   doc.setTitle(`BTB ${tx(plan.title)}`);
   doc.setAuthor("BOOST THE BEAST LAB");
