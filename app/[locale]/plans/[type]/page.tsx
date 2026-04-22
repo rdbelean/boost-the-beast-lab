@@ -148,7 +148,7 @@ export default function PlanPage() {
     } catch (err) {
       console.error("[Download] Failed:", err);
       if (newTab && !newTab.closed) newTab.close();
-      alert("PDF konnte nicht geöffnet werden. Bitte versuche es erneut oder lade die Seite neu.");
+      alert(t("error_loading"));
     } finally {
       setPdfDownloading(false);
     }
