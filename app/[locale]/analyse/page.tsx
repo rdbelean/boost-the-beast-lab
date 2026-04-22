@@ -17,6 +17,7 @@ interface PlanBundle {
   blocks: PlanBlock[];
   source?: string;
   pdfBase64?: string;
+  locale?: string;
 }
 
 interface PlanPersonalization {
@@ -68,7 +69,7 @@ async function generatePlanBundle(
     });
     if (!pdfRes.ok) {
       console.warn(`[plan ${planType}] PDF gen failed`, pdfRes.status);
-      return { blocks, source };
+      return { blocks, source, locale };
     }
     const buf = await pdfRes.arrayBuffer();
     const bytes = new Uint8Array(buf);
@@ -79,10 +80,10 @@ async function generatePlanBundle(
       binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
     }
     const pdfBase64 = btoa(binary);
-    return { blocks, source, pdfBase64 };
+    return { blocks, source, pdfBase64, locale };
   } catch (e) {
     console.warn(`[plan ${planType}] PDF fetch error`, e);
-    return { blocks, source };
+    return { blocks, source, locale };
   }
 }
 

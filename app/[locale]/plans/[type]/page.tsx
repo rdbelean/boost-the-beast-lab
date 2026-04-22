@@ -60,9 +60,11 @@ export default function PlanPage() {
       if (data.assessmentId) setAssessmentId(data.assessmentId);
 
       // 1. Check sessionStorage for a pre-generated plan (from /analyse)
+      // Only use cached plan if it was generated for the same locale;
+      // mismatches (locale change or pre-fix cache without .locale) fall
+      // through to path 2 so the user gets correctly-localised blocks.
       const cached = data.plans?.[type as PlanType];
-      if (cached?.blocks?.length) {
-        // Use the pre-generated content directly — no second API call.
+      if (cached?.blocks?.length && cached.locale === locale) {
         const base = buildPlan(type as PlanType, data.scores, locale);
         setPlan({
           ...base,

@@ -630,11 +630,19 @@ export async function POST(req: NextRequest) {
         ? "DİL: Türkçe. Tüm yanıtı Türkçe yaz. Samimi 'sen' hitabı kullan (resmi 'siz' değil). Profesyonel, doğrudan elit antrenör tonu.\nBlok 1 başlığı: \"Mevcut Durumun\". Blok 6 başlığı: \"İzleme & İlerleme\"."
         : "SPRACHE: Deutsch, professionell, direkt, fachlich fundiert.\nBlock 1 Überschrift: \"Deine Ausgangslage\". Block 6 Überschrift: \"Monitoring & Fortschritt\".";
 
+    // Append a per-locale reminder to the user message so both system and
+    // user turn reinforce the output language.
+    const userLocaleReminder =
+      locale === "en" ? "\n\nIMPORTANT: Write the entire JSON response in English."
+      : locale === "it" ? "\n\nIMPORTANTE: Scrivi l'intera risposta JSON in italiano."
+      : locale === "tr" ? "\n\nÖNEMLİ: JSON yanıtının tamamını Türkçe yaz."
+      : "";
+
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 3000,
-      system: SYSTEM_PROMPT + "\n\n" + languageInstruction,
-      messages: [{ role: "user", content: userPrompt }],
+      system: languageInstruction + "\n\n" + SYSTEM_PROMPT,
+      messages: [{ role: "user", content: userPrompt + userLocaleReminder }],
     });
 
     const text = (response.content[0] as { type: string; text: string }).text.trim();
