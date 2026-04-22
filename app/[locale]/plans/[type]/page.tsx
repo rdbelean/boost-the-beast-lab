@@ -1,32 +1,28 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "./plan.module.css";
 import { buildPlan, type PlanType, type PlanContent } from "@/lib/plan/buildPlan";
 
-function openBlobInTab(blob: Blob) {
-  const url = URL.createObjectURL(blob);
-  window.open(url, "_blank");
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+// Uses <a download> click — works in any async context, never blocked by popup blocker.
+function triggerDownload(href: string, filename: string) {
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = filename;
+  a.rel = "noopener noreferrer";
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  if (href.startsWith("blob:")) setTimeout(() => URL.revokeObjectURL(href), 60_000);
 }
 
-async function openPlanAsPDF(plan: PlanContent, _planType: string, cachedPdfBase64?: string | null, locale = "de") {
-  if (cachedPdfBase64) {
-    const byteChars = atob(cachedPdfBase64);
-    const bytes = new Uint8Array(byteChars.length);
-    for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
-    openBlobInTab(new Blob([bytes], { type: "application/pdf" }));
-    return;
-  }
-  const res = await fetch("/api/plan/pdf", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ plan, locale }),
-  });
-  if (!res.ok) throw new Error("PDF generation failed");
-  openBlobInTab(await res.blob());
+function downloadBytes(bytes: Uint8Array<ArrayBuffer> | ArrayBuffer, filename: string) {
+  const blob = new Blob([bytes as ArrayBuffer], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  triggerDownload(url, filename);
 }
 
 /* ─── Urgency bucket ─────────────────────────────────────── */
@@ -54,7 +50,6 @@ export default function PlanPage() {
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [error, setError] = useState("");
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     try {
@@ -101,61 +96,60 @@ export default function PlanPage() {
     }
   }, [type, t]);
 
-  // Stop polling on unmount
-  useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
-
   async function handleDownload() {
     if (pdfDownloading) return;
+    setPdfDownloading(true);
+    console.log("[Download] Button clicked", { type, assessmentId, hasBase64: !!cachedPdfBase64 });
 
-    // Fast path: Storage-backed signed URL
-    if (assessmentId) {
-      setPdfDownloading(true);
-      const pdfType = `plan_${type}`;
-      try {
-        const res = await fetch(
-          `/api/reports/pdf-url?assessment_id=${assessmentId}&pdf_type=${pdfType}&locale=${locale}`,
-        );
-        const json = await res.json() as { ready?: boolean; url?: string; status?: string };
-
-        if (json.ready && json.url) {
-          window.open(json.url, "_blank", "noopener,noreferrer");
-          setPdfDownloading(false);
-          return;
-        }
-
-        if (json.status === "generating" || json.status === "pending") {
-          // Poll until ready (max 60 s)
-          let elapsed = 0;
-          pollRef.current = setInterval(async () => {
-            elapsed += 2000;
-            if (elapsed > 60_000) {
-              clearInterval(pollRef.current!);
-              setPdfDownloading(false);
-              return;
-            }
-            const r2 = await fetch(
-              `/api/reports/pdf-url?assessment_id=${assessmentId}&pdf_type=${pdfType}&locale=${locale}`,
-            ).then((r) => r.json()) as { ready?: boolean; url?: string };
-            if (r2.ready && r2.url) {
-              clearInterval(pollRef.current!);
-              window.open(r2.url, "_blank", "noopener,noreferrer");
-              setPdfDownloading(false);
-            }
-          }, 2000);
-          return;
-        }
-      } catch {
-        // fall through to local generation
-      }
-      setPdfDownloading(false);
-    }
-
-    // Fallback: cached base64 or on-demand generation
-    if (!plan) return;
     try {
-      await openPlanAsPDF(plan, type, cachedPdfBase64, locale);
-    } catch {
-      // silent — user sees nothing is happening which is acceptable
+      const filename = `btb-plan-${type}.pdf`;
+
+      // Fast path: Storage-backed signed URL (single check, no polling)
+      if (assessmentId) {
+        try {
+          console.log("[Download] Checking Storage...");
+          const res = await fetch(
+            `/api/reports/pdf-url?assessment_id=${assessmentId}&pdf_type=plan_${type}&locale=${locale}`,
+          );
+          const json = await res.json() as { ready?: boolean; url?: string };
+          if (json.ready && json.url) {
+            console.log("[Download] Storage URL ready — triggering download");
+            triggerDownload(json.url, filename);
+            return;
+          }
+          console.log("[Download] Storage not ready, using local fallback");
+        } catch {
+          console.log("[Download] Storage check failed, using local fallback");
+        }
+      }
+
+      // Baseline: cached base64 (instant) or on-demand API generation
+      if (cachedPdfBase64) {
+        console.log("[Download] Using cached base64");
+        const byteChars = atob(cachedPdfBase64);
+        const bytes = new Uint8Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+        downloadBytes(bytes, filename);
+        console.log("[Download] Done (base64)");
+        return;
+      }
+
+      if (!plan) throw new Error("Plan not loaded yet");
+      console.log("[Download] Generating PDF on-demand via API");
+      const res = await fetch("/api/plan/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, locale }),
+      });
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const buf = await res.arrayBuffer();
+      downloadBytes(buf, filename);
+      console.log("[Download] Done (on-demand)");
+    } catch (err) {
+      console.error("[Download] Failed:", err);
+      alert("PDF-Download fehlgeschlagen. Bitte versuche es erneut oder lade die Seite neu.");
+    } finally {
+      setPdfDownloading(false);
     }
   }
 

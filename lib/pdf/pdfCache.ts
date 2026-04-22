@@ -86,20 +86,27 @@ export async function getCachedPdf(key: string): Promise<Uint8Array | null> {
   }
 }
 
-/** Öffnet cached Bytes als blob: URL in neuem Tab. Revoked nach 60 s damit
- *  das PDF-Viewer-Tab genug Zeit hatte, den Blob zu laden. */
-export function openBytesInNewTab(bytes: Uint8Array): void {
+/** Downloads cached bytes via <a download> anchor click.
+ *  Unlike window.open, this is never blocked by popup blockers. */
+export function openBytesInNewTab(bytes: Uint8Array, filename = "btb-report.pdf"): void {
   const blob = new Blob([new Uint8Array(bytes)], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
-  window.open(url, "_blank", "noopener,noreferrer");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener noreferrer";
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 /** Versucht, das PDF aus dem Cache zu öffnen. Returned true bei Cache-Hit. */
-export async function tryOpenCached(key: string): Promise<boolean> {
+export async function tryOpenCached(key: string, filename?: string): Promise<boolean> {
   const bytes = await getCachedPdf(key);
   if (!bytes || bytes.byteLength === 0) return false;
-  openBytesInNewTab(bytes);
+  openBytesInNewTab(bytes, filename);
   return true;
 }
 
