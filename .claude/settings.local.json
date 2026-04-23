@@ -16,7 +16,15 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git fetch:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(brew install *)",
+      "Bash(rsvg-convert -w 400 public/logo-white.svg -o public/logo-white.png)",
+      "Bash(sed 's/viewBox=\"50 720 900 560\"/viewBox=\"90 750 800 500\"/' public/logo-white.svg)",
+      "Bash(rsvg-convert -w 400 /tmp/logo-beast-only.svg -o public/logo-white.png)",
+      "Bash(python3 -c ' *)",
+      "Bash(rsvg-convert -w 400 /tmp/logo-beast-clean.svg -o public/logo-white.png)",
+      "Bash(rm -rf .next)",
+      "Bash(npm run *)"
     ]
   }
 }
