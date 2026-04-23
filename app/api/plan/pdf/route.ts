@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as { plan: PlanPdfInput; locale?: string };
     const { plan, locale } = body;
+    console.log("[Plans/BE/pdf] received", { bodyLocale: locale, planLocale: plan?.locale, title: plan?.title, firstHeading: plan?.blocks?.[0]?.heading });
 
     if (!plan?.title || !Array.isArray(plan?.blocks)) {
       return NextResponse.json({ error: "Missing plan data" }, { status: 400 });

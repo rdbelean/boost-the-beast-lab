@@ -49,6 +49,7 @@ export default function PlanPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    console.log("[Plans/FE/view] mount", { locale, type, pathname: typeof window !== "undefined" ? window.location.pathname : "?" });
     try {
       const raw = sessionStorage.getItem("btb_results");
       if (!raw) { setError(t("error_no_data")); return; }
@@ -64,6 +65,7 @@ export default function PlanPage() {
       // mismatches (locale change or pre-fix cache without .locale) fall
       // through to path 2 so the user gets correctly-localised blocks.
       const cached = data.plans?.[type as PlanType];
+      console.log("[Plans/FE/view] cache probe", { hasCache: !!cached?.blocks?.length, cachedLocale: cached?.locale, match: cached?.locale === locale, firstHeading: cached?.blocks?.[0]?.heading });
       if (cached?.blocks?.length && cached.locale === locale) {
         const base = buildPlan(type as PlanType, data.scores, locale);
         setPlan({
@@ -79,6 +81,7 @@ export default function PlanPage() {
       const initial = buildPlan(type as PlanType, data.scores, locale);
       setPlan(initial);
 
+      console.log("[Plans/FE/view] POST /api/plan/generate body.locale =", locale, "type =", type);
       fetch("/api/plan/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,6 +89,7 @@ export default function PlanPage() {
       })
         .then((r) => r.ok ? r.json() : null)
         .then((ai) => {
+          console.log("[Plans/FE/view] fresh AI response", { responseLocale: ai?.locale, firstHeading: ai?.blocks?.[0]?.heading, blocksCount: ai?.blocks?.length });
           if (ai?.blocks?.length) {
             setPlan((prev) => prev ? {
               ...prev,

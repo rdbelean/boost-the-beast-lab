@@ -36,6 +36,8 @@ async function generatePlanBundle(
   locale = "de",
   personalization: PlanPersonalization = {},
 ): Promise<PlanBundle | null> {
+  console.log("[Plans/FE/bundle]", { planType, locale, hasPersonalization: Object.keys(personalization).length > 0 });
+
   // 1. Build static fallback content locally
   const basePlan = buildPlan(planType, scores, locale);
 
@@ -43,17 +45,21 @@ async function generatePlanBundle(
   let blocks = basePlan.blocks;
   let source = basePlan.source;
   try {
+    console.log("[Plans/FE/bundle] POST /api/plan/generate body.locale =", locale, "type =", planType);
     const aiRes = await fetch("/api/plan/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: planType, scores, locale, ...personalization }),
     });
     if (aiRes.ok) {
-      const ai = (await aiRes.json()) as { blocks?: PlanBlock[]; source?: string };
+      const ai = (await aiRes.json()) as { blocks?: PlanBlock[]; source?: string; locale?: string };
+      console.log("[Plans/FE/bundle] AI response", { planType, responseLocale: ai?.locale, firstHeading: ai?.blocks?.[0]?.heading, blocksCount: ai?.blocks?.length });
       if (ai.blocks?.length) {
         blocks = ai.blocks;
         if (ai.source) source = ai.source;
       }
+    } else {
+      console.warn("[Plans/FE/bundle] AI response not ok", { planType, status: aiRes.status });
     }
   } catch (e) {
     console.warn(`[plan ${planType}] AI gen failed, using static blocks`, e);
@@ -62,6 +68,7 @@ async function generatePlanBundle(
   // 3. Generate PDF with merged content
   const merged = { ...basePlan, blocks, source };
   try {
+    console.log("[Plans/FE/bundle] POST /api/plan/pdf", { planType, locale, firstHeading: merged.blocks[0]?.heading });
     const pdfRes = await fetch("/api/plan/pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -342,6 +349,9 @@ function AnalyseContent() {
   const t = useTranslations("analyse");
   const { locale: localeParam } = useParams() as { locale: string };
   const locale = localeParam ?? "de";
+  if (typeof window !== "undefined") {
+    console.log("[Plans/FE/analyse] useParams locale =", localeParam, "effective locale =", locale, "pathname =", window.location.pathname);
+  }
   const searchParams = useSearchParams();
   const router = useRouter();
   const preselectedProduct = searchParams.get("product") ?? "complete-analysis";

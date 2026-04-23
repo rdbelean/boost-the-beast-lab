@@ -777,9 +777,12 @@ export async function POST(req: NextRequest) {
     const planType = type as PlanType;
     const locale = (body as { locale?: string }).locale ?? "de";
     const meta = getPlanMeta(locale)[planType];
+    const apiKeyOk = hasValidKey(process.env.ANTHROPIC_API_KEY);
+    console.log("[Plans/BE/generate] received", { bodyLocale: (body as { locale?: string }).locale, effectiveLocale: locale, type, hasApiKey: apiKeyOk });
 
-    if (!hasValidKey(process.env.ANTHROPIC_API_KEY)) {
+    if (!apiKeyOk) {
       const fallback = buildFallbackBlocks(planType, scores, personalization);
+      console.log("[Plans/BE/generate] NO API KEY — using fallback", { locale, firstHeading: fallback[0]?.heading });
       return NextResponse.json({ ...meta, locale, blocks: fallback });
     }
 
@@ -830,8 +833,14 @@ Ton: direkt, professionell, Elite-Coach-Register. Keine Floskeln wie "es ist wic
       messages: [{ role: "user", content: userPrompt + userLocaleReminder }],
     });
 
+    const fullSystem = languageInstruction + "\n\n" + SYSTEM_PROMPT;
+    const fullUser = userPrompt + userLocaleReminder;
+    console.log("[Plans/BE/generate] system prompt head:", fullSystem.slice(0, 400));
+    console.log("[Plans/BE/generate] user prompt head:", fullUser.slice(0, 400));
+
     const text = (response.content[0] as { type: string; text: string }).text.trim();
     const parsed = JSON.parse(text) as { blocks: PlanBlock[] };
+    console.log("[Plans/BE/generate] Claude output", { locale, type: planType, firstHeading: parsed.blocks?.[0]?.heading, blocksCount: parsed.blocks?.length });
 
     return NextResponse.json({ ...meta, locale, blocks: parsed.blocks });
   } catch (err) {
