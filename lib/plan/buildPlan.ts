@@ -64,6 +64,98 @@ export const PLAN_COLORS: Record<PlanType, string> = {
   stress: "#22C55E",
 };
 
+// ── Block-heading translations ──────────────────────────────────────────────
+// Used so the fallback / initial-render state shows locale-appropriate
+// headings instead of hardcoded German when AI generation fails or is slow.
+// Item text stays in the base German until we have a full translation pass;
+// the headings alone still signal the output language to the user.
+type HeadingKey =
+  | "starting"
+  | "weeklyTarget" | "weeklyPlan" | "monitoring" | "firstWeekActivity"
+  | "nutrition" | "hydration" | "firstWeekMetabolic"
+  | "sleepHygiene" | "trainingRecovery" | "weekStructure" | "firstWeekRecovery"
+  | "dailyStress" | "lifestyle" | "exerciseAsTool" | "firstWeekStress";
+
+const HEADINGS: Record<string, Record<HeadingKey, string>> = {
+  de: {
+    starting: "Deine Ausgangslage",
+    weeklyTarget: "Wochenziel (WHO/ACSM-Standard)",
+    weeklyPlan: "Wochenplan (Beispiel)",
+    monitoring: "Monitoring & Progression",
+    firstWeekActivity: "Deine erste Woche — Start-Protokoll",
+    nutrition: "Ernährungs-Protokoll",
+    hydration: "Hydrations-Protokoll",
+    firstWeekMetabolic: "Deine erste Woche — Ernährungs-Reset",
+    sleepHygiene: "Schlaf-Hygiene-Protokoll",
+    trainingRecovery: "Trainings-Recovery-Protokoll",
+    weekStructure: "Wochenstruktur",
+    firstWeekRecovery: "Deine erste Woche — Sleep Protocol",
+    dailyStress: "Tägliches Stress-Protokoll",
+    lifestyle: "Lifestyle-Optimierung",
+    exerciseAsTool: "Sport als Stress-Tool",
+    firstWeekStress: "Deine erste Woche — Daily Reset",
+  },
+  en: {
+    starting: "Your Starting Point",
+    weeklyTarget: "Weekly Target (WHO/ACSM Standard)",
+    weeklyPlan: "Weekly Plan (Example)",
+    monitoring: "Monitoring & Progress",
+    firstWeekActivity: "Your First Week — Start Protocol",
+    nutrition: "Nutrition Protocol",
+    hydration: "Hydration Protocol",
+    firstWeekMetabolic: "Your First Week — Nutrition Reset",
+    sleepHygiene: "Sleep Hygiene Protocol",
+    trainingRecovery: "Training Recovery Protocol",
+    weekStructure: "Weekly Structure",
+    firstWeekRecovery: "Your First Week — Sleep Protocol",
+    dailyStress: "Daily Stress Protocol",
+    lifestyle: "Lifestyle Optimisation",
+    exerciseAsTool: "Exercise as a Stress Tool",
+    firstWeekStress: "Your First Week — Daily Reset",
+  },
+  it: {
+    starting: "La Tua Situazione Attuale",
+    weeklyTarget: "Obiettivo Settimanale (Standard WHO/ACSM)",
+    weeklyPlan: "Piano Settimanale (Esempio)",
+    monitoring: "Monitoraggio & Progressi",
+    firstWeekActivity: "La Tua Prima Settimana — Protocollo di Inizio",
+    nutrition: "Protocollo Nutrizionale",
+    hydration: "Protocollo di Idratazione",
+    firstWeekMetabolic: "La Tua Prima Settimana — Reset Nutrizionale",
+    sleepHygiene: "Protocollo di Igiene del Sonno",
+    trainingRecovery: "Protocollo di Recovery da Allenamento",
+    weekStructure: "Struttura Settimanale",
+    firstWeekRecovery: "La Tua Prima Settimana — Protocollo Sonno",
+    dailyStress: "Protocollo Stress Quotidiano",
+    lifestyle: "Ottimizzazione dello Stile di Vita",
+    exerciseAsTool: "Esercizio come Strumento Anti-Stress",
+    firstWeekStress: "La Tua Prima Settimana — Reset Quotidiano",
+  },
+  tr: {
+    starting: "Mevcut Durumun",
+    weeklyTarget: "Haftalık Hedef (WHO/ACSM Standardı)",
+    weeklyPlan: "Haftalık Plan (Örnek)",
+    monitoring: "İzleme & İlerleme",
+    firstWeekActivity: "İlk Haftan — Başlangıç Protokolü",
+    nutrition: "Beslenme Protokolü",
+    hydration: "Hidrasyon Protokolü",
+    firstWeekMetabolic: "İlk Haftan — Beslenme Reseti",
+    sleepHygiene: "Uyku Hijyeni Protokolü",
+    trainingRecovery: "Antrenman İyileşme Protokolü",
+    weekStructure: "Haftalık Yapı",
+    firstWeekRecovery: "İlk Haftan — Uyku Protokolü",
+    dailyStress: "Günlük Stres Protokolü",
+    lifestyle: "Yaşam Tarzı Optimizasyonu",
+    exerciseAsTool: "Stres Aracı Olarak Spor",
+    firstWeekStress: "İlk Haftan — Günlük Reset",
+  },
+};
+
+function h(locale: string | undefined, key: HeadingKey): string {
+  const set = HEADINGS[locale ?? "de"] ?? HEADINGS.de;
+  return set[key];
+}
+
 export function buildPlan(type: PlanType, scores: Record<string, unknown>, locale?: string): PlanContent {
   const meta = getPlanMeta(locale)[type];
   const s = scores as {
@@ -88,7 +180,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
       score,
       blocks: [
         {
-          heading: "Deine Ausgangslage",
+          heading: h(locale, "starting"),
           items: [
             `Activity Score: ${score}/100 (${level})`,
             `MET-Minuten/Woche: ${met} (WHO-Ziel: ≥600 MET-min/Woche)`,
@@ -97,7 +189,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: `Dein Activity Score basiert auf dem IPAQ Short Form (International Physical Activity Questionnaire) — einem weltweit validierten Erhebungsinstrument, das in über 50 Ländern klinisch erprobt wurde (Craig et al., 2003). MET-Minuten (Metabolic Equivalent of Task × Minuten) quantifizieren den Energieaufwand relativ zur Ruherate. Gehen entspricht 3,3 MET, moderate Aktivität 4,0 MET, intensive Aktivität 8,0 MET nach dem Ainsworth Compendium. ${gap > 0 ? `Die Lücke von ${gap} MET-min/Woche bedeutet konkret: du benötigst ca. ${Math.round(gap / 4)} Minuten moderate Aktivität zusätzlich pro Woche, um das WHO-Minimum zu erreichen.` : "Das Erreichen des WHO-Minimums ist bereits eine starke Basis — das Potenzial liegt jetzt in Optimierung, nicht im Einstieg."}`,
         },
         {
-          heading: "Wochenziel (WHO/ACSM-Standard)",
+          heading: h(locale, "weeklyTarget"),
           items: [
             "≥150 Min moderate Aktivität ODER ≥75 Min intensive Aktivität pro Woche",
             "≥2× Krafttraining pro Woche (alle Hauptmuskelgruppen)",
@@ -111,7 +203,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: "Die Empfehlung von 150 Min/Woche moderater Aktivität ist keine willkürliche Zahl: Prospektivstudien mit über 655.000 Teilnehmern zeigen, dass bereits dieses Minimum das Sterblichkeitsrisiko um 31 % gegenüber Inaktivität senkt (Arem et al., JAMA Internal Medicine, 2015). Krafttraining 2×/Woche ist essenziell, weil Ausdauertraining allein keine ausreichende Muskelproteinsyntheseaktivierung liefert — Muskelmasse ist ein unabhängiger Prädiktor für metabolische Gesundheit und Langlebigkeit (McLeod et al., 2019). Sitzunterbrechungen alle 60 Min senken postprandiale Glukosespiegel messbar, unabhängig vom Gesamttraining (Dunstan et al., Diabetes Care, 2012).",
         },
         {
-          heading: "Wochenplan (Beispiel)",
+          heading: h(locale, "weeklyPlan"),
           items: [
             "Montag: 30–45 Min Ausdauer (Laufen/Radfahren) — moderate Intensität",
             "Dienstag: 30 Min Krafttraining (Ganzkörper)",
@@ -124,7 +216,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: "Die Wochenstruktur folgt dem Prinzip der Periodisierung und dem FITT-Modell (Frequency, Intensity, Time, Type) der ACSM. Wechselnde Intensitäten (moderate Ausdauer + Intervalle) optimieren sowohl aerobe Kapazität als auch anaerobe Schwelle. Der aktive Erholungstag (Mittwoch) fördert den venösen Rückfluss und reduziert Muskelkater (DOMS) ohne die Erholung zu verlangsamen. Zwei Kraft-Einheiten mit je einem Ruhetag dazwischen entsprechen dem ACSM-Empfehlungsstandard für Muskelaufbau — weniger führt nicht zu ausreichender Superkompensation.",
         },
         {
-          heading: "Monitoring & Progression",
+          heading: h(locale, "monitoring"),
           items: [
             "Schrittziel: ≥8.000 Schritte/Tag als Basis (Basisaktivität)",
             "MET-Minuten pro Woche mit Fitness-App tracken",
@@ -134,7 +226,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: "8.000 Schritte/Tag ist der wissenschaftlich validierte Schwellenwert, ab dem signifikante Reduktionen der kardiovaskulären Sterblichkeit und Diabetes-Inzidenz nachweisbar sind (Paluch et al., JAMA Neurology, 2022). Die 5–10 % Steigerungsregel pro Monat basiert auf dem Prinzip der progressiven Überladung nach DeLorme (1945), bestätigt durch aktuelle Meta-Analysen: Überschreitung von 10 %/Woche erhöht das Verletzungsrisiko signifikant. Eine Neuanalyse alle 8 Wochen ist sinnvoll, weil sich kardiorespiratorische Fitness nach 6–8 Wochen konsistenten Trainings messbar verändert (Boule et al., Diabetologia, 2001).",
         },
         {
-          heading: "Deine erste Woche — Start-Protokoll",
+          heading: h(locale, "firstWeekActivity"),
           items: [
             score < 40
               ? "Tag 1–2: 2× 20 Min zügiges Gehen — kein Ehrgeiz, nur Gewohnheit aufbauen"
@@ -163,7 +255,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
       score,
       blocks: [
         {
-          heading: "Deine Ausgangslage",
+          heading: h(locale, "starting"),
           items: [
             `Metabolic Score: ${score}/100`,
             `BMI: ${bmi} kg/m² — Kategorie: ${cat} (WHO-Klassifikation)`,
@@ -172,7 +264,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: `Der BMI (Body Mass Index = Körpergewicht / Körpergröße²) ist das Standard-Screening-Tool der WHO für kardiovaskuläre und metabolische Risiken. Bei einem BMI von ${bmi} (${cat}) ist folgendes wichtig: Jeder BMI-Punkt über 25 erhöht das Risiko für Typ-2-Diabetes um ca. 7 %, Hypertonie um ca. 5 % und kardiovaskuläre Erkrankungen um ca. 4 % (Prospective Studies Collaboration, Lancet, 2009). Der Metabolic Score kombiniert BMI mit Aktivitätsdaten, da Muskulatur den BMI-Wert ohne gesundheitliches Risiko erhöhen kann — daher ist der Score kontextsensitiver als der BMI allein.`,
         },
         {
-          heading: "Ernährungs-Protokoll",
+          heading: h(locale, "nutrition"),
           items: [
             "Mahlzeitenfrequenz: 3 Hauptmahlzeiten, 1–2 Snacks — gleichmäßige Energieverteilung",
             "Proteinzufuhr: 1,6–2,2 g/kg Körpergewicht/Tag (ISSN-Empfehlung für aktive Personen)",
@@ -183,7 +275,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: "Protein von 1,6–2,2 g/kg/Tag ist der ISSN-evidenzbasierte Bereich für optimale Muskelproteinsynthese — unterhalb davon ist die Aminosäureverfügbarkeit für MPS limitierend (Morton et al., British Journal of Sports Medicine, 2018). Komplexe Kohlenhydrate mit niedrigem glykämischen Index reduzieren postprandiale Insulinspiegel und stabilisieren Energie — dies ist besonders relevant für metabolische Gesundheit (Jenkins et al., NEJM, 2008). Ungesättigte Fettsäuren (Omega-3, Olivenöl) aktivieren anti-inflammatorische Signalwege (NF-κB-Inhibition) und verbessern die Insulinsensitivität messbar. ≥400 g Gemüse/Obst täglich senkt das Krebsrisiko um 10–15 % und liefert Mikronährstoffe, die die Energiestoffwechsel-Enzyme (z. B. B-Vitamine für Citrat-Zyklus) optimal versorgen.",
         },
         {
-          heading: "Hydrations-Protokoll",
+          heading: h(locale, "hydration"),
           items: [
             "Wasserbedarf: ca. 35 ml × Körpergewicht (kg) pro Tag als Richtwert",
             "Bei intensivem Training: +500–750 ml pro Trainingsstunde",
@@ -193,7 +285,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: "Bereits 2 % Dehydration verschlechtert die kognitive Leistung, erhöht die gefühlte Anstrengung beim Training und reduziert die Kraft um bis zu 6 % (Sawka et al., Medicine & Science in Sports & Exercise, 2007). Das Morgenwasser (300–500 ml) rehydriert nach der natürlichen nächtlichen Dehydration und steigert den Grundumsatz kurzfristig um ca. 30 % über 30–40 Min durch thermogene Wirkung (Boschmann et al., Journal of Clinical Endocrinology, 2003). Zuckerhaltige Getränke tragen in Deutschland durchschnittlich 150–300 kcal/Tag bei, ohne Sättigungseffekt — ihre Elimination ist eine der effizientesten Einzelmaßnahmen zur Kalorienreduktion.",
         },
         {
-          heading: "Monitoring",
+          heading: h(locale, "monitoring"),
           items: [
             "Mahlzeiten für 2 Wochen tracken (App) — Muster erkennen",
             "Körpergewicht 1×/Woche (gleiche Uhrzeit, nüchtern) messen",
@@ -203,7 +295,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: "Selbst-Monitoring der Ernährung ist eine der am besten belegten Verhaltensinterventionen: eine Meta-Analyse von 15 RCTs zeigt, dass Ernährungs-Tracking das Gewichtsverlust-Outcome durchschnittlich verdoppelt (Burke et al., Journal of the Academy of Nutrition and Dietetics, 2011). Wöchentliche Gewichtsmessung (statt täglich) reduziert die Variabilität durch Wassereinlagerungen und gibt ein stabileres Signal. Das 0,5–1 kg/Woche-Ziel sichert, dass die Gewichtsabnahme primär aus Fettgewebe stammt — schnellerer Verlust erhöht den Muskelabbau-Anteil messbar (Stiegler & Cunliffe, Sports Medicine, 2006).",
         },
         {
-          heading: "Deine erste Woche — Ernährungs-Reset",
+          heading: h(locale, "firstWeekMetabolic"),
           items: [
             "Tag 1: Kühlschrank-Audit — Zuckerhaltige Getränke & Ultra-Processed Food entfernen",
             "Tag 2: Erster Tracking-Tag — alles was du isst, in einer App (MyFitnessPal o.ä.) notieren",
@@ -229,7 +321,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
       score,
       blocks: [
         {
-          heading: "Deine Ausgangslage",
+          heading: h(locale, "starting"),
           items: [
             `Sleep & Recovery Score: ${score}/100`,
             `Schlafdauer-Band: ${band}`,
@@ -238,7 +330,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: `Dein Sleep Score basiert auf dem PSQI (Pittsburgh Sleep Quality Index), einem klinisch validierten Instrument mit einem Kappa-Wert von 0,75 (gut übereinstimmend) gegenüber polysomnographischen Messungen. Der Score integriert Schlafdauer, Qualität, Einschlaflatenz und Erholungsgefühl. Schlafdauer-Band "${band}" ist dabei der gewichtigste Einzelfaktor: Unter 7 Stunden Schlaf sind nachweislich erhöhte Cortisol-Spiegel, reduzierte Insulinsensitivität (−20–30 %) und verschlechterte Immunfunktion (−70 % NK-Zell-Aktivität) dokumentiert (Walker, 2017; Spiegel et al., Lancet, 1999).`,
         },
         {
-          heading: "Schlaf-Hygiene-Protokoll",
+          heading: h(locale, "sleepHygiene"),
           items: [
             "Feste Schlafenszeit und Aufwachzeit — auch am Wochenende (±30 min Toleranz)",
             "Schlafzimmer: 16–18 °C, vollständig abgedunkelt, keine Bildschirme",
@@ -249,7 +341,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: "Die Schlafenszeit-Konsistenz ist entscheidend, weil der circadiane Rhythmus (SCN im Hypothalamus) durch regelmäßige Licht-Dunkel-Zyklen synchronisiert wird — Abweichungen >1 h am Wochenende verursachen \"Social Jetlag\", der mit einem 1,5-fach erhöhten Adipositas-Risiko assoziiert ist (Roenneberg et al., 2012). Die Raumtemperatur von 16–18 °C unterstützt den natürlichen Körpertemperaturabfall um 0,5–1 °C, der für den Schlafbeginn notwendig ist. Koffein hat eine Halbwertszeit von 5–6 Stunden — nach 14:00 Uhr eingenommenes Koffein ist um 23:00 Uhr noch zu 25–50 % aktiv und unterdrückt Adenosin, den primären Schlafdruck-Mediator.",
         },
         {
-          heading: "Trainings-Recovery-Protokoll",
+          heading: h(locale, "trainingRecovery"),
           items: [
             "Nach intensivem Training: ≥48 h Regenerationszeit für gleiche Muskelgruppe",
             "Aktive Erholung: 20 Min leichtes Ausdauertraining oder Spaziergang an Ruhetagen",
@@ -259,7 +351,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: "Die 48-Stunden-Regel für Muskelregeneration basiert auf der Kinetik der Muskelproteinsynthese (MPS): MPS bleibt nach intensivem Training 24–48 h erhöht, training in diesem Zeitfenster auf dieselbe Gruppe stört die Synthese-Phase (Damas et al., 2016). Kältebäder (10–15 °C) aktivieren noradrenerge Systeme, reduzieren pro-inflammatorische Zytokine (IL-6, TNF-α) und beschleunigen die DOMS-Reduktion um ca. 20 % in Meta-Analysen (Hohenauer et al., PLOS ONE, 2015). Schlaf ist das potenteste Recovery-Tool: während des Tiefschlafs (SWS) wird 70 % des täglichen Wachstumshormons ausgeschüttet — das primäre Signal für Muskelreparatur.",
         },
         {
-          heading: "Wochenstruktur",
+          heading: h(locale, "weekStructure"),
           items: [
             "Mindestens 1 vollständiger Ruhetag pro Woche ohne strukturiertes Training",
             "Deload-Woche alle 4–6 Trainingswochen: Volumen um 40–50 % reduzieren",
@@ -268,7 +360,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
           rationale: "Der Ruhetag ist keine Schwäche — er ist physiologisch notwendig: ohne regelmäßige Entlastung steigt der Cortisolspiegel chronisch an (Overtraining Syndrome, Kreher & Schwartz, 2012), was Schlaf, Immunfunktion und Leistungsfähigkeit dauerhaft verschlechtert. Die Deload-Woche alle 4–6 Wochen ist ein Konzept aus dem Periodisierungsmodell — das Trainingsvolumen zu reduzieren erlaubt vollständige neuronale und strukturelle Anpassung, was nach der Deload-Woche oft zu einem \"Supercompensation Bounce\" führt (Zatsiorsky & Kraemer, 2006). Tägliches Schlaf-Tracking über 14 Tage deckt Muster auf, die für Einzeltage unsichtbar sind — z. B. systematisch schlechterer Schlaf nach Alkohol, späten Mahlzeiten oder hoher Trainingslast.",
         },
         {
-          heading: "Deine erste Woche — Sleep Protocol",
+          heading: h(locale, "firstWeekRecovery"),
           items: [
             "Heute: Schlafenszeit festlegen (z.B. 23:00) und Wecker für selbe Zeit morgen setzen",
             "Ab sofort: Koffein nach 14:00 Uhr streichen — 7 Tage testen",
@@ -294,7 +386,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
     score,
     blocks: [
       {
-        heading: "Deine Ausgangslage",
+        heading: h(locale, "starting"),
         items: [
           `Stress & Lifestyle Score: ${score}/100`,
           `Stress-Band: ${band}`,
@@ -303,7 +395,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
         rationale: `Dein Stress Score basiert auf der PSS-10 (Perceived Stress Scale, Cohen et al., 1983) — dem am häufigsten zitierten Stressmessinstrument weltweit. Das Stress-Band "${band}" reflektiert die wahrgenommene Kontrollierbarkeit und Überlastung. Chronisch erhöhtes Cortisol (>20 µg/dl Morgenwert) ist kausal mit: Hippocampus-Atrophie (−5–10 % Volumenreduktion), erhöhter viszeraler Fettakkumulation, gestörter Glucoseregulation und supprimierter Immunantwort assoziiert (McEwen, 2007). Die gute Nachricht: kortikale Plastizität bedeutet, dass gezielte Interventionen innerhalb von 8 Wochen messbare neurobiologische Veränderungen erzeugen können.`,
       },
       {
-        heading: "Tägliches Stress-Protokoll",
+        heading: h(locale, "dailyStress"),
         items: [
           "Morgenroutine: 10 Min strukturierte Entspannung (Atemübung, Meditation oder Journaling)",
           "Atemtechnik 4-7-8: 4 s einatmen, 7 s halten, 8 s ausatmen — aktiviert Parasympathikus",
@@ -313,7 +405,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
         rationale: "Bereits 10 Min tägliche Meditation über 8 Wochen reduziert die Amygdala-Dichte (Stresszentrum) und erhöht die präfrontale Kortexaktivität (Stressregulation) messbar im MRT — das ist der neurobiologische Mechanismus hinter MBSR (Hölzel et al., Psychiatry Research, 2011). Die 4-7-8-Atemtechnik verlängert die Ausatmung, was den Vagusnerv stimuliert und die Herzratenvariabilität (HRV) erhöht — ein direkter Marker parasympathischer Aktivierung und Stressresistenz. Journaling (\"Expressive Writing\") reduziert laut Pennebaker & Smyth (2016) nachweislich emotionalen Leidensdruck durch kognitive Neustrukturierung traumatischer oder stressiger Erlebnisse.",
       },
       {
-        heading: "Lifestyle-Optimierung",
+        heading: h(locale, "lifestyle"),
         items: [
           "Digitale Auszeiten: 1–2 h/Tag komplett offline (kein Smartphone, kein Social Media)",
           "Soziale Kontakte: regelmäßige Face-to-Face-Interaktionen — nachgewiesen stressreduzierend",
@@ -323,7 +415,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
         rationale: "Social-Media-Nutzung >3 h/Tag ist in prospektiven Studien mit einem 2,7-fach erhöhten Depressionsrisiko assoziiert (Twenge et al., 2018) — vermutlich durch sozialen Vergleich, Schlafunterbrechungen und Dopamin-Feedback-Loops. Face-to-Face-Sozialisation stimuliert Oxytocin-Ausschüttung, das die HPA-Achsenaktivität (Cortisol-System) direkt dämpft. \"Shinrin-Yoku\" (Waldtherapie) zeigt in kontrollierten Studien nach nur 20 Min signifikante Cortisol-Senkungen von 12–16 % sowie Blutdruckreduktionen (Li, 2010). Alkohol erhöht kurzfristig GABA und senkt Glutamat (Entspannungsgefühl), langfristig jedoch reguliert das Gehirn die Rezeptoren hoch — was Angst und Stressreaktivität im nüchternen Zustand verstärkt (Sinha, 2008).",
       },
       {
-        heading: "Sport als Stress-Tool",
+        heading: h(locale, "exerciseAsTool"),
         items: [
           "Moderate Ausdauerbelastung (65–75 % HFmax) 3×/Woche senkt Cortisolspiegel langfristig",
           "Yoga/Pilates: 2×/Woche — kombiniert Bewegung und Entspannung",
@@ -332,7 +424,7 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
         rationale: "Aerobe Ausdauerbelastung bei 65–75 % der maximalen Herzfrequenz (\"Fatburning Zone\") erhöht die Stressresistenz durch drei Mechanismen: (1) Ausschüttung von Beta-Endorphinen und BDNF (Brain-Derived Neurotrophic Factor, \"Dünger für Nervenzellen\"), (2) HPA-Achsen-Desensitivierung durch wiederholten moderaten Cortisol-Anstieg mit Erholung, (3) Erhöhung der HRV als Marker besserer vegetativer Stressregulation (Blumenthal et al., JAMA Psychiatry, 1999). Yoga kombiniert Bewegung, Atemkontrolle und Achtsamkeit — Meta-Analysen zeigen Verbesserungen der Stresswerte vergleichbar mit kognitiver Verhaltenstherapie (Cramer et al., Depression and Anxiety, 2013). Hochintensives Training bei akutem Stress erhöht den Cortisolspiegel additiv — das Verletzungsrisiko steigt durch verminderte Konzentration und erhöhte Muskelspannung.",
       },
       {
-        heading: "Deine erste Woche — Daily Reset",
+        heading: h(locale, "firstWeekStress"),
         items: [
           "Morgen 1: 4-7-8-Atemübung direkt nach dem Aufwachen — 4 Zyklen (< 2 Minuten)",
           "Tag 1–3: Mittagspause ohne Bildschirm und Handy — auch nur 10 Min zählen",
