@@ -468,13 +468,184 @@ function buildFallbackBlocks(type: PlanType, s: ScoreInput, p: PlanPersonalizati
 
 // ── User prompt builder ──────────────────────────────────────────────────────
 
-function buildUserPrompt(type: PlanType, s: ScoreInput, p: PlanPersonalization = {}): string {
+// ── User-prompt i18n ────────────────────────────────────────────────────────
+// The user message Claude receives is locale-aware so it doesn't conflict
+// with the system-level LANGUAGE instruction. Numeric scores and categorical
+// identifiers (e.g. "activity_category") stay as-is — Claude handles them
+// across languages. Only the prose (headers, field labels, closings) is
+// translated. Deep rules stay German for non-DE locales too (they are
+// implementation-specific examples of WHAT to address, and Claude will
+// restate the concepts in the target language when it drafts the blocks).
+type UpStrings = {
+  personalizationHeader: string;
+  mainGoalLabel: string;
+  timeBudgetLabel: string;
+  experienceLabel: string;
+  trainingDaysLabel: string;
+  nutritionLabel: string;
+  stressLabel: string;
+  ritualLabel: string;
+  notSpecified: string;
+  defaultMark: string;
+  hardRulesHeader: string;
+  hardRules: string[];
+  deepRulesHeader: string;
+  dataHeader: Record<PlanType, string>;
+  closing: Record<PlanType, string>;
+};
+
+const UP_DE: UpStrings = {
+  personalizationHeader: "USER PERSONALISIERUNG (PFLICHT berücksichtigen):",
+  mainGoalLabel: "Hauptziel",
+  timeBudgetLabel: "Zeitbudget",
+  experienceLabel: "Erfahrungslevel",
+  trainingDaysLabel: "Aktuelle Trainingstage/Woche",
+  nutritionLabel: "Ernährungs-Painpoint",
+  stressLabel: "Haupt-Stressor",
+  ritualLabel: "Liebstes Erholungs-Ritual",
+  notSpecified: "nicht angegeben",
+  defaultMark: "Default",
+  hardRulesHeader: "HARTE REGELN:",
+  hardRules: [
+    'Wenn time_budget="minimal" (10–20 Min/Tag): KEINE Sessions >15 Min. Micro-Workouts + Alltagsbewegung priorisieren. NIE Zone-2-45-Min empfehlen.',
+    "Wenn experience_level ∈ {beginner, restart}: MAX 2–3 Einheiten/Woche. NIE 4–5×. Erste 2 Wochen: Habit-Aufbau, nicht Volumen.",
+    "Wenn main_goal ∈ {feel_better, stress_sleep, longevity}: Training kommt NACH Schlaf/Stress/Ernährungs-Fixes in der Priorität. Keine HIIT-Empfehlungen.",
+    "Wenn training_days=0: Starten bei 1×/Woche. NIE 5×/Woche als Startempfehlung.",
+    'NUR wenn main_goal="performance" UND time_budget ∈ {committed, athlete} UND experience_level ∈ {intermediate, advanced}: DANN sind 4–5 Einheiten/Woche angebracht.',
+  ],
+  deepRulesHeader: "TIEFEN-REGELN (diese Ausprägungen sind USER-spezifisch und müssen im Plan namentlich auftauchen):",
+  dataHeader: {
+    activity: "ACTIVITY-PLAN — Nutzerdaten:",
+    metabolic: "METABOLIC-PLAN — Nutzerdaten:",
+    recovery: "RECOVERY-PLAN — Nutzerdaten:",
+    stress: "STRESS & LIFESTYLE-PLAN — Nutzerdaten:",
+  },
+  closing: {
+    activity: "Generiere einen detaillierten, personalisierten Activity-Plan. Nutze alle übermittelten Zahlen und erkläre das Warum hinter jeder Empfehlung.",
+    metabolic: "Generiere einen detaillierten, personalisierten Metabolic-Plan mit konkreten Protokollen.",
+    recovery: "Generiere einen detaillierten, personalisierten Recovery-Plan mit wissenschaftlich begründeten Protokollen.",
+    stress: "Generiere einen detaillierten, personalisierten Stress & Lifestyle-Plan mit konkreten Downregulations-Protokollen.",
+  },
+};
+
+const UP_EN: UpStrings = {
+  personalizationHeader: "USER PERSONALIZATION (MANDATORY to respect):",
+  mainGoalLabel: "Main goal",
+  timeBudgetLabel: "Time budget",
+  experienceLabel: "Experience level",
+  trainingDaysLabel: "Current training days/week",
+  nutritionLabel: "Nutrition pain point",
+  stressLabel: "Main stressor",
+  ritualLabel: "Favourite recovery ritual",
+  notSpecified: "not specified",
+  defaultMark: "default",
+  hardRulesHeader: "HARD RULES:",
+  hardRules: [
+    'If time_budget="minimal" (10–20 min/day): NO sessions >15 min. Prioritise micro-workouts + daily movement. NEVER recommend Zone-2-45-min.',
+    "If experience_level ∈ {beginner, restart}: MAX 2–3 sessions/week. NEVER 4–5×. First 2 weeks: habit-building, not volume.",
+    "If main_goal ∈ {feel_better, stress_sleep, longevity}: Training ranks AFTER sleep/stress/nutrition fixes. No HIIT recommendations.",
+    "If training_days=0: Start at 1×/week. NEVER 5×/week as a starting point.",
+    'ONLY if main_goal="performance" AND time_budget ∈ {committed, athlete} AND experience_level ∈ {intermediate, advanced}: THEN 4–5 sessions/week is appropriate.',
+  ],
+  deepRulesHeader: "DEEP RULES (these user-specific signals MUST appear by name in the plan):",
+  dataHeader: {
+    activity: "ACTIVITY PLAN — User data:",
+    metabolic: "METABOLIC PLAN — User data:",
+    recovery: "RECOVERY PLAN — User data:",
+    stress: "STRESS & LIFESTYLE PLAN — User data:",
+  },
+  closing: {
+    activity: "Generate a detailed, personalised Activity plan. Use every number provided and explain the WHY behind each recommendation.",
+    metabolic: "Generate a detailed, personalised Metabolic plan with concrete protocols.",
+    recovery: "Generate a detailed, personalised Recovery plan with science-backed protocols.",
+    stress: "Generate a detailed, personalised Stress & Lifestyle plan with concrete down-regulation protocols.",
+  },
+};
+
+const UP_IT: UpStrings = {
+  personalizationHeader: "PERSONALIZZAZIONE UTENTE (OBBLIGATORIA):",
+  mainGoalLabel: "Obiettivo principale",
+  timeBudgetLabel: "Tempo disponibile",
+  experienceLabel: "Livello di esperienza",
+  trainingDaysLabel: "Giorni di allenamento attuali/settimana",
+  nutritionLabel: "Pain point nutrizionale",
+  stressLabel: "Fattore di stress principale",
+  ritualLabel: "Rituale di recupero preferito",
+  notSpecified: "non specificato",
+  defaultMark: "default",
+  hardRulesHeader: "REGOLE DURE:",
+  hardRules: [
+    'Se time_budget="minimal" (10–20 min/giorno): NESSUNA sessione >15 min. Priorità a micro-workout + movimento quotidiano. MAI consigliare Zone-2-45-min.',
+    "Se experience_level ∈ {beginner, restart}: MAX 2–3 sessioni/settimana. MAI 4–5×. Prime 2 settimane: costruzione dell'abitudine, non volume.",
+    "Se main_goal ∈ {feel_better, stress_sleep, longevity}: L'allenamento viene DOPO la cura di sonno/stress/nutrizione. Niente HIIT.",
+    "Se training_days=0: Partire da 1×/settimana. MAI 5×/settimana come punto di partenza.",
+    'SOLO se main_goal="performance" E time_budget ∈ {committed, athlete} E experience_level ∈ {intermediate, advanced}: ALLORA 4–5 sessioni/settimana sono appropriate.',
+  ],
+  deepRulesHeader: "REGOLE APPROFONDITE (questi segnali specifici dell'utente DEVONO apparire per nome nel piano):",
+  dataHeader: {
+    activity: "PIANO ATTIVITÀ — Dati utente:",
+    metabolic: "PIANO METABOLICO — Dati utente:",
+    recovery: "PIANO RECOVERY — Dati utente:",
+    stress: "PIANO STRESS & LIFESTYLE — Dati utente:",
+  },
+  closing: {
+    activity: "Genera un piano attività dettagliato e personalizzato. Usa ogni numero fornito e spiega il PERCHÉ dietro ogni raccomandazione.",
+    metabolic: "Genera un piano metabolico dettagliato e personalizzato con protocolli concreti.",
+    recovery: "Genera un piano recovery dettagliato e personalizzato con protocolli scientificamente fondati.",
+    stress: "Genera un piano stress & lifestyle dettagliato e personalizzato con protocolli concreti di down-regulation.",
+  },
+};
+
+const UP_TR: UpStrings = {
+  personalizationHeader: "KULLANICI KİŞİSELLEŞTİRME (ZORUNLU):",
+  mainGoalLabel: "Ana hedef",
+  timeBudgetLabel: "Zaman bütçesi",
+  experienceLabel: "Deneyim seviyesi",
+  trainingDaysLabel: "Mevcut antrenman günü/hafta",
+  nutritionLabel: "Beslenme sorunu",
+  stressLabel: "Ana stres kaynağı",
+  ritualLabel: "En sevilen iyileşme ritüeli",
+  notSpecified: "belirtilmedi",
+  defaultMark: "varsayılan",
+  hardRulesHeader: "KATI KURALLAR:",
+  hardRules: [
+    'Eğer time_budget="minimal" (10–20 dk/gün): >15 dk seans YOK. Mikro-workout + günlük hareket önceliklidir. ASLA Zone-2-45-dk önerme.',
+    "Eğer experience_level ∈ {beginner, restart}: MAKS 2–3 seans/hafta. ASLA 4–5×. İlk 2 hafta: alışkanlık inşası, hacim değil.",
+    "Eğer main_goal ∈ {feel_better, stress_sleep, longevity}: Antrenman uyku/stres/beslenme düzeltmelerinden SONRA gelir. HIIT önerme.",
+    "Eğer training_days=0: 1×/hafta ile başla. ASLA 5×/hafta başlangıç önerisi olamaz.",
+    'YALNIZCA main_goal="performance" VE time_budget ∈ {committed, athlete} VE experience_level ∈ {intermediate, advanced} ise: O ZAMAN 4–5 seans/hafta uygundur.',
+  ],
+  deepRulesHeader: "DERİN KURALLAR (kullanıcıya özel bu sinyaller planda adıyla geçmelidir):",
+  dataHeader: {
+    activity: "AKTİVİTE PLANI — Kullanıcı verisi:",
+    metabolic: "METABOLİK PLAN — Kullanıcı verisi:",
+    recovery: "İYİLEŞME PLANI — Kullanıcı verisi:",
+    stress: "STRES & YAŞAMBİÇİMİ PLANI — Kullanıcı verisi:",
+  },
+  closing: {
+    activity: "Detaylı, kişiselleştirilmiş bir Aktivite planı oluştur. Verilen her sayıyı kullan ve her önerinin NEDENİNİ açıkla.",
+    metabolic: "Detaylı, kişiselleştirilmiş bir Metabolik plan oluştur, somut protokoller ver.",
+    recovery: "Detaylı, kişiselleştirilmiş bir İyileşme planı oluştur, bilimsel temelli protokoller ver.",
+    stress: "Detaylı, kişiselleştirilmiş bir Stres & Yaşambiçimi planı oluştur, somut down-regülasyon protokolleri ver.",
+  },
+};
+
+function getUpStrings(locale: string): UpStrings {
+  if (locale === "en") return UP_EN;
+  if (locale === "it") return UP_IT;
+  if (locale === "tr") return UP_TR;
+  return UP_DE;
+}
+
+function buildUserPrompt(type: PlanType, s: ScoreInput, p: PlanPersonalization = {}, locale: string = "de"): string {
+  const S = getUpStrings(locale);
   const overall = `Overall Score: ${s.overall_score_0_100}/100 (${s.overall_band})`;
 
-  // Tiefen-Inputs-Regel: welche Plan-Blöcke MÜSSEN den spezifischen
-  // Painpoint / Stressor / Ritual adressieren? Nur relevant für den
-  // Plan-Typ, der thematisch am nächsten liegt — sonst würde jeder Plan
-  // alles doppelt empfehlen.
+  // Deep-rules: which plan blocks MUST address the user's specific pain point /
+  // stressor / ritual? These stay German — they are implementation examples of
+  // WHAT to address, not user-facing prose. Claude sees the rest of the user
+  // message in the target locale plus the system LANGUAGE directive and will
+  // restate the concepts in the target language in its response.
   const deepRules: string[] = [];
   if (p.nutrition_painpoint && p.nutrition_painpoint !== "none" && (type === "metabolic" || type === "activity")) {
     const npMap: Record<string, string> = {
@@ -509,24 +680,20 @@ function buildUserPrompt(type: PlanType, s: ScoreInput, p: PlanPersonalization =
     const entry = rrMap[p.recovery_ritual];
     if (entry) deepRules.push(entry);
   }
-  const deepRulesBlock = deepRules.length ? `\nTIEFEN-REGELN (diese Ausprägungen sind USER-spezifisch und müssen im Plan namentlich auftauchen):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n` : "";
+  const deepRulesBlock = deepRules.length ? `\n${S.deepRulesHeader}\n${deepRules.map((r) => `- ${r}`).join("\n")}\n` : "";
 
   const personalizationBlock = `
-USER PERSONALISIERUNG (PFLICHT berücksichtigen):
-- Hauptziel: ${p.main_goal ?? "feel_better (Default)"}
-- Zeitbudget: ${p.time_budget ?? "moderate (Default)"}
-- Erfahrungslevel: ${p.experience_level ?? "intermediate (Default)"}
-- Aktuelle Trainingstage/Woche: ${p.training_days ?? "nicht angegeben"}
-- Ernährungs-Painpoint: ${p.nutrition_painpoint ?? "nicht angegeben"}
-- Haupt-Stressor: ${p.stress_source ?? "nicht angegeben"}
-- Liebstes Erholungs-Ritual: ${p.recovery_ritual ?? "nicht angegeben"}
+${S.personalizationHeader}
+- ${S.mainGoalLabel}: ${p.main_goal ?? `feel_better (${S.defaultMark})`}
+- ${S.timeBudgetLabel}: ${p.time_budget ?? `moderate (${S.defaultMark})`}
+- ${S.experienceLabel}: ${p.experience_level ?? `intermediate (${S.defaultMark})`}
+- ${S.trainingDaysLabel}: ${p.training_days ?? S.notSpecified}
+- ${S.nutritionLabel}: ${p.nutrition_painpoint ?? S.notSpecified}
+- ${S.stressLabel}: ${p.stress_source ?? S.notSpecified}
+- ${S.ritualLabel}: ${p.recovery_ritual ?? S.notSpecified}
 
-HARTE REGELN:
-- Wenn time_budget="minimal" (10–20 Min/Tag): KEINE Sessions >15 Min. Micro-Workouts + Alltagsbewegung priorisieren. NIE Zone-2-45-Min empfehlen.
-- Wenn experience_level ∈ {beginner, restart}: MAX 2–3 Einheiten/Woche. NIE 4–5×. Erste 2 Wochen: Habit-Aufbau, nicht Volumen.
-- Wenn main_goal ∈ {feel_better, stress_sleep, longevity}: Training kommt NACH Schlaf/Stress/Ernährungs-Fixes in der Priorität. Keine HIIT-Empfehlungen.
-- Wenn training_days=0: Starten bei 1×/Woche. NIE 5×/Woche als Startempfehlung.
-- NUR wenn main_goal="performance" UND time_budget ∈ {committed, athlete} UND experience_level ∈ {intermediate, advanced}: DANN sind 4–5 Einheiten/Woche angebracht.
+${S.hardRulesHeader}
+${S.hardRules.map((r) => `- ${r}`).join("\n")}
 ${deepRulesBlock}`;
 
   if (type === "activity") {
@@ -534,53 +701,53 @@ ${deepRulesBlock}`;
     return `${overall}
 ${personalizationBlock}
 
-ACTIVITY-PLAN — Nutzerdaten:
-- Activity Score: ${s.activity.activity_score_0_100}/100 — IPAQ-Kategorie: ${s.activity.activity_category}
-- MET-Minuten/Woche: ${s.activity.total_met_minutes_week} (WHO-Ziel ≥600, Lücke: ${gap > 0 ? gap + " MET-min" : "kein Defizit"})
-- VO2max (algorithmische Schätzung): ${s.vo2max.vo2max_estimated} ml/kg/min (${s.vo2max.vo2max_band})
-- Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band}) — Recovery-Kapazität
+${S.dataHeader.activity}
+- Activity Score: ${s.activity.activity_score_0_100}/100 (IPAQ: ${s.activity.activity_category})
+- MET-min/week: ${s.activity.total_met_minutes_week} (WHO target ≥600, gap: ${gap > 0 ? gap + " MET-min" : "none"})
+- VO2max (estimate): ${s.vo2max.vo2max_estimated} ml/kg/min (${s.vo2max.vo2max_band})
+- Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (BMI: ${s.metabolic.bmi}, ${s.metabolic.bmi_category})
 
-Generiere einen detaillierten, personalisierten Activity-Plan. Nutze alle übermittelten Zahlen und erkläre das Warum hinter jeder Empfehlung.`;
+${S.closing.activity}`;
   }
 
   if (type === "metabolic") {
     return `${overall}
 ${personalizationBlock}
-METABOLIC-PLAN — Nutzerdaten:
+${S.dataHeader.metabolic}
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (${s.metabolic.metabolic_band})
-- BMI: ${s.metabolic.bmi} kg/m² (${s.metabolic.bmi_category}) — WHO-Normalbereich: 18,5–24,9 kg/m²
-- Activity Score: ${s.activity.activity_score_0_100}/100 — MET-Minuten/Woche: ${s.activity.total_met_minutes_week}
-- Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band}) — Covassin RCT 2022: Schlafmangel → viszerales Bauchfett
-- Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band}) — Cortisol-Einfluss auf Insulinsensitivität
+- BMI: ${s.metabolic.bmi} kg/m² (${s.metabolic.bmi_category}) (WHO normal: 18.5–24.9)
+- Activity Score: ${s.activity.activity_score_0_100}/100 — MET-min/week: ${s.activity.total_met_minutes_week}
+- Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
+- Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 
-Generiere einen detaillierten, personalisierten Metabolic-Plan mit konkreten Protokollen.`;
+${S.closing.metabolic}`;
   }
 
   if (type === "recovery") {
     return `${overall}
 ${personalizationBlock}
-RECOVERY-PLAN — Nutzerdaten:
+${S.dataHeader.recovery}
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
-- Schlafdauer-Band: ${s.sleep.sleep_duration_band} (NSF: 7–9h empfohlen)
-- Activity Score: ${s.activity.activity_score_0_100}/100 — MET-Minuten/Woche: ${s.activity.total_met_minutes_week} (Trainingslast)
-- Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band}) — direkte Wechselwirkung mit Recovery
-- VO2max (Schätzung): ${s.vo2max.vo2max_estimated} ml/kg/min (${s.vo2max.vo2max_band})
+- Sleep-duration band: ${s.sleep.sleep_duration_band} (NSF: 7–9h)
+- Activity Score: ${s.activity.activity_score_0_100}/100 — MET-min/week: ${s.activity.total_met_minutes_week}
+- Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
+- VO2max (estimate): ${s.vo2max.vo2max_estimated} ml/kg/min (${s.vo2max.vo2max_band})
 
-Generiere einen detaillierten, personalisierten Recovery-Plan mit wissenschaftlich begründeten Protokollen.`;
+${S.closing.recovery}`;
   }
 
   return `${overall}
 ${personalizationBlock}
-STRESS & LIFESTYLE-PLAN — Nutzerdaten:
+${S.dataHeader.stress}
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
-- Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band}) — Stress/Schlaf-Wechselwirkung
-- Activity Score: ${s.activity.activity_score_0_100}/100 — Sport als Cortisol-Regulationswerkzeug
-- Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (${s.metabolic.metabolic_band}) — Cortisol → Insulinsensitivität
+- Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
+- Activity Score: ${s.activity.activity_score_0_100}/100
+- Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (${s.metabolic.metabolic_band})
 - Overall Score: ${s.overall_score_0_100}/100 (${s.overall_band})
 
-Generiere einen detaillierten, personalisierten Stress & Lifestyle-Plan mit konkreten Downregulations-Protokollen.`;
+${S.closing.stress}`;
 }
 
 // ── POST handler ─────────────────────────────────────────────────────────────
@@ -617,26 +784,44 @@ export async function POST(req: NextRequest) {
     }
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const userPrompt = buildUserPrompt(planType, scores, personalization);
+    const userPrompt = buildUserPrompt(planType, scores, personalization, locale);
 
-    // Build the language instruction — replaces the removed SPRACHE line.
-    // Placed at the end so heading names override the [BLOCK_*_HEADING] placeholders.
+    // Strong language directive placed FIRST in the system prompt so Claude
+    // reads it before any of the German task description. Includes explicit
+    // forbidden-phrase examples and the exact block-1 / block-6 heading
+    // to minimise cross-language leakage.
     const languageInstruction =
       locale === "en"
-        ? "LANGUAGE: English. Write the entire response in English. Professional, direct elite-coaching tone.\nBlock 1 heading: \"Your Starting Point\". Block 6 heading: \"Monitoring & Progress\"."
+        ? `CRITICAL LANGUAGE DIRECTIVE — Output language: ENGLISH ONLY.
+The entire JSON response — every heading, every item, every rationale — MUST be in English.
+FORBIDDEN: German words and phrases (e.g. "Deine Ausgangslage", "Wochenziel", "Monitoring & Fortschritt", "es ist wichtig"). Replace with natural English equivalents.
+Block 1 heading: "Your Starting Point". Block 6 heading: "Monitoring & Progress".
+Tone: professional, direct, elite-coaching register.`
         : locale === "it"
-        ? "LINGUA: Italiano. Scrivi l'intera risposta in italiano. Tono professionale e diretto da coach d'élite.\nBlocco 1 titolo: \"La Tua Situazione Attuale\". Blocco 6 titolo: \"Monitoraggio & Progressi\"."
+        ? `DIRETTIVA LINGUA CRITICA — Lingua di output: SOLO ITALIANO.
+L'intera risposta JSON — ogni titolo, ogni voce, ogni rationale — DEVE essere in italiano.
+VIETATO: parole e frasi tedesche (es. "Deine Ausgangslage", "Wochenziel", "Monitoring & Fortschritt") o inglesi se non termini tecnici standard.
+Titolo Blocco 1: "La Tua Situazione Attuale". Titolo Blocco 6: "Monitoraggio & Progressi".
+Tono: professionale, diretto, registro da coach d'élite. Usa il "tu", non il "Lei".`
         : locale === "tr"
-        ? "DİL: Türkçe. Tüm yanıtı Türkçe yaz. Samimi 'sen' hitabı kullan (resmi 'siz' değil). Profesyonel, doğrudan elit antrenör tonu.\nBlok 1 başlığı: \"Mevcut Durumun\". Blok 6 başlığı: \"İzleme & İlerleme\"."
-        : "SPRACHE: Deutsch, professionell, direkt, fachlich fundiert.\nBlock 1 Überschrift: \"Deine Ausgangslage\". Block 6 Überschrift: \"Monitoring & Fortschritt\".";
+        ? `KRİTİK DİL DİREKTİFİ — Çıktı dili: YALNIZCA TÜRKÇE.
+JSON yanıtının tamamı — her başlık, her madde, her rationale — Türkçe olmalıdır.
+YASAK: Almanca kelimeler ve ifadeler ("Deine Ausgangslage", "Wochenziel" vb.). Doğal Türkçe karşılıklar kullan.
+Samimi "sen" hitabı kullan (resmi "siz" değil).
+Blok 1 başlığı: "Mevcut Durumun". Blok 6 başlığı: "İzleme & İlerleme".
+Ton: profesyonel, doğrudan, elit antrenör kaydı.`
+        : `KRITISCHE SPRACHDIREKTIVE — Ausgabesprache: NUR DEUTSCH.
+Die gesamte JSON-Antwort — jede Überschrift, jedes Item, jede Rationale — MUSS auf Deutsch sein.
+Block 1 Überschrift: "Deine Ausgangslage". Block 6 Überschrift: "Monitoring & Fortschritt".
+Ton: direkt, professionell, Elite-Coach-Register. Keine Floskeln wie "es ist wichtig".`;
 
-    // Append a per-locale reminder to the user message so both system and
-    // user turn reinforce the output language.
+    // Reinforce the same directive at the end of the user turn so Claude
+    // sees matching signals in both system AND user messages.
     const userLocaleReminder =
-      locale === "en" ? "\n\nIMPORTANT: Write the entire JSON response in English."
-      : locale === "it" ? "\n\nIMPORTANTE: Scrivi l'intera risposta JSON in italiano."
-      : locale === "tr" ? "\n\nÖNEMLİ: JSON yanıtının tamamını Türkçe yaz."
-      : "";
+      locale === "en" ? "\n\n⚠️ REMINDER: Entire response in ENGLISH only. No German words anywhere."
+      : locale === "it" ? "\n\n⚠️ PROMEMORIA: Intera risposta SOLO in italiano. Nessuna parola tedesca."
+      : locale === "tr" ? "\n\n⚠️ HATIRLATMA: Yanıtın tamamı YALNIZCA Türkçe. Hiçbir yerde Almanca kelime yok."
+      : "\n\n⚠️ ERINNERUNG: Antwort ausschließlich auf Deutsch.";
 
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
