@@ -264,6 +264,10 @@
   .uploadZone { padding: 44px 20px; }
   .uploadLabel { font-size: 16px; }
   .uploadSupports { font-size: 10px; }
+  .fileListHeader { flex-wrap: wrap; gap: 6px; }
+  .fileItem { padding: 10px; gap: 8px; }
+  .typeBadge { white-space: normal; word-break: break-word; max-width: 100%; }
+  .fileMeta { flex-wrap: wrap; gap: 6px; }
 }
 
 /* ─── UPLOAD BUTTONS INSIDE DROPZONE ───────────────────────── */

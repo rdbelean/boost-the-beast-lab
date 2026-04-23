@@ -489,7 +489,8 @@
       "title": "TRASCINA IL TUO FILE QUI",
       "subtitle": "oppure clicca per selezionare",
       "supports": "WHOOP · Apple Health · InBody · DEXA · Garmin · PDF · Immagine · CSV",
-      "max_size": "fino a 15 MB · qualsiasi formato comune"
+      "max_size": "fino a 15 MB · qualsiasi formato comune",
+      "btn_select": "Seleziona file"
     },
     "privacy_banner": {
       "strong": "I tuoi dati restano tuoi.",
@@ -550,7 +551,73 @@
       "title_1": "I TUOI DATI",
       "title_2": "SONO IN ANALISI.",
       "reassurance": "Tutto avviene localmente nel tuo browser — lo ZIP non viene caricato, solo le medie.",
-      "cancel": "Annulla"
+      "cancel": "Annulla",
+      "title_batch_1": "File {current} di {total}",
+      "title_batch_2": "in elaborazione.",
+      "current_file": "File corrente"
+    },
+    "multi": {
+      "add_btn": "Aggiungi file",
+      "process_btn_one": "Analizza 1 file →",
+      "process_btn_other": "Analizza {count} file →",
+      "remove": "Rimuovi",
+      "status_queued": "In attesa",
+      "status_processing": "Analisi in corso...",
+      "status_done": "Fatto",
+      "status_error": "Errore"
+    },
+    "file_list": {
+      "header": "File aggiunti",
+      "clear_all": "Rimuovi tutti",
+      "type_whoop": "WHOOP",
+      "type_apple": "Apple Health",
+      "type_scan": "Scan / Doc.",
+      "type_unknown": "?"
+    },
+    "review": {
+      "title": "Analisi completata",
+      "summary": "{success} di {total} riusciti",
+      "continue_btn": "Continua al questionario →",
+      "add_more": "Aggiungi altri file",
+      "all_failed_warning": "Nessun file è stato letto correttamente — puoi comunque continuare e compilare il questionario manualmente.",
+      "result_whoop": "{days} giorni di dati WHOOP",
+      "result_apple": "{days} giorni di Apple Health",
+      "result_gpx": "{days} giorni di dati GPS allenamento",
+      "result_body_comp": "Composizione corporea rilevata",
+      "result_sleep": "Dati di sonno rilevati",
+      "result_weight": "Dati di peso rilevati",
+      "result_generic": "Dati estratti con successo",
+      "errors_section": "File rifiutati ({count})",
+      "errors_show": "Mostra",
+      "errors_hide": "Nascondi"
+    },
+    "upload": {
+      "quality": {
+        "strong_title": "Base dati solida",
+        "strong_message": "I tuoi dati {sources} coprono {days} giorni. Puoi partire subito.",
+        "good_title": "Buona base",
+        "good_message": "{days} giorni di dati da {sources} elaborati con successo.",
+        "good_recommendation": "Per dati corporei più precisi aiuta uno scan InBody o DEXA.",
+        "minimal_title": "Base disponibile",
+        "minimal_message": "Puoi continuare — il report si basa soprattutto sui tuoi input manuali.",
+        "minimal_recommendation": "Suggerimento: carica un export wearable (WHOOP / Apple Health) per punteggi più precisi.",
+        "none_title": "Nessun dato elaborato",
+        "none_message": "Nessun problema — puoi compilare il questionario anche completamente a mano.",
+        "gpx_note": "+ {count} sessioni GPS incluse"
+      },
+      "folder_intent": {
+        "apple_subfolder_detected": "Export parziale Apple Health rilevato",
+        "apple_ecg_description": "Sono singole registrazioni ECG (dati grezzi del tracciato cardiaco). Non contengono metriche sanitarie analizzabili.",
+        "apple_gpx_description": "Sono singoli percorsi di allenamento (tracce GPS). Possono essere usati per dati di attività — ma un export Health completo fornisce molto di più.",
+        "apple_mixed_description": "Sono registrazioni ECG e percorsi di allenamento. Per un report completo consigliamo l'export principale.",
+        "main_export_tip": "Per un report Apple Health completo carica il tuo export principale:\n1. App Apple Salute → Profilo (in alto a destra)\n2. \"Esporta tutti i dati sanitari\"\n3. Attendi 2–5 min → riceverai un export.zip\n4. Carica questo ZIP qui — contiene sonno, passi, HRV e altro",
+        "process_anyway": "Elabora comunque",
+        "cancel_and_reupload": "Annulla e riseleziona"
+      },
+      "gpx": {
+        "workout_routes_detected": "{count} percorsi di allenamento rilevati",
+        "summary": "{km} km in {sessions} sessioni"
+      }
     }
   },
   "results": {
