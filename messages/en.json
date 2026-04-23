@@ -642,6 +642,7 @@
     "pdf_error_generic": "Error {status}",
     "pdf_error_no_url": "Server did not return a URL.",
     "pdf_error_network": "Network error",
+    "pdf_error_ai_unavailable": "Our AI service is temporarily unavailable. Please try again in a few minutes — your assessment is safely stored.",
     "save_banner": {
       "label": "SAVE REPORT",
       "title_email": "Save your report for later",

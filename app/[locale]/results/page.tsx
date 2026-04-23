@@ -376,21 +376,26 @@ export default function ResultsPage() {
       });
       // Read raw text first — the server can return non-JSON on lambda crash
       const rawText = await res.text();
-      let data: { downloadUrl?: string; error?: string } | null = null;
+      let data: { downloadUrl?: string; error?: string; code?: string } | null = null;
       try {
-        data = JSON.parse(rawText) as { downloadUrl?: string; error?: string };
+        data = JSON.parse(rawText) as { downloadUrl?: string; error?: string; code?: string };
       } catch {
-        // Not JSON — surface the raw text so we can see the actual error
-        setPdfError(
-          t("pdf_error_server", {
-            status: res.status,
-            body: rawText.slice(0, 300) || t("pdf_error_empty"),
-          }),
-        );
+        console.error("[retryPdfGeneration] non-JSON response", res.status, rawText.slice(0, 500));
+        setPdfError(t("pdf_error_generic", { status: res.status }));
         return;
       }
       if (!res.ok) {
-        setPdfError(data?.error ?? t("pdf_error_generic", { status: res.status }));
+        const code = data?.code;
+        const isProvider =
+          code === "provider_billing" ||
+          code === "provider_rate_limit" ||
+          code === "provider_overloaded" ||
+          code === "provider_error";
+        setPdfError(
+          isProvider
+            ? t("pdf_error_ai_unavailable")
+            : t("pdf_error_generic", { status: res.status }),
+        );
         return;
       }
       if (data?.downloadUrl) {
@@ -407,7 +412,8 @@ export default function ResultsPage() {
         setPdfError(t("pdf_error_no_url"));
       }
     } catch (err) {
-      setPdfError(err instanceof Error ? err.message : t("pdf_error_network"));
+      console.error("[retryPdfGeneration] network error", err);
+      setPdfError(t("pdf_error_network"));
     } finally {
       setPdfRetrying(false);
     }

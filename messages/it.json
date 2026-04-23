@@ -637,6 +637,7 @@
     "pdf_error_generic": "Errore {status}",
     "pdf_error_no_url": "Il server non ha restituito un URL.",
     "pdf_error_network": "Errore di rete",
+    "pdf_error_ai_unavailable": "Il nostro servizio AI al momento non è disponibile. Riprova tra qualche minuto — il tuo assessment è salvato al sicuro.",
     "save_banner": {
       "label": "SALVA REPORT",
       "title_email": "Salva il tuo report per dopo",

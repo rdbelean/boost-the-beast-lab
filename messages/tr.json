@@ -642,6 +642,7 @@
     "pdf_error_generic": "Hata {status}",
     "pdf_error_no_url": "Sunucu URL döndürmedi.",
     "pdf_error_network": "Ağ hatası",
+    "pdf_error_ai_unavailable": "AI servisimiz şu an geçici olarak kullanılamıyor. Birkaç dakika sonra tekrar dene — değerlendirmen güvenle saklanıyor.",
     "save_banner": {
       "label": "RAPORU KAYDET",
       "title_email": "Raporunu sonrası için kaydet",

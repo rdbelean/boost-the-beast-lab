@@ -1785,6 +1785,24 @@ Return ONLY valid JSON array, no markdown:
         })
         .eq("id", jobId);
     }
-    return NextResponse.json({ error: message }, { status: 500 });
+    const { code, status } = classifyError(err);
+    return NextResponse.json({ error: "ai_unavailable", code }, { status });
   }
+}
+
+function classifyError(err: unknown): { code: string; status: number } {
+  if (err instanceof Anthropic.APIError) {
+    const body = typeof err.message === "string" ? err.message : "";
+    if (/credit balance|billing|insufficient_quota/i.test(body)) {
+      return { code: "provider_billing", status: 503 };
+    }
+    if (err.status === 429 || /rate_limit/i.test(body)) {
+      return { code: "provider_rate_limit", status: 503 };
+    }
+    if (err.status === 529 || /overloaded/i.test(body)) {
+      return { code: "provider_overloaded", status: 503 };
+    }
+    return { code: "provider_error", status: 503 };
+  }
+  return { code: "internal", status: 500 };
 }

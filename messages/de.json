@@ -642,6 +642,7 @@
     "pdf_error_generic": "Fehler {status}",
     "pdf_error_no_url": "Server lieferte keine URL zurück.",
     "pdf_error_network": "Netzwerkfehler",
+    "pdf_error_ai_unavailable": "Unser KI-Dienst ist gerade nicht erreichbar. Bitte in ein paar Minuten erneut versuchen — dein Assessment ist sicher gespeichert.",
     "save_banner": {
       "label": "REPORT SICHERN",
       "title_email": "Speichere deinen Report für später",
