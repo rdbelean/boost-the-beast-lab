@@ -848,12 +848,24 @@
 /* ─── RESPONSIVE — TABLET ───────────────────────────────────── */
 @media (max-width: 640px) {
   .container { padding: 0 20px; }
-  .header { padding: 0 16px; }
+  .header { padding: 0 12px; gap: 6px; }
+  /* Title drops out of absolute positioning on mobile so it sits between
+     the back button and CTA without overlapping them. */
+  .headerTitle {
+    position: static;
+    transform: none;
+    flex: 1 1 auto;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .headerBtnSecondary { font-size: 10px; padding: 6px 10px; letter-spacing: 0.05em; }
+  .headerBtnPrimary { font-size: 10px; padding: 6px 10px; letter-spacing: 0.05em; }
   .benchmarkLabel { width: 80px; font-size: 9px; }
   .ctaBtns { flex-direction: column; }
   .ctaBtnPrimary, .ctaBtnSecondary { width: 100%; justify-content: center; }
-  /* Hide "Neue Analyse" header button so PDF DOWNLOAD has room */
-  .hideOnMobile { display: none; }
   /* Plans section */
   .plansSectionHeading { font-size: clamp(22px, 6vw, 32px); }
   .planCardScore { font-size: 40px; }
@@ -869,10 +881,11 @@
 /* ─── RESPONSIVE — MOBILE (375px–480px) ────────────────────── */
 @media (max-width: 480px) {
   .container { padding: 0 16px; }
-  .header { padding: 0 12px; height: 48px; }
-  .headerTitle { display: none; }
-  .headerBtnSecondary { font-size: 10px; padding: 7px 12px; }
-  .headerBtnPrimary { font-size: 10px; padding: 7px 12px; }
+  .header { padding: 0 10px; height: 44px; gap: 4px; }
+  /* Keep the title visible but very compact; sits between back + CTA. */
+  .headerTitle { font-size: 8px; letter-spacing: 0.06em; }
+  .headerBtnSecondary { font-size: 9px; padding: 5px 8px; letter-spacing: 0.04em; }
+  .headerBtnPrimary { font-size: 9px; padding: 5px 8px; letter-spacing: 0.04em; }
 
   /* Hero */
   .heroSection { padding: 40px 0 32px; }
