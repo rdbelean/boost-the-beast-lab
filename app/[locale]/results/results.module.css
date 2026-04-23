@@ -849,15 +849,13 @@
 @media (max-width: 640px) {
   .container { padding: 0 20px; }
   .header { padding: 0 12px; gap: 6px; }
-  /* Title drops out of absolute positioning on mobile so it sits between
-     the back button and CTA without overlapping them. */
+  /* Keep absolute centering (inherited from base rule) so the title is
+     locked to the viewport center regardless of the button widths.
+     Just shrink the font and clamp width so it doesn't overlap the buttons. */
   .headerTitle {
-    position: static;
-    transform: none;
-    flex: 1 1 auto;
-    text-align: center;
     font-size: 9px;
     letter-spacing: 0.08em;
+    max-width: 45%;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -882,8 +880,8 @@
 @media (max-width: 480px) {
   .container { padding: 0 16px; }
   .header { padding: 0 10px; height: 44px; gap: 4px; }
-  /* Keep the title visible but very compact; sits between back + CTA. */
-  .headerTitle { font-size: 8px; letter-spacing: 0.06em; }
+  /* Even tighter on phones — title stays viewport-centered via base absolute rule. */
+  .headerTitle { font-size: 8px; letter-spacing: 0.06em; max-width: 40%; }
   .headerBtnSecondary { font-size: 9px; padding: 5px 8px; letter-spacing: 0.04em; }
   .headerBtnPrimary { font-size: 9px; padding: 5px 8px; letter-spacing: 0.04em; }
 
