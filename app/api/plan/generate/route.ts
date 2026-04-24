@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSystemPrompt } from "@/lib/plan/prompts/system-prompts";
 import { getDeepRules } from "@/lib/plan/prompts/deep-rules";
-import { getResponsePrefix } from "@/lib/plan/prompts/response-prefix";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -755,11 +754,6 @@ Ton: direkt, professionell, Elite-Coach-Register. Keine Floskeln wie "es ist wic
       : locale === "tr" ? "\n\n⚠️ HATIRLATMA: Yanıtın tamamı YALNIZCA Türkçe. Hiçbir yerde Almanca kelime yok."
       : "\n\n⚠️ ERINNERUNG: Antwort ausschließlich auf Deutsch.";
 
-    // Pre-seed the assistant turn with the JSON opener + block-1 heading in
-    // the target locale. This hard-anchors Claude into continuing in that
-    // language. The prefix is concatenated back onto the response before
-    // parsing.
-    const responsePrefix = getResponsePrefix(locale);
     const systemPrompt = getSystemPrompt(locale);
 
     const response = await client.messages.create({
@@ -767,10 +761,7 @@ Ton: direkt, professionell, Elite-Coach-Register. Keine Floskeln wie "es ist wic
       max_tokens: 3000,
       temperature: 0.3,
       system: languageInstruction + "\n\n" + systemPrompt,
-      messages: [
-        { role: "user", content: userPrompt + userLocaleReminder },
-        { role: "assistant", content: responsePrefix },
-      ],
+      messages: [{ role: "user", content: userPrompt + userLocaleReminder }],
     });
 
     const fullSystem = languageInstruction + "\n\n" + systemPrompt;
@@ -778,11 +769,15 @@ Ton: direkt, professionell, Elite-Coach-Register. Keine Floskeln wie "es ist wic
     console.log("[Plans/BE/generate] system prompt head:", fullSystem.slice(0, 400));
     console.log("[Plans/BE/generate] user prompt head:", fullUser.slice(0, 400));
 
-    // Claude continues from the prefix, so reconstruct the full JSON by
-    // prepending the prefix to the model's continuation.
-    const continuation = (response.content[0] as { type: string; text: string }).text;
-    const fullJson = responsePrefix + continuation;
-    const parsed = JSON.parse(fullJson) as { blocks: PlanBlock[] };
+    const rawText = (response.content[0] as { type: string; text: string }).text.trim();
+    let parsed: { blocks: PlanBlock[] };
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseErr) {
+      console.error("[Plans/BE/generate] JSON parse failed — raw Claude output:", rawText.slice(0, 2000));
+      console.error("[Plans/BE/generate] parse error:", parseErr);
+      throw parseErr;
+    }
     console.log("[Plans/BE/generate] Claude output", { locale, type: planType, firstHeading: parsed.blocks?.[0]?.heading, blocksCount: parsed.blocks?.length });
 
     return NextResponse.json({ ...meta, locale, blocks: parsed.blocks });
