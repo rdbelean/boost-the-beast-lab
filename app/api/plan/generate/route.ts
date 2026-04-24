@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { getSystemPrompt } from "@/lib/plan/prompts/system-prompts";
+import { getDeepRules } from "@/lib/plan/prompts/deep-rules";
+import { getResponsePrefix } from "@/lib/plan/prompts/response-prefix";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -115,60 +118,8 @@ function getPlanMeta(locale: string): PlanMeta {
   return PLAN_META_DE;
 }
 
-const SYSTEM_PROMPT = `Du bist das Plan-Generierungs-System von BOOST THE BEAST LAB — ein präzises wissenschaftliches Performance-Tool.
-
-Deine Nutzer sind ambitionierte Athleten (25–40) und High-Performer (30–50). Sie wollen keine Wellness-Ratschläge. Sie wollen exakte, evidenzbasierte Protokolle — abgeleitet aus ihren persönlichen Daten.
-
-ABSOLUTE GRENZEN:
-- Keine medizinischen Diagnosen oder Heilversprechen
-- Ausschließlich die im Input übermittelten Zahlen und Scores verwenden — keine erfundenen Werte
-- Keine Studien erfinden oder falsch attributieren
-- VO2max immer als algorithmische Schätzung kommunizieren
-- BMI als Populationsschätzer kommunizieren, nicht als individuelles Urteil
-- Alle Aussagen als Performance-Insight formulieren, nie als Befund
-
-WISSENSCHAFTLICHE BASIS (darfst du nutzen und explizit referenzieren):
-- WHO Physical Activity Guidelines 2020/2024: 150–300 Min moderate Aktivität/Woche, ≥2× Krafttraining
-- IPAQ MET-Kategorisierung: Walking 3.3 MET · Moderate 4.0 MET · Vigorous 8.0 MET
-- AHA Circulation 2022 (100.000 TN, 30 Jahre): 150–300 Min/Woche moderate Aktivität = 20–21% niedrigeres Mortalitätsrisiko
-- AMA Longevity 2024: 150–299 Min/Woche intensive Aktivität = 21–23% niedrigere Gesamtmortalität, 27–33% niedrigere CVD-Mortalität
-- NSF/AASM Schlafempfehlungen: 7–9h für 18–64-Jährige, 7–8h für 65+
-- Covassin et al. RCT 2022: Schlafmangel → signifikant mehr viszerales Bauchfett (unabhängig von Ernährung)
-- Kaczmarek et al. MDPI 2025: Schlafmangel → Cortisol↑, Testosteron↓, GH↓ → Muskelregeneration limitiert
-- Sondrup et al. Sleep Medicine Reviews 2022: Schlafmangel → signifikant erhöhte Insulinresistenz
-- JAMA Network Open Meal Timing 2024 (29 RCTs): frühes Essen + zeitlich eingeschränktes Essen → größerer Gewichtsverlust
-- ISSN Position Stand: Proteinzufuhr 1,6–2,2 g/kg KG/Tag für aktive Personen zur Muskelmasse-Optimierung
-- Psychoneuroendocrinology Meta-Analysis 2024: Mindfulness (g=0.345) und Entspannung (g=0.347) am effektivsten zur Cortisol-Senkung
-- PMC Chronic Stress & Cognition 2024: chronische Glucocorticoid-Ausschüttung → HPA-Dysregulation
-- Frontiers Sedentary & CVD 2022: >6h Sitzen/Tag → erhöhtes Risiko für 12 chronische Erkrankungen — unabhängig vom Trainingspensum
-- AHA Science Advisory: Sitzzeit erhöht Metabolisches-Syndrom-Odds um Faktor 1.73 nach MVPA-Adjustierung
-- PMC OTS Review 2025 & ScienceDirect OTS Molecular 2025: unzureichende Recovery → Kraftverluste bis 14%
-- ACSM Position Stand: Deload-Wochen alle 4–6 Wochen, Volumenreduktion 40–50%
-
-TON-REGELN:
-- Direkt, klar, wie ein Elite-Coach — nicht wie ein Wellness-Blog
-- Das WARUM hinter jeder Empfehlung mit echter wissenschaftlicher Begründung
-- VERBOTENE FLOSKELN: "es ist wichtig, dass", "du solltest versuchen", "achte darauf", "vergiss nicht", "denk daran"
-- Stattdessen: direkte Aussagen. Statt "Es ist wichtig, genug zu schlafen" → "Dein Recovery-Deckel liegt bei einem Sleep-Score unter 65 — jedes weitere Training läuft gegen diese Grenze."
-- Nutze die echten Zahlen aus dem Input: MET-Minuten, BMI, VO2max-Schätzung, Score-Werte, Bänder
-
-FORMAT: Valid JSON only. No markdown backticks. Start directly with {
-
-STRUCTURE — exactly 6 blocks with 5–8 items each:
-{
-  "blocks": [
-    { "heading": "[BLOCK_1_HEADING]", "items": ["...", "...", "...", "...", "...", "..."] },
-    { "heading": "...", "items": ["...", "...", "...", "...", "...", "..."] },
-    { "heading": "...", "items": ["...", "...", "...", "...", "...", "..."] },
-    { "heading": "...", "items": ["...", "...", "...", "...", "...", "..."] },
-    { "heading": "...", "items": ["...", "...", "...", "...", "...", "..."] },
-    { "heading": "[BLOCK_6_HEADING]", "items": ["...", "...", "...", "...", "...", "..."] }
-  ]
-}
-
-Block 1 [BLOCK_1_HEADING]: All relevant scores with context, comparison to reference values, what the numbers mean concretely.
-Blocks 2–5: Concrete, evidence-based protocols and measures specific to the plan type. Each item is a complete sentence with reasoning and concrete numbers.
-Block 6 [BLOCK_6_HEADING]: How to measure progress, over what timeframe, which indicators, when a new analysis makes sense.`;
+// SYSTEM_PROMPT now lives in lib/plan/prompts/system-prompts.ts —
+// imported via getSystemPrompt(locale).
 
 // ── Fallback (no API key) ────────────────────────────────────────────────────
 
@@ -641,43 +592,21 @@ function buildUserPrompt(type: PlanType, s: ScoreInput, p: PlanPersonalization =
   const S = getUpStrings(locale);
   const overall = `Overall Score: ${s.overall_score_0_100}/100 (${s.overall_band})`;
 
-  // Deep-rules: which plan blocks MUST address the user's specific pain point /
-  // stressor / ritual? These stay German — they are implementation examples of
-  // WHAT to address, not user-facing prose. Claude sees the rest of the user
-  // message in the target locale plus the system LANGUAGE directive and will
-  // restate the concepts in the target language in its response.
+  // Deep-rules: locale-aware via getDeepRules(locale). The imperative
+  // MUSS/MUST register is preserved across languages; scientific reference
+  // names (WHO, ISSN, …) stay original.
+  const { np, ss, rr } = getDeepRules(locale);
   const deepRules: string[] = [];
   if (p.nutrition_painpoint && p.nutrition_painpoint !== "none" && (type === "metabolic" || type === "activity")) {
-    const npMap: Record<string, string> = {
-      cravings_evening: 'Mindestens 1 Block MUSS "Heißhunger abends" explizit adressieren — konkret mit Protein-Timing (z.B. 30 g Protein beim Abendessen stabilisiert Blutzucker → weniger Cravings in der Nacht).',
-      low_protein: "Mindestens 1 Block MUSS Protein-Targets konkret machen (z.B. 1,6–2,2 g/kg KG/Tag → Portionen × Mahlzeit runterbrechen).",
-      no_energy: "Mindestens 1 Block MUSS Energie-Timing adressieren (Frühstücks-Timing, Koffein-Cutoff, Blutzucker-Stabilisierung).",
-      no_time: "Mindestens 1 Block MUSS Meal-Prep-Friction reduzieren (Sonntags 30-Min-Prep, 2–3 Protein-Quellen vorkochen).",
-    };
-    const entry = npMap[p.nutrition_painpoint];
+    const entry = np[p.nutrition_painpoint];
     if (entry) deepRules.push(entry);
   }
   if (p.stress_source && p.stress_source !== "none" && (type === "stress" || type === "recovery")) {
-    const ssMap: Record<string, string> = {
-      job: 'Mindestens 1 Block MUSS Arbeits-Stress-Recovery adressieren (z.B. 3-Min-Atem-Reset nach letztem Meeting, klare Feierabend-Transition, keine Arbeits-Mails nach 20 Uhr).',
-      family: 'Mindestens 1 Block MUSS Familien-Transitionen adressieren (z.B. 10 Min Allein-Zeit nach Heimkommen, bevor in den Familien-Modus).',
-      finances: 'Mindestens 1 Block MUSS Finanz-Stress-Cognitive-Load adressieren (z.B. 1× pro Woche 20-Min-Finanz-Check in festem Zeitslot — reduziert diffuse Dauer-Sorge).',
-      health: 'Mindestens 1 Block MUSS Gesundheits-Unsicherheit kalibrieren (z.B. Abend-Journal: 3 kontrollierbare Dinge heute).',
-      future: 'Mindestens 1 Block MUSS Zukunfts-Angst kalibrieren (z.B. Journaling auf "3 heute-kontrollierbare Dinge" fokussieren).',
-    };
-    const entry = ssMap[p.stress_source];
+    const entry = ss[p.stress_source];
     if (entry) deepRules.push(entry);
   }
   if (p.recovery_ritual && p.recovery_ritual !== "none") {
-    const rrMap: Record<string, string> = {
-      sport: "Baue auf dem Ritual SPORT auf — keine komplett neue Routine aufzwingen.",
-      nature: 'Integriere NATUR-Exposure explizit (z.B. "5 Min draußen zwischen 2 Meetings" statt nur "Atem-Pause").',
-      cooking: "KOCHEN als Regenerations-Anker nutzen — z.B. 1× pro Woche Meal-Prep als bewusste Down-Time framen.",
-      reading: "LESEN als Abend-Cutoff-Ritual framen (letzte 30 Min vor Schlaf: Papier-Buch, kein Screen).",
-      meditation: "MEDITATION ausbauen statt komplett neu einführen — Dauer langsam steigern.",
-      social: 'Soziale Interaktion als Regenerations-Tool framen (z.B. "1× pro Woche ungestörte Zeit mit wichtiger Person").',
-    };
-    const entry = rrMap[p.recovery_ritual];
+    const entry = rr[p.recovery_ritual];
     if (entry) deepRules.push(entry);
   }
   const deepRulesBlock = deepRules.length ? `\n${S.deepRulesHeader}\n${deepRules.map((r) => `- ${r}`).join("\n")}\n` : "";
@@ -826,20 +755,34 @@ Ton: direkt, professionell, Elite-Coach-Register. Keine Floskeln wie "es ist wic
       : locale === "tr" ? "\n\n⚠️ HATIRLATMA: Yanıtın tamamı YALNIZCA Türkçe. Hiçbir yerde Almanca kelime yok."
       : "\n\n⚠️ ERINNERUNG: Antwort ausschließlich auf Deutsch.";
 
+    // Pre-seed the assistant turn with the JSON opener + block-1 heading in
+    // the target locale. This hard-anchors Claude into continuing in that
+    // language. The prefix is concatenated back onto the response before
+    // parsing.
+    const responsePrefix = getResponsePrefix(locale);
+    const systemPrompt = getSystemPrompt(locale);
+
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 3000,
-      system: languageInstruction + "\n\n" + SYSTEM_PROMPT,
-      messages: [{ role: "user", content: userPrompt + userLocaleReminder }],
+      temperature: 0.3,
+      system: languageInstruction + "\n\n" + systemPrompt,
+      messages: [
+        { role: "user", content: userPrompt + userLocaleReminder },
+        { role: "assistant", content: responsePrefix },
+      ],
     });
 
-    const fullSystem = languageInstruction + "\n\n" + SYSTEM_PROMPT;
+    const fullSystem = languageInstruction + "\n\n" + systemPrompt;
     const fullUser = userPrompt + userLocaleReminder;
     console.log("[Plans/BE/generate] system prompt head:", fullSystem.slice(0, 400));
     console.log("[Plans/BE/generate] user prompt head:", fullUser.slice(0, 400));
 
-    const text = (response.content[0] as { type: string; text: string }).text.trim();
-    const parsed = JSON.parse(text) as { blocks: PlanBlock[] };
+    // Claude continues from the prefix, so reconstruct the full JSON by
+    // prepending the prefix to the model's continuation.
+    const continuation = (response.content[0] as { type: string; text: string }).text;
+    const fullJson = responsePrefix + continuation;
+    const parsed = JSON.parse(fullJson) as { blocks: PlanBlock[] };
     console.log("[Plans/BE/generate] Claude output", { locale, type: planType, firstHeading: parsed.blocks?.[0]?.heading, blocksCount: parsed.blocks?.length });
 
     return NextResponse.json({ ...meta, locale, blocks: parsed.blocks });
