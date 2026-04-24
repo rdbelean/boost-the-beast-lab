@@ -47,9 +47,18 @@ export default function PlanPage() {
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [error, setError] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
-    console.log("[Plans/FE/view] mount", { locale, type, pathname: typeof window !== "undefined" ? window.location.pathname : "?" });
+    console.log("[Plans/FE/view] mount", { locale, type, retryKey, pathname: typeof window !== "undefined" ? window.location.pathname : "?" });
+    setError("");
+    setPlan(null);
+    const abortController = new AbortController();
+    // Hard client-side timeout at 90s so the user never sees a perpetual
+    // loading state if the API silently hangs.
+    const timeoutId = setTimeout(() => {
+      abortController.abort(new Error("client-timeout-90s"));
+    }, 90_000);
     try {
       const raw = sessionStorage.getItem("btb_results");
       if (!raw) { setError(t("error_no_data")); return; }
@@ -85,6 +94,7 @@ export default function PlanPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, scores: data.scores, locale }),
+        signal: abortController.signal,
       })
         .then(async (r) => {
           if (!r.ok) {
@@ -95,6 +105,7 @@ export default function PlanPage() {
           return r.json();
         })
         .then((ai) => {
+          clearTimeout(timeoutId);
           console.log("[Plans/FE/view] fresh AI response", { responseLocale: ai?.locale, firstHeading: ai?.blocks?.[0]?.heading, blocksCount: ai?.blocks?.length });
           if (!ai?.blocks?.length) {
             setError(t("error_ai_failed"));
@@ -110,13 +121,24 @@ export default function PlanPage() {
           });
         })
         .catch((e) => {
+          clearTimeout(timeoutId);
+          if (abortController.signal.aborted) {
+            console.warn("[Plans/FE/view] AI fetch aborted (90s timeout)");
+            setError(t("error_ai_timeout"));
+            return;
+          }
           console.error("[Plans/FE/view] AI fetch failed", e);
           setError(t("error_ai_failed"));
         });
     } catch {
+      clearTimeout(timeoutId);
       setError(t("error_loading"));
     }
-  }, [type, t]);
+    return () => {
+      clearTimeout(timeoutId);
+      abortController.abort();
+    };
+  }, [type, t, locale, retryKey]);
 
   async function handleDownload() {
     if (pdfDownloading) return;
@@ -178,10 +200,34 @@ export default function PlanPage() {
     }
   }
 
+  const isRetryable = error === t("error_ai_failed") || error === t("error_ai_timeout");
+
   if (error) return (
     <div className={styles.page}>
       <div className={styles.errorBox}>
         <p>{error}</p>
+        {isRetryable && (
+          <button
+            type="button"
+            onClick={() => setRetryKey((k) => k + 1)}
+            style={{
+              display: "block",
+              margin: "18px auto 10px",
+              padding: "10px 22px",
+              background: "transparent",
+              border: "1px solid #888",
+              color: "#eee",
+              fontFamily: "var(--font-oswald), sans-serif",
+              fontSize: 11,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              borderRadius: 2,
+            }}
+          >
+            {t("retry_btn")}
+          </button>
+        )}
         <Link href="/results" className={styles.backLink}>{t("back_to_report")}</Link>
       </div>
     </div>
@@ -189,8 +235,26 @@ export default function PlanPage() {
 
   if (!plan) return (
     <div className={styles.page} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
-      <div style={{ fontFamily: "Arial, sans-serif", fontSize: 13, letterSpacing: "0.1em", color: "#888", textTransform: "uppercase" }}>
-        {t("loading")}
+      <div style={{ textAlign: "center", maxWidth: 420, padding: "0 20px" }}>
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            margin: "0 auto 18px",
+            border: "2px solid rgba(255,255,255,0.12)",
+            borderTopColor: "rgba(255,255,255,0.5)",
+            borderRadius: "50%",
+            animation: "btb-spin 1s linear infinite",
+          }}
+          aria-hidden
+        />
+        <div style={{ fontFamily: "var(--font-oswald), sans-serif", fontSize: 14, letterSpacing: "0.08em", color: "#eee", textTransform: "uppercase", marginBottom: 10 }}>
+          {t("loading_ai_primary")}
+        </div>
+        <div style={{ fontFamily: "Arial, sans-serif", fontSize: 13, color: "#888", lineHeight: 1.5 }}>
+          {t("loading_ai_secondary")}
+        </div>
+        <style>{`@keyframes btb-spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     </div>
   );
