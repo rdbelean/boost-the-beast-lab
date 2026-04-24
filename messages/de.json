@@ -830,6 +830,7 @@
     "error_no_scores": "Scores nicht verfügbar.",
     "error_unknown_type": "Unbekannter Plan-Typ.",
     "error_loading": "Plan konnte nicht geladen werden.",
+    "error_ai_failed": "Die KI-Generierung ist aktuell nicht verfügbar. Bitte versuche es in ein paar Minuten erneut — wir generieren keinen generischen Plan, sondern warten bis echte personalisierte Ergebnisse möglich sind.",
     "back_to_report": "← Zurück zum Report",
     "back_to_report_upper": "← ZURÜCK ZUM REPORT",
     "loading": "Wird geladen…",

@@ -77,30 +77,42 @@ export default function PlanPage() {
         return;
       }
 
-      // 2. No cache (legacy flow / manual nav) — build static + fetch AI
-      const initial = buildPlan(type as PlanType, data.scores, locale);
-      setPlan(initial);
-
+      // 2. No cache — fetch AI. DO NOT render the German static fallback in
+      // the meantime; show the loading state, then either AI content or a
+      // clear error. Unpersonalised template text is worse than an error.
       console.log("[Plans/FE/view] POST /api/plan/generate body.locale =", locale, "type =", type);
       fetch("/api/plan/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, scores: data.scores, locale }),
       })
-        .then((r) => r.ok ? r.json() : null)
+        .then(async (r) => {
+          if (!r.ok) {
+            const status = r.status;
+            const body = await r.json().catch(() => null) as { error?: string } | null;
+            throw new Error(body?.error ?? `HTTP ${status}`);
+          }
+          return r.json();
+        })
         .then((ai) => {
           console.log("[Plans/FE/view] fresh AI response", { responseLocale: ai?.locale, firstHeading: ai?.blocks?.[0]?.heading, blocksCount: ai?.blocks?.length });
-          if (ai?.blocks?.length) {
-            setPlan((prev) => prev ? {
-              ...prev,
-              blocks: ai.blocks,
-              source: ai.source ?? prev.source,
-              ...(ai.title    ? { title: ai.title }       : {}),
-              ...(ai.subtitle ? { subtitle: ai.subtitle } : {}),
-            } : prev);
+          if (!ai?.blocks?.length) {
+            setError(t("error_ai_failed"));
+            return;
           }
+          const base = buildPlan(type as PlanType, data.scores, locale);
+          setPlan({
+            ...base,
+            blocks: ai.blocks,
+            source: ai.source ?? base.source,
+            ...(ai.title    ? { title: ai.title }       : {}),
+            ...(ai.subtitle ? { subtitle: ai.subtitle } : {}),
+          });
         })
-        .catch(() => {});
+        .catch((e) => {
+          console.error("[Plans/FE/view] AI fetch failed", e);
+          setError(t("error_ai_failed"));
+        });
     } catch {
       setError(t("error_loading"));
     }

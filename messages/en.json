@@ -830,6 +830,7 @@
     "error_no_scores": "Scores not available.",
     "error_unknown_type": "Unknown plan type.",
     "error_loading": "Plan could not be loaded.",
+    "error_ai_failed": "AI generation is currently unavailable. Please try again in a few minutes — we won't generate a generic plan and prefer to wait until real personalised results are possible.",
     "back_to_report": "← Back to report",
     "back_to_report_upper": "← BACK TO REPORT",
     "loading": "Loading…",

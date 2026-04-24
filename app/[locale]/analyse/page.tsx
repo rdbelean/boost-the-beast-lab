@@ -38,12 +38,11 @@ async function generatePlanBundle(
 ): Promise<PlanBundle | null> {
   console.log("[Plans/FE/bundle]", { planType, locale, hasPersonalization: Object.keys(personalization).length > 0 });
 
-  // 1. Build static fallback content locally
-  const basePlan = buildPlan(planType, scores, locale);
-
-  // 2. Try to get AI-enhanced blocks (non-blocking if it fails)
-  let blocks = basePlan.blocks;
-  let source = basePlan.source;
+  // 1. AI generation — no static fallback. If the API fails or returns empty
+  // content, we return null so the user sees a clear error downstream instead
+  // of unpersonalised German template text.
+  let blocks: PlanBlock[];
+  let source: string | undefined;
   try {
     console.log("[Plans/FE/bundle] POST /api/plan/generate body.locale =", locale, "type =", planType);
     const aiRes = await fetch("/api/plan/generate", {
@@ -51,22 +50,27 @@ async function generatePlanBundle(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: planType, scores, locale, ...personalization }),
     });
-    if (aiRes.ok) {
-      const ai = (await aiRes.json()) as { blocks?: PlanBlock[]; source?: string; locale?: string };
-      console.log("[Plans/FE/bundle] AI response", { planType, responseLocale: ai?.locale, firstHeading: ai?.blocks?.[0]?.heading, blocksCount: ai?.blocks?.length });
-      if (ai.blocks?.length) {
-        blocks = ai.blocks;
-        if (ai.source) source = ai.source;
-      }
-    } else {
-      console.warn("[Plans/FE/bundle] AI response not ok", { planType, status: aiRes.status });
+    if (!aiRes.ok) {
+      console.warn("[Plans/FE/bundle] AI response not ok — skipping bundle", { planType, status: aiRes.status });
+      return null;
     }
+    const ai = (await aiRes.json()) as { blocks?: PlanBlock[]; source?: string; locale?: string };
+    console.log("[Plans/FE/bundle] AI response", { planType, responseLocale: ai?.locale, firstHeading: ai?.blocks?.[0]?.heading, blocksCount: ai?.blocks?.length });
+    if (!ai.blocks?.length) {
+      console.warn("[Plans/FE/bundle] AI returned empty blocks — skipping bundle", { planType });
+      return null;
+    }
+    blocks = ai.blocks;
+    source = ai.source;
   } catch (e) {
-    console.warn(`[plan ${planType}] AI gen failed, using static blocks`, e);
+    console.warn(`[plan ${planType}] AI gen failed — skipping bundle`, e);
+    return null;
   }
 
-  // 3. Generate PDF with merged content
-  const merged = { ...basePlan, blocks, source };
+  // 2. Generate PDF with the AI-confirmed content. buildPlan is used for
+  // title/subtitle/color metadata only (never for blocks).
+  const basePlan = buildPlan(planType, scores, locale);
+  const merged = { ...basePlan, blocks, source: source ?? basePlan.source };
   try {
     console.log("[Plans/FE/bundle] POST /api/plan/pdf", { planType, locale, firstHeading: merged.blocks[0]?.heading });
     const pdfRes = await fetch("/api/plan/pdf", {
@@ -76,7 +80,7 @@ async function generatePlanBundle(
     });
     if (!pdfRes.ok) {
       console.warn(`[plan ${planType}] PDF gen failed`, pdfRes.status);
-      return { blocks, source, locale };
+      return { blocks, source: merged.source, locale };
     }
     const buf = await pdfRes.arrayBuffer();
     const bytes = new Uint8Array(buf);
@@ -87,10 +91,10 @@ async function generatePlanBundle(
       binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
     }
     const pdfBase64 = btoa(binary);
-    return { blocks, source, pdfBase64, locale };
+    return { blocks, source: merged.source, pdfBase64, locale };
   } catch (e) {
     console.warn(`[plan ${planType}] PDF fetch error`, e);
-    return { blocks, source, locale };
+    return { blocks, source: merged.source, locale };
   }
 }
 
