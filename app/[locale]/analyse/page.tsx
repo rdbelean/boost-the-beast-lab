@@ -625,6 +625,21 @@ function AnalyseContent() {
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
+
+    // Wipe stale `btb_*` keys from a previous analysis so the results page
+    // can never re-render an old plan bundle while the new run is in
+    // flight. `btb_paid` is preserved because losing it would force the
+    // user to re-pay within the same browser session.
+    try {
+      for (const key of Object.keys(sessionStorage)) {
+        if (key.startsWith("btb_") && key !== "btb_paid") {
+          sessionStorage.removeItem(key);
+        }
+      }
+    } catch {
+      // sessionStorage can be unavailable in private browsing — non-fatal.
+    }
+
     setLoading(true);
     setProgressCap(5);
     setLoadingProgress(0);

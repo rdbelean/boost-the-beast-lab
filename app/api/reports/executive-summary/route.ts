@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCachedInterpretation, setCachedInterpretation } from "@/lib/reports/interpretation-cache";
+import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -13,10 +14,6 @@ function getAnthropic(): Anthropic {
     client = new Anthropic({ apiKey: key });
   }
   return client;
-}
-
-function hasValidKey(key: string | undefined): boolean {
-  return !!(key && key.length >= 20 && !key.includes("your_") && !key.includes("dein-"));
 }
 
 export interface ExecFinding {
@@ -44,8 +41,8 @@ export async function POST(req: NextRequest) {
     const cached = await getCachedInterpretation(assessment_id, "_executive_summary", locale);
     if (cached) return NextResponse.json({ findings: cached });
 
-    if (!hasValidKey(process.env.ANTHROPIC_API_KEY)) {
-      return NextResponse.json({ findings: buildStaticFindings(scores, locale) });
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json({ error: "ai_unavailable" }, { status: 502 });
     }
 
     const LANG_DIRECTIVE: Record<string, string> = {
@@ -77,77 +74,23 @@ Rules:
 Respond ONLY as JSON:
 {"findings": [{"type": "weakness|strength|connection", "headline": "...", "body": "...", "related_dimension": "sleep|activity|vo2max|metabolic|stress"}]}`;
 
-    const message = await getAnthropic().messages.create({
+    const message = await callAnthropicWithRetry(getAnthropic(), {
       model: "claude-sonnet-4-6",
       max_tokens: 1200,
       messages: [{ role: "user", content: prompt }],
     });
 
     const raw = message.content[0].type === "text" ? message.content[0].text : "";
-    let findings: ExecFinding[];
-    try {
-      const cleaned = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
-      findings = (JSON.parse(cleaned) as { findings: ExecFinding[] }).findings;
-    } catch {
-      findings = buildStaticFindings(scores, locale);
+    const cleaned = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+    const findings = (JSON.parse(cleaned) as { findings: ExecFinding[] }).findings;
+    if (!Array.isArray(findings) || findings.length === 0) {
+      throw new Error("Empty findings in AI response");
     }
 
     await setCachedInterpretation(assessment_id, "_executive_summary", locale, findings);
     return NextResponse.json({ findings });
   } catch (err) {
     console.error("[reports/executive-summary]", err);
-    return NextResponse.json({ findings: [] });
+    return NextResponse.json({ error: "ai_failed" }, { status: 502 });
   }
-}
-
-function buildStaticFindings(scores: Record<string, number>, locale: string): ExecFinding[] {
-  const sorted = Object.entries(scores).sort((a, b) => a[1] - b[1]);
-  const weakest = sorted[0];
-  const strongest = sorted[sorted.length - 1];
-  const wDim = (weakest?.[0] ?? "").toUpperCase();
-  const sDim = (strongest?.[0] ?? "").toUpperCase();
-  const wVal = weakest?.[1] ?? 0;
-  const sVal = strongest?.[1] ?? 0;
-
-  const COPY: Record<string, { weakHead: string; weakBody: string; strongHead: string; strongBody: string; connHead: string; connBody: string }> = {
-    de: {
-      weakHead: `${wDim} OPTIMIEREN`,
-      weakBody: `Dein ${weakest[0]}-Score liegt bei ${wVal}/100 und ist damit der niedrigste Wert in deinem Profil. Hier liegt das größte Hebelpotenzial für deinen Overall Performance Index.`,
-      strongHead: `${sDim} ALS STÄRKE`,
-      strongBody: `Mit ${sVal}/100 zeigt dein ${strongest[0]}-Score eine klare Stärke. Dieses Fundament unterstützt deine Performance in anderen Bereichen.`,
-      connHead: "DIMENSIONEN-ZUSAMMENHANG",
-      connBody: `Dein ${weakest[0]}-Score beeinflusst direkt deinen ${strongest[0]}-Score. Gezielte Verbesserungen hier haben Multiplikator-Effekte auf deinen Gesamtstatus.`,
-    },
-    en: {
-      weakHead: `IMPROVE ${wDim}`,
-      weakBody: `Your ${weakest[0]} score of ${wVal}/100 is the lowest in your profile. This represents the highest leverage area for your overall performance index.`,
-      strongHead: `${sDim} IS A STRENGTH`,
-      strongBody: `At ${sVal}/100, your ${strongest[0]} score is a clear strength. This foundation supports your performance across other dimensions.`,
-      connHead: "CROSS-DIMENSION LINK",
-      connBody: `Your ${weakest[0]} score directly affects your ${strongest[0]} score. Targeted improvements here create multiplier effects on your overall status.`,
-    },
-    it: {
-      weakHead: `MIGLIORARE ${wDim}`,
-      weakBody: `Il tuo punteggio ${weakest[0]} di ${wVal}/100 è il più basso nel tuo profilo. Qui si trova il maggior potenziale di leva per il tuo indice di performance complessivo.`,
-      strongHead: `${sDim} È UN PUNTO DI FORZA`,
-      strongBody: `Con ${sVal}/100, il tuo punteggio ${strongest[0]} è una chiara forza. Questa base supporta la tua performance in altre dimensioni.`,
-      connHead: "COLLEGAMENTO TRA DIMENSIONI",
-      connBody: `Il tuo punteggio ${weakest[0]} influisce direttamente sul tuo punteggio ${strongest[0]}. Miglioramenti mirati qui generano effetti moltiplicatori sul tuo stato complessivo.`,
-    },
-    tr: {
-      weakHead: `${wDim} GELİŞTİRİLMELİ`,
-      weakBody: `${weakest[0]} skorun ${wVal}/100 ile profilindeki en düşük değer. Genel performans endeksini yükseltmek için en büyük kaldıraç noktası burası.`,
-      strongHead: `${sDim} GÜÇLÜ YÖNÜN`,
-      strongBody: `${sVal}/100 ile ${strongest[0]} skorun net bir güç. Bu temel, diğer boyutlardaki performansını destekler.`,
-      connHead: "BOYUTLAR ARASI BAĞ",
-      connBody: `${weakest[0]} skorun, ${strongest[0]} skorunu doğrudan etkiler. Burada yapılan hedefli iyileştirmeler genel durumun üzerinde çarpan etkisi yaratır.`,
-    },
-  };
-  const c = COPY[locale] ?? COPY.en;
-
-  return [
-    { type: "weakness", headline: c.weakHead, body: c.weakBody, related_dimension: weakest[0] ?? "sleep" },
-    { type: "strength", headline: c.strongHead, body: c.strongBody, related_dimension: strongest[0] ?? "activity" },
-    { type: "connection", headline: c.connHead, body: c.connBody, related_dimension: weakest[0] ?? "sleep" },
-  ];
 }

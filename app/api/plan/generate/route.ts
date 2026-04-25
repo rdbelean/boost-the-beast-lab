@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { buildFullPrompt, type PlanType, type ScoreInput, type PlanPersonalization } from "@/lib/plan/prompts/full-prompts";
+import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -168,7 +169,7 @@ export async function POST(req: NextRequest) {
     console.log("[Plans/BE/generate] system prompt head:", systemPrompt.slice(0, 400));
     console.log("[Plans/BE/generate] user prompt head:", userPrompt.slice(0, 400));
 
-    const response = await client.messages.create({
+    const response = await callAnthropicWithRetry(client, {
       model: "claude-sonnet-4-6",
       max_tokens: 3000,
       temperature: 0.3,

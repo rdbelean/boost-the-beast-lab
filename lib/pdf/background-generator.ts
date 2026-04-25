@@ -67,12 +67,22 @@ export async function uploadPlanPdf(
     .from(PLANS_BUCKET)
     .upload(storagePath, byteChars, {
       contentType: "application/pdf",
-      upsert: true,
+      upsert: false,
     });
 
   if (error) {
+    // 409 = object already exists. The frontend uploaded the personalised AI
+    // plan first; a later worker call must NOT overwrite it. Treat as success.
+    const message = error.message ?? "";
+    const alreadyExists =
+      /already exists|duplicate|409/i.test(message) ||
+      ("statusCode" in error && (error as { statusCode?: string }).statusCode === "409");
+    if (alreadyExists) {
+      await upsertStatus(assessmentId, pdfType, locale, "ready", storagePath);
+      return storagePath;
+    }
     await upsertStatus(assessmentId, pdfType, locale, "failed");
-    throw new Error(`Storage upload failed for ${pdfType}: ${error.message}`);
+    throw new Error(`Storage upload failed for ${pdfType}: ${message}`);
   }
 
   await upsertStatus(assessmentId, pdfType, locale, "ready", storagePath);

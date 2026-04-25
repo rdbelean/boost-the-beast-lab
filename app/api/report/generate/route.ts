@@ -4,6 +4,7 @@ import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { generatePDF, type PdfReportContent, type PdfWearableRows, type PdfHeroData } from "@/lib/pdf/generateReport";
+import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 import { sendReportEmail } from "@/lib/email/sendReport";
 import type { Locale } from "@/lib/supabase/types";
 import {
@@ -298,133 +299,10 @@ function getAnthropic(): Anthropic {
   return anthropicClient;
 }
 
-// Deterministic fallback report — used when ANTHROPIC_API_KEY is not configured.
-// Produces plausible German prose derived directly from the computed scores
-// so the end-to-end flow works for visual/manual testing without an LLM.
-interface StubInputs {
-  activityScore: number;
-  activityBand: string;
-  activityCategory: string;
-  totalMet: number;
-  sleepScore: number;
-  sleepBand: string;
-  sleepDuration: number;
-  recoveryScore: number;
-  recoveryBand: string;
-  vo2Score: number;
-  vo2Band: string;
-  vo2Estimated: number;
-  metabolicScore: number;
-  metabolicBand: string;
-  bmi: number;
-  bmiCategory: string;
-  stressScore: number;
-  stressBand: string;
-  overallScore: number;
-  overallBand: string;
-}
-
-function pickWeakestModule(i: StubInputs): string {
-  const entries: Array<[string, number]> = [
-    ["Schlaf", i.sleepScore],
-    ["Recovery", i.recoveryScore],
-    ["Aktivität", i.activityScore],
-    ["Stoffwechsel", i.metabolicScore],
-    ["Stress", i.stressScore],
-    ["Kardiorespiratorische Fitness (VO2max)", i.vo2Score],
-  ];
-  entries.sort((a, b) => a[1] - b[1]);
-  return entries[0][0];
-}
-
-function buildStubReport(i: StubInputs): PdfReportContent {
-  const weakest = pickWeakestModule(i);
-  const overallTone =
-    i.overallScore >= 80
-      ? "exzellent"
-      : i.overallScore >= 65
-        ? "gut"
-        : i.overallScore >= 50
-          ? "solide mit klarem Optimierungspotenzial"
-          : "aktuell limitiert — mit hohem Hebel durch gezielte Interventionen";
-
-  return {
-    headline: `Performance Index ${i.overallScore}/100 — ${overallTone}.`,
-    executive_summary: `Dein Overall Performance Index liegt bei ${i.overallScore}/100 (${i.overallBand}). Die sechs Module liefern ein klares Bild: Schlaf ${i.sleepScore} (${i.sleepBand}), Recovery ${i.recoveryScore} (${i.recoveryBand}), Aktivität ${i.activityScore} (${i.activityBand}), Stoffwechsel ${i.metabolicScore} (${i.metabolicBand}), Stress ${i.stressScore} (${i.stressBand}) und kardiorespiratorische Fitness ${i.vo2Score} (${i.vo2Band}). Der größte Hebel liegt aktuell im Bereich ${weakest}.`,
-    critical_flag: null,
-    modules: {
-      sleep: {
-        score_context: `Dein Sleep Score liegt bei ${i.sleepScore}/100 bei einer durchschnittlichen Schlafdauer von ${i.sleepDuration}h. Die Bewertung ordnet dich in "${i.sleepBand}" ein.`,
-        key_finding: `Die Kombination aus Schlafdauer, subjektiver Qualität und Erholungsgefühl ergibt ein ${i.sleepBand === "excellent" ? "herausragendes" : i.sleepBand === "good" ? "solides" : "verbesserungswürdiges"} Recovery-Profil.`,
-        systemic_connection: "Schlaf ist der Governor für Recovery: der sleepMultiplier deckelt die Regeneration — unabhängig von Trainingsqualität.",
-        limitation: i.sleepScore >= 85
-          ? "Keine signifikante Limitierung; Stabilität der Routine ist der nächste Hebel."
-          : "Schlafqualität und/oder nächtliche Unterbrechungen drücken den Gesamt-Score und limitieren die Regeneration.",
-        recommendation: "Fixiere Bett- und Aufsteh-Zeit auf ±30 Minuten über sieben Tage und halte die Schlafzimmer-Temperatur bei 17–19 °C.",
-      },
-      recovery: {
-        score_context: `Recovery Score ${i.recoveryScore}/100 im Band "${i.recoveryBand}" — berechnet aus Trainingslast, subjektiver Erholung und den Governoren Schlaf und Stress.`,
-        key_finding: `${i.recoveryScore < 55 ? "Deine Erholungskapazität hinkt der Trainingslast hinterher. Ohne Entlastung droht ein Übergang in nicht-funktionales Overreaching." : i.recoveryScore < 75 ? "Deine Erholung trägt dein aktuelles Trainingssignal, aber ohne Reserve." : "Deine Erholung trägt dein Training zuverlässig und mit Spielraum für Progression."}`,
-        systemic_connection: "Recovery ist das Produkt aus Trainingssignal × Schlaf × Stress. Kein einzelner Hebel reicht, wenn einer der drei Faktoren limitiert.",
-        overtraining_signal: null,
-        limitation: i.recoveryScore >= 75
-          ? "Kein struktureller Engpass — jetzt zählt Trainingsstruktur, nicht Erholungs-Engineering."
-          : "Sleep- oder Stress-Multiplier arbeiten unter Kapazität und ziehen den Gesamtwert.",
-        recommendation: i.recoveryScore < 55
-          ? "Trainingsvolumen für 5–7 Tage um 30–50% reduzieren, Schlaf auf mindestens 7,5 h anheben, Recovery-Check in 7 Tagen wiederholen."
-          : "Periodisierung einsetzen: Eine Hochintensitäts-Woche, gefolgt von einer Deload-Woche.",
-      },
-      activity: {
-        score_context: `Dein Activity Score von ${i.activityScore}/100 basiert auf ${i.totalMet} MET-Minuten pro Woche und ergibt die IPAQ-Kategorie ${i.activityCategory}.`,
-        key_finding: `Die Trainings- und Alltagsaktivität positioniert dich im Band "${i.activityBand}". Damit bewegst du dich quantitativ ${i.activityCategory === "HIGH" ? "bereits überdurchschnittlich" : i.activityCategory === "MODERATE" ? "im empfohlenen Bereich" : "unterhalb der WHO-Mindestempfehlung"}.`,
-        systemic_connection: "Aktivität treibt VO2max direkt und wirkt sekundär positiv auf Schlafqualität und metabolische Gesundheit.",
-        met_context: `WHO-Referenz: 150–300 Min moderate Aktivität/Woche ≈ 20–21% niedrigeres Mortalitätsrisiko (AHA 2022).`,
-        sitting_flag: null,
-        limitation: i.activityCategory === "HIGH"
-          ? "Das Volumen ist solide; Qualität, Intensitätsverteilung und Regeneration werden zum limitierenden Faktor."
-          : "Das wöchentliche MET-Minuten-Volumen reicht nicht aus, um den vollen kardiovaskulären und metabolischen Effekt zu erzielen.",
-        recommendation: i.activityCategory === "HIGH"
-          ? "Strukturiere Trainingsintensitäten nach 80/20-Prinzip und priorisiere ein Regenerationstool pro Woche."
-          : "Ziele auf mindestens 150 min moderate oder 75 min intensive Aktivität pro Woche, idealerweise verteilt auf 4–5 Tage.",
-      },
-      metabolic: {
-        score_context: `Metabolic Score ${i.metabolicScore}/100 bei BMI ${i.bmi} (${i.bmiCategory}) — Zusammenspiel aus Körperzusammensetzung, Hydration, Ernährungsrhythmus und Sitzzeit.`,
-        key_finding: `Die metabolische Einordnung landet im Band "${i.metabolicBand}". ${i.bmiCategory === "normal" ? "Die Körperzusammensetzung liegt im optimalen Bereich." : `Die BMI-Kategorie "${i.bmiCategory}" wirkt als relevanter Modifier auf den Score.`}`,
-        systemic_connection: "Sitzzeit ist unabhängig vom Sport ein CVD-Risikofaktor (AHA Science Advisory). Metabolic beeinflusst VO2max indirekt über BMI.",
-        bmi_context: "BMI ist ein populationsbasierter Schätzer, kein individueller Gesundheitsmarker. Muskuläre Körperzusammensetzung verzerrt ihn nach oben.",
-        limitation: i.metabolicScore >= 80
-          ? "Keine akuten Engpässe; Feintuning bei Mikro-Nährstoffdichte und Timing möglich."
-          : "Hydration, Mahlzeiten-Rhythmus oder Sitzzeit limitieren die metabolische Grundlast.",
-        recommendation: "Trinke täglich 30–35 ml pro kg Körpergewicht, unterbrich Sitzblöcke nach spätestens 45 Minuten und setze 4+ Gemüseportionen als Standard.",
-      },
-      stress: {
-        score_context: `Stress Score ${i.stressScore}/100 (${i.stressBand}) — gewichtete Kombination aus selbstberichtetem Stresslevel und Sleep-/Recovery-Puffer.`,
-        key_finding: `Die Stress-Regulation befindet sich im Band "${i.stressBand}". ${i.stressScore >= 75 ? "Die autonome Belastung ist niedrig und unterstützt Anpassungsprozesse." : "Der chronische Belastungs-Level verbraucht Ressourcen, die sonst in Adaption fließen würden."}`,
-        systemic_connection: "Chronischer Stress hemmt die HPG-Achse (Testosteron ↓) UND verschlechtert die Insulin-Sensitivität gleichzeitig — der am weitesten reichende Hebel im System.",
-        hpa_context: null,
-        limitation: i.stressScore >= 75
-          ? "Kein akuter Engpass; die Resilienz-Reserve ist vorhanden."
-          : "Fehlende bewusste Downregulation verhindert vollständige parasympathische Erholung.",
-        recommendation: "Installiere zwei 5-Minuten-Downregulation-Fenster pro Tag (Box-Breathing 4-4-4-4 oder Nasenatmung in Ruhe).",
-      },
-      vo2max: {
-        score_context: `Geschätzter VO2max: ${i.vo2Estimated} ml/kg/min (${i.vo2Band}) — algorithmische Schätzung auf Basis von Alter, BMI und Aktivitätskategorie.`,
-        key_finding: `Die kardiorespiratorische Leistungsfähigkeit liegt im Band "${i.vo2Band}". VO2max ist einer der stärksten Einzel-Prädiktoren für langfristige Performance.`,
-        systemic_connection: "VO2max ist direkt an das Aktivitätslevel gekoppelt — der einzige Hebel zur Steigerung ist Aktivität mit Intensitätskomponente.",
-        fitness_context: "Die Einordnung ist alters- und geschlechtsspezifisch (Cooper Institute / ACSM Normen).",
-        estimation_note: "Dies ist eine Non-Exercise-Schätzung, kein gemessener Laborwert. Für hochpräzise Diagnostik: Spiroergometrie.",
-        limitation: i.vo2Score >= 70
-          ? "Plateau-Risiko ohne periodisierte Intensitätssteigerung."
-          : "Limitiert durch geringe oder unspezifische Intensitätsverteilung im aktuellen Trainingsprofil.",
-        recommendation: "Integriere 1× pro Woche ein VO2max-Intervall (z.B. 4×4 min bei 90–95% HFmax, dazwischen 3 min aktive Pause).",
-      },
-    },
-    top_priority: `Hebel Nr. 1: ${weakest}. Der größte messbare Score-Gewinn in 30 Tagen liegt hier — und zieht mindestens 2 weitere Module mit nach oben.`,
-    systemic_connections_overview: "Schlaf, Stress und Recovery bilden ein Dreieck: Jeder der drei Faktoren limitiert die anderen beiden. Wer nur einen davon angreift, spürt nur ein Drittel des möglichen Effekts. Die hohe Aktivität bzw. die Sitzzeit wirken unabhängig davon auf VO2max und metabolische Marker.",
-    prognose_30_days: `Bei konsequenter Umsetzung der Empfehlungen ist ein realistischer Overall-Zuwachs von +6 bis +12 Punkten möglich — vorausgesetzt, die Maßnahmen werden mindestens 5 von 7 Tagen umgesetzt.`,
-    disclaimer: "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik. VO2max ist eine algorithmische Schätzung — keine Labormessung.",
-  };
-}
+// `buildStubReport` and its helpers were removed deliberately. When
+// ANTHROPIC_API_KEY is missing or invalid, the route returns a 503 and the
+// caller surfaces an error UI. We do NOT substitute a deterministic
+// German-only stub for personalised AI output.
 
 interface ResponseRow {
   question_code: string;
@@ -968,9 +846,13 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
       ? ctx.locale
       : "de";
 
+  if (!anthropicConfigured()) {
+    console.error("[report/generate/demo] ANTHROPIC_API_KEY missing/invalid — refusing to generate stub");
+    return NextResponse.json({ error: "ai_unavailable", code: "missing_api_key" }, { status: 503 });
+  }
+
   const activityScore = r.activity.activity_score_0_100;
   const activityBand = demoBand(activityScore);
-  const activityCategory = r.activity.activity_category.toUpperCase();
   const totalMet = r.activity.total_met_minutes_week;
 
   const sleepScore = r.sleep.sleep_score_0_100;
@@ -993,7 +875,7 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
   const overallBand = r.overall_band;
 
   let report: PdfReportContent;
-  if (anthropicConfigured()) {
+  {
     const userPrompt = buildPremiumUserPrompt({
       reportType: ctx.reportType,
       locale: demoLocale,
@@ -1023,7 +905,7 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
       data_sources: ctx.data_sources,
     });
     const anthropic = getAnthropic();
-    const message = await anthropic.messages.create({
+    const message = await callAnthropicWithRetry(anthropic, {
       // Sonnet 4.6 is ~2-3× faster than Opus for this structured paraphrase
       // task and keeps the total latency under the Vercel timeout.
       model: "claude-sonnet-4-6",
@@ -1039,18 +921,6 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
     } catch (e) {
       throw new Error(`Claude returned invalid JSON: ${(e as Error).message}`);
     }
-  } else {
-    console.warn("[report/generate/demo] ANTHROPIC_API_KEY not configured — using stub report");
-    report = buildStubReport({
-      activityScore, activityBand, activityCategory, totalMet,
-      sleepScore, sleepBand, sleepDuration,
-      recoveryScore: r.recovery.recovery_score_0_100,
-      recoveryBand: r.recovery.recovery_band,
-      vo2Score, vo2Band, vo2Estimated,
-      metabolicScore, metabolicBand, bmi, bmiCategory,
-      stressScore, stressBand,
-      overallScore, overallBand,
-    });
   }
 
   const pdfBuffer = await generatePDF(
@@ -1402,7 +1272,6 @@ export async function POST(req: NextRequest) {
     const bmiCategory = result.metabolic.bmi_category;
     const activityScore = result.activity.activity_score_0_100;
     const activityBand = demoBand(activityScore);
-    const activityCategory = result.activity.activity_category;
     const totalMet = result.activity.total_met_minutes_week;
     const sleepScore = result.sleep.sleep_score_0_100;
     const sleepBand = demoBand(sleepScore);
@@ -1416,11 +1285,16 @@ export async function POST(req: NextRequest) {
     const overallScore = result.overall_score_0_100;
     const overallBand = result.overall_band;
 
-    // 4. Call Claude — or fall back to deterministic stub if no API key.
+    // 4. Call Claude. No API key → fail with 503 instead of substituting a
+    // German-only deterministic stub.
+    if (!anthropicConfigured()) {
+      console.error("[report/generate] ANTHROPIC_API_KEY missing/invalid — refusing to substitute stub");
+      throw new Error("ai_unavailable: missing API key");
+    }
     let report: PdfReportContent;
-    if (anthropicConfigured()) {
+    {
       const anthropic = getAnthropic();
-      const message = await anthropic.messages.create({
+      const message = await callAnthropicWithRetry(anthropic, {
         model: "claude-sonnet-4-6",
         max_tokens: 16000,
         system: buildSystemPromptForLocale(locale),
@@ -1442,30 +1316,6 @@ export async function POST(req: NextRequest) {
       } catch (e) {
         throw new Error(`Claude returned invalid JSON: ${(e as Error).message}`);
       }
-    } else {
-      console.warn("[report/generate] ANTHROPIC_API_KEY not configured — using stub report");
-      report = buildStubReport({
-        activityScore,
-        activityBand,
-        activityCategory,
-        totalMet,
-        sleepScore,
-        sleepBand,
-        sleepDuration,
-        recoveryScore: result.recovery.recovery_score_0_100,
-        recoveryBand: result.recovery.recovery_band,
-        vo2Score: vo2ScoreNum,
-        vo2Band,
-        vo2Estimated,
-        metabolicScore,
-        metabolicBand,
-        bmi,
-        bmiCategory,
-        stressScore,
-        stressBand,
-        overallScore,
-        overallBand,
-      });
     }
 
     // 4b. Build heroData from wearable metrics (for PDF cover stamp).
@@ -1626,9 +1476,9 @@ Return ONLY valid JSON array, no markdown:
   ]}]`;
 
       const [findingsRes, insightsRes, planRes] = await Promise.allSettled<Anthropic.Message>([
-        anthropic.messages.create({ model: "claude-haiku-4-5-20251001", max_tokens: 1200, messages: [{ role: "user", content: buildFindingsPrompt() }] }) as Promise<Anthropic.Message>,
-        anthropic.messages.create({ model: "claude-haiku-4-5-20251001", max_tokens: 800,  messages: [{ role: "user", content: buildInsightsPrompt() }] }) as Promise<Anthropic.Message>,
-        anthropic.messages.create({ model: "claude-haiku-4-5-20251001", max_tokens: 1200, messages: [{ role: "user", content: buildPlanPrompt() }] }) as Promise<Anthropic.Message>,
+        callAnthropicWithRetry(anthropic, { model: "claude-haiku-4-5-20251001", max_tokens: 1200, messages: [{ role: "user", content: buildFindingsPrompt() }] }) as Promise<Anthropic.Message>,
+        callAnthropicWithRetry(anthropic, { model: "claude-haiku-4-5-20251001", max_tokens: 800,  messages: [{ role: "user", content: buildInsightsPrompt() }] }) as Promise<Anthropic.Message>,
+        callAnthropicWithRetry(anthropic, { model: "claude-haiku-4-5-20251001", max_tokens: 1200, messages: [{ role: "user", content: buildPlanPrompt() }] }) as Promise<Anthropic.Message>,
       ]);
 
       const parseJson = (res: PromiseSettledResult<Anthropic.Message>) => {
@@ -1791,6 +1641,9 @@ Return ONLY valid JSON array, no markdown:
 }
 
 function classifyError(err: unknown): { code: string; status: number } {
+  if (err instanceof Error && err.message.startsWith("ai_unavailable:")) {
+    return { code: "missing_api_key", status: 503 };
+  }
   if (err instanceof Anthropic.APIError) {
     const body = typeof err.message === "string" ? err.message : "";
     if (/credit balance|billing|insufficient_quota/i.test(body)) {

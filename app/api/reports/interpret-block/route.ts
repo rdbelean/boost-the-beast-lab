@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCachedInterpretation, setCachedInterpretation } from "@/lib/reports/interpretation-cache";
+import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
-
-function hasValidKey(key: string | undefined): boolean {
-  return !!(key && key.length >= 20 && !key.includes("your_") && !key.includes("dein-"));
-}
 
 let client: Anthropic | null = null;
 function getAnthropic(): Anthropic {
@@ -38,14 +35,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Try cache first
     const cached = await getCachedInterpretation(assessment_id, dimension, locale);
     if (cached && typeof cached === "object" && "interpretation" in (cached as object)) {
       return NextResponse.json(cached);
     }
 
-    if (!hasValidKey(process.env.ANTHROPIC_API_KEY)) {
-      return NextResponse.json({ interpretation: null });
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json({ error: "ai_unavailable" }, { status: 502 });
     }
 
     const LANG_DIRECTIVE: Record<string, string> = {
@@ -84,20 +80,18 @@ Rules:
 
 Respond ONLY as JSON: {"interpretation": "..."}`;
 
-    const message = await getAnthropic().messages.create({
+    const message = await callAnthropicWithRetry(getAnthropic(), {
       model: "claude-sonnet-4-6",
       max_tokens: 256,
       messages: [{ role: "user", content: prompt }],
     });
 
     const raw = message.content[0].type === "text" ? message.content[0].text : "";
-    let interpretation: string | null = null;
-    try {
-      const cleaned = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
-      const parsed = JSON.parse(cleaned) as { interpretation: string };
-      interpretation = parsed.interpretation ?? null;
-    } catch {
-      interpretation = null;
+    const cleaned = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+    const parsed = JSON.parse(cleaned) as { interpretation: string };
+    const interpretation = parsed.interpretation;
+    if (!interpretation || typeof interpretation !== "string") {
+      throw new Error("Empty interpretation in AI response");
     }
 
     const result = { interpretation };
@@ -105,6 +99,6 @@ Respond ONLY as JSON: {"interpretation": "..."}`;
     return NextResponse.json(result);
   } catch (err) {
     console.error("[reports/interpret-block]", err);
-    return NextResponse.json({ interpretation: null });
+    return NextResponse.json({ error: "ai_failed" }, { status: 502 });
   }
 }

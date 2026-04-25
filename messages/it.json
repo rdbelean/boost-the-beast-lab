@@ -623,6 +623,8 @@
   "results": {
     "error_loading": "Impossibile caricare i risultati.",
     "error_title": "ERRORE",
+    "section_ai_failed": "Questa analisi non è stata generata in questo momento — nessun testo generico di riempimento, riprova.",
+    "section_retry_btn": "Riprova",
     "restart": "RICOMINCIA",
     "back_home": "← HOME",
     "new_analysis": "Nuova analisi",

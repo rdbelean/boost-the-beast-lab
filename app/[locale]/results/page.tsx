@@ -135,6 +135,8 @@ export default function ResultsPage() {
   const [heroSummary, setHeroSummary] = useState<HeroSummary | null>(null);
   const [wearableMetrics, setWearableMetrics] = useState<MergedWearableMetrics | null>(null);
   const [interpretations, setInterpretations] = useState<Record<string, string>>({});
+  const [interpretationErrors, setInterpretationErrors] = useState<Record<string, boolean>>({});
+  const [interpretationReloadKey, setInterpretationReloadKey] = useState<Record<string, number>>({});
   const [saveEmail, setSaveEmail] = useState("");
   const [saveCode, setSaveCode] = useState("");
   const [saveSending, setSaveSending] = useState(false);
@@ -170,7 +172,17 @@ export default function ResultsPage() {
       metabolic: scores.metabolic.metabolic_score_0_100,
       stress: scores.stress.stress_score_0_100,
     };
+    const controllers: AbortController[] = [];
+    const timers: ReturnType<typeof setTimeout>[] = [];
     for (const dim of dimensions) {
+      const ac = new AbortController();
+      controllers.push(ac);
+      // 30 s per dimension is generous for sonnet-4-6 (~5–10 s typical) and
+      // covers a single retry inside callAnthropicWithRetry (2 s delay + a
+      // second attempt) without stranding the UI in a perpetual spinner.
+      const timer = setTimeout(() => ac.abort(new Error("client-timeout-30s")), 30_000);
+      timers.push(timer);
+
       fetch("/api/reports/interpret-block", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -181,17 +193,49 @@ export default function ResultsPage() {
           score: dimensionScores[dim],
           locale,
         }),
+        signal: ac.signal,
       })
-        .then((r) => r.json())
-        .then((data: { interpretation?: string | null }) => {
-          if (!cancelled && data.interpretation) {
+        .then(async (r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json() as Promise<{ interpretation?: string | null }>;
+        })
+        .then((data) => {
+          if (cancelled) return;
+          clearTimeout(timer);
+          if (data.interpretation) {
             setInterpretations((prev) => ({ ...prev, [dim]: data.interpretation! }));
+            setInterpretationErrors((prev) => {
+              if (!prev[dim]) return prev;
+              const next = { ...prev };
+              delete next[dim];
+              return next;
+            });
+          } else {
+            setInterpretationErrors((prev) => ({ ...prev, [dim]: true }));
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          if (cancelled) return;
+          clearTimeout(timer);
+          setInterpretationErrors((prev) => ({ ...prev, [dim]: true }));
+        });
     }
-    return () => { cancelled = true; };
-  }, [scores, assessmentId, wearableMetrics, locale]);
+    return () => {
+      cancelled = true;
+      for (const ac of controllers) ac.abort();
+      for (const t of timers) clearTimeout(t);
+    };
+  }, [scores, assessmentId, wearableMetrics, locale, interpretationReloadKey]);
+
+  const handleRetryInterpretation = (dim: string) => {
+    setInterpretationErrors((prev) => {
+      if (!prev[dim]) return prev;
+      const next = { ...prev };
+      delete next[dim];
+      return next;
+    });
+    setInterpretationReloadKey((prev) => ({ ...prev, [dim]: (prev[dim] ?? 0) + 1 }));
+  };
 
   async function handleSaveSendCode(e: React.FormEvent) {
     e.preventDefault();
@@ -774,6 +818,8 @@ export default function ResultsPage() {
                       dimension={entry.key as "sleep" | "activity" | "vo2max" | "metabolic" | "stress"}
                       rows={dataInsights[entry.key as keyof DataInsights]!}
                       interpretation={interpretations[entry.key] ?? null}
+                      hasError={!!interpretationErrors[entry.key]}
+                      onRetry={() => handleRetryInterpretation(entry.key)}
                     />
                   )}
                 </div>

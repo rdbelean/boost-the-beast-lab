@@ -6,9 +6,11 @@ interface DataInsightBlockProps {
   dimension: "sleep" | "activity" | "vo2max" | "metabolic" | "stress";
   rows: MetricRow[];
   interpretation?: string | null;
+  hasError?: boolean;
+  onRetry?: () => void;
 }
 
-export default function DataInsightBlock({ dimension, rows, interpretation }: DataInsightBlockProps) {
+export default function DataInsightBlock({ dimension, rows, interpretation, hasError, onRetry }: DataInsightBlockProps) {
   const t = useTranslations("results");
 
   if (!rows || rows.length === 0) return null;
@@ -85,6 +87,53 @@ export default function DataInsightBlock({ dimension, rows, interpretation }: Da
           }}
         >
           {interpretation}
+        </div>
+      )}
+
+      {/* AI error + retry — only when there's no interpretation */}
+      {!interpretation && hasError && (
+        <div
+          style={{
+            marginTop: 10,
+            paddingTop: 8,
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              color: "rgba(255,255,255,0.45)",
+              lineHeight: 1.55,
+              fontFamily: "var(--font-inter), sans-serif",
+              fontStyle: "italic",
+            }}
+          >
+            {t("section_ai_failed")}
+          </div>
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              style={{
+                alignSelf: "flex-start",
+                padding: "6px 14px",
+                background: "transparent",
+                border: "1px solid rgba(255,255,255,0.25)",
+                color: "rgba(255,255,255,0.75)",
+                fontFamily: "var(--font-oswald), sans-serif",
+                fontSize: 10,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                borderRadius: 2,
+              }}
+            >
+              {t("section_retry_btn")}
+            </button>
+          )}
         </div>
       )}
     </div>

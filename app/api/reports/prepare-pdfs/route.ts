@@ -6,7 +6,6 @@
 // For the main_report: fires a background worker via a non-awaited fetch.
 
 import { NextRequest, NextResponse } from "next/server";
-import { upsertStatus, type PdfType } from "@/lib/pdf/status";
 import { uploadPlanPdf, processMainReport, type PlanPdfType } from "@/lib/pdf/background-generator";
 import type { Locale } from "@/lib/supabase/types";
 
@@ -49,32 +48,24 @@ export async function POST(req: NextRequest) {
       }));
 
       // ── plan PDFs ────────────────────────────────────────────────────────
+      // Only personalised AI-generated PDFs (uploaded by the frontend) are
+      // persisted to Storage. If the frontend did not provide base64 (e.g.
+      // the AI call failed during /analyse), we skip the upload entirely
+      // and leave Storage empty for that plan. The plan page falls back to
+      // on-demand rendering via /api/plan/pdf when Storage is empty.
       for (const pdfType of PLAN_TYPES) {
         const base64 = plan_pdfs[pdfType];
 
-        if (base64) {
-          // Frontend already generated the PDF — just upload it.
-          tasks.push(
-            uploadPlanPdf(assessment_id, pdfType, l, base64).catch((err) => {
-              console.error(`[prepare-pdfs] ${pdfType} upload:`, err);
-            }),
-          );
-        } else {
-          // No base64 supplied — delegate to the background worker.
-          const origin = req.nextUrl.origin;
-          tasks.push(
-            fetch(`${origin}/api/reports/generate-single-pdf`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ assessment_id, pdf_type: pdfType, locale }),
-            }).catch((err) => {
-              console.error(`[prepare-pdfs] ${pdfType} worker:`, err);
-            }),
-          );
-
-          // Mark as pending immediately so the client can poll.
-          await upsertStatus(assessment_id, pdfType as PdfType, locale, "pending").catch(() => {});
+        if (!base64) {
+          console.warn(`[prepare-pdfs] ${pdfType}: no base64 provided — skipping upload (on-demand fallback applies)`);
+          continue;
         }
+
+        tasks.push(
+          uploadPlanPdf(assessment_id, pdfType, l, base64).catch((err) => {
+            console.error(`[prepare-pdfs] ${pdfType} upload:`, err);
+          }),
+        );
       }
 
       await Promise.allSettled(tasks);
