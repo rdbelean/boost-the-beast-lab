@@ -32,23 +32,31 @@ interface PlanPersonalization {
 
 async function generatePlanBundle(
   planType: PlanType,
+  assessmentId: string | null,
   scores: Record<string, unknown>,
   locale = "de",
   personalization: PlanPersonalization = {},
 ): Promise<PlanBundle | null> {
-  console.log("[Plans/FE/bundle]", { planType, locale, hasPersonalization: Object.keys(personalization).length > 0 });
+  console.log("[Plans/FE/bundle]", { planType, locale, hasAssessmentId: !!assessmentId, hasPersonalization: Object.keys(personalization).length > 0 });
 
   // 1. AI generation — no static fallback. If the API fails or returns empty
   // content, we return null so the user sees a clear error downstream instead
   // of unpersonalised German template text.
   let blocks: PlanBlock[];
   let source: string | undefined;
+  // Phase 2C: prefer the assessmentId-based body — server loads the canonical
+  // ReportContext so plan prompts see the same scores + personalization as
+  // the main report. Legacy { type, scores, locale, ...persona } body is kept
+  // for the offline-demo path (no Supabase) and as a transitional safety net.
+  const planBody = assessmentId
+    ? { assessmentId, type: planType, locale, personalization }
+    : { type: planType, scores, locale, ...personalization };
   try {
-    console.log("[Plans/FE/bundle] POST /api/plan/generate body.locale =", locale, "type =", planType);
+    console.log("[Plans/FE/bundle] POST /api/plan/generate body.locale =", locale, "type =", planType, "mode =", assessmentId ? "assessmentId" : "legacy-scores");
     const aiRes = await fetch("/api/plan/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: planType, scores, locale, ...personalization }),
+      body: JSON.stringify(planBody),
     });
     if (!aiRes.ok) {
       console.warn("[Plans/FE/bundle] AI response not ok — skipping bundle", { planType, status: aiRes.status });
@@ -770,7 +778,7 @@ function AnalyseContent() {
         recovery_ritual: payload.recovery_ritual,
       };
       const planPromises = PLAN_TYPES.map((planType) =>
-        generatePlanBundle(planType, scores, locale, planPersonalization)
+        generatePlanBundle(planType, json?.assessmentId ?? null, scores, locale, planPersonalization)
           .then((bundle) => {
             setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
             return { planType, bundle };

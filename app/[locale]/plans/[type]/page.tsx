@@ -89,11 +89,18 @@ export default function PlanPage() {
       // 2. No cache — fetch AI. DO NOT render the German static fallback in
       // the meantime; show the loading state, then either AI content or a
       // clear error. Unpersonalised template text is worse than an error.
-      console.log("[Plans/FE/view] POST /api/plan/generate body.locale =", locale, "type =", type);
+      // Phase 2C: prefer the assessmentId-based body so the server loads the
+      // canonical ReportContext (full raw inputs + personalization). Legacy
+      // body { type, scores, locale } is kept as a fallback for assessments
+      // saved before this rollout.
+      const planBody = data.assessmentId
+        ? { assessmentId: data.assessmentId, type, locale }
+        : { type, scores: data.scores, locale };
+      console.log("[Plans/FE/view] POST /api/plan/generate body.locale =", locale, "type =", type, "mode =", data.assessmentId ? "assessmentId" : "legacy-scores");
       fetch("/api/plan/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, scores: data.scores, locale }),
+        body: JSON.stringify(planBody),
         signal: abortController.signal,
       })
         .then(async (r) => {

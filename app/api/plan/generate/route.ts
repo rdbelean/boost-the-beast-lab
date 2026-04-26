@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { buildFullPrompt, type PlanType, type ScoreInput, type PlanPersonalization } from "@/lib/plan/prompts/full-prompts";
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
+import { loadReportContext, type ReportContext } from "@/lib/reports/report-context";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -19,13 +20,13 @@ type PlanMeta = Record<PlanType, { title: string; subtitle: string; source: stri
 const PLAN_META_DE: PlanMeta = {
   activity: {
     title: "ACTIVITY-PLAN",
-    subtitle: "Individueller Plan zur Verbesserung deiner Aktivit\u00E4tswerte",
-    source: "Basiert auf: WHO Global Action Plan 2018\u20132030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022, AMA Longevity Study 2024",
+    subtitle: "Individueller Plan zur Verbesserung deiner Aktivitätswerte",
+    source: "Basiert auf: WHO Global Action Plan 2018–2030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022, AMA Longevity Study 2024",
   },
   metabolic: {
     title: "METABOLIC-PLAN",
     subtitle: "Individueller Plan zur Optimierung deiner metabolischen Performance",
-    source: "Basiert auf: WHO BMI-Klassifikation, EFSA N\u00E4hrwertempfehlungen, ISSN Position Stand, JAMA Network Open Meal Timing 2024, Covassin et al. RCT 2022",
+    source: "Basiert auf: WHO BMI-Klassifikation, EFSA Nährwertempfehlungen, ISSN Position Stand, JAMA Network Open Meal Timing 2024, Covassin et al. RCT 2022",
   },
   recovery: {
     title: "RECOVERY-PLAN",
@@ -43,7 +44,7 @@ const PLAN_META_EN: PlanMeta = {
   activity: {
     title: "ACTIVITY PLAN",
     subtitle: "Individual plan to improve your activity metrics",
-    source: "Based on: WHO Global Action Plan 2018\u20132030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022, AMA Longevity Study 2024",
+    source: "Based on: WHO Global Action Plan 2018–2030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022, AMA Longevity Study 2024",
   },
   metabolic: {
     title: "METABOLIC PLAN",
@@ -64,9 +65,9 @@ const PLAN_META_EN: PlanMeta = {
 
 const PLAN_META_IT: PlanMeta = {
   activity: {
-    title: "PIANO ATTIVIT\u00C0",
-    subtitle: "Piano individuale per migliorare i tuoi valori di attivit\u00E0",
-    source: "Basato su: WHO Global Action Plan 2018\u20132030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022",
+    title: "PIANO ATTIVITÀ",
+    subtitle: "Piano individuale per migliorare i tuoi valori di attività",
+    source: "Basato su: WHO Global Action Plan 2018–2030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022",
   },
   metabolic: {
     title: "PIANO METABOLICO",
@@ -115,45 +116,161 @@ function getPlanMeta(locale: string): PlanMeta {
   return PLAN_META_DE;
 }
 
-// SYSTEM_PROMPT now lives in lib/plan/prompts/system-prompts.ts —
-// imported via getSystemPrompt(locale).
+// Phase 2C: extract a ScoreInput slice from a ReportContext. The legacy
+// buildFullPrompt() still consumes the older, narrower ScoreInput shape;
+// Phase 3 will swap it for a Stage-A/B prompt that consumes ReportContext
+// directly and this adapter goes away.
+function scoreInputFromContext(ctx: ReportContext): ScoreInput {
+  const r = ctx.scoring.result;
+  return {
+    activity: {
+      activity_score_0_100: r.activity.activity_score_0_100,
+      activity_category: r.activity.activity_category,
+      total_met_minutes_week: r.activity.total_met_minutes_week,
+    },
+    sleep: {
+      sleep_score_0_100: r.sleep.sleep_score_0_100,
+      sleep_duration_band: r.sleep.sleep_duration_band,
+      sleep_band: r.sleep.sleep_band,
+    },
+    metabolic: {
+      metabolic_score_0_100: r.metabolic.metabolic_score_0_100,
+      bmi: r.metabolic.bmi,
+      bmi_category: r.metabolic.bmi_category,
+      metabolic_band: r.metabolic.metabolic_band,
+    },
+    stress: {
+      stress_score_0_100: r.stress.stress_score_0_100,
+      stress_band: r.stress.stress_band,
+    },
+    vo2max: {
+      fitness_score_0_100: r.vo2max.fitness_score_0_100,
+      vo2max_estimated: r.vo2max.vo2max_estimated,
+      vo2max_band: r.vo2max.fitness_level_band,
+    },
+    overall_score_0_100: r.overall_score_0_100,
+    overall_band: r.overall_band,
+  };
+}
 
 // ── POST handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { type, scores } = body as { type: string; scores: ScoreInput };
-    const personalization: PlanPersonalization = {
-      main_goal: (body as { main_goal?: PlanPersonalization["main_goal"] }).main_goal ?? null,
-      time_budget: (body as { time_budget?: PlanPersonalization["time_budget"] }).time_budget ?? null,
-      experience_level: (body as { experience_level?: PlanPersonalization["experience_level"] }).experience_level ?? null,
-      training_days: (body as { training_days?: number | null }).training_days ?? null,
-      nutrition_painpoint: (body as { nutrition_painpoint?: PlanPersonalization["nutrition_painpoint"] }).nutrition_painpoint ?? null,
-      stress_source: (body as { stress_source?: PlanPersonalization["stress_source"] }).stress_source ?? null,
-      recovery_ritual: (body as { recovery_ritual?: PlanPersonalization["recovery_ritual"] }).recovery_ritual ?? null,
-    };
+    const type = (body as { type?: string }).type;
+    const locale = (body as { locale?: string }).locale ?? "de";
+    const assessmentId = (body as { assessmentId?: string }).assessmentId;
+    const bodyPersonalization = (body as { personalization?: PlanPersonalization }).personalization;
 
     const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
     if (!validTypes.includes(type as PlanType)) {
       return NextResponse.json({ error: "Invalid plan type" }, { status: 400 });
     }
-    if (!scores) {
-      return NextResponse.json({ error: "Missing scores" }, { status: 400 });
-    }
-
     const planType = type as PlanType;
-    const locale = (body as { locale?: string }).locale ?? "de";
     const meta = getPlanMeta(locale)[planType];
     const apiKeyOk = hasValidKey(process.env.ANTHROPIC_API_KEY);
-    console.log("[Plans/BE/generate] received", { bodyLocale: (body as { locale?: string }).locale, effectiveLocale: locale, type, hasApiKey: apiKeyOk });
+    console.log("[Plans/BE/generate] received", {
+      bodyLocale: (body as { locale?: string }).locale,
+      effectiveLocale: locale,
+      type,
+      hasAssessmentId: !!assessmentId,
+      hasApiKey: apiKeyOk,
+    });
 
-    // No API key → fail loudly instead of returning German static fallback.
-    // Personalisation without AI is impossible; the user should see an error,
-    // not a generic template.
     if (!apiKeyOk) {
       console.error("[Plans/BE/generate] ANTHROPIC_API_KEY missing/invalid — refusing to generate");
       return NextResponse.json({ error: "AI service not configured" }, { status: 503 });
+    }
+
+    // ── Resolve scores + personalization from one of two paths ────────────
+    //
+    // Phase 2C primary path: { assessmentId, type, locale, personalization? }
+    //   → loadReportContext extracts a ScoreInput from canonical scoring,
+    //     and personalization defaults to ctx.personalization (with body
+    //     overrides if explicitly provided).
+    //
+    // Legacy / demo fallback: { type, scores, locale, ...personalization }
+    //   → preserved so /api/plan/generate still works in offline-demo mode
+    //     (no Supabase) and during the Phase 2C frontend rollout.
+    let scores: ScoreInput;
+    let personalization: PlanPersonalization;
+
+    if (assessmentId) {
+      const ctxResult = await loadReportContext(assessmentId);
+      if (!ctxResult.ok) {
+        console.error("[Plans/BE/generate] loadReportContext failed", ctxResult.error);
+        return NextResponse.json(
+          { error: `load_report_context_failed: ${ctxResult.error.code}` },
+          { status: ctxResult.error.code === "no_assessment" ? 404 : 500 },
+        );
+      }
+      const ctx = ctxResult.context;
+      scores = scoreInputFromContext(ctx);
+
+      // Body-provided personalization wins per-field; otherwise fall back to
+      // the canonical context. training_days specifically uses the Phase-1
+      // self-reported value first, then sums moderate+vigorous from raw.
+      const ctxTrainingDays =
+        ctx.raw.training_days_self_reported ??
+        (ctx.raw.moderate_days + ctx.raw.vigorous_days || null);
+      personalization = {
+        main_goal:
+          bodyPersonalization?.main_goal ?? ctx.personalization.main_goal ?? null,
+        time_budget:
+          bodyPersonalization?.time_budget ?? ctx.personalization.time_budget ?? null,
+        experience_level:
+          bodyPersonalization?.experience_level ?? ctx.personalization.experience_level ?? null,
+        training_days: bodyPersonalization?.training_days ?? ctxTrainingDays,
+        nutrition_painpoint:
+          bodyPersonalization?.nutrition_painpoint ?? ctx.personalization.nutrition_painpoint ?? null,
+        stress_source:
+          bodyPersonalization?.stress_source ?? ctx.personalization.stress_source ?? null,
+        recovery_ritual:
+          bodyPersonalization?.recovery_ritual ?? ctx.personalization.recovery_ritual ?? null,
+      };
+    } else {
+      // Legacy path — body must carry scores + flat personalization fields.
+      const legacyScores = (body as { scores?: ScoreInput }).scores;
+      if (!legacyScores) {
+        return NextResponse.json(
+          { error: "Missing assessmentId or scores" },
+          { status: 400 },
+        );
+      }
+      scores = legacyScores;
+      personalization = {
+        main_goal:
+          (body as { main_goal?: PlanPersonalization["main_goal"] }).main_goal ??
+          bodyPersonalization?.main_goal ??
+          null,
+        time_budget:
+          (body as { time_budget?: PlanPersonalization["time_budget"] }).time_budget ??
+          bodyPersonalization?.time_budget ??
+          null,
+        experience_level:
+          (body as { experience_level?: PlanPersonalization["experience_level"] })
+            .experience_level ??
+          bodyPersonalization?.experience_level ??
+          null,
+        training_days:
+          (body as { training_days?: number | null }).training_days ??
+          bodyPersonalization?.training_days ??
+          null,
+        nutrition_painpoint:
+          (body as { nutrition_painpoint?: PlanPersonalization["nutrition_painpoint"] })
+            .nutrition_painpoint ??
+          bodyPersonalization?.nutrition_painpoint ??
+          null,
+        stress_source:
+          (body as { stress_source?: PlanPersonalization["stress_source"] }).stress_source ??
+          bodyPersonalization?.stress_source ??
+          null,
+        recovery_ritual:
+          (body as { recovery_ritual?: PlanPersonalization["recovery_ritual"] }).recovery_ritual ??
+          bodyPersonalization?.recovery_ritual ??
+          null,
+      };
     }
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
