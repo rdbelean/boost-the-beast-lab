@@ -8,9 +8,7 @@ import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 import { sendReportEmail } from "@/lib/email/sendReport";
 import type { Locale } from "@/lib/supabase/types";
 import {
-  runFullScoring,
   type FullScoringResult,
-  type FullAssessmentInputs,
   type Gender,
   type FruitVegLevel,
   type SleepQualityLabel,
@@ -19,12 +17,15 @@ import {
 import {
   buildReportPrompts,
   trainingIntensityLabel,
-  SLEEP_QUALITY_LABEL,
-  WAKEUP_LABEL,
-  FRUIT_VEG_LABEL,
   FALLBACK_NOT_SPECIFIED,
   type PremiumPromptContext,
 } from "@/lib/report/prompts/full-prompts";
+import {
+  loadReportContext,
+  buildReportContextFromInputs,
+  type ReportContext,
+} from "@/lib/reports/report-context";
+import { contextToPremiumPromptContext } from "@/lib/reports/context-to-premium-adapter";
 
 export const runtime = "nodejs";
 // Vercel Pro allows up to 300s. Claude Opus + 8k tokens regularly crosses
@@ -63,12 +64,6 @@ function getAnthropic(): Anthropic {
 // ANTHROPIC_API_KEY is missing or invalid, the route returns a 503 and the
 // caller surfaces an error UI. We do NOT substitute a deterministic
 // German-only stub for personalised AI output.
-
-interface ResponseRow {
-  question_code: string;
-  raw_value: string;
-  normalized_value: number | null;
-}
 
 // ── Offline Demo Mode ─────────────────────────────────────────────────────
 
@@ -145,36 +140,58 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
   const overallScore = r.overall_score_0_100;
   const overallBand = r.overall_band;
 
+  // Phase 2B: Build a ReportContext from the demo inputs, then run it through
+  // the legacy-shape adapter into buildReportPrompts. The adapter will go
+  // away when Phase 3 introduces Stage-A/B prompts that consume ReportContext
+  // directly.
+  const reportCtx: ReportContext = buildReportContextFromInputs({
+    reportType:
+      ctx.reportType === "metabolic" || ctx.reportType === "recovery"
+        ? ctx.reportType
+        : "complete",
+    locale: demoLocale,
+    user: {
+      email: ctx.user.email,
+      age: ctx.user.age,
+      gender: ctx.user.gender as Gender,
+      height_cm: ctx.user.height_cm,
+      weight_kg: ctx.user.weight_kg,
+    },
+    result: r,
+    sleep_duration_hours: ctx.sleepDurationHours,
+    sleep_quality_label: ctx.sleep_quality_label as SleepQualityLabel | undefined,
+    wakeup_frequency_label: ctx.wakeup_frequency_label as WakeupFrequency | undefined,
+    morning_recovery_1_10: ctx.morning_recovery_1_10,
+    stress_level_1_10: ctx.stress_level_1_10,
+    meals_per_day: ctx.meals_per_day,
+    water_litres: ctx.water_litres,
+    fruit_veg_label: ctx.fruit_veg_label as FruitVegLevel | undefined,
+    standing_hours_per_day: ctx.standing_hours_per_day,
+    sitting_hours_per_day: ctx.sitting_hours_per_day,
+    training_days: ctx.training_days,
+    daily_steps: ctx.daily_steps,
+    screen_time_before_sleep:
+      (ctx.screen_time_before_sleep as
+        | "kein"
+        | "unter_30"
+        | "30_60"
+        | "ueber_60"
+        | null
+        | undefined) ?? null,
+    main_goal: ctx.main_goal ?? null,
+    time_budget: ctx.time_budget ?? null,
+    experience_level: ctx.experience_level ?? null,
+    nutrition_painpoint: ctx.nutrition_painpoint ?? null,
+    stress_source: ctx.stress_source ?? null,
+    recovery_ritual: ctx.recovery_ritual ?? null,
+    data_sources: ctx.data_sources,
+  });
+
   let report: PdfReportContent;
   {
-    const { systemPrompt, userPrompt } = buildReportPrompts({
-      reportType: ctx.reportType,
-      locale: demoLocale,
-      age: ctx.user.age,
-      gender: ctx.user.gender,
-      result: r,
-      sleep_duration_hours: ctx.sleepDurationHours,
-      sleep_quality_label: ctx.sleep_quality_label ?? FALLBACK_NOT_SPECIFIED[demoLocale],
-      wakeup_frequency_label: ctx.wakeup_frequency_label ?? FALLBACK_NOT_SPECIFIED[demoLocale],
-      morning_recovery_1_10: ctx.morning_recovery_1_10 ?? 5,
-      stress_level_1_10: ctx.stress_level_1_10 ?? 5,
-      meals_per_day: ctx.meals_per_day ?? 3,
-      water_litres: ctx.water_litres ?? 2,
-      fruit_veg_label: ctx.fruit_veg_label ?? FALLBACK_NOT_SPECIFIED[demoLocale],
-      standing_hours_per_day: ctx.standing_hours_per_day ?? 3,
-      sitting_hours_per_day: ctx.sitting_hours_per_day ?? r.metabolic.sitting_hours,
-      training_days: ctx.training_days ?? 0,
-      training_intensity_label: trainingIntensityLabel(r, demoLocale),
-      daily_steps: ctx.daily_steps ?? 0,
-      screen_time_before_sleep: ctx.screen_time_before_sleep ?? null,
-      main_goal: ctx.main_goal ?? null,
-      time_budget: ctx.time_budget ?? null,
-      experience_level: ctx.experience_level ?? null,
-      nutrition_painpoint: ctx.nutrition_painpoint ?? null,
-      stress_source: ctx.stress_source ?? null,
-      recovery_ritual: ctx.recovery_ritual ?? null,
-      data_sources: ctx.data_sources,
-    });
+    const { systemPrompt, userPrompt } = buildReportPrompts(
+      contextToPremiumPromptContext(reportCtx),
+    );
     const anthropic = getAnthropic();
     const message = await callAnthropicWithRetry(anthropic, {
       // Sonnet 4.6 is ~2-3× faster than Opus for this structured paraphrase
@@ -304,88 +321,33 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // 1. Load assessment, user, scores, metrics, responses.
-    const { data: assessment, error: aErr } = await supabase
+    // 1. Build the canonical ReportContext via the central loader.
+    //    Phase 2B: this replaces the prior inline assessment+users+responses
+    //    reads, the FullAssessmentInputs reconstruction, and the runFullScoring
+    //    call. data-quality assessment, score-driver computation, missing-field
+    //    flagging and contradiction detection now happen inside the loader.
+    const ctxResult = await loadReportContext(assessmentId);
+    if (!ctxResult.ok) {
+      throw new Error(`load_report_context_failed: ${ctxResult.error.code} — ${ctxResult.error.message}`);
+    }
+    const ctx = ctxResult.context;
+    const locale = ctx.meta.locale;
+    const result = ctx.scoring.result;
+    const trainingDays = ctx.raw.training_days_self_reported ?? 0;
+    const standingHours = ctx.raw.standing_hours_per_day;
+    const sleepDuration = ctx.raw.sleep_duration_hours;
+
+    // 2. PDF wearable-rows are a separate concern from the AI prompt input.
+    //    They need raw avg_deep_sleep_min / avg_rem_min / avg_hrv_ms etc.
+    //    that are not surfaced in ReportContext. We re-read the wearable
+    //    upload here for that reason. Same Supabase round-trip, no logic
+    //    duplication with the prompt path.
+    const { data: assessmentRow } = await supabase
       .from("assessments")
-      .select("id, report_type, user_id, data_sources, locale")
+      .select("data_sources")
       .eq("id", assessmentId)
       .single();
-    if (aErr) throw aErr;
-
-    const locale: Locale =
-      assessment.locale === "en" ||
-      assessment.locale === "it" ||
-      assessment.locale === "tr"
-        ? assessment.locale
-        : "de";
-
-    const { data: user, error: uErr } = await supabase
-      .from("users")
-      .select("email, age, gender, height_cm, weight_kg")
-      .eq("id", assessment.user_id)
-      .single();
-    if (uErr) throw uErr;
-
-    // Scores and derived metrics are re-derived from responses below via
-    // runFullScoring() — no need to fetch them separately.
-    const responsesRes = await supabase
-      .from("responses")
-      .select("question_code, raw_value, normalized_value")
-      .eq("assessment_id", assessmentId);
-    if (responsesRes.error) throw responsesRes.error;
-
-    const responses = (responsesRes.data ?? []) as ResponseRow[];
-
-    // 2. Reconstruct the full scoring inputs from the stored responses.
-    //    This lets us re-run runFullScoring() to get the richer v3 result
-    //    (interpretation bundle, systemic warnings, recovery module) even
-    //    when the assessment was persisted under an older scoring version.
-    const respMap = new Map<string, string>(
-      responses.map((r) => [r.question_code, r.raw_value]),
-    );
-    const num = (k: string, fallback: number): number => {
-      const v = respMap.get(k);
-      const n = v != null ? Number(v) : NaN;
-      return Number.isFinite(n) ? n : fallback;
-    };
-    const str = <T extends string>(k: string, fallback: T): T =>
-      (respMap.get(k) as T | undefined) ?? fallback;
-
-    const reconstructed: FullAssessmentInputs = {
-      age: user.age ?? num("age", 30),
-      gender: (user.gender as Gender) ?? str<Gender>("gender", "diverse"),
-      height_cm: user.height_cm ?? num("height_cm", 175),
-      weight_kg: user.weight_kg ?? num("weight_kg", 75),
-      activity: {
-        walking_days: num("walking_days", 5),
-        walking_minutes_per_day: num("walking_minutes_per_day", 30),
-        walking_total_minutes_week: respMap.has("walking_total_minutes_week")
-          ? num("walking_total_minutes_week", 0)
-          : undefined,
-        moderate_days: num("moderate_days", 0),
-        moderate_minutes_per_day: num("moderate_minutes_per_day", 0),
-        vigorous_days: num("vigorous_days", 0),
-        vigorous_minutes_per_day: num("vigorous_minutes_per_day", 0),
-      },
-      sleep: {
-        duration_hours: num("sleep_duration_hours", 7),
-        quality: str<SleepQualityLabel>("sleep_quality", "mittel"),
-        wakeups: str<WakeupFrequency>("wakeups", "selten"),
-        recovery_1_10: num("recovery_1_10", 5),
-      },
-      metabolic: {
-        meals_per_day: num("meals_per_day", 3),
-        water_litres: num("water_litres", 2),
-        sitting_hours: num("sitting_hours", 6),
-        fruit_veg: str<FruitVegLevel>("fruit_veg", "moderate"),
-      },
-      stress: { stress_level_1_10: num("stress_level_1_10", 5) },
-    };
-
-    // Optional wearable overrides. `assessments.data_sources` is populated by
-    // /api/assessment when a wearable_upload_id was submitted; we look up the
-    // linked wearable_uploads row and build a WearableOverrides object.
-    const dataSources = assessment.data_sources as
+    const dataSources = (assessmentRow?.data_sources ?? null) as
       | { form?: true; whoop?: { days: number; upload_id?: string }; apple_health?: { days: number; upload_id?: string } }
       | null;
     let pdfWearableRows: PdfWearableRows | undefined;
@@ -399,37 +361,6 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
       if (wUp) {
         const m = wUp.metrics as Record<string, Record<string, number> | undefined>;
-        reconstructed.wearable = {
-          source: wUp.source as "whoop" | "apple_health",
-          days_covered: wUp.days_covered,
-          sleep: m.sleep
-            ? {
-                duration_hours: m.sleep.avg_duration_hours,
-                efficiency_pct: m.sleep.avg_efficiency_pct,
-                wakeups_per_night: m.sleep.avg_wakeups,
-              }
-            : undefined,
-          recovery: m.recovery
-            ? {
-                whoop_recovery_0_100:
-                  wUp.source === "whoop" ? m.recovery.avg_score : undefined,
-                hrv_ms: m.recovery.avg_hrv_ms,
-                rhr_bpm: m.recovery.avg_rhr_bpm,
-              }
-            : undefined,
-          activity: m.activity
-            ? {
-                daily_steps: m.activity.avg_steps,
-                whoop_strain_0_21:
-                  wUp.source === "whoop" ? m.activity.avg_strain : undefined,
-                active_kcal: m.activity.avg_active_kcal,
-              }
-            : undefined,
-          vo2max: m.vo2max ? { measured_ml_kg_min: m.vo2max.last_value } : undefined,
-          body: m.body ? { weight_kg: m.body.last_weight_kg } : undefined,
-        };
-
-        // Build localized PDF stat-box rows from raw wearable metrics.
         const W_LABELS: Record<Locale, Record<string, string>> = {
           de: { dur: "Ø Schlafdauer", eff: "Schlafeffizienz", deep: "Tiefschlaf", rem: "REM", steps: "Ø Schritte", strain: "Ø Strain", kcal: "Ø Aktiv-kcal", hrv: "Ø HRV", rhr: "Ø Ruhepuls", rec: "Ø Recovery", vo2: "VO2max", bmi: "BMI", fat: "Körperfett", muscle: "Muskelmasse" },
           en: { dur: "Avg Sleep", eff: "Sleep Eff.", deep: "Deep Sleep", rem: "REM", steps: "Avg Steps", strain: "Avg Strain", kcal: "Active kcal", hrv: "Avg HRV", rhr: "Avg RHR", rec: "Avg Recovery", vo2: "VO2max", bmi: "BMI", fat: "Body Fat", muscle: "Muscle Mass" },
@@ -473,102 +404,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const result = runFullScoring(reconstructed);
-    const sleepDuration = reconstructed.sleep.duration_hours;
-    const standingHours = num(
-      "standing_hours_per_day",
-      reconstructed.activity.walking_total_minutes_week
-        ? reconstructed.activity.walking_total_minutes_week / 60 / 5
-        : 3,
+    // 3. Build the premium v3 prompts via the legacy adapter.
+    //    Phase 3 will replace this with Stage-A/B/C prompts that consume
+    //    ReportContext + analysis-JSON directly.
+    const { systemPrompt, userPrompt } = buildReportPrompts(
+      contextToPremiumPromptContext(ctx),
     );
-    // training_days resolution order:
-    //   1. Direct self-reported value from form payload (Phase-1 datafix —
-    //      question_code "training_days_self_reported"). This is the user's
-    //      original "wie oft trainierst du"-answer, captured 1:1.
-    //   2. Sum of moderate_days + vigorous_days. Reflects total weekly
-    //      sessions even when training is mixed-intensity.
-    //   3. Last resort: max(moderate, vigorous) — the legacy heuristic that
-    //      under-counted mixed schedules. Logged so we can observe how often
-    //      this fallback fires post-deploy.
-    const directTrainingDays = num("training_days_self_reported", -1);
-    let trainingDays: number;
-    if (directTrainingDays >= 0) {
-      trainingDays = directTrainingDays;
-    } else {
-      const sumDays =
-        reconstructed.activity.moderate_days +
-        reconstructed.activity.vigorous_days;
-      if (sumDays > 0) {
-        trainingDays = sumDays;
-      } else {
-        trainingDays = Math.max(
-          reconstructed.activity.moderate_days,
-          reconstructed.activity.vigorous_days,
-        );
-        console.warn(
-          "[report/generate] training_days fell through to Math.max heuristic — both direct field and moderate+vigorous sum were missing/zero",
-        );
-      }
-    }
-
-    // 3. Build the premium v3 prompts (shared with the demo handler).
-    //    Monolithic per-locale via buildReportPrompts — no parametrised
-    //    LANGUAGE_DIRECTIVE / LANG_LOCK_HEADER override anymore.
-    const { systemPrompt, userPrompt } = buildReportPrompts({
-      reportType: assessment.report_type ?? "complete",
-      locale,
-      age: reconstructed.age,
-      gender: reconstructed.gender,
-      result,
-      sleep_duration_hours: sleepDuration,
-      sleep_quality_label:
-        SLEEP_QUALITY_LABEL[locale][reconstructed.sleep.quality] ??
-        SLEEP_QUALITY_LABEL[locale].mittel,
-      wakeup_frequency_label:
-        WAKEUP_LABEL[locale][reconstructed.sleep.wakeups] ??
-        WAKEUP_LABEL[locale].selten,
-      morning_recovery_1_10: reconstructed.sleep.recovery_1_10,
-      stress_level_1_10: reconstructed.stress.stress_level_1_10,
-      meals_per_day: reconstructed.metabolic.meals_per_day,
-      water_litres: reconstructed.metabolic.water_litres,
-      fruit_veg_label:
-        FRUIT_VEG_LABEL[locale][reconstructed.metabolic.fruit_veg] ??
-        FRUIT_VEG_LABEL[locale].moderate,
-      standing_hours_per_day: standingHours,
-      sitting_hours_per_day: reconstructed.metabolic.sitting_hours,
-      training_days: trainingDays,
-      training_intensity_label: trainingIntensityLabel(result, locale),
-      // Phase-1-Datenflussfix: bevorzugt den neuen "daily_steps"-question_code
-      // (Form-Payload schickt ihn seit Commit X direkt mit). Fallback auf
-      // legacy "schrittzahl" für vor-Phase-1-Assessments. Letzter Fallback 0.
-      daily_steps: respMap.has("daily_steps")
-        ? num("daily_steps", 0)
-        : num("schrittzahl", 0),
-      // Neue v2-Felder — aus responses-Tabelle gelesen. Fehlende Werte
-      // werden im Prompt als "nicht angegeben" ausgespielt und dort per
-      // Default-Fallback (feel_better / moderate / intermediate) behandelt.
-      screen_time_before_sleep: respMap.get("screen_time_before_sleep") ?? null,
-      main_goal: (respMap.get("main_goal") as PremiumPromptContext["main_goal"]) ?? null,
-      time_budget: (respMap.get("time_budget") as PremiumPromptContext["time_budget"]) ?? null,
-      experience_level:
-        (respMap.get("experience_level") as PremiumPromptContext["experience_level"]) ?? null,
-      // Phase-2 Tiefen-Inputs
-      nutrition_painpoint:
-        (respMap.get("nutrition_painpoint") as PremiumPromptContext["nutrition_painpoint"]) ?? null,
-      stress_source:
-        (respMap.get("stress_source") as PremiumPromptContext["stress_source"]) ?? null,
-      recovery_ritual:
-        (respMap.get("recovery_ritual") as PremiumPromptContext["recovery_ritual"]) ?? null,
-      data_sources: dataSources
-        ? {
-            form: true,
-            whoop: dataSources.whoop ? { days: dataSources.whoop.days } : undefined,
-            apple_health: dataSources.apple_health
-              ? { days: dataSources.apple_health.days }
-              : undefined,
-          }
-        : undefined,
-    });
 
     // Legacy bandings kept for PDF + downstream (PDF uses simple 0–100 bands).
     const bmi = result.metabolic.bmi;
@@ -661,41 +502,33 @@ export async function POST(req: NextRequest) {
       const anthropic = getAnthropic();
       const scoresObj = { activity: activityScore, sleep: sleepScore, vo2max: vo2ScoreNum, metabolic: metabolicScore, stress: stressScore };
 
-      // Sub-calls hatten vorher nur Scores + Alter/Geschlecht — Claude konnte
-      // keine konkreten User-Werte zitieren, also blieb der Output generisch.
-      // Wir reichen denselben Kontext durch den `buildPremiumUserPrompt` bekommt.
+      // Sub-calls receive the same canonical context as the main prompt.
+      // Phase 2B: replaced ad-hoc respMap reads with ctx.raw + ctx.personalization
+      // so a single source of truth feeds both prompt layers.
       const subCtx = {
-        sleep_duration_h: reconstructed.sleep.duration_hours,
-        sleep_quality:
-          SLEEP_QUALITY_LABEL[locale][reconstructed.sleep.quality] ??
-          SLEEP_QUALITY_LABEL[locale].mittel,
-        wakeups:
-          WAKEUP_LABEL[locale][reconstructed.sleep.wakeups] ??
-          WAKEUP_LABEL[locale].selten,
-        morning_recovery_1_10: reconstructed.sleep.recovery_1_10,
-        stress_1_10: reconstructed.stress.stress_level_1_10,
+        sleep_duration_h: ctx.raw.sleep_duration_hours,
+        sleep_quality: ctx.raw.sleep_quality_label_localized,
+        wakeups: ctx.raw.wakeup_frequency_label_localized,
+        morning_recovery_1_10: ctx.raw.morning_recovery_1_10,
+        stress_1_10: ctx.raw.stress_level_1_10,
         training_days: trainingDays,
         training_intensity: trainingIntensityLabel(result, locale),
-        sitting_h: reconstructed.metabolic.sitting_hours,
-        standing_h: standingHours,
-        daily_steps: respMap.has("daily_steps")
-          ? num("daily_steps", 0)
-          : num("schrittzahl", 0),
-        meals: reconstructed.metabolic.meals_per_day,
-        water_l: reconstructed.metabolic.water_litres,
-        fruit_veg:
-          FRUIT_VEG_LABEL[locale][reconstructed.metabolic.fruit_veg] ??
-          FRUIT_VEG_LABEL[locale].moderate,
-        screen_time_before_sleep: respMap.get("screen_time_before_sleep") ?? FALLBACK_NOT_SPECIFIED[locale],
-        main_goal: respMap.get("main_goal") ?? "feel_better",
-        time_budget: respMap.get("time_budget") ?? "moderate",
-        experience_level: respMap.get("experience_level") ?? "intermediate",
-        nutrition_painpoint: respMap.get("nutrition_painpoint") ?? FALLBACK_NOT_SPECIFIED[locale],
-        stress_source: respMap.get("stress_source") ?? FALLBACK_NOT_SPECIFIED[locale],
-        recovery_ritual: respMap.get("recovery_ritual") ?? FALLBACK_NOT_SPECIFIED[locale],
+        sitting_h: ctx.raw.sitting_hours_per_day,
+        standing_h: ctx.raw.standing_hours_per_day,
+        daily_steps: ctx.raw.daily_steps ?? 0,
+        meals: ctx.raw.meals_per_day,
+        water_l: ctx.raw.water_litres,
+        fruit_veg: ctx.raw.fruit_veg_label_localized,
+        screen_time_before_sleep: ctx.raw.screen_time_before_sleep ?? FALLBACK_NOT_SPECIFIED[locale],
+        main_goal: ctx.personalization.main_goal ?? "feel_better",
+        time_budget: ctx.personalization.time_budget ?? "moderate",
+        experience_level: ctx.personalization.experience_level ?? "intermediate",
+        nutrition_painpoint: ctx.personalization.nutrition_painpoint ?? FALLBACK_NOT_SPECIFIED[locale],
+        stress_source: ctx.personalization.stress_source ?? FALLBACK_NOT_SPECIFIED[locale],
+        recovery_ritual: ctx.personalization.recovery_ritual ?? FALLBACK_NOT_SPECIFIED[locale],
       };
       const rawContextBlock = `
-User profile: age ${user.age}, gender ${user.gender}, BMI ${bmi}
+User profile: age ${ctx.user.age}, gender ${ctx.user.gender}, BMI ${bmi}
 Main goal: ${subCtx.main_goal}
 Time budget: ${subCtx.time_budget}
 Experience level: ${subCtx.experience_level}
@@ -834,9 +667,9 @@ Return ONLY valid JSON array, no markdown:
           training_days: trainingDays,
         },
         {
-          email: user.email,
-          age: user.age,
-          gender: user.gender,
+          email: ctx.user.email ?? "",
+          age: ctx.user.age,
+          gender: ctx.user.gender,
           bmi,
           bmi_category: bmiCategory,
         },
@@ -897,9 +730,9 @@ Return ONLY valid JSON array, no markdown:
     }
 
     // 7. Send email via Resend (skipped if not configured or no PDF).
-    if (resendConfigured() && downloadUrl) {
+    if (resendConfigured() && downloadUrl && ctx.user.email) {
       try {
-        await sendReportEmail(user.email, downloadUrl, {
+        await sendReportEmail(ctx.user.email, downloadUrl, {
           overall: overallScore,
           activity: activityScore,
           sleep: sleepScore,
