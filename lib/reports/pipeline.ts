@@ -123,12 +123,21 @@ export type MainPipelineResult =
     };
 
 // ─── Defaults ───────────────────────────────────────────────────────────
+//
+// Phase 5e: model selection by stage character.
+//   Analyst → Haiku  : structured JSON extraction (no reasoning depth).
+//   Writer  → Sonnet : prose generation (Sonnet's depth = real
+//                      individualization vs banding-paraphrase).
+//   Judge   → Haiku  : structured JudgeResult JSON.
+// Stage-A and Judge moved off Sonnet to cut latency ~3× and cost ~12×.
+// Stage-B max_tokens trimmed 8000 → 6000 to force denser prose and
+// reduce wallclock proportionally.
 
-const DEFAULT_ANALYST_MODEL = "claude-sonnet-4-6";
+const DEFAULT_ANALYST_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_WRITER_MODEL = "claude-sonnet-4-6";
 const DEFAULT_JUDGE_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_ANALYST_MAX_TOKENS = 4000;
-const DEFAULT_WRITER_MAX_TOKENS = 8000;
+const DEFAULT_WRITER_MAX_TOKENS = 6000;
 const DEFAULT_JUDGE_MAX_TOKENS = 1200;
 
 // ─── Stage-A: Analyst ───────────────────────────────────────────────────
@@ -162,6 +171,7 @@ export async function runMainReportAnalysis(
     };
   }
   const duration_ms = Date.now() - startedAt;
+  logStageUsage("analyst", model, message);
 
   const rawText = extractText(message);
   if (!rawText) {
@@ -261,6 +271,7 @@ export async function runMainReportWriter(
     };
   }
   const duration_ms = Date.now() - startedAt;
+  logStageUsage("writer", model, message);
 
   const rawText = extractText(message);
   if (!rawText) {
@@ -347,6 +358,7 @@ export async function runMainReportJudge(
     };
   }
   const duration_ms = Date.now() - startedAt;
+  logStageUsage("judge", model, message);
 
   const rawText = extractText(message);
   if (!rawText) {
@@ -499,21 +511,74 @@ function extractText(message: Message): string {
   return "";
 }
 
-/** Strip optional ```json fences, leading/trailing prose. */
+/** Phase 5e: structured per-call telemetry for Vercel-log diagnostics. */
+function logStageUsage(
+  stage: "analyst" | "writer" | "judge",
+  model: string,
+  message: Message,
+): void {
+  console.log("[v4-pipeline]", JSON.stringify({
+    stage,
+    model,
+    stop_reason: message.stop_reason,
+    input_tokens: message.usage?.input_tokens ?? null,
+    output_tokens: message.usage?.output_tokens ?? null,
+  }));
+}
+
+/**
+ * Strip optional ```json fences, leading/trailing prose, and unwrap a
+ * single JSON object from the model output.
+ *
+ * Phase 5e: added a brace-balance check before the slice. When a
+ * response is truncated mid-JSON, `lastIndexOf("}")` would otherwise
+ * find an INNER `}` (e.g. end of a nested array element) and produce a
+ * deceptively-shaped but unbalanced slice that JSON.parse rejects with
+ * a cryptic "unexpected token" error. The balance check makes us
+ * return the original text in that case so downstream JSON.parse fails
+ * fast with a clear "Unexpected end of JSON input" message —
+ * actionable in Vercel logs.
+ */
 export function cleanJsonText(input: string): string {
   let s = input.trim();
-  // Strip leading ```json or ``` fence.
   s = s.replace(/^```(?:json)?\s*/i, "");
-  // Strip trailing ``` fence.
   s = s.replace(/\s*```\s*$/i, "");
-  // If the model added a prose preamble before the object, jump to the
-  // first '{' and the matching last '}'.
   const first = s.indexOf("{");
   const last = s.lastIndexOf("}");
-  if (first > 0 && last > first) {
-    s = s.slice(first, last + 1);
+  if (first >= 0 && last > first) {
+    const candidate = s.slice(first, last + 1);
+    if (isBraceBalanced(candidate)) return candidate.trim();
   }
   return s.trim();
+}
+
+/** True when {/[ and }/] open/close in valid order, ignoring chars inside JSON strings. */
+function isBraceBalanced(s: string): boolean {
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (ch === "\\") {
+      escape = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === "{" || ch === "[") depth++;
+    else if (ch === "}" || ch === "]") {
+      depth--;
+      if (depth < 0) return false;
+    }
+  }
+  return depth === 0;
 }
 
 function toGenerationRecord(

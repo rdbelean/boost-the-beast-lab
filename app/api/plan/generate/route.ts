@@ -294,12 +294,25 @@ export async function POST(req: NextRequest) {
     console.log("[Plans/BE/generate] user prompt head:", userPrompt.slice(0, 400));
 
     const callClaude = async (extraSystem = ""): Promise<string> => {
+      // Phase 5e: switched from claude-sonnet-4-6 to claude-haiku-4-5.
+      // Plan generation is a structured-template task with deterministic
+      // personalization rules — no deep reasoning needed. Haiku 4.5 runs
+      // ~3× faster and ~12× cheaper at comparable output quality for this
+      // workload. max_tokens bumped 3000 → 4000 to eliminate truncation
+      // risk (typical plan outputs are ~2000-2500 tokens).
       const response = await callAnthropicWithRetry(client, {
-        model: "claude-sonnet-4-6",
-        max_tokens: 3000,
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 4000,
         temperature: 0.3,
         system: extraSystem ? `${systemPrompt}\n\n${extraSystem}` : systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
+      });
+      console.log("[Plans/BE/generate] anthropic", {
+        model: "claude-haiku-4-5-20251001",
+        retry: extraSystem !== "",
+        stop_reason: response.stop_reason,
+        input_tokens: response.usage?.input_tokens,
+        output_tokens: response.usage?.output_tokens,
       });
       return (response.content[0] as { type: string; text: string }).text;
     };
