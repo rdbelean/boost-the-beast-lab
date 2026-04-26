@@ -22,15 +22,21 @@ function isLocale(v: unknown): v is Locale {
 function resolveOrigin(request: Request): string {
   // 1. Origin-Header — set by the browser on every same-origin POST.
   const origin = request.headers.get("origin");
-  if (origin) return origin;
+  if (origin) {
+    console.log("[resolveOrigin] step=1-origin value=" + origin);
+    return origin;
+  }
 
   // 2. Referer-Header — falls Origin fehlt (z.B. bei Cross-Origin-Redirects).
   const referer = request.headers.get("referer");
   if (referer) {
     try {
       const url = new URL(referer);
-      return `${url.protocol}//${url.host}`;
+      const result = `${url.protocol}//${url.host}`;
+      console.log("[resolveOrigin] step=2-referer value=" + result + " raw=" + referer);
+      return result;
     } catch {
+      console.log("[resolveOrigin] step=2-referer-parse-failed raw=" + referer);
       // ignore — fall through to next strategy
     }
   }
@@ -40,7 +46,9 @@ function resolveOrigin(request: Request): string {
   const forwardedHost = request.headers.get("x-forwarded-host");
   const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
   if (forwardedHost) {
-    return `${forwardedProto}://${forwardedHost}`;
+    const result = `${forwardedProto}://${forwardedHost}`;
+    console.log("[resolveOrigin] step=3-forwarded value=" + result);
+    return result;
   }
 
   // 4. Notnagel aus Env-Vars. NEXT_PUBLIC_APP_URL ist projekt-spezifisch
@@ -49,10 +57,13 @@ function resolveOrigin(request: Request): string {
   //    zeigen sie auf den Preview-Host.
   const envBase = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL;
   if (envBase) {
-    return envBase.startsWith("http") ? envBase : `https://${envBase}`;
+    const result = envBase.startsWith("http") ? envBase : `https://${envBase}`;
+    console.log("[resolveOrigin] step=4-env value=" + result);
+    return result;
   }
 
   // 5. Wenn nichts greift: harter Error statt schweigend Production.
+  console.log("[resolveOrigin] step=5-error all-headers-missing");
   throw new Error("Cannot determine origin for Stripe success_url");
 }
 
@@ -131,6 +142,14 @@ const ERROR_MSG: Record<Locale, { not_found: string; checkout_failed: string }> 
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("[create-checkout] headers", {
+      origin: req.headers.get("origin"),
+      referer: req.headers.get("referer"),
+      host: req.headers.get("host"),
+      "x-forwarded-host": req.headers.get("x-forwarded-host"),
+      "x-forwarded-proto": req.headers.get("x-forwarded-proto"),
+      "x-vercel-deployment-url": req.headers.get("x-vercel-deployment-url"),
+    });
     const body = await req.json();
     const { productId, email } = body;
     const locale: Locale = isLocale(body.locale) ? body.locale : "de";
