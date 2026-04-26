@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import styles from "./kaufen.module.css";
+import { isPreviewDeploymentClient } from "@/lib/utils/is-preview";
 
 const CheckIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
@@ -34,6 +35,15 @@ export default function KaufenPage() {
 
   async function handleBuy() {
     setBuying(true);
+    // Preview deployments skip Stripe entirely. The Stripe success_url
+    // currently falls back to the production domain, which would yank the
+    // tester out of the preview branch. Jump straight into the
+    // questionnaire with the existing devBypass query params (handled in
+    // proxy.ts and app/[locale]/analyse/page.tsx:370).
+    if (isPreviewDeploymentClient()) {
+      router.push("/analyse?product=complete-analysis&paid=true");
+      return;
+    }
     try {
       const res = await fetch("/api/create-checkout", {
         method: "POST",

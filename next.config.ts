@@ -24,6 +24,13 @@ const nextConfig: NextConfig = {
       "./lib/pdf/fonts/**",
     ],
   },
+
+  // Surface VERCEL_ENV to the client at build time so client components
+  // can detect preview deployments (used by lib/utils/is-preview.ts).
+  // Vercel sets VERCEL_ENV automatically; locally it stays undefined.
+  env: {
+    NEXT_PUBLIC_VERCEL_ENV: process.env.VERCEL_ENV,
+  },
 };
 
 export default withNextIntl(nextConfig);
