@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import styles from "./kaufen.module.css";
+import { isVercelPreviewClient } from "@/lib/utils/is-vercel-preview";
 
 const CheckIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
@@ -31,6 +32,25 @@ export default function KaufenPage() {
   const locale = useLocale();
   const router = useRouter();
   const [buying, setBuying] = useState(false);
+
+  // Skip-Button nur auf *.vercel.app-Hosts. Hostname-Check nach Hydration
+  // (useEffect) damit kein SSR-/CSR-Markup-Mismatch entsteht.
+  const [showSkip, setShowSkip] = useState(false);
+  useEffect(() => {
+    setShowSkip(isVercelPreviewClient());
+  }, []);
+
+  function handleSkipPayment() {
+    // Cookie für proxy.ts (Server-Side Paid-Gate) — akzeptiert truthy Wert.
+    document.cookie = "btb_paid=true; path=/; max-age=86400; SameSite=Lax";
+    // SessionStorage für analyse/page.tsx Frontend-Paid-Check.
+    sessionStorage.setItem("btb_paid", "true");
+    // Direkt zum Fragebogen — überspringt /analyse/prepare (Wearable-
+    // Upload), das auf Preview ohne btb_stripe_session-Cookie eh nicht
+    // funktioniert. ?paid=true triggert den existierenden devBypass in
+    // app/[locale]/analyse/page.tsx Z. 366–399.
+    window.location.href = `/${locale}/analyse?product=complete-analysis&paid=true&preview_skip=true`;
+  }
 
   async function handleBuy() {
     setBuying(true);
@@ -80,6 +100,57 @@ export default function KaufenPage() {
           <button onClick={handleBuy} disabled={buying} className={styles.btnPrimary}>
             {buying ? t("cta_loading") : t("cta_buy")}
           </button>
+
+          {showSkip && (
+            <div
+              style={{
+                marginTop: "16px",
+                padding: "16px",
+                border: "2px dashed #FACC15",
+                borderRadius: "8px",
+                background: "rgba(250, 204, 21, 0.1)",
+              }}
+            >
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "#FACC15",
+                  marginBottom: "8px",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                🧪 Preview Deployment
+              </p>
+              <button
+                type="button"
+                onClick={handleSkipPayment}
+                style={{
+                  width: "100%",
+                  padding: "12px 24px",
+                  background: "#FACC15",
+                  color: "#0A0A0A",
+                  fontWeight: 700,
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                }}
+              >
+                Skip Payment → Direct to Questionnaire
+              </button>
+              <p
+                style={{
+                  fontSize: "11px",
+                  color: "rgba(255,255,255,0.6)",
+                  marginTop: "8px",
+                }}
+              >
+                Wearable-Upload wird übersprungen. Direkt zum Fragebogen + neuer Report-Flow.
+              </p>
+            </div>
+          )}
         </div>
 
         <p className={styles.disclaimer}>
