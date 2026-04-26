@@ -9,20 +9,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { getSupabaseServerClient, getSupabaseServiceClient } from "./server";
-import { isPreviewDeployment } from "@/lib/utils/is-preview";
 
 export interface ResolvedIdentity {
   userId: string;
   email: string;
   source: "supabase" | "stripe";
 }
-
-// Deterministic synthetic user used only on Vercel preview deployments
-// where there is no real Stripe checkout. All preview test runs share
-// this single users-row so the table doesn't accumulate one entry per
-// test session. The .test TLD is reserved (RFC 2606) and won't collide
-// with any real customer email.
-const PREVIEW_TEST_EMAIL = "preview-test@boostthebeast-lab.test";
 
 export async function resolveIdentity(): Promise<ResolvedIdentity | null> {
   const service = getSupabaseServiceClient();
@@ -44,30 +36,22 @@ export async function resolveIdentity(): Promise<ResolvedIdentity | null> {
   // 2. Fallback: paid Stripe guest (identified by checkout session id cookie).
   const jar = await cookies();
   const stripeSessionId = jar.get("btb_stripe_session")?.value;
-  if (stripeSessionId && /^cs_(test|live)_[A-Za-z0-9]+$/.test(stripeSessionId)) {
-    const { data: paid } = await service
-      .from("paid_sessions")
-      .select("email, status")
-      .eq("stripe_session_id", stripeSessionId)
-      .maybeSingle();
-
-    if (paid?.email && (paid.status === "paid" || paid.status === "complete")) {
-      const userId = await upsertUserByEmail(service, paid.email, null);
-      if (userId) return { userId, email: paid.email, source: "stripe" };
-    }
+  if (!stripeSessionId || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(stripeSessionId)) {
+    return null;
   }
 
-  // 3. Preview-only fallback: return a deterministic test identity so
-  // routes that depend on resolveIdentity() (e.g. /api/wearable/persist,
-  // /api/session/identity) work end-to-end on a preview deployment
-  // without a real Stripe checkout. Production never reaches this branch
-  // because isPreviewDeployment() returns false there.
-  if (isPreviewDeployment()) {
-    const userId = await upsertUserByEmail(service, PREVIEW_TEST_EMAIL, null);
-    if (userId) return { userId, email: PREVIEW_TEST_EMAIL, source: "stripe" };
-  }
+  const { data: paid } = await service
+    .from("paid_sessions")
+    .select("email, status")
+    .eq("stripe_session_id", stripeSessionId)
+    .maybeSingle();
 
-  return null;
+  if (!paid?.email) return null;
+  if (paid.status !== "paid" && paid.status !== "complete") return null;
+
+  const userId = await upsertUserByEmail(service, paid.email, null);
+  if (!userId) return null;
+  return { userId, email: paid.email, source: "stripe" };
 }
 
 async function upsertUserByEmail(

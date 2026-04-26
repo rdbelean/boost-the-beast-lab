@@ -1,7 +1,6 @@
 import createMiddleware from "next-intl/middleware";
 import { routing } from "@/i18n/routing";
 import { type NextRequest, NextResponse } from "next/server";
-import { isPreviewDeployment } from "@/lib/utils/is-preview";
 
 // Next 16 renames the `middleware.ts` convention to `proxy.ts`.
 // next-intl's middleware factory is convention-agnostic — it exports
@@ -34,15 +33,6 @@ function getAnalyseLocale(pathname: string): string | null {
 }
 
 export default function proxy(request: NextRequest): NextResponse {
-  // Preview deployments bypass the paid gate entirely. The /analyse
-  // paid-cookie check is the only thing this proxy enforces beyond
-  // next-intl locale routing — skip it on preview so the cache-fix can be
-  // tested without a working Stripe checkout flow. Production
-  // (VERCEL_ENV=production) and local dev fall through to the gate.
-  if (isPreviewDeployment()) {
-    return intlMiddleware(request) as NextResponse;
-  }
-
   const { pathname, searchParams } = request.nextUrl;
   const locale = getAnalyseLocale(pathname);
 

@@ -26,7 +26,6 @@ import { assessDataQuality } from "@/lib/wearable/assessment/data-quality";
 import DataQualityBadge from "@/components/analyse/wearable/DataQualityBadge";
 import FolderIntentWarning from "@/components/analyse/wearable/FolderIntentWarning";
 import type { WearableParseResult, WearableSource } from "@/lib/wearable/types";
-import { isPreviewDeploymentClient } from "@/lib/utils/is-preview";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -158,13 +157,6 @@ function PrepareContent() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      // Preview deployments skip the Stripe-verify roundtrip — the bypass
-      // in kaufen/page.tsx never sends them through Stripe in the first
-      // place, so there is no session_id to verify here.
-      if (isPreviewDeploymentClient()) {
-        if (!cancelled) setPaymentChecked(true);
-        return;
-      }
       if (!sessionId) {
         if (!cancelled) router.replace("/kaufen");
         return;

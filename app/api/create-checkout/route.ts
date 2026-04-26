@@ -14,6 +14,48 @@ function isLocale(v: unknown): v is Locale {
   return v === "de" || v === "en" || v === "it" || v === "tr";
 }
 
+// Resolve the origin to use in Stripe success_url / cancel_url. Walks the
+// request headers in order of trust so that preview deployments keep their
+// own host through the Stripe round-trip and production keeps using
+// www.boostthebeast-lab.com — without a hardcoded production fallback that
+// previously yanked preview testers onto production.
+function resolveOrigin(request: Request): string {
+  // 1. Origin-Header — set by the browser on every same-origin POST.
+  const origin = request.headers.get("origin");
+  if (origin) return origin;
+
+  // 2. Referer-Header — falls Origin fehlt (z.B. bei Cross-Origin-Redirects).
+  const referer = request.headers.get("referer");
+  if (referer) {
+    try {
+      const url = new URL(referer);
+      return `${url.protocol}//${url.host}`;
+    } catch {
+      // ignore — fall through to next strategy
+    }
+  }
+
+  // 3. Vercel-Forwarding-Header — vorhanden wenn die Lambda hinter dem
+  //    Vercel-Edge-Proxy läuft.
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+
+  // 4. Notnagel aus Env-Vars. NEXT_PUBLIC_APP_URL ist projekt-spezifisch
+  //    konfigurierbar; VERCEL_URL setzt Vercel automatisch pro Deployment.
+  //    Beide sind nicht hardcoded auf Production — auf Preview-Builds
+  //    zeigen sie auf den Preview-Host.
+  const envBase = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL;
+  if (envBase) {
+    return envBase.startsWith("http") ? envBase : `https://${envBase}`;
+  }
+
+  // 5. Wenn nichts greift: harter Error statt schweigend Production.
+  throw new Error("Cannot determine origin for Stripe success_url");
+}
+
 // Stripe's Checkout locale param accepts ISO codes that match our locales
 // 1:1 here. See https://stripe.com/docs/api/checkout/sessions/create#create_checkout_session-locale
 // "tr" is in Stripe's supported list.
@@ -103,7 +145,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: null });
     }
 
-    const origin = req.headers.get("origin") ?? "https://boostthebeast-lab.com";
+    const origin = resolveOrigin(req);
     const stripeLocale: StripeLocale = locale;
 
     const session = await stripe.checkout.sessions.create({

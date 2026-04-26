@@ -5,7 +5,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Oswald, Inter, JetBrains_Mono } from "next/font/google";
 import "../globals.css";
 import CookieBanner from "@/components/CookieBanner";
-import PreviewBanner from "@/components/PreviewBanner";
 import { routing } from "@/i18n/routing";
 
 const SITE_URL = "https://boostthebeast-lab.com";
@@ -90,7 +89,6 @@ export default async function LocaleLayout({
       className={`h-full ${oswald.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-full flex flex-col antialiased">
-        <PreviewBanner />
         <NextIntlClientProvider>
           {children}
           <CookieBanner />
