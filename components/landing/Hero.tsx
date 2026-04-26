@@ -21,12 +21,11 @@ export default function Hero() {
   function handleSkip() {
     document.cookie = "btb_paid=true; path=/; max-age=86400; SameSite=Lax";
     sessionStorage.setItem("btb_paid", "true");
-    // Direkt zum Fragebogen — überspringt /kaufen (wo der Production-
-    // Redirect den Tester aus der Preview-Domain rauswirft) und
-    // /analyse/prepare (Wearable-Upload, der ohne btb_stripe_session-
-    // Cookie eh nicht funktioniert). ?paid=true triggert den
-    // existierenden devBypass in app/[locale]/analyse/page.tsx.
-    window.location.href = `/${locale}/analyse?product=complete-analysis&paid=true&preview_skip=true`;
+    // Direkt zum Wearable-Upload — überspringt /kaufen (wo der Production-
+    // Redirect den Tester aus der Preview-Domain rauswirft). Der
+    // Payment-Gate auf /analyse/prepare erkennt preview_skip=true +
+    // *.vercel.app-Hostname und lässt durch.
+    window.location.href = `/${locale}/analyse/prepare?product=complete-analysis&paid=true&preview_skip=true`;
   }
 
   useEffect(() => {

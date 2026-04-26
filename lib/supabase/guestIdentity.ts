@@ -16,6 +16,12 @@ export interface ResolvedIdentity {
   source: "supabase" | "stripe";
 }
 
+// Deterministic test user used only on Vercel preview deployments where the
+// Skip-Payment flow lands without a real Stripe checkout. All preview test
+// runs share this single users-row so the table doesn't grow per session.
+// The .test TLD is reserved (RFC 2606) and won't collide with real customers.
+const PREVIEW_TEST_EMAIL = "preview-test@boostthebeast-lab.test";
+
 export async function resolveIdentity(): Promise<ResolvedIdentity | null> {
   const service = getSupabaseServiceClient();
 
@@ -33,25 +39,33 @@ export async function resolveIdentity(): Promise<ResolvedIdentity | null> {
     // Fall through to Stripe identity.
   }
 
-  // 2. Fallback: paid Stripe guest (identified by checkout session id cookie).
+  // 2. Paid Stripe guest (identified by checkout session id cookie).
   const jar = await cookies();
   const stripeSessionId = jar.get("btb_stripe_session")?.value;
-  if (!stripeSessionId || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(stripeSessionId)) {
-    return null;
+  if (stripeSessionId && /^cs_(test|live)_[A-Za-z0-9]+$/.test(stripeSessionId)) {
+    const { data: paid } = await service
+      .from("paid_sessions")
+      .select("email, status")
+      .eq("stripe_session_id", stripeSessionId)
+      .maybeSingle();
+
+    if (paid?.email && (paid.status === "paid" || paid.status === "complete")) {
+      const userId = await upsertUserByEmail(service, paid.email, null);
+      if (userId) return { userId, email: paid.email, source: "stripe" };
+    }
   }
 
-  const { data: paid } = await service
-    .from("paid_sessions")
-    .select("email, status")
-    .eq("stripe_session_id", stripeSessionId)
-    .maybeSingle();
+  // 3. Preview-only fallback: synthetic test user for the Skip-Payment flow.
+  // Gated on VERCEL_ENV — Vercel sets this automatically and it cannot be
+  // changed by the client. On production builds VERCEL_ENV === "production"
+  // and this branch is unreachable, so the function returns null exactly
+  // like before this fallback existed.
+  if (process.env.VERCEL_ENV === "preview") {
+    const userId = await upsertUserByEmail(service, PREVIEW_TEST_EMAIL, null);
+    if (userId) return { userId, email: PREVIEW_TEST_EMAIL, source: "stripe" };
+  }
 
-  if (!paid?.email) return null;
-  if (paid.status !== "paid" && paid.status !== "complete") return null;
-
-  const userId = await upsertUserByEmail(service, paid.email, null);
-  if (!userId) return null;
-  return { userId, email: paid.email, source: "stripe" };
+  return null;
 }
 
 async function upsertUserByEmail(
