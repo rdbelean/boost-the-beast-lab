@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { buildFullPrompt, type PlanType, type ScoreInput, type PlanPersonalization } from "@/lib/plan/prompts/full-prompts";
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 import { loadReportContext, type ReportContext } from "@/lib/reports/report-context";
+import { cleanJsonText } from "@/lib/reports/pipeline";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -286,22 +287,45 @@ export async function POST(req: NextRequest) {
     console.log("[Plans/BE/generate] system prompt head:", systemPrompt.slice(0, 400));
     console.log("[Plans/BE/generate] user prompt head:", userPrompt.slice(0, 400));
 
-    const response = await callAnthropicWithRetry(client, {
-      model: "claude-sonnet-4-6",
-      max_tokens: 3000,
-      temperature: 0.3,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
-    });
+    const callClaude = async (extraSystem = ""): Promise<string> => {
+      const response = await callAnthropicWithRetry(client, {
+        model: "claude-sonnet-4-6",
+        max_tokens: 3000,
+        temperature: 0.3,
+        system: extraSystem ? `${systemPrompt}\n\n${extraSystem}` : systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
+      });
+      return (response.content[0] as { type: string; text: string }).text;
+    };
 
-    const rawText = (response.content[0] as { type: string; text: string }).text.trim();
+    // First attempt — strip optional ```json fences before parsing.
+    let rawText = await callClaude();
     let parsed: { blocks: PlanBlock[] };
     try {
-      parsed = JSON.parse(rawText);
+      parsed = JSON.parse(cleanJsonText(rawText)) as { blocks: PlanBlock[] };
     } catch (parseErr) {
-      console.error("[Plans/BE/generate] JSON parse failed — raw Claude output first 2000:", rawText.slice(0, 2000));
-      console.error("[Plans/BE/generate] parse error:", parseErr);
-      throw parseErr;
+      console.warn(
+        "[Plans/BE/generate] first JSON parse failed — retrying with stricter directive",
+        { planType, locale, parseErrMsg: (parseErr as Error).message },
+      );
+      // Second attempt with reinforced directive — Claude sometimes
+      // wraps in fences despite "No markdown backticks" rule.
+      try {
+        rawText = await callClaude(
+          "RAW JSON ONLY. NO MARKDOWN FENCES. NO PROSE BEFORE OR AFTER. Start the response with the character `{` and end with `}`.",
+        );
+        parsed = JSON.parse(cleanJsonText(rawText)) as { blocks: PlanBlock[] };
+      } catch (retryErr) {
+        console.error(
+          "[Plans/BE/generate] retry JSON parse also failed — raw output first 2000:",
+          rawText.slice(0, 2000),
+        );
+        console.error("[Plans/BE/generate] retry parse error:", retryErr);
+        return NextResponse.json(
+          { error: "plan_parse_failed", code: "plan_parse_failed", planType, locale },
+          { status: 502 },
+        );
+      }
     }
 
     if (!parsed.blocks?.length) {

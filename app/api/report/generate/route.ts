@@ -67,6 +67,40 @@ function getAnthropic(): Anthropic {
 // caller surfaces an error UI. We do NOT substitute a deterministic
 // German-only stub for personalised AI output.
 
+/**
+ * Legacy single-shot report generation — used both as the legacy branch
+ * (when REPORT_PIPELINE_V4 is off) AND as the v4 fallback (when v4
+ * pipeline fails for this one request). Phase 6 Repair will make v4
+ * robust enough that this fallback can be removed.
+ */
+async function runLegacyReport(
+  reportCtx: ReportContext,
+  anthropic: Anthropic,
+  maxTokens: number,
+): Promise<PdfReportContent> {
+  const { systemPrompt, userPrompt } = buildReportPrompts(
+    contextToPremiumPromptContext(reportCtx),
+  );
+  const message = await callAnthropicWithRetry(anthropic, {
+    model: "claude-sonnet-4-6",
+    max_tokens: maxTokens,
+    system: systemPrompt,
+    messages: [{ role: "user", content: userPrompt }],
+  });
+  const content = message.content[0];
+  if (content.type !== "text") throw new Error("Unexpected Anthropic response type");
+  try {
+    const cleaned = content.text
+      .trim()
+      .replace(/^```(?:json)?/i, "")
+      .replace(/```$/i, "")
+      .trim();
+    return JSON.parse(cleaned) as PdfReportContent;
+  } catch (e) {
+    throw new Error(`Claude returned invalid JSON: ${(e as Error).message}`);
+  }
+}
+
 // ── Offline Demo Mode ─────────────────────────────────────────────────────
 
 interface DemoContext {
@@ -193,32 +227,21 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
   if (shouldUseV4Pipeline()) {
     // v4: Stage-A (Analyst) → Stage-B (Writer) → Stage-C (Judge + det. validator).
     const v4 = await runMainReportPipeline(reportCtx, { client: getAnthropic() });
-    if (!v4.ok) {
-      console.error("[report/generate/demo] v4 pipeline failed", v4.stage, v4.error);
-      throw new Error(`v4_pipeline_failed: ${v4.stage}: ${v4.error.code}`);
+    if (v4.ok) {
+      report = v4.report as PdfReportContent;
+    } else {
+      // Phase 5b graceful fallback: v4 failed → legacy single-shot still
+      // gets the user a working report. Failure logged for analysis.
+      console.error(
+        "[report/generate/demo] v4 failed → falling back to legacy",
+        v4.stage,
+        v4.error.code,
+        v4.error.message,
+      );
+      report = await runLegacyReport(reportCtx, getAnthropic(), 5000);
     }
-    report = v4.report as PdfReportContent;
   } else {
-    const { systemPrompt, userPrompt } = buildReportPrompts(
-      contextToPremiumPromptContext(reportCtx),
-    );
-    const anthropic = getAnthropic();
-    const message = await callAnthropicWithRetry(anthropic, {
-      // Sonnet 4.6 is ~2-3× faster than Opus for this structured paraphrase
-      // task and keeps the total latency under the Vercel timeout.
-      model: "claude-sonnet-4-6",
-      max_tokens: 5000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
-    });
-    const content = message.content[0];
-    if (content.type !== "text") throw new Error("Unexpected Anthropic response type");
-    try {
-      const cleaned = content.text.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
-      report = JSON.parse(cleaned) as PdfReportContent;
-    } catch (e) {
-      throw new Error(`Claude returned invalid JSON: ${(e as Error).message}`);
-    }
+    report = await runLegacyReport(reportCtx, getAnthropic(), 5000);
   }
 
   const pdfBuffer = await generatePDF(
@@ -414,16 +437,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Build the prompt(s) — v4 pipeline (Stage-A→B→C) when the feature
-    //    flag is on, legacy single-shot premium prompt otherwise.
+    // 3. Decide v4 vs. legacy. The actual prompt build happens inside
+    //    runLegacyReport() so the v4-fallback path can call it on demand.
     const useV4 = shouldUseV4Pipeline();
-    let systemPrompt = "";
-    let userPrompt = "";
-    if (!useV4) {
-      const built = buildReportPrompts(contextToPremiumPromptContext(ctx));
-      systemPrompt = built.systemPrompt;
-      userPrompt = built.userPrompt;
-    }
 
     // Legacy bandings kept for PDF + downstream (PDF uses simple 0–100 bands).
     const bmi = result.metabolic.bmi;
@@ -452,35 +468,23 @@ export async function POST(req: NextRequest) {
     let report: PdfReportContent;
     if (useV4) {
       const v4 = await runMainReportPipeline(ctx, { client: getAnthropic() });
-      if (!v4.ok) {
-        console.error("[report/generate] v4 pipeline failed", v4.stage, v4.error);
-        throw new Error(`v4_pipeline_failed: ${v4.stage}: ${v4.error.code}`);
+      if (v4.ok) {
+        report = v4.report as PdfReportContent;
+      } else {
+        // Phase 5b graceful fallback: v4 failed → legacy single-shot
+        // still gets the user a working report. Failure logged for
+        // analysis. Operator flips REPORT_PIPELINE_V4=false to disable
+        // v4 entirely if fallbacks become too frequent.
+        console.error(
+          "[report/generate] v4 failed → falling back to legacy",
+          v4.stage,
+          v4.error.code,
+          v4.error.message,
+        );
+        report = await runLegacyReport(ctx, getAnthropic(), 16000);
       }
-      report = v4.report as PdfReportContent;
     } else {
-      const anthropic = getAnthropic();
-      const message = await callAnthropicWithRetry(anthropic, {
-        model: "claude-sonnet-4-6",
-        max_tokens: 16000,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
-      });
-
-      const content = message.content[0];
-      if (content.type !== "text") {
-        throw new Error("Unexpected Anthropic response type");
-      }
-
-      try {
-        const cleaned = content.text
-          .trim()
-          .replace(/^```(?:json)?/i, "")
-          .replace(/```$/i, "")
-          .trim();
-        report = JSON.parse(cleaned) as PdfReportContent;
-      } catch (e) {
-        throw new Error(`Claude returned invalid JSON: ${(e as Error).message}`);
-      }
+      report = await runLegacyReport(ctx, getAnthropic(), 16000);
     }
 
     // 4b. Build heroData from wearable metrics (for PDF cover stamp).

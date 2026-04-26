@@ -94,7 +94,7 @@ describe("runMainReportWriter — happy path", () => {
       }
       expect(result.ok).toBe(true);
       expect(result.report.disclaimer).toBe(DISCLAIMER[ctx.meta.locale]);
-      expect(result.report._meta.stage).toBe("writer");
+      expect(result.report._meta?.stage).toBe("writer");
       expect(typeof result.report.headline).toBe("string");
     });
   }
@@ -138,5 +138,22 @@ describe("runMainReportWriter — error paths", () => {
     });
     const result = await runMainReportWriter(beginnerContext, analysis, { client });
     expect(result.ok).toBe(true);
+  });
+
+  it("accepts a ReportJSON without _meta (Phase 5b: real Claude often forgets it)", async () => {
+    const analysis = buildValidAnalysisFor(beginnerContext);
+    const report = buildValidReportFor(beginnerContext);
+    // Strip _meta to simulate real Claude output that omitted the block.
+    const reportNoMeta = { ...report } as Record<string, unknown>;
+    delete reportNoMeta._meta;
+    const client = makeMockAnthropic({
+      response: { text: JSON.stringify(reportNoMeta) },
+    });
+    const result = await runMainReportWriter(beginnerContext, analysis, { client });
+    if (!result.ok) {
+      throw new Error(`expected ok, got error: ${JSON.stringify(result.error)}`);
+    }
+    expect(result.ok).toBe(true);
+    expect(result.report._meta).toBeUndefined();
   });
 });

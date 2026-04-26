@@ -89,11 +89,19 @@ export const ReportSchema = z.object({
       total_time_min_per_day: z.number().min(0).max(240).optional(),
     })
     .optional(),
-  _meta: z.object({
-    stage: z.enum(["writer", "repair"]),
-    generation_id: z.string().min(1),
-    section_evidence_refs: z.record(z.string(), z.array(z.string())),
-  }),
+  // _meta is the writer's self-declaration of which evidence_field paths
+  // each section anchored on. Real-world Claude often forgets it under
+  // token pressure — we keep it optional so the schema-parse step never
+  // fails on a missing _meta. The deterministic anchor-coverage
+  // validator scans section TEXT directly, not _meta, so a missing
+  // declaration only loses observability — not validation rigor.
+  _meta: z
+    .object({
+      stage: z.enum(["writer", "repair"]),
+      generation_id: z.string().min(1),
+      section_evidence_refs: z.record(z.string(), z.array(z.string())),
+    })
+    .optional(),
 });
 
 export type ReportJSON = z.infer<typeof ReportSchema>;
