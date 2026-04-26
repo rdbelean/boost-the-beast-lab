@@ -66,6 +66,13 @@ interface AssessmentRequestBody {
   nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "none" | null;
   stress_source?: "job" | "family" | "finances" | "health" | "future" | "none" | null;
   recovery_ritual?: "sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none" | null;
+  /** Phase-1-Datenflussfix: diese drei wurden zuvor verworfen / verzerrt
+   *  (daily_steps gar nicht im Body, training_days nur indirekt aus
+   *  moderate_days/vigorous_days rekonstruierbar). Jetzt als eigene
+   *  responses-Rows persistiert. Optional damit ältere Clients nicht brechen. */
+  daily_steps?: number;
+  training_days_self_reported?: number;
+  training_intensity_self_reported?: string;
   /** Optional: links a prior wearable upload (from /api/wearable/persist) into this assessment. */
   wearable_upload_id?: string;
   /** UI locale at submit time. Drives Claude report language, PDF labels,

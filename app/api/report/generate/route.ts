@@ -481,10 +481,35 @@ export async function POST(req: NextRequest) {
         ? reconstructed.activity.walking_total_minutes_week / 60 / 5
         : 3,
     );
-    const trainingDays = Math.max(
-      reconstructed.activity.moderate_days,
-      reconstructed.activity.vigorous_days,
-    );
+    // training_days resolution order:
+    //   1. Direct self-reported value from form payload (Phase-1 datafix —
+    //      question_code "training_days_self_reported"). This is the user's
+    //      original "wie oft trainierst du"-answer, captured 1:1.
+    //   2. Sum of moderate_days + vigorous_days. Reflects total weekly
+    //      sessions even when training is mixed-intensity.
+    //   3. Last resort: max(moderate, vigorous) — the legacy heuristic that
+    //      under-counted mixed schedules. Logged so we can observe how often
+    //      this fallback fires post-deploy.
+    const directTrainingDays = num("training_days_self_reported", -1);
+    let trainingDays: number;
+    if (directTrainingDays >= 0) {
+      trainingDays = directTrainingDays;
+    } else {
+      const sumDays =
+        reconstructed.activity.moderate_days +
+        reconstructed.activity.vigorous_days;
+      if (sumDays > 0) {
+        trainingDays = sumDays;
+      } else {
+        trainingDays = Math.max(
+          reconstructed.activity.moderate_days,
+          reconstructed.activity.vigorous_days,
+        );
+        console.warn(
+          "[report/generate] training_days fell through to Math.max heuristic — both direct field and moderate+vigorous sum were missing/zero",
+        );
+      }
+    }
 
     // 3. Build the premium v3 prompts (shared with the demo handler).
     //    Monolithic per-locale via buildReportPrompts — no parametrised
@@ -513,7 +538,12 @@ export async function POST(req: NextRequest) {
       sitting_hours_per_day: reconstructed.metabolic.sitting_hours,
       training_days: trainingDays,
       training_intensity_label: trainingIntensityLabel(result, locale),
-      daily_steps: num("schrittzahl", 0),
+      // Phase-1-Datenflussfix: bevorzugt den neuen "daily_steps"-question_code
+      // (Form-Payload schickt ihn seit Commit X direkt mit). Fallback auf
+      // legacy "schrittzahl" für vor-Phase-1-Assessments. Letzter Fallback 0.
+      daily_steps: respMap.has("daily_steps")
+        ? num("daily_steps", 0)
+        : num("schrittzahl", 0),
       // Neue v2-Felder — aus responses-Tabelle gelesen. Fehlende Werte
       // werden im Prompt als "nicht angegeben" ausgespielt und dort per
       // Default-Fallback (feel_better / moderate / intermediate) behandelt.
@@ -648,7 +678,9 @@ export async function POST(req: NextRequest) {
         training_intensity: trainingIntensityLabel(result, locale),
         sitting_h: reconstructed.metabolic.sitting_hours,
         standing_h: standingHours,
-        daily_steps: num("schrittzahl", 0),
+        daily_steps: respMap.has("daily_steps")
+          ? num("daily_steps", 0)
+          : num("schrittzahl", 0),
         meals: reconstructed.metabolic.meals_per_day,
         water_l: reconstructed.metabolic.water_litres,
         fruit_veg:

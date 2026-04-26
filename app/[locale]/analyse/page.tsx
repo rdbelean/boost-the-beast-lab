@@ -334,6 +334,14 @@ function buildAssessmentPayload(f: FormData) {
     nutrition_painpoint: NUTRITION_PAINPOINT_VALUES.has(f.nutritionPainpoint) ? f.nutritionPainpoint : null,
     stress_source: STRESS_SOURCE_VALUES.has(f.stressSource) ? f.stressSource : null,
     recovery_ritual: RECOVERY_RITUAL_VALUES.has(f.recoveryRitual) ? f.recoveryRitual : null,
+    // Phase-1-Datenflussfix: diese drei Felder landeten zuvor nicht im
+    // assessment-Body und wurden im Report-Generator als 0 / Math.max-Heuristik
+    // rekonstruiert. Jetzt direkt persistieren als responses-Rows
+    // (question_code = daily_steps, training_days_self_reported,
+    // training_intensity_self_reported).
+    daily_steps: f.schrittzahl,
+    training_days_self_reported: trainingDays,
+    training_intensity_self_reported: f.trainingsart,
   };
 }
 
