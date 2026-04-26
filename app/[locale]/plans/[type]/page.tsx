@@ -54,11 +54,12 @@ export default function PlanPage() {
     setError("");
     setPlan(null);
     const abortController = new AbortController();
-    // Hard client-side timeout at 90s so the user never sees a perpetual
-    // loading state if the API silently hangs.
+    // Hard client-side timeout — must fire just before the server's
+    // Vercel maxDuration (180s) so we get a clean abort instead of
+    // racing the server. 170s gives a 10s buffer.
     const timeoutId = setTimeout(() => {
-      abortController.abort(new Error("client-timeout-90s"));
-    }, 90_000);
+      abortController.abort(new Error("client-timeout-170s"));
+    }, 170_000);
     try {
       const raw = sessionStorage.getItem("btb_results");
       if (!raw) { setError(t("error_no_data")); return; }

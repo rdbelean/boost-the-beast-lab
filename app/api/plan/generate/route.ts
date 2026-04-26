@@ -6,7 +6,13 @@ import { loadReportContext, type ReportContext } from "@/lib/reports/report-cont
 import { cleanJsonText } from "@/lib/reports/pipeline";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+// Sonnet 4.6 generating ~3000 tokens of structured plan content can take
+// 30-90s under load. With 4 plan endpoints + 1 report endpoint firing in
+// parallel after submit, Anthropic's queueing pushes individual calls
+// even longer. 60s was the legacy default and silently killed plan
+// generation under load. 180s gives Sonnet enough headroom while
+// staying well under Vercel Pro's 300s ceiling.
+export const maxDuration = 180;
 
 interface PlanBlock { heading: string; items: string[] }
 
@@ -337,7 +343,43 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ...meta, locale, blocks: parsed.blocks });
   } catch (err) {
-    console.error("[plan/generate] error:", err);
-    return NextResponse.json({ error: "Generation failed" }, { status: 500 });
+    // Structured error log — easier to read in Vercel function logs.
+    const isAnthropicErr = err instanceof Anthropic.APIError;
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const errStatus = isAnthropicErr ? err.status : null;
+    const errType = isAnthropicErr ? "anthropic_api" : err instanceof Error ? err.name : "unknown";
+    console.error(
+      "[plan/generate] error:",
+      JSON.stringify({
+        errType,
+        errStatus,
+        errMsg: errMsg.slice(0, 500),
+        planType: (req as unknown as { url?: string }).url ?? null,
+      }),
+    );
+
+    // Return a more diagnostic shape so the frontend (and logs) can tell
+    // rate-limit / billing / overload apart from a generic crash.
+    let code = "generation_failed";
+    let status = 500;
+    if (isAnthropicErr) {
+      if (err.status === 429 || /rate_limit/i.test(errMsg)) {
+        code = "provider_rate_limit";
+        status = 503;
+      } else if (err.status === 529 || /overloaded/i.test(errMsg)) {
+        code = "provider_overloaded";
+        status = 503;
+      } else if (/credit balance|billing|insufficient_quota/i.test(errMsg)) {
+        code = "provider_billing";
+        status = 503;
+      } else {
+        code = "provider_error";
+        status = 503;
+      }
+    }
+    return NextResponse.json(
+      { error: "Generation failed", code, errType },
+      { status },
+    );
   }
 }
