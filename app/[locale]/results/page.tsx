@@ -165,13 +165,6 @@ export default function ResultsPage() {
     if (!scores || !assessmentId || !wearableMetrics) return;
     let cancelled = false;
     const dimensions = ["activity", "sleep", "vo2max", "metabolic", "stress"] as const;
-    const dimensionScores: Record<string, number> = {
-      activity: scores.activity.activity_score_0_100,
-      sleep: scores.sleep.sleep_score_0_100,
-      vo2max: scores.vo2max.fitness_score_0_100,
-      metabolic: scores.metabolic.metabolic_score_0_100,
-      stress: scores.stress.stress_score_0_100,
-    };
     const controllers: AbortController[] = [];
     const timers: ReturnType<typeof setTimeout>[] = [];
     for (const dim of dimensions) {
@@ -183,14 +176,16 @@ export default function ResultsPage() {
       const timer = setTimeout(() => ac.abort(new Error("client-timeout-30s")), 30_000);
       timers.push(timer);
 
+      // Phase 2D: body shrinks to (assessment_id, dimension, locale). Server
+      // pulls metrics/score/user_profile/other_dimensions from
+      // loadReportContext so the interpret-block prompt sees the same
+      // canonical data as the main report and the plans.
       fetch("/api/reports/interpret-block", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           assessment_id: assessmentId,
           dimension: dim,
-          metrics: wearableMetrics,
-          score: dimensionScores[dim],
           locale,
         }),
         signal: ac.signal,
