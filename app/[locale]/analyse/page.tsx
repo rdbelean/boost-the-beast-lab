@@ -777,21 +777,41 @@ function AnalyseContent() {
         stress_source: payload.stress_source,
         recovery_ritual: payload.recovery_ritual,
       };
-      const planPromises = PLAN_TYPES.map((planType) =>
-        generatePlanBundle(planType, json?.assessmentId ?? null, scores, locale, planPersonalization)
-          .then((bundle) => {
-            setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
-            return { planType, bundle };
-          })
-          .catch((e) => {
+      // Plans run SEQUENTIALLY rather than in parallel to keep total
+      // simultaneous Anthropic connections low. Phase 5c testing showed
+      // that 1 report (v4 = 3 internal calls) + 4 parallel plan calls
+      // saturated Anthropic's concurrent-connection budget on the
+      // current tier — individual calls queued for 60-180s and the
+      // report wallclock doubled. Serial plans cap concurrent Anthropic
+      // load at 2 (1 report + 1 plan) which keeps each call's wallclock
+      // close to ideal. Net submit time is similar (max(report, sum(plans))
+      // instead of max(report, max(plan)) — but reliability is much higher).
+      const planSerialPromise = (async () => {
+        const results: Array<{ planType: PlanType; bundle: PlanBundle | null }> = [];
+        for (const planType of PLAN_TYPES) {
+          try {
+            const bundle = await generatePlanBundle(
+              planType,
+              json?.assessmentId ?? null,
+              scores,
+              locale,
+              planPersonalization,
+            );
+            results.push({ planType, bundle });
+          } catch (e) {
             console.warn(`[analyse] plan ${planType} failed`, e);
-            setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
-            return { planType, bundle: null as PlanBundle | null };
-          }),
-      );
+            results.push({ planType, bundle: null });
+          }
+          setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
+        }
+        return results;
+      })();
 
       // Wait for everything
-      const [downloadUrl, ...planResults] = await Promise.all([reportPromise, ...planPromises]);
+      const [downloadUrl, planResults] = await Promise.all([
+        reportPromise,
+        planSerialPromise,
+      ]);
       if (downloadUrl) setDownloadUrl(downloadUrl);
 
       const plans: Record<string, PlanBundle> = {};

@@ -47,11 +47,17 @@ export default function PlanPage() {
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [error, setError] = useState("");
+  // Raw diagnostic detail from the server (e.g. error code, status,
+  // message snippet). Rendered as a small subtitle under the localized
+  // error message so the operator can read what really happened without
+  // opening DevTools.
+  const [errorDetail, setErrorDetail] = useState("");
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     console.log("[Plans/FE/view] mount", { locale, type, retryKey, pathname: typeof window !== "undefined" ? window.location.pathname : "?" });
     setError("");
+    setErrorDetail("");
     setPlan(null);
     const abortController = new AbortController();
     // Hard client-side timeout — must fire just before the server's
@@ -107,8 +113,20 @@ export default function PlanPage() {
         .then(async (r) => {
           if (!r.ok) {
             const status = r.status;
-            const body = await r.json().catch(() => null) as { error?: string } | null;
-            throw new Error(body?.error ?? `HTTP ${status}`);
+            const body = await r.json().catch(() => null) as {
+              error?: string;
+              code?: string;
+              errType?: string;
+            } | null;
+            const detailParts = [
+              `HTTP ${status}`,
+              body?.code ? `code=${body.code}` : null,
+              body?.errType ? `type=${body.errType}` : null,
+              body?.error ? `msg="${body.error}"` : null,
+            ].filter(Boolean);
+            const errorObj = new Error(body?.error ?? `HTTP ${status}`);
+            (errorObj as Error & { detail?: string }).detail = detailParts.join(" · ");
+            throw errorObj;
           }
           return r.json();
         })
@@ -117,6 +135,7 @@ export default function PlanPage() {
           console.log("[Plans/FE/view] fresh AI response", { responseLocale: ai?.locale, firstHeading: ai?.blocks?.[0]?.heading, blocksCount: ai?.blocks?.length });
           if (!ai?.blocks?.length) {
             setError(t("error_ai_failed"));
+            setErrorDetail("ai_returned_empty_blocks");
             return;
           }
           const base = buildPlan(type as PlanType, data.scores, locale);
@@ -128,15 +147,20 @@ export default function PlanPage() {
             ...(ai.subtitle ? { subtitle: ai.subtitle } : {}),
           });
         })
-        .catch((e) => {
+        .catch((e: unknown) => {
           clearTimeout(timeoutId);
           if (abortController.signal.aborted) {
-            console.warn("[Plans/FE/view] AI fetch aborted (90s timeout)");
+            console.warn("[Plans/FE/view] AI fetch aborted (170s timeout)");
             setError(t("error_ai_timeout"));
+            setErrorDetail("client-timeout-170s");
             return;
           }
           console.error("[Plans/FE/view] AI fetch failed", e);
           setError(t("error_ai_failed"));
+          const detail =
+            (e as { detail?: string })?.detail ??
+            (e instanceof Error ? e.message : String(e));
+          setErrorDetail(detail);
         });
     } catch {
       clearTimeout(timeoutId);
@@ -214,6 +238,19 @@ export default function PlanPage() {
     <div className={styles.page}>
       <div className={styles.errorBox}>
         <p>{error}</p>
+        {errorDetail && (
+          <p
+            style={{
+              marginTop: 8,
+              fontSize: 11,
+              color: "#888",
+              fontFamily: "monospace",
+              wordBreak: "break-all",
+            }}
+          >
+            {errorDetail}
+          </p>
+        )}
         {isRetryable && (
           <button
             type="button"
