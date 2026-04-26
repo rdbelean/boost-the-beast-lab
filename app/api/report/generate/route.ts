@@ -26,6 +26,8 @@ import {
   type ReportContext,
 } from "@/lib/reports/report-context";
 import { contextToPremiumPromptContext } from "@/lib/reports/context-to-premium-adapter";
+import { runMainReportPipeline } from "@/lib/reports/pipeline";
+import { shouldUseV4Pipeline } from "@/lib/reports/feature-flag";
 
 export const runtime = "nodejs";
 // Vercel Pro allows up to 300s. Claude Opus + 8k tokens regularly crosses
@@ -188,7 +190,15 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
   });
 
   let report: PdfReportContent;
-  {
+  if (shouldUseV4Pipeline()) {
+    // v4: Stage-A (Analyst) → Stage-B (Writer) → Stage-C (Judge + det. validator).
+    const v4 = await runMainReportPipeline(reportCtx, { client: getAnthropic() });
+    if (!v4.ok) {
+      console.error("[report/generate/demo] v4 pipeline failed", v4.stage, v4.error);
+      throw new Error(`v4_pipeline_failed: ${v4.stage}: ${v4.error.code}`);
+    }
+    report = v4.report as PdfReportContent;
+  } else {
     const { systemPrompt, userPrompt } = buildReportPrompts(
       contextToPremiumPromptContext(reportCtx),
     );
@@ -404,12 +414,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Build the premium v3 prompts via the legacy adapter.
-    //    Phase 3 will replace this with Stage-A/B/C prompts that consume
-    //    ReportContext + analysis-JSON directly.
-    const { systemPrompt, userPrompt } = buildReportPrompts(
-      contextToPremiumPromptContext(ctx),
-    );
+    // 3. Build the prompt(s) — v4 pipeline (Stage-A→B→C) when the feature
+    //    flag is on, legacy single-shot premium prompt otherwise.
+    const useV4 = shouldUseV4Pipeline();
+    let systemPrompt = "";
+    let userPrompt = "";
+    if (!useV4) {
+      const built = buildReportPrompts(contextToPremiumPromptContext(ctx));
+      systemPrompt = built.systemPrompt;
+      userPrompt = built.userPrompt;
+    }
 
     // Legacy bandings kept for PDF + downstream (PDF uses simple 0–100 bands).
     const bmi = result.metabolic.bmi;
@@ -436,7 +450,14 @@ export async function POST(req: NextRequest) {
       throw new Error("ai_unavailable: missing API key");
     }
     let report: PdfReportContent;
-    {
+    if (useV4) {
+      const v4 = await runMainReportPipeline(ctx, { client: getAnthropic() });
+      if (!v4.ok) {
+        console.error("[report/generate] v4 pipeline failed", v4.stage, v4.error);
+        throw new Error(`v4_pipeline_failed: ${v4.stage}: ${v4.error.code}`);
+      }
+      report = v4.report as PdfReportContent;
+    } else {
       const anthropic = getAnthropic();
       const message = await callAnthropicWithRetry(anthropic, {
         model: "claude-sonnet-4-6",
