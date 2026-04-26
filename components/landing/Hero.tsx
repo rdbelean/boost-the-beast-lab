@@ -1,13 +1,33 @@
 "use client";
 import { Link } from "@/i18n/navigation";
-import { useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
+import { isVercelPreviewClient } from "@/lib/utils/is-vercel-preview";
 
 export default function Hero() {
   const t = useTranslations("hero");
+  const locale = useLocale();
   const statsRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
+
+  // Skip-Button nur auf *.vercel.app-Hosts. Hostname-Check nach Hydration
+  // (useEffect) damit kein SSR-/CSR-Markup-Mismatch entsteht.
+  const [showSkip, setShowSkip] = useState(false);
+  useEffect(() => {
+    setShowSkip(isVercelPreviewClient());
+  }, []);
+
+  function handleSkip() {
+    document.cookie = "btb_paid=true; path=/; max-age=86400; SameSite=Lax";
+    sessionStorage.setItem("btb_paid", "true");
+    // Direkt zum Fragebogen — überspringt /kaufen (wo der Production-
+    // Redirect den Tester aus der Preview-Domain rauswirft) und
+    // /analyse/prepare (Wearable-Upload, der ohne btb_stripe_session-
+    // Cookie eh nicht funktioniert). ?paid=true triggert den
+    // existierenden devBypass in app/[locale]/analyse/page.tsx.
+    window.location.href = `/${locale}/analyse?product=complete-analysis&paid=true&preview_skip=true`;
+  }
 
   useEffect(() => {
     const container = statsRef.current;
@@ -92,6 +112,30 @@ export default function Hero() {
             {t("cta_sample")}
           </Link>
         </div>
+
+        {showSkip && (
+          <div style={{ marginTop: "16px" }}>
+            <button
+              type="button"
+              onClick={handleSkip}
+              style={{
+                padding: "12px 24px",
+                background: "#FACC15",
+                color: "#0A0A0A",
+                border: "none",
+                borderRadius: "4px",
+                fontWeight: 700,
+                fontSize: "13px",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                fontFamily: "var(--font-jetbrains-mono), monospace",
+              }}
+            >
+              🧪 Skip Payment (Preview only) → Questionnaire
+            </button>
+          </div>
+        )}
 
         {/* Stats */}
         <div className={styles.statsBar} ref={statsRef}>
