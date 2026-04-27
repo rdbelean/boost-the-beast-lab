@@ -257,12 +257,18 @@
 }
 .questionLabel {
   font-family: var(--font-oswald), sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  /* The question is the focal point of each card. Previous styling
+     (11px, secondary color) made the label vanish behind the bigger
+     answer buttons — eye landed on the answers, not the question.
+     Bumped to 20px + primary color so the question reads first. */
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: var(--text-primary);
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 .questionGrid2 {
   display: grid;
@@ -851,7 +857,7 @@
 
   /* Question cards */
   .questionCard { padding: 18px 16px; }
-  .questionLabel { font-size: 10px; margin-bottom: 10px; }
+  .questionLabel { font-size: 16px; margin-bottom: 6px; }
   .questionGrid2 { grid-template-columns: 1fr; gap: 14px; }
   .questionGrid3 { grid-template-columns: 1fr 1fr; gap: 10px; }
 
