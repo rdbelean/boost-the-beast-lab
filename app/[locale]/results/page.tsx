@@ -164,9 +164,29 @@ export default function ResultsPage() {
   // After router.push("/results") from /analyse, the browser sometimes
   // restores the previous scroll position (analyse-form bottom) instead
   // of resetting to top — on mobile this dropped the user at the bottom
-  // of the report. Force scroll-to-top on mount.
+  // of the report. The single useEffect+scrollTo from Phase 12.7 didn't
+  // hold on mobile because:
+  //   1. Browser's automatic scroll-restoration runs AFTER React mount
+  //      and can override our scrollTo on the first paint.
+  //   2. Async data (auth state, sessionStorage, wearable metrics) lands
+  //      a few hundred ms later and re-flows the page height — on mobile
+  //      this can re-anchor scroll position downward.
+  // Bulletproof fix: switch scrollRestoration to manual, scroll on mount,
+  // and re-assert via requestAnimationFrame + a delayed timer so any
+  // post-mount layout shift can't strand the user mid-page.
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (typeof window === "undefined") return;
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    const goTop = () => window.scrollTo({ top: 0, behavior: "auto" });
+    goTop();
+    const rafId = requestAnimationFrame(goTop);
+    const timerId = window.setTimeout(goTop, 200);
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timerId);
+    };
   }, []);
 
   useEffect(() => {
