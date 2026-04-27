@@ -299,13 +299,12 @@ export async function POST(req: NextRequest) {
       // personalization rules — no deep reasoning needed. Haiku 4.5 runs
       // ~3× faster and ~12× cheaper at comparable output quality.
       //
-      // Phase 5f: max_tokens bumped 4000 → 8000 (Haiku's ceiling).
-      // System prompt demands "exactly 6 blocks × 5-8 items each" with
-      // full-sentence items + concrete numbers + study citations. Worst
-      // case (metabolic / recovery plans) reaches 2400-3500 tokens, very
-      // close to the 4000 cap → intermittent truncation → plan_parse_failed.
-      // 8000 gives 2-3× headroom; cost is unchanged (Anthropic charges
-      // for tokens generated, not for max_tokens).
+      // Phase 5f/g: max_tokens 8000 (Haiku ceiling). Phase 5g shrunk
+      // the structure to "5 blocks × 4-6 items, ≤25 words each" so
+      // typical output is now ~1500-2000 tokens — the 8000 ceiling is
+      // pure safety margin against any unusually-detailed user
+      // personalization. Cost unchanged: Anthropic charges only for
+      // tokens generated, not for max_tokens.
       const response = await callAnthropicWithRetry(client, {
         model: "claude-haiku-4-5-20251001",
         max_tokens: 8000,
