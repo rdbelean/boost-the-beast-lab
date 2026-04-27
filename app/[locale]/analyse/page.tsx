@@ -783,40 +783,40 @@ function AnalyseContent() {
         stress_source: payload.stress_source,
         recovery_ritual: payload.recovery_ritual,
       };
-      // Plans run SEQUENTIALLY rather than in parallel to keep total
-      // simultaneous Anthropic connections low. Phase 5c testing showed
-      // that 1 report (v4 = 3 internal calls) + 4 parallel plan calls
-      // saturated Anthropic's concurrent-connection budget on the
-      // current tier — individual calls queued for 60-180s and the
-      // report wallclock doubled. Serial plans cap concurrent Anthropic
-      // load at 2 (1 report + 1 plan) which keeps each call's wallclock
-      // close to ideal. Net submit time is similar (max(report, sum(plans))
-      // instead of max(report, max(plan)) — but reliability is much higher).
-      const planSerialPromise = (async () => {
-        const results: Array<{ planType: PlanType; bundle: PlanBundle | null }> = [];
-        for (const planType of PLAN_TYPES) {
-          try {
-            const bundle = await generatePlanBundle(
-              planType,
-              json?.assessmentId ?? null,
-              scores,
-              locale,
-              planPersonalization,
-            );
-            results.push({ planType, bundle });
-          } catch (e) {
+      // Phase 5j: re-parallelized after Phase 5d. Phase 5d serialized
+      // plans because the v4 pipeline still ran Stage-A + Stage-B on
+      // Sonnet — 3 Sonnet calls in the report path + 4 parallel Sonnet
+      // plan calls saturated Anthropic's concurrent-connection budget.
+      // Phase 5e + 5i moved every stage onto Haiku 4.5, whose tier
+      // limits are an order of magnitude higher. 4 parallel plan calls
+      // alongside the v4 pipeline (also Haiku) fits comfortably under
+      // Haiku's RPM and concurrency budgets.
+      // Wallclock impact: plans go from ~max(serial × 4) ≈ 60-90s
+      // back to ~max(parallel) ≈ 15-25s. Total submit time drops
+      // toward max(report, slowest_plan) instead of max(report, sum_plans).
+      const planPromises = PLAN_TYPES.map((planType) =>
+        generatePlanBundle(
+          planType,
+          json?.assessmentId ?? null,
+          scores,
+          locale,
+          planPersonalization,
+        )
+          .then((bundle) => {
+            setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
+            return { planType, bundle };
+          })
+          .catch((e) => {
             console.warn(`[analyse] plan ${planType} failed`, e);
-            results.push({ planType, bundle: null });
-          }
-          setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
-        }
-        return results;
-      })();
+            setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
+            return { planType, bundle: null as PlanBundle | null };
+          }),
+      );
 
-      // Wait for everything
-      const [downloadUrl, planResults] = await Promise.all([
+      // Wait for everything — report + 4 plans truly in parallel.
+      const [downloadUrl, ...planResults] = await Promise.all([
         reportPromise,
-        planSerialPromise,
+        ...planPromises,
       ]);
       if (downloadUrl) setDownloadUrl(downloadUrl);
 

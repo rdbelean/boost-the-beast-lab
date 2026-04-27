@@ -226,7 +226,7 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
   let report: PdfReportContent;
   if (shouldUseV4Pipeline()) {
     // v4: Stage-A (Analyst) → Stage-B (Writer) → Stage-C (Judge + det. validator).
-    const v4 = await runMainReportPipeline(reportCtx, { client: getAnthropic() });
+    const v4 = await runMainReportPipeline(reportCtx, { client: getAnthropic(), skipJudge: true });
     if (v4.ok) {
       report = v4.report as PdfReportContent;
     } else {
@@ -467,7 +467,12 @@ export async function POST(req: NextRequest) {
     }
     let report: PdfReportContent;
     if (useV4) {
-      const v4 = await runMainReportPipeline(ctx, { client: getAnthropic() });
+      // Phase 5j: skipJudge=true. The AI judge was advisory only;
+      // deterministic validator still gates. Saves ~8-10s wallclock.
+      const v4 = await runMainReportPipeline(ctx, {
+        client: getAnthropic(),
+        skipJudge: true,
+      });
       if (v4.ok) {
         report = v4.report as PdfReportContent;
       } else {

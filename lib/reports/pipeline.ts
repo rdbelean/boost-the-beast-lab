@@ -146,7 +146,10 @@ export type MainPipelineResult =
 const DEFAULT_ANALYST_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_WRITER_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_JUDGE_MODEL = "claude-haiku-4-5-20251001";
-const DEFAULT_ANALYST_MAX_TOKENS = 4000;
+// Phase 5j: 4000 → 2500. Stage-A's typical AnalysisJSON is ~1500
+// tokens (structured JSON, no prose). 2500 = 1.6× margin and saves
+// ~3-5s of Haiku output-generation time per submit.
+const DEFAULT_ANALYST_MAX_TOKENS = 2500;
 // Phase 5g: 6000 → 5000. Tighter budget forces denser prose,
 // ~17% less output-side latency + cost on reports that approached
 // the cap. ReportSchema unchanged — Stage-B still produces every
