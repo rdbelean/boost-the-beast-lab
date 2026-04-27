@@ -70,23 +70,24 @@ export function buildJudgeUserPrompt(
 
   // Slim ctx to keep judge token usage low — the judge does not need
   // the full provenance / drivers structure to rate the writer's prose.
+  const r = ctx.scoring.result;
+  // Phase 5h: drop user.email + tighten ctx to bare scoring digest +
+  // raw values + flags. Compact JSON.stringify (no indent).
   const slimCtx = {
     meta: ctx.meta,
-    user: ctx.user,
+    user: { age: ctx.user.age, gender: ctx.user.gender, height_cm: ctx.user.height_cm, weight_kg: ctx.user.weight_kg },
     raw: ctx.raw,
     personalization: ctx.personalization,
     flags: ctx.flags,
     data_quality: ctx.data_quality,
-    scoring: {
-      result: {
-        overall_score_0_100: ctx.scoring.result.overall_score_0_100,
-        sleep: { score: ctx.scoring.result.sleep.sleep_score_0_100, band: ctx.scoring.result.sleep.sleep_band },
-        recovery: { score: ctx.scoring.result.recovery.recovery_score_0_100, band: ctx.scoring.result.recovery.recovery_band },
-        activity: { score: ctx.scoring.result.activity.activity_score_0_100, band: ctx.scoring.result.activity.activity_band },
-        metabolic: { score: ctx.scoring.result.metabolic.metabolic_score_0_100, band: ctx.scoring.result.metabolic.metabolic_band, bmi: ctx.scoring.result.metabolic.bmi },
-        stress: { score: ctx.scoring.result.stress.stress_score_0_100, band: ctx.scoring.result.stress.stress_band },
-        vo2max: { score: ctx.scoring.result.vo2max.fitness_score_0_100, band: ctx.scoring.result.vo2max.fitness_level_band, estimated: ctx.scoring.result.vo2max.vo2max_estimated },
-      },
+    scores: {
+      overall: r.overall_score_0_100,
+      sleep: { score: r.sleep.sleep_score_0_100, band: r.sleep.sleep_band },
+      recovery: { score: r.recovery.recovery_score_0_100, band: r.recovery.recovery_band },
+      activity: { score: r.activity.activity_score_0_100, band: r.activity.activity_band },
+      metabolic: { score: r.metabolic.metabolic_score_0_100, band: r.metabolic.metabolic_band, bmi: r.metabolic.bmi },
+      stress: { score: r.stress.stress_score_0_100, band: r.stress.stress_band },
+      vo2max: { score: r.vo2max.fitness_score_0_100, band: r.vo2max.fitness_level_band, estimated: r.vo2max.vo2max_estimated },
     },
   };
 
@@ -94,19 +95,13 @@ export function buildJudgeUserPrompt(
     header,
     "",
     "## ReportContext (slim)",
-    "```json",
-    JSON.stringify(slimCtx, null, 2),
-    "```",
+    JSON.stringify(slimCtx),
     "",
     "## AnalysisJSON",
-    "```json",
-    JSON.stringify(analysis, null, 2),
-    "```",
+    JSON.stringify(analysis),
     "",
     "## ReportJSON (Writer Output)",
-    "```json",
-    JSON.stringify(report, null, 2),
-    "```",
+    JSON.stringify(report),
     "",
     header,
   ].join("\n");

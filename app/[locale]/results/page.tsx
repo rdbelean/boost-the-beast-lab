@@ -310,11 +310,29 @@ export default function ResultsPage() {
     try {
       const wRaw = sessionStorage.getItem("btb_wearable");
       if (wRaw) {
-        const w = JSON.parse(wRaw) as { metrics: MergedWearableMetrics };
+        // Phase 5h: type-cast was previously `{ metrics }` only — that
+        // silently dropped days_covered + source so buildHeroSummary fell
+        // back to a hardcoded 7-day estimate. Now we honour every field
+        // the prepare-page wrote into sessionStorage.
+        const w = JSON.parse(wRaw) as {
+          metrics: MergedWearableMetrics;
+          days_covered?: number;
+          source?: string;
+          period_start?: string;
+          period_end?: string;
+        };
         if (w.metrics) {
           setDataInsights(generateDataInsights(w.metrics));
           setWearableMetrics(w.metrics);
-          setHeroSummary(buildHeroSummary(w.metrics, undefined, locale));
+          setHeroSummary(
+            buildHeroSummary(
+              w.metrics,
+              w.days_covered ?? 0,
+              locale,
+              w.period_start,
+              w.period_end,
+            ),
+          );
         }
       }
     } catch {

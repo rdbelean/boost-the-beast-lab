@@ -4,6 +4,13 @@
 // AnalysisJSON. Locale-aware header so the model gets a clear "produce
 // output in this language" cue at the very top of the user message —
 // reinforces the locale-monolithic system prompt.
+//
+// Phase 5h: ctx-slim. Drop fields that AnalysisJSON already covers:
+//   - scoring.drivers (AnalysisJSON.modules.*.key_drivers has equivalent)
+//   - scoring.priority_order (AnalysisJSON.top_priority_evidence + meta)
+//   - wearable.provenance (heavy; not needed for prose anchoring)
+//   - user.email (not relevant to prose)
+// JSON.stringify also moves to compact form.
 
 import type { ReportContext } from "@/lib/reports/report-context";
 import type { AnalysisJSON } from "@/lib/reports/schemas/report-analysis";
@@ -41,15 +48,22 @@ export function buildWriterUserPrompt(
 
   const slimCtx = {
     meta: ctx.meta,
-    user: ctx.user,
+    user: {
+      age: ctx.user.age,
+      gender: ctx.user.gender,
+      height_cm: ctx.user.height_cm,
+      weight_kg: ctx.user.weight_kg,
+    },
     raw: ctx.raw,
     personalization: ctx.personalization,
     scoring: {
       result: ctx.scoring.result,
-      drivers: ctx.scoring.drivers,
-      priority_order: ctx.scoring.priority_order,
     },
-    wearable: ctx.wearable,
+    wearable: {
+      available: ctx.wearable.available,
+      sources: ctx.wearable.sources,
+      days_covered: ctx.wearable.days_covered,
+    },
     data_quality: ctx.data_quality,
     flags: ctx.flags,
   };
@@ -58,14 +72,10 @@ export function buildWriterUserPrompt(
     header.intro,
     "",
     "## ReportContext",
-    "```json",
-    JSON.stringify(slimCtx, null, 2),
-    "```",
+    JSON.stringify(slimCtx),
     "",
     "## AnalysisJSON (Stage-A Anchors)",
-    "```json",
-    JSON.stringify(analysis, null, 2),
-    "```",
+    JSON.stringify(analysis),
     "",
     header.tail,
   ].join("\n");

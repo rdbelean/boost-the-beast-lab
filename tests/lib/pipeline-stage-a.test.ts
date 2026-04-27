@@ -103,7 +103,7 @@ describe("buildAnalysisUserPrompt", () => {
 
   it("includes meta.report_type", () => {
     const prompt = buildAnalysisUserPrompt(metabolicContext);
-    expect(prompt).toContain("\"report_type\": \"metabolic\"");
+    expect(prompt).toContain("\"report_type\":\"metabolic\"");
   });
 
   it("instructs the model to respond with JSON only", () => {
