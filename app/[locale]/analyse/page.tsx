@@ -414,15 +414,6 @@ function AnalyseContent() {
     return () => { cancelled = true; };
   }, [sessionId, paidParam, preselectedProduct, router]);
 
-  // Track which fields the user has actively touched. Pre-filled defaults
-  // (e.g. alter=28, geschlecht="maennlich", schrittzahl=8000) used to count
-  // as "answered" the moment the page opened — counter showed 20/26 before
-  // the user did anything, which felt nonsensical. Now answeredCount only
-  // increments when a field was explicitly chosen/edited.
-  const [touchedFields, setTouchedFields] = useState<Set<keyof FormData>>(
-    new Set(),
-  );
-
   const [form, setForm] = useState<FormData>({
     mainGoal: "",
     timeBudget: "",
@@ -611,50 +602,39 @@ function AnalyseContent() {
   // Trailing comma required in .tsx to disambiguate generic from JSX
   function set<K extends keyof FormData>(key: K, val: FormData[K]) {
     setForm((prev) => ({ ...prev, [key]: val }));
-    setTouchedFields((prev) => {
-      if (prev.has(key)) return prev;
-      const next = new Set(prev);
-      next.add(key);
-      return next;
-    });
   }
 
-  // Count answered questions for progress.
-  // Two-axis check: field must be both TOUCHED by the user AND carry a
-  // valid value. Pre-filled defaults no longer pre-inflate the count —
-  // 0/26 at page open, increments only as the user actively chooses.
+  // Count answered questions for progress. Pre-filled defaults satisfy
+  // the boolean check and count as answered — no extra click required.
   const totalQuestions = 26;
-  const isAnsweredChecks: Array<readonly [keyof FormData, boolean]> = [
-    ["mainGoal", !!form.mainGoal],
-    ["timeBudget", !!form.timeBudget],
-    ["experienceLevel", !!form.experienceLevel],
-    ["alter", form.alter > 0],
-    ["geschlecht", !!form.geschlecht],
-    ["groesse", form.groesse > 0],
-    ["gewicht", form.gewicht > 0],
-    ["obstGemuese", !!form.obstGemuese],
-    ["nutritionPainpoint", !!form.nutritionPainpoint],
-    ["stressSource", !!form.stressSource],
-    ["recoveryRitual", !!form.recoveryRitual],
-    ["trainingsfreq", !!form.trainingsfreq],
-    ["trainingsart", !!form.trainingsart],
-    ["moderateDauer", !!form.moderateDauer],
-    ["intensiveDauer", !!form.intensiveDauer],
-    ["stehzeit", !!form.stehzeit],
-    ["schrittzahl", form.schrittzahl > 0],
-    ["sitzzeit", form.sitzzeit >= 0],
-    ["schlafdauer", form.schlafdauer > 0],
-    ["schlafqualitaet", !!form.schlafqualitaet],
-    ["aufwachen", !!form.aufwachen],
-    ["erholtGefuehl", !!form.erholtGefuehl],
-    ["bildschirmVorSchlaf", !!form.bildschirmVorSchlaf],
-    ["wasserkonsum", form.wasserkonsum > 0],
-    ["stresslevel", !!form.stresslevel],
-    ["mahlzeitenPlan", !!form.mahlzeitenPlan],
-  ];
-  const answeredCount = isAnsweredChecks.filter(
-    ([key, valid]) => valid && touchedFields.has(key),
-  ).length;
+  const answeredCount = [
+    !!form.mainGoal,
+    !!form.timeBudget,
+    !!form.experienceLevel,
+    form.alter > 0,
+    !!form.geschlecht,
+    form.groesse > 0,
+    form.gewicht > 0,
+    !!form.obstGemuese,
+    !!form.nutritionPainpoint,
+    !!form.stressSource,
+    !!form.recoveryRitual,
+    !!form.trainingsfreq,
+    !!form.trainingsart,
+    !!form.moderateDauer,
+    !!form.intensiveDauer,
+    !!form.stehzeit,
+    form.schrittzahl > 0,
+    form.sitzzeit >= 0,
+    form.schlafdauer > 0,
+    !!form.schlafqualitaet,
+    !!form.aufwachen,
+    !!form.erholtGefuehl,
+    !!form.bildschirmVorSchlaf,
+    form.wasserkonsum > 0,
+    !!form.stresslevel,
+    !!form.mahlzeitenPlan,
+  ].filter(Boolean).length;
 
   const progressPct = Math.round((answeredCount / totalQuestions) * 100);
   const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
