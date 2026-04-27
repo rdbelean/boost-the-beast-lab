@@ -126,15 +126,25 @@ export type MainPipelineResult =
 //
 // Phase 5e: model selection by stage character.
 //   Analyst → Haiku  : structured JSON extraction (no reasoning depth).
-//   Writer  → Sonnet : prose generation (Sonnet's depth = real
-//                      individualization vs banding-paraphrase).
+//   Writer  → Haiku  : prose generation, but Stage-A already supplies
+//                      the structured evidence anchors so Stage-B is
+//                      mostly anchor → prose templating, not deep
+//                      reasoning. Phase 5i moved Sonnet → Haiku.
 //   Judge   → Haiku  : structured JudgeResult JSON.
-// Stage-A and Judge moved off Sonnet to cut latency ~3× and cost ~12×.
-// Stage-B max_tokens trimmed 8000 → 6000 to force denser prose and
-// reduce wallclock proportionally.
+//
+// Phase 5i (Stage-B switch): expected ~50% wallclock reduction on the
+// main report (Stage-B was ~75s on Sonnet, ~25s on Haiku). Total submit
+// wallclock ~100s → ~50s. Quality guardrails downstream:
+//   - Stage-C deterministic validator (banlist, anchor coverage) still
+//     runs and fails the pipeline if Haiku produces template fluff.
+//   - Stage-C AI judge still rates individualization + evidence anchoring.
+//   - Phase 5b legacy fallback still active — if v4 fails for any reason
+//     the user gets a Sonnet-driven legacy report.
+// REVERT: change DEFAULT_WRITER_MODEL back to "claude-sonnet-4-6".
+// One-line, atomic. Git revert of this commit also cleanly restores it.
 
 const DEFAULT_ANALYST_MODEL = "claude-haiku-4-5-20251001";
-const DEFAULT_WRITER_MODEL = "claude-sonnet-4-6";
+const DEFAULT_WRITER_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_JUDGE_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_ANALYST_MAX_TOKENS = 4000;
 // Phase 5g: 6000 → 5000. Tighter budget forces denser prose,
