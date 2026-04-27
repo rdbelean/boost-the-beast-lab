@@ -137,7 +137,11 @@ const DEFAULT_ANALYST_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_WRITER_MODEL = "claude-sonnet-4-6";
 const DEFAULT_JUDGE_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_ANALYST_MAX_TOKENS = 4000;
-const DEFAULT_WRITER_MAX_TOKENS = 6000;
+// Phase 5g: 6000 → 5000. Tighter budget forces denser prose,
+// ~17% less output-side latency + cost on reports that approached
+// the cap. ReportSchema unchanged — Stage-B still produces every
+// section, just with fewer wasted tokens.
+const DEFAULT_WRITER_MAX_TOKENS = 5000;
 const DEFAULT_JUDGE_MAX_TOKENS = 1200;
 
 // ─── Stage-A: Analyst ───────────────────────────────────────────────────
