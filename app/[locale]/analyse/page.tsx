@@ -645,10 +645,16 @@ function AnalyseContent() {
     // Wipe stale `btb_*` keys from a previous analysis so the results page
     // can never re-render an old plan bundle while the new run is in
     // flight. `btb_paid` is preserved because losing it would force the
-    // user to re-pay within the same browser session.
+    // user to re-pay within the same browser session. `btb_wearable` is
+    // preserved because /results needs the parsed WHOOP/Apple-Health
+    // metrics to render the per-score data badges, hero summary, and
+    // DataInsightBlocks — without it the page silently strips all
+    // wearable visibility (regression: the user noticed "die WHOOP daten
+    // stehen noch nicht auf der hauptreport seite").
     try {
+      const preserve = new Set(["btb_paid", "btb_wearable"]);
       for (const key of Object.keys(sessionStorage)) {
-        if (key.startsWith("btb_") && key !== "btb_paid") {
+        if (key.startsWith("btb_") && !preserve.has(key)) {
           sessionStorage.removeItem(key);
         }
       }
