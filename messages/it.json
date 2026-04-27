@@ -463,7 +463,7 @@
       "step_report": "Creazione del report personalizzato…",
       "step_plans": "Preparazione dei piani di ottimizzazione…",
       "step_done": "Tutto pronto — vai al report…",
-      "duration_hint": "Può richiedere qualche minuto — il tuo report viene confrontato in tempo reale con il nostro database scientifico.",
+      "duration_hint": "Tranquillo — la creazione può richiedere fino a 5 minuti. Non devi fare altro.",
       "active_step_counter": "Passo {current} / {total}",
       "steps": [
         "Confronto con il database scientifico di riferimento di BTB Lab...",

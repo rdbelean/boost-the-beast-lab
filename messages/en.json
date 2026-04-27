@@ -463,7 +463,7 @@
       "step_report": "Creating personalized report…",
       "step_plans": "Preparing optimization plans…",
       "step_done": "All set — moving to the report…",
-      "duration_hint": "This can take a few minutes — your report is being matched against our scientific database right now.",
+      "duration_hint": "Don't worry — generation can take up to 5 minutes. You don't have to do anything else.",
       "active_step_counter": "Step {current} / {total}",
       "steps": [
         "Matching against BTB Lab's scientific reference database...",
