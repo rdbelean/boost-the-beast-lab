@@ -297,12 +297,18 @@ export async function POST(req: NextRequest) {
       // Phase 5e: switched from claude-sonnet-4-6 to claude-haiku-4-5.
       // Plan generation is a structured-template task with deterministic
       // personalization rules — no deep reasoning needed. Haiku 4.5 runs
-      // ~3× faster and ~12× cheaper at comparable output quality for this
-      // workload. max_tokens bumped 3000 → 4000 to eliminate truncation
-      // risk (typical plan outputs are ~2000-2500 tokens).
+      // ~3× faster and ~12× cheaper at comparable output quality.
+      //
+      // Phase 5f: max_tokens bumped 4000 → 8000 (Haiku's ceiling).
+      // System prompt demands "exactly 6 blocks × 5-8 items each" with
+      // full-sentence items + concrete numbers + study citations. Worst
+      // case (metabolic / recovery plans) reaches 2400-3500 tokens, very
+      // close to the 4000 cap → intermittent truncation → plan_parse_failed.
+      // 8000 gives 2-3× headroom; cost is unchanged (Anthropic charges
+      // for tokens generated, not for max_tokens).
       const response = await callAnthropicWithRetry(client, {
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 4000,
+        max_tokens: 8000,
         temperature: 0.3,
         system: extraSystem ? `${systemPrompt}\n\n${extraSystem}` : systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
