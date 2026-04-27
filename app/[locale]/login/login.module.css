@@ -150,3 +150,14 @@
   margin: -8px 0 0;
   font-style: italic;
 }
+
+/* Mobile: the global BackButton is position:fixed top:20 left:20 with
+   ~36px height. On small viewports the vertically-centered card was
+   overlapping the button. Switch to top-anchored layout with enough
+   padding-top to clear the BackButton. */
+@media (max-width: 480px) {
+  .page {
+    align-items: flex-start;
+    padding-top: 72px;
+  }
+}

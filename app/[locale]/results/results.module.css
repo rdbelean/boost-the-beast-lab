@@ -849,16 +849,10 @@
 @media (max-width: 640px) {
   .container { padding: 0 20px; }
   .header { padding: 0 12px; gap: 6px; }
-  /* Keep absolute centering (inherited from base rule) so the title is
-     locked to the viewport center regardless of the button widths.
-     Just shrink the font and clamp width so it doesn't overlap the buttons. */
-  .headerTitle {
-    font-size: 9px;
-    letter-spacing: 0.08em;
-    max-width: 45%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  /* Brand title is absolutely-centered and was overlapping the
+     right-side action buttons on small viewports. Hidden on mobile
+     — the user is already inside the app, the title is redundant. */
+  .headerTitle { display: none; }
   .headerBtnSecondary { font-size: 10px; padding: 6px 10px; letter-spacing: 0.05em; }
   .headerBtnPrimary { font-size: 10px; padding: 6px 10px; letter-spacing: 0.05em; }
   .benchmarkLabel { width: 80px; font-size: 9px; }
@@ -880,8 +874,7 @@
 @media (max-width: 480px) {
   .container { padding: 0 16px; }
   .header { padding: 0 10px; height: 44px; gap: 4px; }
-  /* Even tighter on phones — title stays viewport-centered via base absolute rule. */
-  .headerTitle { font-size: 8px; letter-spacing: 0.06em; max-width: 40%; }
+  /* .headerTitle remains display:none from the ≤640px breakpoint. */
   .headerBtnSecondary { font-size: 9px; padding: 5px 8px; letter-spacing: 0.04em; }
   .headerBtnPrimary { font-size: 9px; padding: 5px 8px; letter-spacing: 0.04em; }
 

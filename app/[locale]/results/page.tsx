@@ -161,6 +161,14 @@ export default function ResultsPage() {
     };
   }, []);
 
+  // After router.push("/results") from /analyse, the browser sometimes
+  // restores the previous scroll position (analyse-form bottom) instead
+  // of resetting to top — on mobile this dropped the user at the bottom
+  // of the report. Force scroll-to-top on mount.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     if (!scores || !assessmentId || !wearableMetrics) return;
     let cancelled = false;
