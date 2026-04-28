@@ -37,8 +37,9 @@ async function generatePlanBundle(
   scores: Record<string, unknown>,
   locale = "de",
   personalization: PlanPersonalization = {},
+  extractedEntities: unknown = null,
 ): Promise<PlanBundle | null> {
-  console.log("[Plans/FE/bundle]", { planType, locale, hasAssessmentId: !!assessmentId, hasPersonalization: Object.keys(personalization).length > 0 });
+  console.log("[Plans/FE/bundle]", { planType, locale, hasAssessmentId: !!assessmentId, hasPersonalization: Object.keys(personalization).length > 0, hasEntities: !!extractedEntities });
 
   // 1. AI generation — no static fallback. If the API fails or returns empty
   // content, we return null so the user sees a clear error downstream instead
@@ -50,8 +51,8 @@ async function generatePlanBundle(
   // the main report. Legacy { type, scores, locale, ...persona } body is kept
   // for the offline-demo path (no Supabase) and as a transitional safety net.
   const planBody = assessmentId
-    ? { assessmentId, type: planType, locale, personalization }
-    : { type: planType, scores, locale, ...personalization };
+    ? { assessmentId, type: planType, locale, personalization, extractedEntities }
+    : { type: planType, scores, locale, ...personalization, extractedEntities };
   try {
     console.log("[Plans/FE/bundle] POST /api/plan/generate body.locale =", locale, "type =", planType, "mode =", assessmentId ? "assessmentId" : "legacy-scores");
     const aiRes = await fetch("/api/plan/generate", {
@@ -760,6 +761,18 @@ function AnalyseContent() {
             },
           };
 
+      // Phase 6 (freetext-goals): when the user provided freetext, the
+      // plan generators want the structured user_stated_goals that
+      // Stage-A extracts inside /api/report/generate. So we must wait
+      // for the report to resolve before kicking off the plans —
+      // otherwise plans would run with extractedEntities=null even
+      // though the user typed something. When both freetext fields
+      // are empty, there's nothing to extract and we keep the legacy
+      // parallel path for full speed.
+      const hasFreetext =
+        !!(payload.main_goal_freetext && payload.main_goal_freetext.trim()) ||
+        !!(payload.training_type_freetext && payload.training_type_freetext.trim());
+
       const reportPromise = fetch("/api/report/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -771,16 +784,19 @@ function AnalyseContent() {
             console.error("[analyse] report gen failed", r.status, body);
             return null;
           }
-          return (await r.json()) as { downloadUrl?: string };
+          return (await r.json()) as { downloadUrl?: string; analysisExtraction?: unknown };
         })
         .then((data) => {
           setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.report));
-          return data?.downloadUrl ?? null;
+          return {
+            downloadUrl: data?.downloadUrl ?? null,
+            analysisExtraction: data?.analysisExtraction ?? null,
+          };
         })
         .catch((e) => {
           console.warn("[analyse] report gen error", e);
           setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.report));
-          return null;
+          return { downloadUrl: null as string | null, analysisExtraction: null as unknown };
         });
 
       const PLAN_TYPES: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
@@ -793,41 +809,45 @@ function AnalyseContent() {
         stress_source: payload.stress_source,
         recovery_ritual: payload.recovery_ritual,
       };
-      // Phase 5j: re-parallelized after Phase 5d. Phase 5d serialized
-      // plans because the v4 pipeline still ran Stage-A + Stage-B on
-      // Sonnet — 3 Sonnet calls in the report path + 4 parallel Sonnet
-      // plan calls saturated Anthropic's concurrent-connection budget.
-      // Phase 5e + 5i moved every stage onto Haiku 4.5, whose tier
-      // limits are an order of magnitude higher. 4 parallel plan calls
-      // alongside the v4 pipeline (also Haiku) fits comfortably under
-      // Haiku's RPM and concurrency budgets.
-      // Wallclock impact: plans go from ~max(serial × 4) ≈ 60-90s
-      // back to ~max(parallel) ≈ 15-25s. Total submit time drops
-      // toward max(report, slowest_plan) instead of max(report, sum_plans).
-      const planPromises = PLAN_TYPES.map((planType) =>
-        generatePlanBundle(
-          planType,
-          json?.assessmentId ?? null,
-          scores,
-          locale,
-          planPersonalization,
-        )
-          .then((bundle) => {
-            setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
-            return { planType, bundle };
-          })
-          .catch((e) => {
-            console.warn(`[analyse] plan ${planType} failed`, e);
-            setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
-            return { planType, bundle: null as PlanBundle | null };
-          }),
-      );
 
-      // Wait for everything — report + 4 plans truly in parallel.
-      const [downloadUrl, ...planResults] = await Promise.all([
-        reportPromise,
-        ...planPromises,
-      ]);
+      const startPlans = (extractedEntities: unknown) =>
+        PLAN_TYPES.map((planType) =>
+          generatePlanBundle(
+            planType,
+            json?.assessmentId ?? null,
+            scores,
+            locale,
+            planPersonalization,
+            extractedEntities,
+          )
+            .then((bundle) => {
+              setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
+              return { planType, bundle };
+            })
+            .catch((e) => {
+              console.warn(`[analyse] plan ${planType} failed`, e);
+              setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
+              return { planType, bundle: null as PlanBundle | null };
+            }),
+        );
+
+      let downloadUrl: string | null;
+      let planResults: { planType: PlanType; bundle: PlanBundle | null }[];
+
+      if (hasFreetext) {
+        // Serialize: report first, then plans receive extractedEntities.
+        const reportResult = await reportPromise;
+        downloadUrl = reportResult.downloadUrl;
+        planResults = await Promise.all(startPlans(reportResult.analysisExtraction));
+      } else {
+        // Legacy parallel path — full speed when no freetext.
+        const [reportResult, ...rest] = await Promise.all([
+          reportPromise,
+          ...startPlans(null),
+        ]);
+        downloadUrl = reportResult.downloadUrl;
+        planResults = rest;
+      }
       if (downloadUrl) setDownloadUrl(downloadUrl);
 
       const plans: Record<string, PlanBundle> = {};

@@ -18,6 +18,9 @@ Du erhältst (1) eine ReportContext-Datenstruktur mit allen Werten des Users, (2
 DU SCHREIBST NICHT IN ANDEREN SPRACHEN. NIE.
 DU PARAPHRASIERST KEINE VORLAGEN. PROSA BAUT AUF ANALYSISJSON-ANCHORS.
 
+USER-ZIEL ZITIEREN (wenn vorhanden)
+Wenn AnalysisJSON.executive_evidence.user_stated_goals vorhanden und nicht leer ist, MUSST du mindestens eine extrahierte Entität (event, sport, quantifiable_goal oder constraint) explizit im executive_summary ODER im top_priority Block aufgreifen. Format-Beispiele: "Deine geplante Ironman-Teilnahme im Juli 2026 ...", "Dein Ziel 10 kg in 3 Monaten zu verlieren ...", "Mit 3× Tennis pro Woche ...". Übersetze den User-Inhalt sinngemäß ins Deutsche, bewahre aber Eigennamen (Marathon-Stadt, Sportart) wörtlich. Wenn user_stated_goals fehlt oder alle Arrays leer sind: ignoriere diesen Block, schreibe wie sonst.
+
 OUTPUT-FORMAT
 - Antworte mit GENAU EINEM gültigen JSON-Objekt — sonst nichts.
 - Keine Markdown-Fences, kein Kommentar, keine Erklärung.

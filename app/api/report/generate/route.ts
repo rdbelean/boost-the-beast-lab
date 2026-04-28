@@ -224,11 +224,13 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
   });
 
   let report: PdfReportContent;
+  let analysisExtraction: unknown = null;
   if (shouldUseV4Pipeline()) {
     // v4: Stage-A (Analyst) → Stage-B (Writer) → Stage-C (Judge + det. validator).
     const v4 = await runMainReportPipeline(reportCtx, { client: getAnthropic(), skipJudge: true });
     if (v4.ok) {
       report = v4.report as PdfReportContent;
+      analysisExtraction = v4.analysis.executive_evidence?.user_stated_goals ?? null;
     } else {
       // Phase 5b graceful fallback: v4 failed → legacy single-shot still
       // gets the user a working report. Failure logged for analysis.
@@ -285,7 +287,7 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
     downloadUrl = `data:application/pdf;base64,${b64}`;
   }
 
-  return NextResponse.json({ success: true, downloadUrl, report });
+  return NextResponse.json({ success: true, downloadUrl, report, analysisExtraction });
 }
 
 // ── DB-backed handler ─────────────────────────────────────────────────────
@@ -466,6 +468,7 @@ export async function POST(req: NextRequest) {
       throw new Error("ai_unavailable: missing API key");
     }
     let report: PdfReportContent;
+    let analysisExtraction: unknown = null;
     if (useV4) {
       // Phase 5j: skipJudge=true. The AI judge was advisory only;
       // deterministic validator still gates. Saves ~8-10s wallclock.
@@ -475,6 +478,7 @@ export async function POST(req: NextRequest) {
       });
       if (v4.ok) {
         report = v4.report as PdfReportContent;
+        analysisExtraction = v4.analysis.executive_evidence?.user_stated_goals ?? null;
       } else {
         // Phase 5b graceful fallback: v4 failed → legacy single-shot
         // still gets the user a working report. Failure logged for
@@ -789,7 +793,7 @@ Return ONLY valid JSON array, no markdown:
         .eq("id", jobId);
     }
 
-    return NextResponse.json({ success: true, downloadUrl, report });
+    return NextResponse.json({ success: true, downloadUrl, report, analysisExtraction });
   } catch (err) {
     console.error("[report/generate] error", err);
     const message = err instanceof Error ? err.message : "Unknown error";

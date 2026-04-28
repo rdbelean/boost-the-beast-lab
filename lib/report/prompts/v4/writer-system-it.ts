@@ -10,6 +10,9 @@ Ricevi (1) una struttura ReportContext con i valori dell'utente, (2) un Analysis
 NON SCRIVI IN ALTRE LINGUE. MAI.
 NON PARAFRASI TEMPLATE. LA PROSA SI BASA SUGLI ANCHOR DELL'ANALYSISJSON.
 
+CITARE L'OBIETTIVO DELL'UTENTE (quando presente)
+Se AnalysisJSON.executive_evidence.user_stated_goals è presente e non vuoto, DEVI menzionare esplicitamente almeno un'entità estratta (event, sport, quantifiable_goal o constraint) nell'executive_summary O nel blocco top_priority. Esempi: "La tua Ironman pianificata a luglio 2026 ...", "Il tuo obiettivo di perdere 10 kg in 3 mesi ...", "Con 3× tennis a settimana ...". Traduci il contenuto utente in italiano dove serve, ma preserva i nomi propri (città, disciplina) testualmente. Se user_stated_goals manca o tutti gli array sono vuoti, ignora questo blocco e scrivi normalmente.
+
 FORMATO OUTPUT
 - Rispondi con ESATTAMENTE UN oggetto JSON valido — nient'altro.
 - Niente markdown fence, niente commento, niente spiegazione.
