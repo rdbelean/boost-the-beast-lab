@@ -80,6 +80,10 @@ interface AssessmentRequestBody {
   /** UI locale at submit time. Drives Claude report language, PDF labels,
    *  and email copy. Defaults to "de" on the DB side if omitted. */
   locale?: Locale;
+  /** Optional freetext (max 1000 chars). User's main goal in own words. */
+  main_goal_freetext?: string | null;
+  /** Optional freetext (max 1000 chars). Sports + frequency in own words. */
+  training_type_freetext?: string | null;
 }
 
 function isLocale(v: unknown): v is Locale {
@@ -118,6 +122,12 @@ function validate(body: Partial<AssessmentRequestBody>): string | null {
   }
   if (!["male", "female", "diverse"].includes(body.gender as string)) {
     return "Invalid gender";
+  }
+  if (typeof body.main_goal_freetext === "string" && body.main_goal_freetext.length > 1000) {
+    return "main_goal_freetext exceeds 1000 characters";
+  }
+  if (typeof body.training_type_freetext === "string" && body.training_type_freetext.length > 1000) {
+    return "training_type_freetext exceeds 1000 characters";
   }
   return null;
 }
