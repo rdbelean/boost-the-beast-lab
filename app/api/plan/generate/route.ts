@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { buildFullPrompt, type PlanType, type ScoreInput, type PlanPersonalization } from "@/lib/plan/prompts/full-prompts";
+import { buildFullPrompt, type PlanType, type ScoreInput, type PlanPersonalization, type ExtractedEntities } from "@/lib/plan/prompts/full-prompts";
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 import { loadReportContext, type ReportContext } from "@/lib/reports/report-context";
 import { cleanJsonText } from "@/lib/reports/pipeline";
@@ -169,6 +169,7 @@ export async function POST(req: NextRequest) {
     const locale = (body as { locale?: string }).locale ?? "de";
     const assessmentId = (body as { assessmentId?: string }).assessmentId;
     const bodyPersonalization = (body as { personalization?: PlanPersonalization }).personalization;
+    const extractedEntities = (body as { extractedEntities?: ExtractedEntities | null }).extractedEntities ?? null;
 
     const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
     if (!validTypes.includes(type as PlanType)) {
@@ -288,6 +289,7 @@ export async function POST(req: NextRequest) {
       type: planType,
       scores,
       personalization,
+      extractedEntities,
     });
 
     console.log("[Plans/BE/generate] system prompt head:", systemPrompt.slice(0, 400));

@@ -20,6 +20,16 @@ import type { ReportContext } from "@/lib/reports/report-context";
 
 export function buildAnalysisUserPrompt(ctx: ReportContext): string {
   const r = ctx.scoring.result;
+
+  // Strip freetext from the JSON ctx so the Stage-A model handles them
+  // ONLY through the XML-tagged blocks below. Keeps prompt-injection
+  // surface to a single, well-marked location.
+  const {
+    main_goal_freetext: rawMainGoal,
+    training_type_freetext: rawTraining,
+    ...rawWithoutFreetext
+  } = ctx.raw;
+
   const ctxForPrompt = {
     meta: ctx.meta,
     user: {
@@ -28,7 +38,7 @@ export function buildAnalysisUserPrompt(ctx: ReportContext): string {
       height_cm: ctx.user.height_cm,
       weight_kg: ctx.user.weight_kg,
     },
-    raw: ctx.raw,
+    raw: rawWithoutFreetext,
     personalization: ctx.personalization,
     scoring: {
       sleep: r.sleep,
@@ -45,11 +55,33 @@ export function buildAnalysisUserPrompt(ctx: ReportContext): string {
     flags: ctx.flags,
   };
 
-  return [
+  const sections: string[] = [
     "Here is the ReportContext for one assessment.",
     "",
     JSON.stringify(ctxForPrompt),
+  ];
+
+  if (rawMainGoal && rawMainGoal.trim().length > 0) {
+    sections.push(
+      "",
+      "<user_freetext_main_goal>",
+      rawMainGoal,
+      "</user_freetext_main_goal>",
+    );
+  }
+  if (rawTraining && rawTraining.trim().length > 0) {
+    sections.push(
+      "",
+      "<user_freetext_training>",
+      rawTraining,
+      "</user_freetext_training>",
+    );
+  }
+
+  sections.push(
     "",
     "Produce the AnalysisJSON now. Respond with only the JSON object — no markdown, no commentary.",
-  ].join("\n");
+  );
+
+  return sections.join("\n");
 }
