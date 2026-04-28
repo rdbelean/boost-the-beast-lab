@@ -37,10 +37,18 @@ export interface PlanPersonalization {
   recovery_ritual?: "sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none" | null;
 }
 
+export interface ExtractedEntities {
+  events: { label: string; date_or_horizon: string | null }[];
+  sports: { name: string; frequency_per_week: number | null }[];
+  quantifiable_goals: string[];
+  constraints: string[];
+}
+
 interface BuildArgs {
   type: PlanType;
   scores: ScoreInput;
   personalization: PlanPersonalization;
+  extractedEntities?: ExtractedEntities | null;
 }
 
 function normalize(locale: string | undefined): Locale {

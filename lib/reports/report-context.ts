@@ -100,6 +100,10 @@ export interface ReportContextRaw {
   fruit_veg: FruitVegLevel;
   fruit_veg_label_localized: string;
   screen_time_before_sleep: ScreenTimeBeforeSleep | null;
+  /** Optional freetext: user's main goal in their own words (max 1000 chars). */
+  main_goal_freetext: string | null;
+  /** Optional freetext: which sports + frequency in user's own words (max 1000 chars). */
+  training_type_freetext: string | null;
 }
 
 export interface ReportContextPersonalization {
@@ -570,6 +574,8 @@ export interface DemoContextInputs {
   stress_source?: StressSource | null;
   recovery_ritual?: RecoveryRitual | null;
   data_sources?: { form?: true; whoop?: { days: number }; apple_health?: { days: number } };
+  main_goal_freetext?: string | null;
+  training_type_freetext?: string | null;
 }
 
 /**
@@ -613,6 +619,8 @@ export function buildReportContextFromInputs(
     fruit_veg: fruitVeg,
     fruit_veg_label_localized: localizeFruitVeg(fruitVeg, locale),
     screen_time_before_sleep: inputs.screen_time_before_sleep ?? null,
+    main_goal_freetext: inputs.main_goal_freetext ?? null,
+    training_type_freetext: inputs.training_type_freetext ?? null,
   };
 
   const drivers = computeScoreDrivers(result, raw);
@@ -733,5 +741,7 @@ function buildRawSlice(
     fruit_veg_label_localized: localizeFruitVeg(reconstructed.metabolic.fruit_veg, locale),
     screen_time_before_sleep:
       (respMap.get("screen_time_before_sleep") as ScreenTimeBeforeSleep | undefined) ?? null,
+    main_goal_freetext: respMap.get("main_goal_freetext") ?? null,
+    training_type_freetext: respMap.get("training_type_freetext") ?? null,
   };
 }

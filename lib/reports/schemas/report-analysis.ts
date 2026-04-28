@@ -51,6 +51,33 @@ const HabitAnchor = z.object({
   time_cost_min: z.number().min(0).max(15),
 });
 
+const UserStatedGoals = z.object({
+  events: z
+    .array(
+      z.object({
+        label: z.string().min(1).max(200),
+        date_or_horizon: z.string().max(100).nullable(),
+      }),
+    )
+    .max(10)
+    .default([]),
+  sports: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(100),
+        frequency_per_week: z.number().min(0).max(21).nullable(),
+      }),
+    )
+    .max(10)
+    .default([]),
+  quantifiable_goals: z.array(z.string().min(1).max(200)).max(10).default([]),
+  constraints: z.array(z.string().min(1).max(200)).max(10).default([]),
+  raw_main_goal: z.string().max(1000).nullable().optional(),
+  raw_training: z.string().max(1000).nullable().optional(),
+});
+
+export type UserStatedGoals = z.infer<typeof UserStatedGoals>;
+
 export const AnalysisSchema = z.object({
   meta: z.object({
     report_type: ReportType,
@@ -79,6 +106,7 @@ export const AnalysisSchema = z.object({
   executive_evidence: z.object({
     defining_factors: z.array(DefiningFactor).min(2).max(4),
     coherent_story_anchor: z.string().min(1),
+    user_stated_goals: UserStatedGoals.optional(),
   }),
   modules: z.object({
     sleep: ModuleAnalysis,
