@@ -265,6 +265,18 @@
         "stress_sleep": "Besser schlafen & Stress runterfahren",
         "longevity": "Langfristig gesund bleiben — Prävention"
       },
+      "main_goal_freetext": {
+        "headline": "Hast du ein konkretes Ziel? Erzähl uns mehr",
+        "placeholder": "z.B. ich trainiere auf einen Marathon, will an einem Ironman teilnehmen, habe einen großen Schwimmwettkampf, möchte fitter werden für eine Wanderung in den Bergen, will in 3 Monaten 10 kg abnehmen, möchte meine Rückenschmerzen loswerden...",
+        "counter": "{current} / 1000 Zeichen",
+        "too_long": "Maximal 1000 Zeichen"
+      },
+      "training_type_freetext": {
+        "headline": "Welche Sportarten genau? Wie oft pro Woche?",
+        "placeholder": "z.B. 3x Tennis pro Woche im Verein, 2x Krafttraining im Studio, dazwischen Joggen am Wochenende, oder hauptsächlich Schwimmen 2x pro Woche plus Radfahren am Sonntag...",
+        "counter": "{current} / 1000 Zeichen",
+        "too_long": "Maximal 1000 Zeichen"
+      },
       "nutrition_painpoint": {
         "label": "WAS IST DEIN GRÖSSTER ERNÄHRUNGS-PAIN?",
         "sub": "Ehrlich — der Report gibt dir dafür eine konkrete Mikro-Habit.",

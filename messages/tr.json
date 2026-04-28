@@ -265,6 +265,18 @@
         "stress_sleep": "Daha iyi uyumak ve stresi düşürmek",
         "longevity": "Uzun vadede sağlıklı kalmak — önleyici sağlık"
       },
+      "main_goal_freetext": {
+        "headline": "Belirli bir hedefin var mı? Bize anlat",
+        "placeholder": "ör. maraton için antrenman yapıyorum, Ironman'e katılmak istiyorum, önemli bir yüzme yarışım var, dağ yürüyüşü için daha fit olmak istiyorum, 3 ayda 10 kg vermek istiyorum, sırt ağrımdan kurtulmak istiyorum...",
+        "counter": "{current} / 1000 karakter",
+        "too_long": "En fazla 1000 karakter"
+      },
+      "training_type_freetext": {
+        "headline": "Hangi sporları tam olarak? Haftada kaç kez?",
+        "placeholder": "ör. haftada 3 kez kulüpte tenis, haftada 2 kez spor salonunda kuvvet antrenmanı, hafta sonları koşu, veya esas olarak haftada 2 kez yüzme artı pazar günleri bisiklet...",
+        "counter": "{current} / 1000 karakter",
+        "too_long": "En fazla 1000 karakter"
+      },
       "nutrition_painpoint": {
         "label": "EN BÜYÜK BESLENME SORUNUN NE?",
         "sub": "Dürüst ol — rapor bunun için sana somut bir mikro alışkanlık verir.",

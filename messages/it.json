@@ -265,6 +265,18 @@
         "stress_sleep": "Dormire meglio e ridurre lo stress",
         "longevity": "Rimanere sano a lungo termine — prevenzione"
       },
+      "main_goal_freetext": {
+        "headline": "Hai un obiettivo specifico? Raccontacelo",
+        "placeholder": "es. mi sto allenando per una maratona, voglio partecipare a un Ironman, ho una gara di nuoto importante, voglio essere più in forma per un'escursione in montagna, perdere 10 kg in 3 mesi, eliminare il mal di schiena...",
+        "counter": "{current} / 1000 caratteri",
+        "too_long": "Massimo 1000 caratteri"
+      },
+      "training_type_freetext": {
+        "headline": "Quali sport esattamente? Quante volte a settimana?",
+        "placeholder": "es. 3 volte tennis a settimana al club, 2 volte allenamento forza in palestra, corsa nel weekend, o principalmente nuoto 2 volte a settimana più ciclismo la domenica...",
+        "counter": "{current} / 1000 caratteri",
+        "too_long": "Massimo 1000 caratteri"
+      },
       "nutrition_painpoint": {
         "label": "QUAL È IL TUO MAGGIORE PROBLEMA ALIMENTARE?",
         "sub": "Sii onesto — il report ti dà una micro-abitudine concreta per questo.",
