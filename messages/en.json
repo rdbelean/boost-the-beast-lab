@@ -265,6 +265,18 @@
         "stress_sleep": "Sleep better and bring stress down",
         "longevity": "Stay healthy long term — prevention"
       },
+      "main_goal_freetext": {
+        "headline": "Got a specific goal? Tell us more",
+        "placeholder": "e.g. training for a marathon, planning to do an Ironman, big swimming competition coming up, want to get fitter for a hiking trip, lose 10kg in 3 months, get rid of my back pain...",
+        "counter": "{current} / 1000 characters",
+        "too_long": "Max 1000 characters"
+      },
+      "training_type_freetext": {
+        "headline": "Which sports exactly? How often per week?",
+        "placeholder": "e.g. 3x tennis per week at the club, 2x strength training at the gym, occasional jogging on weekends, or mainly swimming 2x per week plus cycling on Sundays...",
+        "counter": "{current} / 1000 characters",
+        "too_long": "Max 1000 characters"
+      },
       "nutrition_painpoint": {
         "label": "WHAT'S YOUR BIGGEST NUTRITION PAIN?",
         "sub": "Be honest — the report gives you a concrete micro-habit for it.",

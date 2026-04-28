@@ -8,6 +8,7 @@ import styles from "./analyse.module.css";
 import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";
 import CustomSelect from "@/components/analyse/CustomSelect";
+import FreetextField from "@/components/analyse/FreetextField";
 import { buildPlan, type PlanType, type PlanBlock } from "@/lib/plan/buildPlan";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cachePdf, cacheKeyFor, base64ToBytes, fetchPdfBytes } from "@/lib/pdf/pdfCache";
@@ -141,6 +142,9 @@ interface FormData {
   nutritionPainpoint: string; // cravings_evening | low_protein | no_energy | no_time | none
   stressSource: string; // job | family | finances | health | future | none
   recoveryRitual: string; // sport | nature | cooking | reading | meditation | social | none
+  // Optional Freetext (max 1000 chars). Empty = current behaviour.
+  mainGoalFreetext: string;
+  trainingTypeFreetext: string;
   // Report & Email
   selectedProduct: string;
   email: string;
@@ -352,6 +356,9 @@ function buildAssessmentPayload(f: FormData) {
     daily_steps: f.schrittzahl,
     training_days_self_reported: trainingDays,
     training_intensity_self_reported: f.trainingsart,
+    // Optional Freetext-Felder. Leerstring → null (DB persistiert nichts).
+    main_goal_freetext: f.mainGoalFreetext.trim() || null,
+    training_type_freetext: f.trainingTypeFreetext.trim() || null,
   };
 }
 
@@ -443,6 +450,8 @@ function AnalyseContent() {
     nutritionPainpoint: "",
     stressSource: "",
     recoveryRitual: "",
+    mainGoalFreetext: "",
+    trainingTypeFreetext: "",
     selectedProduct: preselectedProduct,
     email: "",
     firstName: "",
@@ -1117,6 +1126,17 @@ function AnalyseContent() {
                 />
               </div>
 
+              {/* Q0a-extra: Optional Freetext zum Hauptziel */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>{t("q.main_goal_freetext.headline")}</span>
+                <FreetextField
+                  value={form.mainGoalFreetext}
+                  onChange={(v) => set("mainGoalFreetext", v)}
+                  placeholder={t("q.main_goal_freetext.placeholder")}
+                  formatCounter={(current) => t("q.main_goal_freetext.counter", { current })}
+                />
+              </div>
+
               {/* Q0b: Zeitbudget */}
               <div className={styles.questionCard} ref={nextCardRef}>
                 <span className={styles.questionLabel}>{t("q.time_budget.label")}</span>
@@ -1286,6 +1306,17 @@ function AnalyseContent() {
                     { label: t("q.training_type.yoga"), value: "yoga" },
                     { label: t("q.training_type.gemischt"), value: "gemischt" },
                   ]}
+                />
+              </div>
+
+              {/* Q6-extra: Optional Freetext zur Trainingsart */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>{t("q.training_type_freetext.headline")}</span>
+                <FreetextField
+                  value={form.trainingTypeFreetext}
+                  onChange={(v) => set("trainingTypeFreetext", v)}
+                  placeholder={t("q.training_type_freetext.placeholder")}
+                  formatCounter={(current) => t("q.training_type_freetext.counter", { current })}
                 />
               </div>
 
