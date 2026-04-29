@@ -642,6 +642,7 @@
   },
   "results": {
     "error_loading": "Ergebnisse konnten nicht geladen werden.",
+    "error_no_session": "Keine Sitzung gefunden. Bitte starte die Analyse neu.",
     "error_title": "FEHLER",
     "section_ai_failed": "Diese Analyse konnte gerade nicht generiert werden — kein generischer Ersatz, bitte erneut versuchen.",
     "section_retry_btn": "Erneut versuchen",

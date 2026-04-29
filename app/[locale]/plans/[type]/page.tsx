@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "./plan.module.css";
-import { buildPlan, type PlanType, type PlanContent } from "@/lib/plan/buildPlan";
+import { buildPlan, type PlanType, type PlanContent, type PlanBlock } from "@/lib/plan/buildPlan";
 
 // Sets the URL on a pre-opened tab so the PDF renders inline.
 // Falls back to window.open if the tab reference is lost.
@@ -39,9 +39,18 @@ function urgencyBucket(score: number): { key: UrgencyKey; color: string } {
 
 /* ─── Plan Page ─────────────────────────────────────────────── */
 export default function PlanPage() {
+  return (
+    <Suspense fallback={null}>
+      <PlanPageInner />
+    </Suspense>
+  );
+}
+
+function PlanPageInner() {
   const t = useTranslations("plans_detail");
   const tResults = useTranslations("results");
   const { locale, type } = useParams() as { locale: string; type: string };
+  const searchParams = useSearchParams();
   const [plan, setPlan] = useState<PlanContent | null>(null);
   const [cachedPdfBase64, setCachedPdfBase64] = useState<string | null>(null);
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
@@ -67,10 +76,54 @@ export default function PlanPage() {
       abortController.abort(new Error("client-timeout-170s"));
     }, 170_000);
     try {
-      const raw = sessionStorage.getItem("btb_results");
-      if (!raw) { setError(t("error_no_data")); return; }
-      const data = JSON.parse(raw);
+      // URL-recovery: if sessionStorage is missing or its assessmentId
+      // doesn't match the URL ?id, fetch from /api/results/[id], write
+      // it back to sessionStorage, then bump retryKey so this effect
+      // re-runs and finds the cached data on the second pass. The
+      // mid-flight return below leaves abortController + timeout in a
+      // clean state.
+      const idFromUrl = searchParams?.get("id") ?? null;
+      let raw: string | null = null;
+      try { raw = sessionStorage.getItem("btb_results"); } catch { raw = null; }
+      type CachedResults = {
+        scores?: Record<string, unknown> | null;
+        assessmentId?: string | null;
+        downloadUrl?: string | null;
+        plans?: Record<string, { blocks?: PlanBlock[]; locale?: string; source?: string; pdfBase64?: string }>;
+      };
+      let data: CachedResults | null = null;
+      try { data = raw ? JSON.parse(raw) as CachedResults : null; } catch { data = null; }
+
+      const cacheUsable = !!data?.scores && (!idFromUrl || data.assessmentId === idFromUrl);
+      if (!cacheUsable) {
+        if (!idFromUrl) { setError(t("error_no_data")); return; }
+        clearTimeout(timeoutId);
+        fetch(`/api/results/${idFromUrl}`, { cache: "no-store", signal: abortController.signal })
+          .then(async (r) => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json() as Promise<{
+              scores: unknown;
+              downloadUrl: string;
+              assessmentId: string;
+            }>;
+          })
+          .then((recovered) => {
+            try {
+              sessionStorage.setItem("btb_results", JSON.stringify({
+                scores: recovered.scores,
+                downloadUrl: recovered.downloadUrl,
+                assessmentId: recovered.assessmentId,
+              }));
+            } catch { /* private browsing — non-fatal */ }
+            // Re-run this effect now that sessionStorage is hydrated.
+            setRetryKey((k) => k + 1);
+          })
+          .catch(() => setError(t("error_no_data")));
+        return;
+      }
+      // From here data is guaranteed to have .scores.
       if (!data?.scores) { setError(t("error_no_scores")); return; }
+      const scores = data.scores;
       const validTypes: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
       if (!validTypes.includes(type as PlanType)) { setError(t("error_unknown_type")); return; }
 
@@ -83,7 +136,7 @@ export default function PlanPage() {
       const cached = data.plans?.[type as PlanType];
       console.log("[Plans/FE/view] cache probe", { hasCache: !!cached?.blocks?.length, cachedLocale: cached?.locale, match: cached?.locale === locale, firstHeading: cached?.blocks?.[0]?.heading });
       if (cached?.blocks?.length && cached.locale === locale) {
-        const base = buildPlan(type as PlanType, data.scores, locale);
+        const base = buildPlan(type as PlanType, scores, locale);
         setPlan({
           ...base,
           blocks: cached.blocks,
@@ -102,7 +155,7 @@ export default function PlanPage() {
       // saved before this rollout.
       const planBody = data.assessmentId
         ? { assessmentId: data.assessmentId, type, locale }
-        : { type, scores: data.scores, locale };
+        : { type, scores, locale };
       console.log("[Plans/FE/view] POST /api/plan/generate body.locale =", locale, "type =", type, "mode =", data.assessmentId ? "assessmentId" : "legacy-scores");
       fetch("/api/plan/generate", {
         method: "POST",
@@ -138,7 +191,7 @@ export default function PlanPage() {
             setErrorDetail("ai_returned_empty_blocks");
             return;
           }
-          const base = buildPlan(type as PlanType, data.scores, locale);
+          const base = buildPlan(type as PlanType, scores, locale);
           setPlan({
             ...base,
             blocks: ai.blocks,
@@ -170,7 +223,7 @@ export default function PlanPage() {
       clearTimeout(timeoutId);
       abortController.abort();
     };
-  }, [type, t, locale, retryKey]);
+  }, [type, t, locale, retryKey, searchParams]);
 
   async function handleDownload() {
     if (pdfDownloading) return;

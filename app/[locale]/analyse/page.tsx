@@ -940,7 +940,14 @@ function AnalyseContent() {
             plans,
           }),
         );
-        router.push("/results");
+        // ?id={assessmentId} makes the URL the source of truth for
+        // /results — if the user closes the tab and reopens it later,
+        // the page rehydrates from /api/results/[id] instead of
+        // showing "no session".
+        const target = json?.assessmentId
+          ? `/results?id=${encodeURIComponent(json.assessmentId)}`
+          : "/results";
+        router.push(target);
       }, 600);
 
       console.log("[analyse] assessmentId", json?.assessmentId);

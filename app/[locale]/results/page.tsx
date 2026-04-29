@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import styles from "./results.module.css";
@@ -122,8 +123,19 @@ interface ResultsData {
 
 /* ─── Main Results Dashboard ────────────────────────────────── */
 export default function ResultsPage() {
+  // useSearchParams() needs a Suspense boundary or Next.js bails out of
+  // static rendering. Wrap the inner component so the build can prerender.
+  return (
+    <Suspense fallback={null}>
+      <ResultsPageInner />
+    </Suspense>
+  );
+}
+
+function ResultsPageInner() {
   const t = useTranslations("results");
   const locale = useLocale() as Locale;
+  const searchParams = useSearchParams();
   const [scores, setScores] = useState<ResultsData | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
@@ -322,22 +334,31 @@ export default function ResultsPage() {
   }
 
   useEffect(() => {
-    const raw = sessionStorage.getItem("btb_results");
-    if (!raw) {
-      setError("Keine Ergebnisse gefunden. Bitte starte die Analyse neu.");
-      return;
-    }
-    try {
-      const data = JSON.parse(raw);
+    // Hydration order:
+    //  1. Try sessionStorage (fast path; populated by /analyse on submit).
+    //     If the cached payload's assessmentId matches the URL ?id (or no
+    //     URL id is present), apply it and stop.
+    //  2. Otherwise, fall back to /api/results/[id] which rebuilds the
+    //     scores + downloadUrl from the database. This is the recovery
+    //     path when the user closed the tab and reopened the URL later.
+    //  3. If neither sessionStorage nor URL id is available, surface a
+    //     "no session" error — there's nothing to recover from.
+    let cancelled = false;
+
+    function applyData(data: {
+      scores: ResultsData;
+      downloadUrl?: string | null;
+      assessmentId?: string | null;
+    }) {
       setScores(data.scores);
       setDownloadUrl(data.downloadUrl ?? null);
       setAssessmentId(data.assessmentId ?? null);
-    } catch {
-      setError("Ergebnisse konnten nicht geladen werden.");
     }
-    try {
-      const wRaw = sessionStorage.getItem("btb_wearable");
-      if (wRaw) {
+
+    function applyWearable() {
+      try {
+        const wRaw = sessionStorage.getItem("btb_wearable");
+        if (!wRaw) return;
         // Phase 5h: type-cast was previously `{ metrics }` only — that
         // silently dropped days_covered + source so buildHeroSummary fell
         // back to a hardcoded 7-day estimate. Now we honour every field
@@ -362,11 +383,67 @@ export default function ResultsPage() {
             ),
           );
         }
+      } catch {
+        // wearable data is optional — silently skip
       }
-    } catch {
-      // wearable data is optional — silently skip
     }
-  }, [locale]);
+
+    const idFromUrl = searchParams?.get("id") ?? null;
+    let cached: { scores: ResultsData; downloadUrl?: string | null; assessmentId?: string | null } | null = null;
+    try {
+      const raw = sessionStorage.getItem("btb_results");
+      if (raw) cached = JSON.parse(raw);
+    } catch {
+      cached = null;
+    }
+
+    if (cached?.scores && (!idFromUrl || cached.assessmentId === idFromUrl)) {
+      applyData(cached);
+      applyWearable();
+      return;
+    }
+
+    if (!idFromUrl) {
+      setError(t("error_no_session"));
+      return;
+    }
+
+    fetch(`/api/results/${idFromUrl}`, { cache: "no-store" })
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json() as Promise<{
+          scores: ResultsData;
+          downloadUrl: string;
+          assessmentId: string;
+        }>;
+      })
+      .then((data) => {
+        if (cancelled) return;
+        applyData(data);
+        applyWearable();
+        // Repopulate sessionStorage so subsequent in-tab navigations
+        // (e.g. /plans/[type]) hit the fast path.
+        try {
+          sessionStorage.setItem(
+            "btb_results",
+            JSON.stringify({
+              scores: data.scores,
+              downloadUrl: data.downloadUrl,
+              assessmentId: data.assessmentId,
+            }),
+          );
+        } catch {
+          /* private browsing — non-fatal */
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setError(t("error_loading"));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [locale, searchParams, t]);
 
   // Trigger background PDF pre-generation once we know the assessmentId.
   // Passes pre-computed plan PDF base64 strings so Storage upload is instant.
