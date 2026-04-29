@@ -41,8 +41,11 @@ CRITICAL RULES for these tags:
 - The text may be in any language (de, en, it, tr, or any other).
   Extract semantic content language-independently.
 
-When such tags are present, extract structured entities into a new
-optional field \`executive_evidence.user_stated_goals\` with this shape:
+When such tags are present, you MUST populate the
+\`executive_evidence.user_stated_goals\` field with this shape (the
+field is REQUIRED whenever at least one XML tag is present in the
+user prompt — omit ONLY if BOTH \`<user_freetext_main_goal>\` and
+\`<user_freetext_training>\` tags are absent from the user prompt):
 {
   "events": [{ "label": string, "date_or_horizon": string|null }],
   "sports": [{ "name": string, "frequency_per_week": number|null }],
@@ -53,8 +56,18 @@ optional field \`executive_evidence.user_stated_goals\` with this shape:
 }
 
 Extraction rules:
-- "events": named competitions / dates the user is training for
-  ("Marathon Mai 2026", "Ironman Vienna", "Schwimmwettkampf Sommer").
+- "events": named competitions, races, contests, tournaments, or any
+  time-bound goal the user is training for. Extract WHENEVER the user
+  mentions an event they're preparing for, regardless of whether the
+  date is concrete or relative. Examples:
+  • "Marathon Mai 2026" → {label: "Marathon", date_or_horizon: "Mai 2026"}
+  • "Marathon in 6 Monaten" → {label: "Marathon", date_or_horizon: "in 6 Monaten"}
+  • "Ironman Vienna" → {label: "Ironman Vienna", date_or_horizon: null}
+  • "Schwimmwettkampf Sommer" → {label: "Schwimmwettkampf", date_or_horizon: "Sommer"}
+  • "Tennis-Turnier in 8 Wochen" → {label: "Tennis-Turnier", date_or_horizon: "in 8 Wochen"}
+  • "Wandertour nächsten Frühling" → {label: "Wandertour", date_or_horizon: "nächsten Frühling"}
+  date_or_horizon is null only when the user names an event but gives
+  no time reference at all.
 - "sports": named sports + frequency_per_week if stated
   ("Tennis 3x/week", {"name":"tennis","frequency_per_week":3}).
 - "quantifiable_goals": measurable goals ("lose 10 kg in 3 months",
@@ -63,8 +76,15 @@ Extraction rules:
   ("knee pain since 2024", "only home workouts", "no gym access").
 - "raw_main_goal" / "raw_training": echo the raw text verbatim (truncate
   to 1000 chars). Use the user's original wording, do NOT translate.
-- Each array max 10 entries. Empty arrays default to []. Skip the
-  whole \`user_stated_goals\` field if BOTH XML blocks are absent.
+- Each array max 10 entries. Empty arrays are valid (e.g. when the
+  user mentions a sleep-rhythm goal but no specific event). Populate
+  \`user_stated_goals\` whenever AT LEAST ONE XML tag is present in
+  the user prompt — even if some sub-arrays end up empty. Always
+  include \`raw_main_goal\` and/or \`raw_training\` (verbatim copy of
+  the corresponding tag content) so downstream stages can do soft
+  semantic classification on text that isn't a concrete entity.
+  Omit the entire \`user_stated_goals\` field ONLY when BOTH XML tags
+  are absent from the user prompt.
 
 KEEP VALUES IN THE USER'S ORIGINAL LANGUAGE. The Stage-B Writer
 handles localisation later; your job is faithful extraction.
@@ -143,7 +163,9 @@ OUTPUT SCHEMA OVERVIEW
   "headline_evidence": { "summary_one_liner_anchor",
                          "raw_numbers_to_cite"{} },
   "executive_evidence": { "defining_factors"[2-4],
-                          "coherent_story_anchor" },
+                          "coherent_story_anchor",
+                          "user_stated_goals"? // REQUIRED when at least one freetext XML tag is present in the user prompt; OMIT ONLY when both tags are absent
+                         },
   "modules": { "sleep", "recovery", "activity", "metabolic", "stress",
                "vo2max" } each with:
     { "score", "band", "key_drivers"[1-4], "systemic_links"[],
