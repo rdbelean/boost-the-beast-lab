@@ -17,7 +17,7 @@ function makeFakeResend(): {
   setReturn(value: SendResult): void;
 } {
   const calls: SendArgs[] = [];
-  let nextReturn: SendResult = { data: { id: "fake-id" } as { id: string }, error: null };
+  let nextReturn: SendResult = { data: { id: "fake-id" } as { id: string }, error: null, headers: null } as SendResult;
   const fake = {
     emails: {
       send: vi.fn(async (args: SendArgs) => {
@@ -167,7 +167,7 @@ describe("sendReportEmail", () => {
   });
 
   it("throws when Resend reports an error", async () => {
-    fake.setReturn({ data: null, error: { message: "rate limited", name: "rate_limit_exceeded" } as { message: string; name: string } });
+    fake.setReturn({ data: null, error: { message: "rate limited", name: "rate_limit_exceeded" } as { message: string; name: string }, headers: null } as SendResult);
     await expect(sendReportEmail(baseInput())).rejects.toThrow(/rate limited/);
   });
 });

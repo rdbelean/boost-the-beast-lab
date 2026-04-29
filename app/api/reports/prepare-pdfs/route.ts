@@ -1,12 +1,17 @@
-// Fire-and-forget PDF pre-generation trigger.
+// PDF pre-generation + email dispatch trigger.
 //
 // Called by the results page right after assessment completes. Returns in <1 s.
 // For plan PDFs that already have base64 from the frontend: decodes + uploads
-// to Supabase Storage immediately (synchronously, fast).
-// For the main_report: fires a background worker via a non-awaited fetch.
-// Once everything is uploaded, dispatches the report email (idempotently).
+// to Supabase Storage. For the main_report: verifies its Storage entry.
+// Once everything is uploaded, dispatches the report email idempotently.
+//
+// IMPORTANT: the heavy work runs inside `after()` so Vercel keeps the lambda
+// alive until it finishes. The previous `void (async () => ...)()` pattern
+// got killed as soon as the HTTP response was sent — emails never went out
+// in production.
 
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import {
   uploadPlanPdf,
   processMainReport,
@@ -26,7 +31,10 @@ import {
 import type { Locale } from "@/lib/supabase/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+// Bumped from 60s to give `after()` headroom: plan uploads (~10s) +
+// downloadStoragePdf x5 (~5s) + Resend API (~3s) is ~20s typical, plus
+// a buffer for cold-start and slow networks. Vercel Pro allows up to 300s.
+export const maxDuration = 120;
 
 const PLAN_TYPES: PlanPdfType[] = [
   "plan_activity",
@@ -47,9 +55,27 @@ function resendConfigured(): boolean {
   return !!key && key.length > 8;
 }
 
-// Acquires a per-assessment send lock by atomically setting email_sent_at.
-// Returns true exactly once per assessment; subsequent calls return false.
-async function acquireEmailLock(assessmentId: string): Promise<boolean> {
+// Detects "column ... does not exist" Supabase errors. We see this on
+// installs where the supabase/add_email_sent_at.sql migration hasn't run.
+// Also matches PostgREST's "Could not find column" 400-response wording.
+function isMissingColumnError(message: string | null | undefined): boolean {
+  if (!message) return false;
+  return /column .+ does not exist|could not find .* column|column .* email_sent_at/i.test(message);
+}
+
+interface EmailLockResult {
+  acquired: boolean;
+  // True when the migration is missing — caller should send anyway, since
+  // a "best-effort double-send" is better than zero emails.
+  bypassMigrationMissing: boolean;
+}
+
+// Atomically claims the per-assessment send lock. Returns acquired=true
+// exactly once per assessment in normal operation. If the email_sent_at
+// column doesn't exist (migration not yet applied), returns
+// bypassMigrationMissing=true so the caller can still send (without
+// idempotency) — landing one email beats landing zero.
+async function acquireEmailLock(assessmentId: string): Promise<EmailLockResult> {
   const supabase = getSupabaseServiceClient();
   const { data, error } = await supabase
     .from("report_jobs")
@@ -57,65 +83,107 @@ async function acquireEmailLock(assessmentId: string): Promise<boolean> {
     .eq("assessment_id", assessmentId)
     .is("email_sent_at", null)
     .select("id");
+
   if (error) {
-    console.error("[prepare-pdfs] acquireEmailLock failed:", error.message);
-    return false;
+    if (isMissingColumnError(error.message)) {
+      console.warn(
+        "[email-dispatch] report_jobs.email_sent_at column missing — " +
+          "supabase/add_email_sent_at.sql has not been applied. Sending " +
+          "without idempotency lock as a best-effort fallback.",
+      );
+      return { acquired: false, bypassMigrationMissing: true };
+    }
+    console.error("[email-dispatch] acquireEmailLock failed:", error.message);
+    return { acquired: false, bypassMigrationMissing: false };
   }
-  return Array.isArray(data) && data.length > 0;
+  return {
+    acquired: Array.isArray(data) && data.length > 0,
+    bypassMigrationMissing: false,
+  };
 }
 
 async function releaseEmailLock(assessmentId: string): Promise<void> {
   const supabase = getSupabaseServiceClient();
-  await supabase
+  const { error } = await supabase
     .from("report_jobs")
     .update({ email_sent_at: null })
     .eq("assessment_id", assessmentId);
+  if (error && !isMissingColumnError(error.message)) {
+    console.error("[email-dispatch] releaseEmailLock failed:", error.message);
+  }
 }
 
 async function dispatchReportEmail(
   assessmentId: string,
   locale: Locale,
 ): Promise<void> {
+  console.log(`[email-dispatch] start id=${assessmentId} locale=${locale}`);
+
   if (!resendConfigured()) {
-    console.warn("[prepare-pdfs] RESEND_API_KEY not configured — skipping email");
+    console.warn(
+      "[email-dispatch] RESEND_API_KEY not configured — skipping email. " +
+        "Set RESEND_API_KEY in Vercel env vars to enable delivery.",
+    );
     return;
   }
 
-  const acquired = await acquireEmailLock(assessmentId);
-  if (!acquired) {
-    console.log(`[prepare-pdfs] email already sent for ${assessmentId} — skipping`);
+  const lock = await acquireEmailLock(assessmentId);
+  if (!lock.acquired && !lock.bypassMigrationMissing) {
+    console.log(
+      `[email-dispatch] email already sent (or lock-error) for ${assessmentId} — skipping`,
+    );
     return;
+  }
+  if (lock.bypassMigrationMissing) {
+    console.log(
+      `[email-dispatch] proceeding without idempotency lock for ${assessmentId}`,
+    );
+  } else {
+    console.log(`[email-dispatch] lock acquired for ${assessmentId}`);
   }
 
   let didSend = false;
   try {
     // Main report must be ready — without it we never send.
     const mainStatus = await getStatus(assessmentId, "main_report" as PdfType, locale);
+    console.log(
+      `[email-dispatch] main_report status=${mainStatus?.status ?? "missing"} path=${mainStatus?.storage_path ?? "n/a"}`,
+    );
     if (mainStatus?.status !== "ready" || !mainStatus.storage_path) {
-      console.warn(`[prepare-pdfs] main_report not ready for ${assessmentId} — releasing lock`);
-      await releaseEmailLock(assessmentId);
+      console.warn(
+        `[email-dispatch] main_report not ready for ${assessmentId} — releasing lock + aborting`,
+      );
+      if (lock.acquired) await releaseEmailLock(assessmentId);
       return;
     }
 
     const ctx = await loadReportContext(assessmentId);
     if (!ctx.ok) {
-      console.error(`[prepare-pdfs] loadReportContext failed: ${ctx.error.message}`);
-      await releaseEmailLock(assessmentId);
+      console.error(
+        `[email-dispatch] loadReportContext failed: code=${ctx.error.code} msg=${ctx.error.message}`,
+      );
+      if (lock.acquired) await releaseEmailLock(assessmentId);
       return;
     }
     const email = ctx.context.user.email;
     if (!email) {
-      console.warn(`[prepare-pdfs] no email on file for ${assessmentId}`);
-      await releaseEmailLock(assessmentId);
+      console.warn(`[email-dispatch] no email on file for ${assessmentId} — aborting`);
+      if (lock.acquired) await releaseEmailLock(assessmentId);
       return;
     }
+    console.log(
+      `[email-dispatch] context loaded — to=${email} firstName=${ctx.context.user.first_name ?? "(null)"}`,
+    );
 
     const mainBuffer = await downloadStoragePdf("Reports", mainStatus.storage_path);
     if (!mainBuffer) {
-      console.warn(`[prepare-pdfs] main_report bytes missing for ${assessmentId}`);
-      await releaseEmailLock(assessmentId);
+      console.warn(
+        `[email-dispatch] main_report bytes missing in Storage for ${assessmentId} — aborting`,
+      );
+      if (lock.acquired) await releaseEmailLock(assessmentId);
       return;
     }
+    console.log(`[email-dispatch] main_report buffer: ${mainBuffer.length} bytes`);
 
     const planAttachments: PlanAttachment[] = await Promise.all(
       PLAN_TYPES.map(async (pdfType) => {
@@ -124,9 +192,14 @@ async function dispatchReportEmail(
           const row = await getStatus(assessmentId, pdfType, locale);
           if (row?.status === "ready" && row.storage_path) {
             const buf = await downloadStoragePdf("report-pdfs", row.storage_path);
-            if (buf) return { type: emailType, buffer: buf, fallbackUrl: null };
+            if (buf) {
+              console.log(
+                `[email-dispatch] ${pdfType}: attached ${buf.length} bytes`,
+              );
+              return { type: emailType, buffer: buf, fallbackUrl: null };
+            }
           }
-          // Plan not ready or buffer missing — emit a fallback link the
+          // Plan not ready (or buffer missing) — emit a fallback link the
           // user can click later. Best-effort signed URL; if signing
           // fails we still send the email with that card showing
           // "still being prepared" without a link.
@@ -135,12 +208,21 @@ async function dispatchReportEmail(
             try {
               fallbackUrl = await getEmailSignedUrl(pdfType, row.storage_path);
             } catch (err) {
-              console.error(`[prepare-pdfs] signed url failed for ${pdfType}:`, err);
+              console.error(
+                `[email-dispatch] signed url failed for ${pdfType}:`,
+                err,
+              );
             }
           }
+          console.log(
+            `[email-dispatch] ${pdfType}: no buffer, status=${row?.status ?? "missing"}, fallbackUrl=${fallbackUrl ? "set" : "null"}`,
+          );
           return { type: emailType, buffer: null, fallbackUrl };
         } catch (err) {
-          console.error(`[prepare-pdfs] plan attachment ${pdfType} failed:`, err);
+          console.error(
+            `[email-dispatch] plan attachment ${pdfType} failed:`,
+            err,
+          );
           return { type: emailType, buffer: null, fallbackUrl: null };
         }
       }),
@@ -163,6 +245,9 @@ async function dispatchReportEmail(
       stress: Math.round(result.stress?.stress_score_0_100 ?? 0),
     };
 
+    console.log(
+      `[email-dispatch] sending via Resend — attachments=${planAttachments.filter((p) => p.buffer).length + 1}`,
+    );
     await sendReportEmail({
       email,
       firstName: ctx.context.user.first_name,
@@ -174,11 +259,11 @@ async function dispatchReportEmail(
     });
 
     didSend = true;
-    console.log(`[prepare-pdfs] email dispatched for ${assessmentId}`);
+    console.log(`[email-dispatch] SUCCESS — email dispatched for ${assessmentId}`);
   } catch (err) {
-    console.error(`[prepare-pdfs] dispatchReportEmail failed:`, err);
+    console.error(`[email-dispatch] FAILED for ${assessmentId}:`, err);
   } finally {
-    if (!didSend) {
+    if (!didSend && lock.acquired) {
       // Roll back the lock so a future /prepare-pdfs call (e.g. when the
       // user re-opens /results?id=...) gets a fresh attempt.
       await releaseEmailLock(assessmentId);
@@ -204,15 +289,23 @@ export async function POST(req: NextRequest) {
     }
 
     const l = locale as Locale;
+    const providedPlanCount = Object.values(plan_pdfs).filter(Boolean).length;
+    console.log(
+      `[prepare-pdfs] queued id=${assessment_id} locale=${locale} provided_plan_pdfs=${providedPlanCount}`,
+    );
 
-    // Kick off everything in parallel — do NOT await; return immediately.
-    void (async () => {
+    // Use Next.js after() so Vercel keeps the lambda alive until the
+    // background work completes. The previous void-IIFE pattern got
+    // killed as soon as the response was sent, so emails never landed.
+    after(async () => {
       const tasks: Promise<unknown>[] = [];
 
       // ── main_report: verify Storage + mark ready ────────────────────────
-      tasks.push(processMainReport(assessment_id, l).catch((err) => {
-        console.error("[prepare-pdfs] main_report:", err);
-      }));
+      tasks.push(
+        processMainReport(assessment_id, l).catch((err) => {
+          console.error("[prepare-pdfs] main_report:", err);
+        }),
+      );
 
       // ── plan PDFs ────────────────────────────────────────────────────────
       // Only personalised AI-generated PDFs (uploaded by the frontend) are
@@ -222,9 +315,10 @@ export async function POST(req: NextRequest) {
       // on-demand rendering via /api/plan/pdf when Storage is empty.
       for (const pdfType of PLAN_TYPES) {
         const base64 = plan_pdfs[pdfType];
-
         if (!base64) {
-          console.warn(`[prepare-pdfs] ${pdfType}: no base64 provided — skipping upload (on-demand fallback applies)`);
+          console.warn(
+            `[prepare-pdfs] ${pdfType}: no base64 provided — skipping upload (on-demand fallback applies)`,
+          );
           continue;
         }
 
@@ -236,11 +330,10 @@ export async function POST(req: NextRequest) {
       }
 
       await Promise.allSettled(tasks);
+      console.log(`[prepare-pdfs] uploads settled — dispatching email`);
 
-      // Once uploads have settled, dispatch the email (idempotent — the
-      // helper bails out if it already ran for this assessment).
       await dispatchReportEmail(assessment_id, l);
-    })();
+    });
 
     return NextResponse.json({ queued: true });
   } catch (err) {
