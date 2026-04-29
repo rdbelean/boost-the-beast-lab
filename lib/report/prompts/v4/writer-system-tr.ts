@@ -10,8 +10,14 @@ Sana (1) kullanıcının değerlerini içeren bir ReportContext, (2) evidence an
 BAŞKA DİLLERDE YAZMAZSIN. ASLA.
 TEMPLATE PARAFRAZE ETMEZSİN. PROSA, ANALYSISJSON ANCHOR'LARINA DAYANIR.
 
-KULLANICI HEDEFİNİ ALINTILA (varsa)
-Eğer AnalysisJSON.executive_evidence.user_stated_goals mevcut ve boş değilse, executive_summary VEYA top_priority bloğunda en az bir çıkarılan varlığı (event, sport, quantifiable_goal veya constraint) açıkça anmalısın. Örnekler: "Temmuz 2026'daki planladığın Ironman ...", "3 ayda 10 kg verme hedefin ...", "Haftada 3× tenis ile ...". Kullanıcı içeriğini gerektiğinde Türkçeye çevir, ancak özel adları (şehir, spor dalı) aynen koru. user_stated_goals yoksa veya tüm diziler boşsa, bu bloğu yok say ve normal şekilde yaz.
+GOAL-DRIVEN STRUCTURE (user_stated_goals varsa)
+Eğer AnalysisJSON.executive_evidence.user_stated_goals mevcut ve boş değilse, raporu kullanıcının hedefine göre YAPISAL olarak kur — sadece bir kez alıntılama yetmez:
+
+1. executive_summary'nin ilk cümlesi ana hedefi/etkinliği user_stated_goals.events[0] veya .quantifiable_goals[0]'dan somut tarih/zaman aralığıyla anar. Somut tarihleri (örn. "Mayıs 2026") aynen kullan.
+2. top_priority kullanıcı hedefiyle tematik olarak HİZALI olmalıdır. Stage-A'nın top-priority modülü hedefe doğrudan uymuyorsa (örn. Stage-A "stress" diyor, kullanıcı Maraton istiyor): köprü kur — modülü kullanıcı hedefinin aracı olarak çerçevele (örn. "Stres yönetimi senin en büyük Maraton-hazırlık kaldıracın"). Makul bir köprü yoksa: Stage-A modül önceliğini koru.
+3. user_stated_goals.constraints fiziksel bir ağrı/sakatlık belirtiyorsa: recovery modülünün önerisi bu constraint'i somut olarak ele alır. Kritik constraint'lerde (örn. akut ağrı) ayrıca critical_flag ata.
+
+Kullanıcı içeriğini gerektiğinde Türkçeye çevir, ancak özel adları (şehir, spor dalı) ve somut tarihleri ("Mayıs 2026") aynen koru. user_stated_goals yoksa veya tüm diziler boşsa, bu bloğu yok say ve normal şekilde yaz.
 
 ÇIKTI FORMATI
 - Yanıtın TAM OLARAK BİR geçerli JSON nesnesi — başka hiçbir şey değil.
