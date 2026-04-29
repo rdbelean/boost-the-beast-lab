@@ -77,6 +77,7 @@ const PDF_LABELS: Record<Locale, {
   disclaimer2: string;
   censorHint: string;
   censorMilestonesHint: string;
+  goalInContext: string;
 }> = {
   de: {
     footerStrip: "PERFORMANCE LAB  |  Kein Ersatz f\u00FCr medizinische Beratung",
@@ -134,6 +135,7 @@ const PDF_LABELS: Record<Locale, {
     disclaimer2: "Dieser Report wurde auf Basis wissenschaftlicher Scoring-Modelle erstellt. Er ersetzt keine \u00E4rztliche Untersuchung, keine Labordiagnostik und keine individualisierte medizinische Beratung. Wende dich bei gesundheitlichen Beschwerden oder spezifischen Fragen an einen qualifizierten Arzt oder Therapeuten.",
     censorHint: "In der Vollversion verfugbar",
     censorMilestonesHint: "In der Vollversion",
+    goalInContext: "DEIN ZIEL IM KONTEXT DEINER WERTE",
   },
   en: {
     footerStrip: "PERFORMANCE LAB  |  Not a substitute for medical advice",
@@ -191,6 +193,7 @@ const PDF_LABELS: Record<Locale, {
     disclaimer2: "This report was generated using scientific scoring models. It does not replace medical examination, laboratory diagnostics, or individualised medical consultation. For health concerns or specific questions, please consult a qualified physician or therapist.",
     censorHint: "Available in full version",
     censorMilestonesHint: "In full version",
+    goalInContext: "YOUR GOAL IN CONTEXT OF YOUR NUMBERS",
   },
   it: {
     footerStrip: "PERFORMANCE LAB  |  Non sostituisce la consulenza medica",
@@ -248,6 +251,7 @@ const PDF_LABELS: Record<Locale, {
     disclaimer2: "Questo report \u00E8 stato generato utilizzando modelli di scoring scientifici. Non sostituisce la visita medica, la diagnostica di laboratorio o la consulenza medica individualizzata. Per problemi di salute o domande specifiche, consultare un medico o terapista qualificato.",
     censorHint: "Nella versione completa",
     censorMilestonesHint: "Nella versione completa",
+    goalInContext: "IL TUO OBIETTIVO NEL CONTESTO DEI TUOI VALORI",
   },
   tr: {
     footerStrip: "PERFORMANCE LAB  |  Tıbbi tavsiyenin yerini almaz",
@@ -305,6 +309,7 @@ const PDF_LABELS: Record<Locale, {
     disclaimer2: "Bu rapor bilimsel skorlama modelleri kullan\u0131larak olu\u015Fturulmu\u015Ftur. T\u0131bbi muayene, laboratuvar tan\u0131 veya bireysel t\u0131bbi dan\u0131\u015Fmanl\u0131\u011F\u0131n yerini almaz. Sa\u011Fl\u0131k sorunlar\u0131 veya spesifik sorular i\u00E7in l\u00FCtfen yetkin bir doktor veya terapiste dan\u0131\u015F.",
     censorHint: "Tam versiyonda mevcut",
     censorMilestonesHint: "Tam versiyonda",
+    goalInContext: "DEĞERLERİNİN BAĞLAMINDA HEDEFİN",
   },
 };
 
@@ -354,6 +359,9 @@ export interface PdfGoal {
 export interface PdfReportContent {
   headline: string;
   executive_summary: string;
+  /** Optional dedicated goal-context block (C6). Rendered after
+   *  executive_summary when user_stated_goals is non-empty. */
+  goal_in_context?: string;
   critical_flag?: string | null;
   modules: {
     sleep: PdfModule;
@@ -1044,6 +1052,22 @@ function buildSummary(
   // Executive summary text
   y = drawW(page, content.executive_summary, MX, y, CW, f.reg, 10, TXT_WHITE, 1.65);
   y -= 18;
+
+  // C6: Goal-in-context block — only when filled. Rendered as a card
+  // with accent left-bar + locale-specific heading, identical visual
+  // weight to the top_priority box but earlier in the flow so the
+  // user's stated goal anchors the rest of the summary.
+  if (content.goal_in_context && content.goal_in_context.trim().length > 0) {
+    const gicTH = textH(content.goal_in_context, f.reg, 10, CW - 32, 1.65);
+    const gicH = Math.max(56, gicTH + 38);
+    page.drawRectangle({ x: MX, y: y - gicH, width: CW, height: gicH, color: BG_CARD });
+    page.drawRectangle({ x: MX, y: y - gicH, width: 4, height: gicH, color: ACCENT });
+    page.drawText(PDF_LABELS[currentLocale].goalInContext, {
+      x: MX + 16, y: y - 16, size: 7, font: f.bold, color: ACCENT,
+    });
+    drawW(page, content.goal_in_context, MX + 16, y - 32, CW - 32, f.reg, 10, TXT_WHITE, 1.65);
+    y -= gicH + 14;
+  }
 
   // Score grid — 5 cards
   const gap = 8;

@@ -16,6 +16,10 @@ Se AnalysisJSON.executive_evidence.user_stated_goals è presente e non vuoto, st
 1. La prima frase di executive_summary nomina l'obiettivo principale/event con data o orizzonte temporale concreto da user_stated_goals.events[0] o .quantifiable_goals[0]. Le date concrete (es. "maggio 2026") le riporti testualmente.
 2. top_priority DEVE essere tematicamente allineato all'obiettivo. Se il modulo top-priority di Stage-A non corrisponde direttamente all'obiettivo (es. Stage-A dice "stress", ma l'utente vuole una Maratona): costruisci un ponte — inquadra il modulo come mezzo per l'obiettivo (es. "La gestione dello stress è la tua maggiore leva di preparazione alla Maratona"). Se non esiste un ponte plausibile: mantieni la priorità del modulo di Stage-A.
 3. Se user_stated_goals.constraints nomina un dolore o infortunio fisico: la recommendation del modulo recovery affronta concretamente questo constraint. In caso di constraint critici (es. dolore acuto) imposta anche critical_flag.
+4. CAMPO OBBLIGATORIO goal_in_context (C6): Imposta un nuovo campo opzionale string goal_in_context nell'output. 2-3 frasi:
+   - Frase 1 cita o parafrasa l'obiettivo principale (events[0], quantifiable_goals[0], o raw_main_goal — in quest'ordine di priorità).
+   - Frasi 2-3 collegano l'obiettivo ai 2-3 valori di score o limitazioni di modulo più rilevanti — meccanismo concreto, non giudizio. Esempio: "Vuoi correre una maratona. Il tuo volume di attività è solido (650 MET-min/settimana), ma il tuo VO2max di 42 è il fattore limitante — la leva è nelle uscite lunghe."
+   - Se user_stated_goals manca o tutti gli array sono vuoti E raw_main_goal è vuoto: ometti goal_in_context completamente (non impostarlo a "").
 
 Traduci il contenuto utente in italiano dove serve, ma preserva i nomi propri (città, disciplina) e le date concrete ("maggio 2026") testualmente. Se user_stated_goals manca o tutti gli array sono vuoti, ignora questo blocco e scrivi normalmente.
 
@@ -63,6 +67,7 @@ SCHEMA REPORTJSON
 {
   "headline": "1-2 frasi, ≥1 valore concreto",
   "executive_summary": "4-6 frasi, ≥3 valori, tesi coerente (non un elenco)",
+  "goal_in_context": "OPZIONALE — 2-3 frasi. Solo se user_stated_goals è presente. Altrimenti ometti.",
   "critical_flag": "string|null — solo se rischio sistemico attivo",
   "modules": { "sleep|recovery|activity|metabolic|stress|vo2max": "key_finding + systemic_connection + limitation + recommendation, più campi opzionali per modulo" },
   "top_priority": "2-3 frasi, nomina la dimensione prioritaria + score + driver",
