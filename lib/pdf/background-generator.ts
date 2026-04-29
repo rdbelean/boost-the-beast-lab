@@ -109,3 +109,16 @@ export async function getSignedUrl(
 
   return data.signedUrl;
 }
+
+// 7-day signed URL for use in email links — long enough that a casual reader
+// who opens the email a few days later still gets a working link, short
+// enough that a leaked URL doesn't grant indefinite access. The default
+// 1-hour `getSignedUrl` is kept for in-app UI flows (less leaky).
+export const EMAIL_SIGNED_URL_TTL_SECONDS = 7 * 24 * 60 * 60;
+
+export async function getEmailSignedUrl(
+  pdfType: PdfType,
+  storagePath: string,
+): Promise<string> {
+  return getSignedUrl(pdfType, storagePath, EMAIL_SIGNED_URL_TTL_SECONDS);
+}
