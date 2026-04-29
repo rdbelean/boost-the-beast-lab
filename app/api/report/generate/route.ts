@@ -5,7 +5,6 @@ import path from "node:path";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { generatePDF, type PdfReportContent, type PdfWearableRows, type PdfHeroData } from "@/lib/pdf/generateReport";
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
-import { sendReportEmail } from "@/lib/email/sendReport";
 import type { Locale } from "@/lib/supabase/types";
 import {
   type FullScoringResult,
@@ -46,10 +45,6 @@ function hasValidKey(key: string | undefined): boolean {
 
 function anthropicConfigured(): boolean {
   return hasValidKey(process.env.ANTHROPIC_API_KEY);
-}
-
-function resendConfigured(): boolean {
-  return hasValidKey(process.env.RESEND_API_KEY);
 }
 
 let anthropicClient: Anthropic | null = null;
@@ -763,24 +758,10 @@ Return ONLY valid JSON array, no markdown:
       });
     }
 
-    // 7. Send email via Resend (skipped if not configured or no PDF).
-    if (resendConfigured() && downloadUrl && ctx.user.email) {
-      try {
-        await sendReportEmail(ctx.user.email, downloadUrl, {
-          overall: overallScore,
-          activity: activityScore,
-          sleep: sleepScore,
-          vo2max: vo2ScoreNum,
-          metabolic: metabolicScore,
-          stress: stressScore,
-        }, locale);
-      } catch (emailErr) {
-        console.error("[report/generate] email delivery failed", emailErr);
-        // Non-fatal — PDF is still persisted and linked.
-      }
-    } else {
-      console.warn("[report/generate] RESEND_API_KEY not configured — skipping email");
-    }
+    // 7. Email is now dispatched from /api/reports/prepare-pdfs once all
+    // 4 plan PDFs have been uploaded — that step waits for the client to
+    // POST plan_pdfs base64 first. Sending here would only attach the main
+    // report and miss the 4 plans the user just paid for.
 
     // 8. Mark report job completed.
     if (jobId) {
