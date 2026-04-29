@@ -144,6 +144,7 @@ interface FormData {
   // Report & Email
   selectedProduct: string;
   email: string;
+  firstName: string;
 }
 
 // ── Mapping helpers: form (German labels) → API payload shape ────────
@@ -297,6 +298,7 @@ function buildAssessmentPayload(f: FormData) {
 
   return {
     email: f.email,
+    first_name: f.firstName.trim() || null,
     reportType: REPORT_MAP[f.selectedProduct] ?? "complete",
     age: f.alter,
     gender: GENDER_MAP[f.geschlecht] ?? "diverse",
@@ -443,6 +445,7 @@ function AnalyseContent() {
     recoveryRitual: "",
     selectedProduct: preselectedProduct,
     email: "",
+    firstName: "",
   });
 
   // Pre-populate email. Logged-in users → from Supabase session. Paid Stripe
@@ -638,7 +641,8 @@ function AnalyseContent() {
 
   const progressPct = Math.round((answeredCount / totalQuestions) * 100);
   const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
-  const canSubmit = answeredCount === totalQuestions && hasValidEmail;
+  const hasFirstName = form.firstName.trim().length > 0;
+  const canSubmit = answeredCount === totalQuestions && hasValidEmail && hasFirstName;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -1574,6 +1578,54 @@ function AnalyseContent() {
                 - Report Typ aus Stripe Session Metadata übernehmen
                 - Test-Modus-Banner + isTestMode entfernen */}
             <section className={styles.submitSection}>
+              <div
+                style={{
+                  marginBottom: 18,
+                  fontFamily: "Helvetica, Arial, sans-serif",
+                }}
+              >
+                <label
+                  htmlFor="btb-first-name"
+                  style={{
+                    display: "block",
+                    fontSize: 11,
+                    letterSpacing: "0.1em",
+                    color: "#9ca3af",
+                    marginBottom: 8,
+                  }}
+                >
+                  {t("submit.name_label")}
+                </label>
+                <input
+                  id="btb-first-name"
+                  type="text"
+                  inputMode="text"
+                  autoComplete="given-name"
+                  value={form.firstName}
+                  onChange={(e) => set("firstName", e.target.value)}
+                  placeholder={t("submit.name_placeholder")}
+                  style={{
+                    width: "100%",
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    color: "#fff",
+                    padding: "12px 14px",
+                    fontSize: 15,
+                    fontFamily: "inherit",
+                    outline: "none",
+                  }}
+                />
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#9ca3af",
+                    marginTop: 6,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {t("submit.name_hint")}
+                </div>
+              </div>
               {emailPrefillAttempted && !hasValidEmail && (
                 <div
                   style={{
