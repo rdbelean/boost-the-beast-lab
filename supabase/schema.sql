@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
+-- Personalization — see supabase/add_user_name.sql.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT;
 
 -- INSTRUMENT VERSIONEN (Fragebogen-Versionierung)
 CREATE TABLE IF NOT EXISTS instrument_versions (
@@ -113,6 +115,8 @@ CREATE TABLE IF NOT EXISTS report_jobs (
   error_message TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+-- Email idempotency lock — see supabase/add_email_sent_at.sql.
+ALTER TABLE report_jobs ADD COLUMN IF NOT EXISTS email_sent_at TIMESTAMPTZ;
 
 -- REPORT DATEIEN (nur Referenzen, keine Binärdaten)
 CREATE TABLE IF NOT EXISTS report_artifacts (

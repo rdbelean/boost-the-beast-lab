@@ -27,6 +27,8 @@ function isTestMode(): boolean {
 
 interface AssessmentRequestBody {
   email: string;
+  /** User's first name — required, used for personalized email greeting. */
+  first_name?: string | null;
   reportType: ReportType;
   age: number;
   gender: Gender;
@@ -108,6 +110,12 @@ function validate(body: Partial<AssessmentRequestBody>): string | null {
     if (body[k] === undefined || body[k] === null || body[k] === "") {
       return `Missing required field: ${k}`;
     }
+  }
+  if (typeof body.first_name === "string" && body.first_name.trim().length === 0) {
+    return "first_name must not be empty";
+  }
+  if (typeof body.first_name === "string" && body.first_name.length > 100) {
+    return "first_name exceeds 100 characters";
   }
   if (!["metabolic", "recovery", "complete"].includes(body.reportType as string)) {
     return "Invalid reportType";
@@ -227,18 +235,23 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
     if (userLookupErr) throw userLookupErr;
 
+    const trimmedFirstName =
+      typeof body.first_name === "string" ? body.first_name.trim().slice(0, 100) : null;
+
     let userId: string;
     if (existingUser) {
       userId = existingUser.id as string;
+      const updatePayload: Record<string, unknown> = {
+        age: body.age,
+        gender: body.gender,
+        height_cm: body.height_cm,
+        weight_kg: body.weight_kg,
+        updated_at: new Date().toISOString(),
+      };
+      if (trimmedFirstName) updatePayload.first_name = trimmedFirstName;
       const { error: updateErr } = await supabase
         .from("users")
-        .update({
-          age: body.age,
-          gender: body.gender,
-          height_cm: body.height_cm,
-          weight_kg: body.weight_kg,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updatePayload)
         .eq("id", userId);
       if (updateErr) throw updateErr;
     } else {
@@ -246,6 +259,7 @@ export async function POST(req: NextRequest) {
         .from("users")
         .insert({
           email: body.email,
+          first_name: trimmedFirstName,
           age: body.age,
           gender: body.gender,
           height_cm: body.height_cm,

@@ -72,6 +72,7 @@ export interface ReportContextUser {
   height_cm: number;
   weight_kg: number;
   email: string | null;
+  first_name: string | null;
 }
 
 export interface ReportContextRaw {
@@ -296,7 +297,7 @@ export async function loadReportContext(
   // 2. User row.
   const { data: user, error: uErr } = await supabase
     .from("users")
-    .select("email, age, gender, height_cm, weight_kg")
+    .select("email, first_name, age, gender, height_cm, weight_kg")
     .eq("id", assessment.user_id)
     .single();
   if (uErr || !user) {
@@ -513,6 +514,7 @@ export async function loadReportContext(
       height_cm: user.height_cm ?? reconstructed.height_cm,
       weight_kg: user.weight_kg ?? reconstructed.weight_kg,
       email: user.email ?? null,
+      first_name: (user as { first_name?: string | null }).first_name ?? null,
     },
     raw: driversInput,
     personalization,
@@ -648,6 +650,7 @@ export function buildReportContextFromInputs(
       height_cm: inputs.user.height_cm,
       weight_kg: inputs.user.weight_kg,
       email: inputs.user.email,
+      first_name: null,
     },
     raw,
     personalization: {
