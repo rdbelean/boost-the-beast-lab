@@ -625,6 +625,7 @@
   },
   "results": {
     "error_loading": "Impossibile caricare i risultati.",
+    "error_no_session": "Nessuna sessione trovata. Ricomincia l'analisi.",
     "error_title": "ERRORE",
     "section_ai_failed": "Questa analisi non è stata generata in questo momento — nessun testo generico di riempimento, riprova.",
     "section_retry_btn": "Riprova",

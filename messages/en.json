@@ -630,6 +630,7 @@
   },
   "results": {
     "error_loading": "Results could not be loaded.",
+    "error_no_session": "No session found. Please restart the analysis.",
     "error_title": "ERROR",
     "section_ai_failed": "This analysis couldn't be generated right now — no generic placeholder, please try again.",
     "section_retry_btn": "Try again",

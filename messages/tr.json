@@ -630,6 +630,7 @@
   },
   "results": {
     "error_loading": "Sonuçlar yüklenemedi.",
+    "error_no_session": "Oturum bulunamadı. Lütfen analizi yeniden başlat.",
     "error_title": "HATA",
     "section_ai_failed": "Bu analiz şu anda oluşturulamadı — genel bir yer tutucu yok, lütfen tekrar dene.",
     "section_retry_btn": "Tekrar dene",
