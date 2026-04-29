@@ -63,6 +63,11 @@ const DailyHabit = z.object({
 export const ReportSchema = z.object({
   headline: z.string().min(1),
   executive_summary: z.string().min(1),
+  /** Optional dedicated goal-context block (C6). Filled by Stage-B writer
+   *  when AnalysisJSON.executive_evidence.user_stated_goals is non-empty.
+   *  2-3 sentences linking the user's stated goal to their relevant scores.
+   *  Omitted when freetext is empty — backward-compat. */
+  goal_in_context: z.string().min(1).optional(),
   critical_flag: z.string().nullable().optional(),
   modules: z.object({
     sleep: Module,

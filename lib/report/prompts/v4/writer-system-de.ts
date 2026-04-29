@@ -24,6 +24,10 @@ Wenn AnalysisJSON.executive_evidence.user_stated_goals vorhanden und nicht leer 
 1. executive_summary erster Satz nennt Hauptziel/Event mit konkretem Datum/Zeitraum aus user_stated_goals.events[0] oder .quantifiable_goals[0]. Konkrete Datumsangaben (z.B. "Mai 2026") übernimmst du wörtlich.
 2. top_priority MUSS thematisch auf das User-Ziel ausgerichtet sein. Wenn das Stage-A-Top-Priority-Modul nicht direkt zum Ziel passt (z.B. Stage-A sagt "stress", User-Ziel ist Marathon): schlage eine Brücke — das Modul wird als Mittel zum User-Ziel geframed (z.B. "Stress-Management ist deine größte Marathon-Hebel-Lücke"). Wenn keine plausible Brücke existiert: behalte die Stage-A-Modul-Priorität.
 3. Wenn user_stated_goals.constraints einen körperlichen Painpoint nennt (Schmerzen, Verletzung): das recovery-Modul-recommendation adressiert diesen Constraint konkret. Bei kritischen Constraints (z.B. akuter Schmerz) zusätzlich critical_flag setzen.
+4. PFLICHT-FELD goal_in_context (C6): Setze ein neues optionales String-Feld goal_in_context im Output. 2-3 Sätze:
+   - Satz 1 zitiert oder paraphrasiert das Hauptziel (events[0], quantifiable_goals[0], oder raw_main_goal — in dieser Priorität).
+   - Satz 2-3 verknüpfen das Ziel mit den 2-3 relevantesten Score-Werten oder Modul-Limitierungen — konkrete Mechanik statt Wertung. Beispiel: "Du willst einen Marathon laufen. Dein Aktivitätsvolumen ist solide (650 MET-min/Woche), aber dein VO2max-Score von 42 ist die limitierende Größe — der Hebel liegt bei den langen Läufen."
+   - Wenn user_stated_goals fehlt oder alle Arrays leer sind UND raw_main_goal leer ist: lass goal_in_context komplett weg (omit, nicht "" setzen).
 
 Übersetze User-Inhalt sinngemäß ins Deutsche, bewahre aber Eigennamen (Marathon-Stadt, Sportart) und konkrete Daten ("Mai 2026") wörtlich. Wenn user_stated_goals fehlt oder alle Arrays leer sind: ignoriere diesen Block, schreibe wie sonst.
 
@@ -71,6 +75,7 @@ REPORTJSON-SCHEMA
 {
   "headline": "1-2 Sätze, ≥1 konkreter Wert",
   "executive_summary": "4-6 Sätze, ≥3 Werte, kohärente These statt Aufzählung",
+  "goal_in_context": "OPTIONAL — 2-3 Sätze. Nur setzen wenn user_stated_goals belegt. Sonst weglassen.",
   "critical_flag": "string|null — nur bei systemischem Risiko (overtraining_risk, hpa_axis_risk, sitting_critical)",
   "modules": {
     "sleep|recovery|activity|metabolic|stress|vo2max": {

@@ -47,3 +47,30 @@ describe("Stage-B writer prompts — GOAL-DRIVEN STRUCTURE block", () => {
     expect(WRITER_SYSTEM_PROMPT_TR).not.toContain("KULLANICI HEDEFİNİ ALINTILA");
   });
 });
+
+// C6: goal_in_context field instruction in all 4 writer prompts
+describe("Stage-B writer prompts — goal_in_context field (C6)", () => {
+  it("DE: instructs writer to set goal_in_context when user_stated_goals is present", () => {
+    expect(WRITER_SYSTEM_PROMPT_DE).toContain("goal_in_context");
+    expect(WRITER_SYSTEM_PROMPT_DE).toContain("PFLICHT-FELD goal_in_context");
+    expect(WRITER_SYSTEM_PROMPT_DE).toContain("OPTIONAL");
+  });
+
+  it("EN: instructs writer to set goal_in_context when user_stated_goals is present", () => {
+    expect(WRITER_SYSTEM_PROMPT_EN).toContain("goal_in_context");
+    expect(WRITER_SYSTEM_PROMPT_EN).toContain("REQUIRED FIELD goal_in_context");
+    expect(WRITER_SYSTEM_PROMPT_EN).toContain("OPTIONAL");
+  });
+
+  it("IT: instructs writer to set goal_in_context when user_stated_goals is present", () => {
+    expect(WRITER_SYSTEM_PROMPT_IT).toContain("goal_in_context");
+    expect(WRITER_SYSTEM_PROMPT_IT).toContain("CAMPO OBBLIGATORIO goal_in_context");
+    expect(WRITER_SYSTEM_PROMPT_IT).toContain("OPZIONALE");
+  });
+
+  it("TR: instructs writer to set goal_in_context when user_stated_goals is present", () => {
+    expect(WRITER_SYSTEM_PROMPT_TR).toContain("goal_in_context");
+    expect(WRITER_SYSTEM_PROMPT_TR).toContain("ZORUNLU ALAN goal_in_context");
+    expect(WRITER_SYSTEM_PROMPT_TR).toContain("OPSİYONEL");
+  });
+});

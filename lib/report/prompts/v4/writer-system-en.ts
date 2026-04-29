@@ -18,6 +18,10 @@ If AnalysisJSON.executive_evidence.user_stated_goals is present and non-empty, s
 1. executive_summary first sentence names the main goal/event with the concrete date/timeframe from user_stated_goals.events[0] or .quantifiable_goals[0]. Concrete dates (e.g. "May 2026") are quoted verbatim.
 2. top_priority MUST be thematically aligned with the user's goal. If the Stage-A top-priority module does not directly match the goal (e.g. Stage-A says "stress" but the user wants a Marathon): build a bridge — frame the module as a means to the user's goal (e.g. "Stress management is your biggest Marathon-prep lever"). If no plausible bridge exists: keep the Stage-A module priority.
 3. If user_stated_goals.constraints names a physical pain point (pain, injury): the recovery module recommendation addresses that constraint concretely. For critical constraints (e.g. acute pain) also set critical_flag.
+4. REQUIRED FIELD goal_in_context (C6): Set a new optional string field goal_in_context in the output. 2-3 sentences:
+   - Sentence 1 quotes or paraphrases the main goal (events[0], quantifiable_goals[0], or raw_main_goal — in that priority).
+   - Sentences 2-3 link the goal to the 2-3 most relevant score values or module limitations — concrete mechanism, not value judgment. Example: "You want to run a marathon. Your activity volume is solid (650 MET-min/week), but your VO2max score of 42 is the limiting factor — the lever is in the long runs."
+   - If user_stated_goals is missing or all arrays are empty AND raw_main_goal is empty: omit goal_in_context entirely (do not set it to "").
 
 Translate user content into English where appropriate, but preserve proper names (city, sport) and concrete dates ("May 2026") verbatim. If user_stated_goals is missing or all arrays are empty, ignore this block and write as usual.
 
@@ -65,6 +69,7 @@ REPORTJSON SCHEMA
 {
   "headline": "1-2 sentences, ≥1 concrete value",
   "executive_summary": "4-6 sentences, ≥3 values, coherent thesis (not a list)",
+  "goal_in_context": "OPTIONAL — 2-3 sentences. Only set when user_stated_goals is present. Otherwise omit.",
   "critical_flag": "string|null — only when a systemic risk is active (overtraining_risk, hpa_axis_risk, sitting_critical)",
   "modules": {
     "sleep|recovery|activity|metabolic|stress|vo2max": {
