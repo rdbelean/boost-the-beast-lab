@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildAnalysisUserPrompt } from "@/lib/report/prompts/v4/analysis-user";
+import { ANALYSIS_SYSTEM_PROMPT } from "@/lib/report/prompts/v4/analysis-system";
 import { buildTestContext } from "../fixtures/build-context";
 
 const baseInputs = {
@@ -110,5 +111,46 @@ describe("buildAnalysisUserPrompt — freetext XML wrapping", () => {
     const prompt = buildAnalysisUserPrompt(ctx);
     expect(prompt).not.toContain("<user_freetext_main_goal>");
     expect(prompt).not.toContain("<user_freetext_training>");
+  });
+});
+
+// ─── Stage-A system-prompt tightening (C6 fix-pass) ─────────────────────
+//
+// The original C5/C6 wording made `executive_evidence.user_stated_goals`
+// look like a soft optional field, causing real Anthropic calls to omit
+// it entirely → goal-mode silently failed downstream. These string-grep
+// tests pin the prompt to its REQUIRED-when-XML-tag-present contract.
+
+describe("Stage-A system prompt — user_stated_goals required when XML tags present", () => {
+  it("makes user_stated_goals REQUIRED whenever XML tag is present (Patches A + D)", () => {
+    expect(ANALYSIS_SYSTEM_PROMPT).toContain("you MUST populate");
+    expect(ANALYSIS_SYSTEM_PROMPT).toContain("REQUIRED whenever at least one XML tag is present");
+    // The old "optional field" wording in the directive line must be gone
+    expect(ANALYSIS_SYSTEM_PROMPT).not.toMatch(
+      /optional field\s+`?executive_evidence\.user_stated_goals`?/,
+    );
+    // And the Skip-only negative formulation must be replaced with the
+    // populate-when-present positive phrasing.
+    expect(ANALYSIS_SYSTEM_PROMPT).toContain("Populate");
+    expect(ANALYSIS_SYSTEM_PROMPT).toContain("AT LEAST ONE XML tag");
+  });
+
+  it("OUTPUT SCHEMA OVERVIEW lists user_stated_goals under executive_evidence (Patch B)", () => {
+    const sections = ANALYSIS_SYSTEM_PROMPT.split("OUTPUT SCHEMA OVERVIEW");
+    expect(sections.length).toBeGreaterThanOrEqual(2);
+    const schemaSection = sections[1];
+    // user_stated_goals is listed inside the schema overview block
+    expect(schemaSection).toContain("user_stated_goals");
+    // The listing line carries the REQUIRED/OMIT contract inline
+    expect(schemaSection).toMatch(/user_stated_goals.*REQUIRED.*XML/i);
+  });
+
+  it("extraction examples cover relative time horizons, not just concrete dates (Patch C)", () => {
+    // Concrete date example still present
+    expect(ANALYSIS_SYSTEM_PROMPT).toContain("Marathon Mai 2026");
+    // Relative-horizon examples — the actual symptom that broke P1
+    expect(ANALYSIS_SYSTEM_PROMPT).toMatch(/in\s+\d+\s+(Monaten|Wochen|months|weeks)/i);
+    expect(ANALYSIS_SYSTEM_PROMPT).toContain("in 6 Monaten");
+    expect(ANALYSIS_SYSTEM_PROMPT).toContain("in 8 Wochen");
   });
 });
