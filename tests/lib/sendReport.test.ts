@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   sendReportEmail,
   displayName,
+  safeFilenameStem,
+  buildMainReportFilename,
   __setResendClient,
   type PlanAttachment,
   type ReportEmailInput,
@@ -96,18 +98,22 @@ describe("sendReportEmail", () => {
     vi.restoreAllMocks();
   });
 
-  it("attaches the main report and all 4 ready plans (5 total)", async () => {
+  it("attaches the main report and all 4 ready plans (5 total) with clean filenames", async () => {
     await sendReportEmail(baseInput());
     expect(fake.calls).toHaveLength(1);
     const call = fake.calls[0];
     expect(call?.attachments).toBeDefined();
     expect(call?.attachments).toHaveLength(5);
     const filenames = (call?.attachments ?? []).map((a) => a.filename);
-    expect(filenames).toContain("btb-report-00000000-0000-4000-8000-000000000001.pdf");
-    expect(filenames).toContain("plan-activity-00000000-0000-4000-8000-000000000001.pdf");
-    expect(filenames).toContain("plan-metabolic-00000000-0000-4000-8000-000000000001.pdf");
-    expect(filenames).toContain("plan-recovery-00000000-0000-4000-8000-000000000001.pdf");
-    expect(filenames).toContain("plan-stress-00000000-0000-4000-8000-000000000001.pdf");
+    expect(filenames).toContain("Daniel-Performance-Report.pdf");
+    expect(filenames).toContain("Activity-Plan.pdf");
+    expect(filenames).toContain("Metabolic-Plan.pdf");
+    expect(filenames).toContain("Recovery-Plan.pdf");
+    expect(filenames).toContain("Stress-Plan.pdf");
+    // No assessmentId leaks into filenames anymore.
+    for (const fn of filenames) {
+      expect(fn).not.toMatch(/00000000-0000-4000-8000-000000000001/);
+    }
   });
 
   it("only attaches the main when all plans have buffer=null", async () => {
@@ -122,7 +128,13 @@ describe("sendReportEmail", () => {
     await sendReportEmail(input);
     const call = fake.calls[0];
     expect(call?.attachments).toHaveLength(1);
-    expect(call?.attachments?.[0]?.filename).toMatch(/^btb-report-/);
+    expect(call?.attachments?.[0]?.filename).toBe("Daniel-Performance-Report.pdf");
+  });
+
+  it("falls back to the neutral main-report filename when firstName is missing", async () => {
+    await sendReportEmail(baseInput({ firstName: null, email: "rdb@example.com" }));
+    const call = fake.calls[0];
+    expect(call?.attachments?.[0]?.filename).toBe("Performance-Report.pdf");
   });
 
   it("renders the fallback link in HTML when a plan buffer is null but URL is set", async () => {
@@ -164,6 +176,35 @@ describe("sendReportEmail", () => {
     const call = fake.calls[0];
     expect(call?.subject).toContain("maja");
     expect(call?.html).toContain("Hallo maja,");
+  });
+
+  it("strips diacritics + non-alphanumerics for the filename stem", () => {
+    expect(safeFilenameStem("Daniel")).toBe("Daniel");
+    expect(safeFilenameStem("Müller")).toBe("Muller");
+    expect(safeFilenameStem("José-María")).toBe("JoseMaria");
+    expect(safeFilenameStem("    ")).toBe(null);
+    expect(safeFilenameStem(null)).toBe(null);
+    expect(safeFilenameStem("")).toBe(null);
+    // Only emojis collapse to nothing → null fallback
+    expect(safeFilenameStem("🔥")).toBe(null);
+  });
+
+  it("buildMainReportFilename adds the name when present, omits it otherwise", () => {
+    expect(buildMainReportFilename("Daniel")).toBe("Daniel-Performance-Report.pdf");
+    expect(buildMainReportFilename(null)).toBe("Performance-Report.pdf");
+    expect(buildMainReportFilename("    ")).toBe("Performance-Report.pdf");
+  });
+
+  it("forces dark backgrounds via bgcolor + color-scheme meta", async () => {
+    await sendReportEmail(baseInput());
+    const call = fake.calls[0];
+    const html = call?.html ?? "";
+    // Both meta tags so light-mode-only clients still render dark.
+    expect(html).toContain('name="color-scheme" content="dark"');
+    expect(html).toContain('name="supported-color-schemes" content="dark"');
+    // Outer table must carry both bgcolor attribute AND inline background.
+    expect(html).toMatch(/bgcolor="#0D0D0F"/i);
+    expect(html).toMatch(/background-color:#0D0D0F/i);
   });
 
   it("throws when Resend reports an error", async () => {
