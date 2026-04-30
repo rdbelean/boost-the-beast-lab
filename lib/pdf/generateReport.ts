@@ -434,6 +434,52 @@ const CW = PW - MX * 2; // content width ≈ 491 pt
 // Footer line sits at y=45, text at y=32; CB=80 gives a 35pt clear gap.
 const CB = 80;
 
+// ── Layout-fix helpers (exported for testing) ──────────────────────────────
+// These are pure geometry functions used by Bug-B keep-together logic and
+// Bug-C box-height estimation. Co-located with PW/PH/CB constants so the
+// math stays readable in one place.
+
+/**
+ * Bug-B fix: returns true when there is enough vertical space below the
+ * given y-cursor to fit the full KEY METRICS block (heading + statBoxes)
+ * without crossing the footer floor (CB). Caller uses the boolean to decide
+ * whether to render in-place or push the block onto a continuation page.
+ *
+ * Block budget breakdown:
+ *   PRE_GAP (24)        — separator from previous section
+ *   HEADING_HEIGHT (15) — secLabel return-delta
+ *   POST_HEADING (13)   — gap between heading and stat boxes
+ *   STATBOX_HEIGHT (52) — fixed boxH inside statBoxes()
+ *   ── total: 104pt ──
+ */
+export function hasSpaceForMetricsBlock(y: number): boolean {
+  const PRE_GAP = 24;
+  const HEADING_HEIGHT = 15;
+  const POST_HEADING = 13;
+  const STATBOX_HEIGHT = 52;
+  const required = PRE_GAP + HEADING_HEIGHT + POST_HEADING + STATBOX_HEIGHT;
+  return y - required >= CB;
+}
+
+/**
+ * Bug-C fix: estimate the natural box height for one action-plan goal,
+ * given its milestone count. The new layout renders each milestone as
+ * three lines (week label / action / outcome), which is roughly 44pt per
+ * milestone (was 16pt in the old single-line layout). NOW/TARGET/TRACKED
+ * also expanded from a single 24pt strip to ~52pt of stacked rows.
+ *
+ *   per-milestone budget: 44pt (3 lines × ~12pt + 6pt spacing)
+ *   header budget:        82pt (goal-label 8 + headline 14 + NOW/TARGET/TRACKED 52 + padding 8)
+ *   floor:               120pt (minimum box even with 0 milestones)
+ */
+export function estimateActionPlanBoxHeight(milestoneCount: number): number {
+  const PER_MILESTONE = 44;
+  const HEADER = 82;
+  const FLOOR = 120;
+  const milesH = milestoneCount * PER_MILESTONE + 8;
+  return Math.max(FLOOR, milesH + HEADER);
+}
+
 // ── Colour palette ─────────────────────────────────────────────────────────
 
 const ACCENT     = rgb(0.902, 0.196, 0.133);   // #E63222 — BTB red
@@ -1224,18 +1270,30 @@ function buildActionPlanPage(
   today: string,
 ): void {
   if (!goals || goals.length === 0) return;
-  const page = doc.addPage([PW, PH]);
+  let page = doc.addPage([PW, PH]);
   let y = pageChrome(page, f, today);
 
   const L = PDF_LABELS[currentLocale];
+  // Title only on the first page; continuation pages just show the boxes.
   y = secLabel(page, L.actionPlanTitle, f, MX, y);
   y -= 6;
 
-  for (let gi = 0; gi < Math.min(3, goals.length); gi++) {
+  // Bug-C-3: paginate goals across as many pages as needed. Goals are
+  // NEVER skipped — if a goal does not fit on the current page, close
+  // the page and start a fresh one for that goal.
+  for (let gi = 0; gi < goals.length; gi++) {
     const g = goals[gi];
-    const milesH = (g.week_milestones?.length ?? 0) * 16 + 8;
-    const boxH = Math.min(Math.max(96, milesH + 72), Math.max(0, y - CB));
-    if (boxH < 60) break;
+    const milestoneCount = g.week_milestones?.length ?? 0;
+    const boxH = estimateActionPlanBoxHeight(milestoneCount);
+
+    // If the goal box does not fit below the current y, paginate.
+    if (y - boxH < CB) {
+      pageFooter(page, f, today);
+      page = doc.addPage([PW, PH]);
+      y = pageChrome(page, f, today);
+      // No title repeat on continuation pages — the goal-N label inside
+      // each box is enough orientation.
+    }
 
     page.drawRectangle({ x: MX, y: y - boxH, width: CW, height: boxH, color: BG_CARD });
     page.drawRectangle({ x: MX, y: y - boxH, width: 4, height: boxH, color: SC_GREEN });
@@ -1244,40 +1302,75 @@ function buildActionPlanPage(
     page.drawText(`${L.goalLabel} ${gi + 1}`, { x: MX + 14, y: y - 16, size: 6.5, font: f.bold, color: SC_GREEN });
     page.drawText(tx(g.headline).toUpperCase(), { x: MX + 14, y: y - 30, size: 10, font: f.bold, color: TXT_WHITE });
 
-    // NOW / TARGET / SOURCE
+    // Bug-C-1: NOW / TARGET / TRACKED on three separate lines, wrap-aware.
     const cvLabel = L.istLabel;
     const tvLabel = L.zielValueLabel;
     const srcLabel = L.messbarLabel;
-    page.drawText(`${cvLabel} ${tx(g.current_value)}`, { x: MX + 14, y: y - 46, size: 8, font: f.reg, color: TXT_MUTED });
-    page.drawText(`${tvLabel} ${tx(g.target_value)}${g.delta_pct ? `  (${tx(g.delta_pct)})` : ""}`, { x: MX + 120, y: y - 46, size: 8, font: f.reg, color: SC_GREEN });
-    page.drawText(`${srcLabel} ${tx(g.metric_source)}`, { x: MX + 14, y: y - 58, size: 7, font: f.reg, color: TXT_MUTED });
+    const tvSuffix = g.delta_pct ? `  (${tx(g.delta_pct)})` : "";
 
-    // Week milestones — milestones 3-4 are redacted in sample mode
+    let infoY = drawW(
+      page,
+      `${cvLabel} ${tx(g.current_value)}`,
+      MX + 14, y - 44, CW - 28,
+      f.reg, 8, TXT_MUTED, 1.5, false,
+    );
+    infoY -= 4;
+    infoY = drawW(
+      page,
+      `${tvLabel} ${tx(g.target_value)}${tvSuffix}`,
+      MX + 14, infoY, CW - 28,
+      f.reg, 8, SC_GREEN, 1.5, false,
+    );
+    infoY -= 4;
+    infoY = drawW(
+      page,
+      `${srcLabel} ${tx(g.metric_source)}`,
+      MX + 14, infoY, CW - 28,
+      f.reg, 7, TXT_MUTED, 1.5, false,
+    );
+
+    // Bug-C-2: week milestones in 3-line layout (label / action / outcome).
     if (g.week_milestones && g.week_milestones.length > 0) {
-      let my = y - 72;
+      let my = infoY - 12;
       const milestones = g.week_milestones.slice(0, 4);
       for (let mi = 0; mi < milestones.length; mi++) {
-        if (my < y - boxH + 12) break;
         const ms = milestones[mi];
         if (typeof ms !== "object" || !ms.week || !ms.task) continue;
+        // Hard floor: never overflow the current goal box. The boxH
+        // estimator already reserves enough room for all milestones, so
+        // this guard rarely fires; it stays as a defensive backstop.
+        if (my < y - boxH + 14) break;
 
         if (isSampleReport && mi >= 2) {
-          // Grey redaction bar for milestones 3-4
+          // Grey redaction bar for milestones 3-4 (single row, unchanged).
           const barW = CW - 32;
           page.drawRectangle({ x: MX + 14, y: my - 10, width: barW, height: 13, color: BG_INSET });
           const cHint = PDF_LABELS[currentLocale].censorMilestonesHint;
           const cW = f.reg.widthOfTextAtSize(cHint, 5.5);
           page.drawText(cHint, { x: MX + 14 + barW / 2 - cW / 2, y: my - 8, size: 5.5, font: f.bold, color: TXT_MUTED });
+          my -= 18;
         } else {
-          const rowText = `${tx(ms.week)}: ${tx(ms.task)}`;
-          page.drawText(rowText, { x: MX + 14, y: my, size: 7.5, font: f.reg, color: TXT_MUTED });
+          // Week label — own line, bold white
+          page.drawText(tx(ms.week), {
+            x: MX + 14, y: my, size: 7.5, font: f.bold, color: TXT_WHITE,
+          });
+          my -= 11;
+          // Action — own line, muted, wrap-aware
+          my = drawW(
+            page, tx(ms.task), MX + 14, my, CW - 28,
+            f.reg, 7.5, TXT_MUTED, 1.5, false,
+          );
+          // Outcome (milestone) — own line, accent green, wrap-aware
           const mVal = ms.milestone ? tx(ms.milestone) : "";
           if (mVal) {
-            const mW = f.bold.widthOfTextAtSize(mVal, 7.5);
-            page.drawText(mVal, { x: PW - MX - mW - 14, y: my, size: 7.5, font: f.bold, color: SC_GREEN });
+            my -= 1;
+            my = drawW(
+              page, mVal, MX + 14, my, CW - 28,
+              f.bold, 7.5, SC_GREEN, 1.5, false,
+            );
           }
+          my -= 6;  // spacing between weeks
         }
-        my -= 16;
       }
     }
 
@@ -1440,6 +1533,23 @@ function buildModule(
 
   // ── Stat boxes ────────────────────────────────────────────────────────
   if (metrics.length > 0) {
+    if (!hasSpaceForMetricsBlock(y)) {
+      // Bug-B fix (variant b): KEY METRICS heading + boxes don't fit on
+      // the current page. Close the module page, then push ONLY the
+      // KEY METRICS block onto a fresh continuation page. The module
+      // content above (text + info boxes) stays as it is on the
+      // current page — this is intentionally less invasive than
+      // re-rendering the entire module on the new page.
+      pageFooter(page, f, today);
+      const contPage = doc.addPage([PW, PH]);
+      let cy = pageChrome(contPage, f, today);
+      cy -= 24;  // pre-gap (same as in-place path)
+      secLabel(contPage, PL.kennwerte, f, MX, cy);
+      cy -= 13;  // post-heading gap
+      statBoxes(contPage, metrics, f, cy);
+      pageFooter(contPage, f, today);
+      return;  // skip the original-page pageFooter call below
+    }
     y -= 24;  // generous gap before heading (separates from previous section)
     secLabel(page, PL.kennwerte, f, MX, y);
     y -= 13;  // tight gap after heading (heading belongs to content below)
