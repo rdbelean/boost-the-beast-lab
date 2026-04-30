@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -27,6 +28,10 @@ import {
 import { contextToPremiumPromptContext } from "@/lib/reports/context-to-premium-adapter";
 import { runMainReportPipeline } from "@/lib/reports/pipeline";
 import { shouldUseV4Pipeline } from "@/lib/reports/feature-flag";
+import { dispatchReportEmail } from "@/lib/email/dispatch-report";
+import { waitForPlansReady } from "@/lib/email/wait-for-plans";
+import { generateAndUploadPlan } from "@/lib/plan/server-generate";
+import type { ExtractedEntities } from "@/lib/plan/prompts/full-prompts";
 
 export const runtime = "nodejs";
 // Vercel Pro allows up to 300s. Claude Opus + 8k tokens regularly crosses
@@ -773,6 +778,50 @@ Return ONLY valid JSON array, no markdown:
         })
         .eq("id", jobId);
     }
+
+    // 9. Server-side email-trigger as backup for client-disconnect (mobile
+    //    tab-switch). Runs in `after()` so it survives the response. We wait
+    //    up to 90s for the frontend to upload all 4 plan PDFs to Storage;
+    //    whatever is still missing after the timeout is generated server-side
+    //    via the same Anthropic + PDF helpers used by /api/plan/generate +
+    //    /api/plan/pdf, then uploaded via uploadPlanPdf. The lock inside
+    //    dispatchReportEmail ensures exactly one email is sent regardless
+    //    of which trigger (frontend's /api/reports/prepare-pdfs call from
+    //    /results, or this server-side after()-block) wins the race.
+    //
+    //    Result: every successfully-generated report gets an email with all
+    //    5 real PDF attachments — independent of whether the browser tab
+    //    survived the long generation window.
+    const assessmentIdForAfter = assessmentId;
+    const localeForAfter = locale;
+    const extractedEntitiesForAfter: ExtractedEntities | null =
+      (analysisExtraction as ExtractedEntities | null) ?? null;
+    after(async () => {
+      try {
+        const wait = await waitForPlansReady(assessmentIdForAfter, localeForAfter, {
+          timeoutMs: 90_000,
+          pollIntervalMs: 5_000,
+          fallbackGenerator: (planType) =>
+            generateAndUploadPlan(
+              assessmentIdForAfter,
+              localeForAfter,
+              planType,
+              extractedEntitiesForAfter,
+            ),
+        });
+        console.log(
+          `[server-trigger] wait done id=${assessmentIdForAfter} allReady=${wait.allReady} fallbackTriggered=${wait.fallbackTriggered.join(",") || "none"} stillMissing=${wait.stillMissing.join(",") || "none"}`,
+        );
+        if (!wait.allReady) {
+          console.warn(
+            `[server-trigger] ${wait.stillMissing.length} plan(s) still missing after fallback for ${assessmentIdForAfter} — email will fall back to placeholder cards for those`,
+          );
+        }
+        await dispatchReportEmail(assessmentIdForAfter, localeForAfter);
+      } catch (err) {
+        console.error("[server-trigger] dispatch chain failed:", err);
+      }
+    });
 
     return NextResponse.json({ success: true, downloadUrl, report, analysisExtraction });
   } catch (err) {
