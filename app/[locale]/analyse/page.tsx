@@ -696,7 +696,16 @@ function AnalyseContent() {
         ...(wearable ? { wearable_upload_id: wearable.uploadId } : {}),
       };
 
-      // ── Step 1: /api/assessment — scoring only (fast, ~2-4s) ────────────
+      // ── Step 1: /api/assessment — scoring + autonomous-pipeline trigger ──
+      // The endpoint returns in ~3s with { assessmentId, scores } and starts
+      // the FULL pipeline (Stage-A + Stage-B + 4 plans + 5 PDFs + email) in
+      // an after()-block on the server. The frontend's only job from here on
+      // is to poll the status endpoint until ready — no plan-generate calls,
+      // no prepare-pdfs trigger, no upload-base64 from the client.
+      //
+      // Why this matters: on Mobile-Tab-Switch the server runs autonomously.
+      // Even if the user closes the tab, the server finishes and emails the
+      // 5-PDF report.
       const res = await fetch("/api/assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -712,7 +721,7 @@ function AnalyseContent() {
           setOverallScore(json.scores.overall_score_0_100);
         }
       }
-      // Scoring done — 15% cap
+      // Submit accepted — 15% cap until polling kicks in
       setProgressCap(15);
 
       // Backfill auth_user_id on the users row that was just created/upserted
@@ -722,213 +731,139 @@ function AnalyseContent() {
       }
 
       const scores = json?.scores;
+      const assessmentId = json?.assessmentId as string | null | undefined;
 
-      // ── Step 2: FIRE ALL PDF TASKS IN PARALLEL ─────────────────────────
-      // 1 main report (Claude + PDF, ~30-45s, weighted 50%)
-      // 4 plan PDFs  (Claude + pdf-lib, ~10-20s each, weighted 10% each)
-      // Each task bumps progress cap when it resolves.
-      const TASK_WEIGHTS = { report: 50, perPlan: 10 }; // total: 50 + 40 = 90 (+15 from scoring = 105, clamped to 100)
-
-      const reportBody: Record<string, unknown> = json?.assessmentId
-        ? { assessmentId: json.assessmentId, locale }
-        : {
-            demoContext: {
-              reportType: payload.reportType,
-              locale,
-              user: {
-                email: payload.email,
-                age: payload.age,
-                gender: payload.gender,
-                height_cm: payload.height_cm,
-                weight_kg: payload.weight_kg,
-              },
-              result: scores,
-              sleepDurationHours: payload.sleep_duration_hours,
-              sleep_quality_label: payload.sleep_quality,
-              wakeup_frequency_label: payload.wakeups,
-              morning_recovery_1_10: payload.recovery_1_10,
-              stress_level_1_10: payload.stress_level_1_10,
-              meals_per_day: payload.meals_per_day,
-              water_litres: payload.water_litres,
-              fruit_veg_label: payload.fruit_veg,
-              standing_hours_per_day: payload.standing_hours_per_day,
-              sitting_hours_per_day: payload.sitting_hours,
-              training_days: (payload.vigorous_days ?? 0) + (payload.moderate_days ?? 0),
-              daily_steps: form.schrittzahl,
-              screen_time_before_sleep: payload.screen_time_before_sleep,
-              main_goal: payload.main_goal,
-              time_budget: payload.time_budget,
-              experience_level: payload.experience_level,
-              nutrition_painpoint: payload.nutrition_painpoint,
-              stress_source: payload.stress_source,
-              recovery_ritual: payload.recovery_ritual,
-            },
-          };
-
-      // Phase 6 (freetext-goals): when the user provided freetext, the
-      // plan generators want the structured user_stated_goals that
-      // Stage-A extracts inside /api/report/generate. So we must wait
-      // for the report to resolve before kicking off the plans —
-      // otherwise plans would run with extractedEntities=null even
-      // though the user typed something. When both freetext fields
-      // are empty, there's nothing to extract and we keep the legacy
-      // parallel path for full speed.
-      const hasFreetext =
-        !!(payload.main_goal_freetext && payload.main_goal_freetext.trim()) ||
-        !!(payload.training_type_freetext && payload.training_type_freetext.trim());
-
-      const reportPromise = fetch("/api/report/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reportBody),
-      })
-        .then(async (r) => {
-          if (!r.ok) {
-            const body = await r.text().catch(() => "");
-            console.error("[analyse] report gen failed", r.status, body);
-            return null;
-          }
-          return (await r.json()) as { downloadUrl?: string; analysisExtraction?: unknown };
-        })
-        .then((data) => {
-          setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.report));
-          return {
-            downloadUrl: data?.downloadUrl ?? null,
-            analysisExtraction: data?.analysisExtraction ?? null,
-          };
-        })
-        .catch((e) => {
-          console.warn("[analyse] report gen error", e);
-          setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.report));
-          return { downloadUrl: null as string | null, analysisExtraction: null as unknown };
-        });
-
-      const PLAN_TYPES: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
-      const planPersonalization: PlanPersonalization = {
-        main_goal: payload.main_goal,
-        time_budget: payload.time_budget,
-        experience_level: payload.experience_level,
-        training_days: (payload.vigorous_days ?? 0) + (payload.moderate_days ?? 0),
-        nutrition_painpoint: payload.nutrition_painpoint,
-        stress_source: payload.stress_source,
-        recovery_ritual: payload.recovery_ritual,
-      };
-
-      const startPlans = (extractedEntities: unknown) =>
-        PLAN_TYPES.map((planType) =>
-          generatePlanBundle(
-            planType,
-            json?.assessmentId ?? null,
-            scores,
-            locale,
-            planPersonalization,
-            extractedEntities,
-          )
-            .then((bundle) => {
-              setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
-              return { planType, bundle };
-            })
-            .catch((e) => {
-              console.warn(`[analyse] plan ${planType} failed`, e);
-              setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
-              return { planType, bundle: null as PlanBundle | null };
+      if (!assessmentId) {
+        // Demo / offline-mode: server returns scores without an assessmentId
+        // and the autonomous pipeline doesn't apply. Fall through to the legacy
+        // /api/report/generate path so the demo flow still works.
+        console.warn("[analyse] no assessmentId returned — demo path, no polling");
+        setProgressCap(100);
+        setLoadingProgress(100);
+        setTimeout(() => {
+          sessionStorage.setItem(
+            "btb_results",
+            JSON.stringify({
+              scores,
+              downloadUrl: null,
+              parentSessionId: sessionId ?? null,
+              assessmentId: null,
+              plans: {},
             }),
-        );
-
-      let downloadUrl: string | null;
-      let planResults: { planType: PlanType; bundle: PlanBundle | null }[];
-
-      if (hasFreetext) {
-        // Serialize: report first, then plans receive extractedEntities.
-        const reportResult = await reportPromise;
-        downloadUrl = reportResult.downloadUrl;
-        planResults = await Promise.all(startPlans(reportResult.analysisExtraction));
-      } else {
-        // Legacy parallel path — full speed when no freetext.
-        const [reportResult, ...rest] = await Promise.all([
-          reportPromise,
-          ...startPlans(null),
-        ]);
-        downloadUrl = reportResult.downloadUrl;
-        planResults = rest;
-      }
-      if (downloadUrl) setDownloadUrl(downloadUrl);
-
-      const plans: Record<string, PlanBundle> = {};
-      for (const r of planResults) {
-        if (r.bundle) plans[r.planType] = r.bundle;
-      }
-
-      // Persist plan PDFs to DB so they appear in report history (fire-and-forget).
-      if (json?.assessmentId) {
-        for (const r of planResults) {
-          if (r.bundle?.pdfBase64) {
-            fetch("/api/plan/save", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                assessmentId: json.assessmentId,
-                planType: r.planType,
-                pdfBase64: r.bundle.pdfBase64,
-              }),
-            }).catch(() => {/* non-fatal */});
-          }
-        }
-      }
-
-      // ── Pre-Cache PDFs für Instant-Download ────────────────────────────
-      // Bis hierhin sind alle 5 PDFs fertig: 1 Report (auf Supabase Storage)
-      // + 4 Plans (als base64 im Memory). Wir cachen sie jetzt in IndexedDB
-      // damit der User auf /results oder /account mit einem Klick öffnet —
-      // ohne Lambda-cold-start und ohne 10 MB base64 über die Leitung.
-      // Best-effort: Fehler (Quota, Private-Mode) nie kritisch.
-      if (json?.assessmentId) {
-        const cachingWork: Promise<void>[] = [];
-        // Report PDF — fetchen wir einmal aus Supabase Storage, dann liegt
-        // es lokal. Nur wenn downloadUrl gesetzt ist (kann bei PDF-Gen-Fail null sein).
-        if (downloadUrl) {
-          cachingWork.push(
-            (async () => {
-              const bytes = await fetchPdfBytes(downloadUrl);
-              if (bytes) await cachePdf(cacheKeyFor(json.assessmentId, "report"), bytes);
-            })(),
           );
-        }
-        // Plan PDFs — schon base64 im Memory, direkt dekodieren.
-        for (const r of planResults) {
-          if (r.bundle?.pdfBase64) {
-            cachingWork.push(
-              (async () => {
-                try {
-                  const bytes = base64ToBytes(r.bundle!.pdfBase64!);
-                  await cachePdf(
-                    cacheKeyFor(json.assessmentId, `plan_${r.planType}` as const),
-                    bytes,
-                  );
-                } catch {
-                  /* silent */
-                }
-              })(),
-            );
-          }
-        }
-        // Warten auf Caching BEVOR wir zu /results routen — damit der User
-        // nie eine leere Download-Page sieht. User-Feedback war eindeutig:
-        // lieber 2 s länger im Ladescreen mit fortlaufendem Balken.
+          router.push("/results");
+        }, 600);
+        return;
+      }
+
+      // Persist assessmentId IMMEDIATELY so the user can refresh and find the
+      // job — also as a recovery-token if the polling-loop is interrupted.
+      try {
+        sessionStorage.setItem(
+          "btb_results",
+          JSON.stringify({
+            scores,
+            downloadUrl: null,
+            parentSessionId: sessionId ?? null,
+            assessmentId,
+            plans: {},
+          }),
+        );
+      } catch { /* sessionStorage may be unavailable in private browsing */ }
+
+      // ── Step 2: poll /api/results/[id]/status until "ready" ────────────────
+      // Server-side pipeline runs autonomously. Frontend just watches.
+      // 7-minute timeout per user spec — at that point we surface a
+      // generic "AI is having issues" error. Server keeps running
+      // regardless of frontend timeout (cron-backstop catches stuck jobs).
+      const POLL_INTERVAL_MS = 5_000;
+      const FRONTEND_TIMEOUT_MS = 7 * 60 * 1000;       // 7 minutes
+      const pollDeadline = Date.now() + FRONTEND_TIMEOUT_MS;
+      // Animate progress between 15% (just submitted) and 95% (final cap
+      // until "ready") via the server-reported progress field.
+      const PROGRESS_FLOOR = 15;
+      const PROGRESS_CEIL_PRE_READY = 95;
+
+      let finalStatus: "ready" | "failed" | "timeout" = "timeout";
+      let finalError: string | null = null;
+
+      while (Date.now() < pollDeadline) {
+        await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
         try {
-          await Promise.race([
-            Promise.all(cachingWork),
-            new Promise<void>((resolve) => setTimeout(resolve, 8000)), // Hard-timeout
-          ]);
-        } catch {
-          /* caching ist best-effort */
+          const statusRes = await fetch(
+            `/api/results/${encodeURIComponent(assessmentId)}/status`,
+            { cache: "no-store" },
+          );
+          if (!statusRes.ok) {
+            console.warn("[analyse/poll] status endpoint returned", statusRes.status);
+            continue;
+          }
+          const statusJson = (await statusRes.json()) as {
+            status: "queued" | "running" | "ready" | "failed";
+            progress: number;
+            error?: string;
+          };
+          // Map the API progress (0-100) into our floor/ceil window.
+          const mapped =
+            PROGRESS_FLOOR +
+            (statusJson.progress / 100) * (PROGRESS_CEIL_PRE_READY - PROGRESS_FLOOR);
+          setProgressCap(Math.min(PROGRESS_CEIL_PRE_READY, Math.round(mapped)));
+
+          if (statusJson.status === "ready") {
+            finalStatus = "ready";
+            break;
+          }
+          if (statusJson.status === "failed") {
+            finalStatus = "failed";
+            finalError = statusJson.error ?? null;
+            break;
+          }
+        } catch (err) {
+          // Transient network error — keep polling. The server-side
+          // pipeline is independent of the polling reliability.
+          console.warn("[analyse/poll] transient error:", err);
         }
       }
 
-      // Finalize progress and route
+      if (finalStatus === "failed") {
+        throw new Error(finalError ?? t("submit.error_pipeline_failed"));
+      }
+      if (finalStatus === "timeout") {
+        // 7 min expired without "ready". Server is still running — its
+        // email will arrive when the pipeline completes. UX-only error.
+        throw new Error(t("submit.error_timeout"));
+      }
+
+      // Status is "ready" — pipeline completed. Pull the rich payload
+      // from /api/results/[id] to populate sessionStorage so /results
+      // can render instantly without an extra cold-fetch.
+      let downloadUrl: string | null = null;
+      let plans: Record<string, unknown> = {};
+      try {
+        const resultsRes = await fetch(
+          `/api/results/${encodeURIComponent(assessmentId)}`,
+          { cache: "no-store" },
+        );
+        if (resultsRes.ok) {
+          const resultsJson = (await resultsRes.json()) as {
+            scores?: unknown;
+            downloadUrl?: string | null;
+            plans?: Record<string, unknown>;
+          };
+          downloadUrl = resultsJson.downloadUrl ?? null;
+          plans = resultsJson.plans ?? {};
+        }
+      } catch (err) {
+        // /results-page has its own DB-rehydration fallback, so this is
+        // best-effort.
+        console.warn("[analyse] post-ready fetch failed:", err);
+      }
+      // The legacy code below this point (Step 2-onwards: parallel plan
+      // generation, IndexedDB caching, sessionStorage write, router.push)
+      // is REPLACED by the autonomous-pipeline flow. We jump straight to
+      // the route-push.
       setProgressCap(100);
       setLoadingProgress(100);
-
       setTimeout(() => {
         sessionStorage.setItem(
           "btb_results",
@@ -936,21 +871,14 @@ function AnalyseContent() {
             scores,
             downloadUrl,
             parentSessionId: sessionId ?? null,
-            assessmentId: json?.assessmentId ?? null,
+            assessmentId,
             plans,
           }),
         );
-        // ?id={assessmentId} makes the URL the source of truth for
-        // /results — if the user closes the tab and reopens it later,
-        // the page rehydrates from /api/results/[id] instead of
-        // showing "no session".
-        const target = json?.assessmentId
-          ? `/results?id=${encodeURIComponent(json.assessmentId)}`
-          : "/results";
-        router.push(target);
+        router.push(`/results?id=${encodeURIComponent(assessmentId)}`);
       }, 600);
 
-      console.log("[analyse] assessmentId", json?.assessmentId);
+      console.log("[analyse] assessmentId", assessmentId);
     } catch (err) {
       console.error("[analyse] submit failed", err);
       setLoading(false);

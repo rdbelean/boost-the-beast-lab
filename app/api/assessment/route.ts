@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import {
   runFullScoring,
@@ -9,9 +10,14 @@ import {
   type WakeupFrequency,
 } from "@/lib/scoring/index";
 import type { Locale, ReportType, ScoreBand } from "@/lib/supabase/types";
+import { writeTrace } from "@/lib/server/pipeline-trace";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Bumped from 120 → 300 because /api/assessment now owns the full
+// pipeline trigger via after(). The handler itself returns in ~3s, but
+// the after()-block fetches /api/report/generate which can run for
+// 60-120s. Total lambda lifetime stays well under the 300s Vercel-Pro cap.
+export const maxDuration = 300;
 
 // TODO: STRIPE WEBHOOK VERIFICATION
 // Bevor der Assessment-Flow startet, Payment-Status über Stripe-Session
@@ -482,15 +488,67 @@ export async function POST(req: NextRequest) {
       status: "pending",
     });
 
-    // 10. Return scores immediately. The client is responsible for calling
-    // /api/report/generate afterwards with { assessmentId }.
+    // 10. Server-autonomous pipeline trigger.
     //
-    // WHY: Previously this endpoint did `await fetch('/api/report/generate')`,
-    // which chained two serverless invocations under one outer timeout.
-    // Claude (30-60s) + Puppeteer PDF (5-15s) + Supabase Storage upload
-    // consistently pushed the outer response past Vercel's gateway limit and
-    // surfaced as a 504. Splitting into two client-initiated calls gives
-    // each endpoint its own fresh timeout budget.
+    // We return the response IMMEDIATELY with { assessmentId, scores } so
+    // the frontend can render the loading UI without waiting. The full
+    // report-generation pipeline (Stage-A + Stage-B + 4 plans + email)
+    // runs server-side in the after()-block — independent of whether the
+    // browser tab survives the 60-120s generation window.
+    //
+    // The after()-block does an internal HTTP fetch to /api/report/generate
+    // rather than calling the logic directly. /api/report/generate itself
+    // has its own after()-block (cdc8895) that handles plans + email
+    // dispatch. By triggering it from /api/assessment we move the trigger
+    // point earlier in the flow — the only client step that has to succeed
+    // is the initial /api/assessment POST (which returns in ~3s, before
+    // any tab-switch can interrupt).
+    //
+    // The cron-backstop in /api/cron/process-pending-jobs polls every 60s
+    // for stuck report_jobs and re-fires the pipeline if needed — this is
+    // the second-layer safety net for the rare case that this after()
+    // doesn't fire reliably.
+    const triggerLocale: Locale = locale;
+    const triggerAssessmentId = assessmentId;
+    after(async () => {
+      const startedAt = Date.now();
+      await writeTrace({
+        assessmentId: triggerAssessmentId,
+        stage: "submit_received",
+        detail: { locale: triggerLocale, source: "api/assessment" },
+      });
+      // Resolve the deployment URL. Vercel injects VERCEL_URL for every
+      // serverless invocation; in local dev fall back to the request origin.
+      const baseUrl = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : req.nextUrl.origin;
+      try {
+        const res = await fetch(`${baseUrl}/api/report/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            assessmentId: triggerAssessmentId,
+            locale: triggerLocale,
+          }),
+        });
+        await writeTrace({
+          assessmentId: triggerAssessmentId,
+          stage: "trigger_dispatched",
+          detail: { httpStatus: res.status, ok: res.ok },
+          durationMs: Date.now() - startedAt,
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("[assessment/after] trigger to /api/report/generate failed:", err);
+        await writeTrace({
+          assessmentId: triggerAssessmentId,
+          stage: "trigger_failed",
+          detail: { error: message },
+          durationMs: Date.now() - startedAt,
+        });
+      }
+    });
+
     return NextResponse.json({
       success: true,
       assessmentId,

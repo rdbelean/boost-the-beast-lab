@@ -459,6 +459,8 @@
       "error_label": "Hata:",
       "error_server": "Sunucu hatası ({status})",
       "error_unknown": "Bilinmeyen bir hata oluştu.",
+      "error_pipeline_failed": "Raporunuz oluşturulurken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+      "error_timeout": "Yapay zeka şu anda bir sorun yaşıyor, lütfen daha sonra tekrar deneyin.",
       "btn": "ANALİZİ BAŞLAT →",
       "loading": "İŞLENİYOR...",
       "name_label": "ADIN",

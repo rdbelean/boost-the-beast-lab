@@ -459,6 +459,8 @@
       "error_label": "Fehler:",
       "error_server": "Server-Fehler ({status})",
       "error_unknown": "Ein unbekannter Fehler ist aufgetreten.",
+      "error_pipeline_failed": "Bei der Erstellung deines Reports ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
+      "error_timeout": "Die KI hat gerade ein Problem, bitte versuche es später erneut.",
       "btn": "ANALYSE STARTEN →",
       "loading": "WIRD VERARBEITET...",
       "name_label": "DEIN VORNAME",

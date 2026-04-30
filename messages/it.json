@@ -459,6 +459,8 @@
       "error_label": "Errore:",
       "error_server": "Errore del server ({status})",
       "error_unknown": "Si è verificato un errore sconosciuto.",
+      "error_pipeline_failed": "Si è verificato un errore durante la creazione del tuo report. Riprova più tardi.",
+      "error_timeout": "La nostra IA sta riscontrando problemi al momento. Riprova più tardi.",
       "btn": "AVVIA L'ANALISI →",
       "loading": "IN ELABORAZIONE...",
       "name_label": "IL TUO NOME",

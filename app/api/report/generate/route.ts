@@ -32,6 +32,8 @@ import { dispatchReportEmail } from "@/lib/email/dispatch-report";
 import { waitForPlansReady } from "@/lib/email/wait-for-plans";
 import { generateAndUploadPlan } from "@/lib/plan/server-generate";
 import type { ExtractedEntities } from "@/lib/plan/prompts/full-prompts";
+import { processMainReport } from "@/lib/pdf/background-generator";
+import { writeTrace } from "@/lib/server/pipeline-trace";
 
 export const runtime = "nodejs";
 // Vercel Pro allows up to 300s. Claude Opus + 8k tokens regularly crosses
@@ -356,6 +358,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    await writeTrace({
+      assessmentId,
+      stage: "main_report_started",
+      detail: { source: "api/report/generate" },
+    });
+
     // 1. Build the canonical ReportContext via the central loader.
     //    Phase 2B: this replaces the prior inline assessment+users+responses
     //    reads, the FullAssessmentInputs reconstruction, and the runFullScoring
@@ -763,10 +771,37 @@ Return ONLY valid JSON array, no markdown:
       });
     }
 
-    // 7. Email is now dispatched from /api/reports/prepare-pdfs once all
-    // 4 plan PDFs have been uploaded — that step waits for the client to
-    // POST plan_pdfs base64 first. Sending here would only attach the main
-    // report and miss the 4 plans the user just paid for.
+    // 6b. Set pdf_generation_status row for main_report so the
+    //     downstream email-dispatch (which reads getStatus()) can
+    //     find it. PRIOR BUG: this row was only set by
+    //     /api/reports/prepare-pdfs (called from /results-Mount).
+    //     On mobile-tab-switch, /results was never reached →
+    //     status row never written → dispatchReportEmail aborted
+    //     with "main_report not ready" → no email. Setting the
+    //     row here ensures email-dispatch can complete regardless
+    //     of the client lifecycle.
+    if (downloadUrl && !downloadUrl.startsWith("data:")) {
+      try {
+        await processMainReport(assessmentId, locale);
+        await writeTrace({
+          assessmentId,
+          stage: "main_report_completed",
+          detail: { downloadUrl },
+        });
+      } catch (err) {
+        console.error("[report/generate] processMainReport failed:", err);
+        await writeTrace({
+          assessmentId,
+          stage: "main_report_failed",
+          detail: { error: err instanceof Error ? err.message : String(err) },
+        });
+      }
+    }
+
+    // 7. Email is dispatched from the after()-block below (which also
+    //    handles plan-PDF upload via fallbackGenerator). Frontend's
+    //    /api/reports/prepare-pdfs trigger from /results-Mount remains
+    //    as a redundant path — both share the email_sent_at lock.
 
     // 8. Mark report job completed.
     if (jobId) {
@@ -797,29 +832,86 @@ Return ONLY valid JSON array, no markdown:
     const extractedEntitiesForAfter: ExtractedEntities | null =
       (analysisExtraction as ExtractedEntities | null) ?? null;
     after(async () => {
+      const afterStartedAt = Date.now();
       try {
+        await writeTrace({
+          assessmentId: assessmentIdForAfter,
+          stage: "plans_wait_started",
+          detail: { timeoutMs: 90_000, pollIntervalMs: 5_000 },
+        });
         const wait = await waitForPlansReady(assessmentIdForAfter, localeForAfter, {
           timeoutMs: 90_000,
           pollIntervalMs: 5_000,
-          fallbackGenerator: (planType) =>
-            generateAndUploadPlan(
-              assessmentIdForAfter,
-              localeForAfter,
-              planType,
-              extractedEntitiesForAfter,
-            ),
+          fallbackGenerator: async (planType) => {
+            const plStart = Date.now();
+            await writeTrace({
+              assessmentId: assessmentIdForAfter,
+              stage: "plan_fallback_started",
+              detail: { planType },
+            });
+            try {
+              const result = await generateAndUploadPlan(
+                assessmentIdForAfter,
+                localeForAfter,
+                planType,
+                extractedEntitiesForAfter,
+              );
+              await writeTrace({
+                assessmentId: assessmentIdForAfter,
+                stage: "plan_fallback_completed",
+                detail: { planType, status: result.status },
+                durationMs: Date.now() - plStart,
+              });
+              return result;
+            } catch (err) {
+              await writeTrace({
+                assessmentId: assessmentIdForAfter,
+                stage: "plan_fallback_failed",
+                detail: {
+                  planType,
+                  error: err instanceof Error ? err.message : String(err),
+                },
+                durationMs: Date.now() - plStart,
+              });
+              throw err;
+            }
+          },
+        });
+        await writeTrace({
+          assessmentId: assessmentIdForAfter,
+          stage: "plans_wait_done",
+          detail: {
+            allReady: wait.allReady,
+            fallbackTriggered: wait.fallbackTriggered,
+            stillMissing: wait.stillMissing,
+          },
         });
         console.log(
           `[server-trigger] wait done id=${assessmentIdForAfter} allReady=${wait.allReady} fallbackTriggered=${wait.fallbackTriggered.join(",") || "none"} stillMissing=${wait.stillMissing.join(",") || "none"}`,
         );
-        if (!wait.allReady) {
-          console.warn(
-            `[server-trigger] ${wait.stillMissing.length} plan(s) still missing after fallback for ${assessmentIdForAfter} — email will fall back to placeholder cards for those`,
-          );
-        }
+
+        const emailStart = Date.now();
+        await writeTrace({
+          assessmentId: assessmentIdForAfter,
+          stage: "email_dispatch_started",
+        });
         await dispatchReportEmail(assessmentIdForAfter, localeForAfter);
+        await writeTrace({
+          assessmentId: assessmentIdForAfter,
+          stage: "email_sent",
+          durationMs: Date.now() - emailStart,
+        });
       } catch (err) {
         console.error("[server-trigger] dispatch chain failed:", err);
+        await writeTrace({
+          assessmentId: assessmentIdForAfter,
+          stage: "pipeline_error",
+          detail: {
+            error: err instanceof Error ? err.message : String(err),
+            phase: "after-block",
+          },
+          durationMs: Date.now() - afterStartedAt,
+        });
       }
     });
 

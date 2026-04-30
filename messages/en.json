@@ -459,6 +459,8 @@
       "error_label": "Error:",
       "error_server": "Server error ({status})",
       "error_unknown": "An unknown error occurred.",
+      "error_pipeline_failed": "Something went wrong while creating your report. Please try again later.",
+      "error_timeout": "Our AI is currently experiencing issues. Please try again later.",
       "btn": "START ANALYSIS →",
       "loading": "PROCESSING...",
       "name_label": "YOUR FIRST NAME",
