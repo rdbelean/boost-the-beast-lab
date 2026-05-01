@@ -1787,6 +1787,38 @@ function AnalyseContent() {
               </div>
             </div>
 
+            {/* Stay-on-page warning — prominent because closing the tab
+                during generation orphans the report; the lambda finishes
+                but the client never gets the downloadUrl wired up. Red
+                accent so it can't be missed against the rest of the
+                muted-grey loading screen. */}
+            <div
+              style={{
+                marginBottom: 16,
+                padding: "14px 16px",
+                background: "rgba(230,50,34,0.08)",
+                borderLeft: "3px solid #E63222",
+                fontFamily: "Helvetica, Arial, sans-serif",
+                lineHeight: 1.55,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11,
+                  letterSpacing: "0.18em",
+                  color: "#E63222",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  marginBottom: 6,
+                }}
+              >
+                {t("loading_overlay.stay_on_page_title")}
+              </div>
+              <div style={{ fontSize: 13, color: "#e7e7ea" }}>
+                {t("loading_overlay.stay_on_page_body")}
+              </div>
+            </div>
+
             {/* Duration hint */}
             <div
               style={{

@@ -481,6 +481,8 @@
       "step_plans": "Optimizasyon planları hazırlanıyor…",
       "step_done": "Her şey hazır — rapora geçiliyor…",
       "duration_hint": "Endişelenme — oluşturma 5 dakikaya kadar sürebilir. Başka bir şey yapmana gerek yok.",
+      "stay_on_page_title": "LÜTFEN BU SAYFADA KAL",
+      "stay_on_page_body": "Sekmeyi değiştirme ve uygulamayı veya tarayıcıyı kapatma — yoksa raporun tamamlanamaz.",
       "active_step_counter": "Adım {current} / {total}",
       "steps": [
         "BTB Lab'ın bilimsel referans veri tabanıyla eşleştirme...",
