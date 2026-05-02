@@ -481,8 +481,6 @@
       "step_plans": "Optimierungspläne werden vorbereitet…",
       "step_done": "Alles bereit — wechsle zum Report…",
       "duration_hint": "Nicht wundern — die Erstellung kann bis zu 5 Minuten dauern. Du musst nichts weiter tun.",
-      "stay_on_page_title": "BITTE AUF DIESER SEITE BLEIBEN",
-      "stay_on_page_body": "Wechsle nicht den Tab und schließe die App oder den Browser nicht — sonst kann dein Report nicht fertig generiert werden.",
       "active_step_counter": "Schritt {current} / {total}",
       "steps": [
         "Abgleich mit der wissenschaftlichen Referenzdatenbank des BTB Lab...",
