@@ -479,6 +479,7 @@
       "step_plans": "Preparing optimization plans…",
       "step_done": "All set — moving to the report…",
       "duration_hint": "Don't worry — generation can take up to 5 minutes. You don't have to do anything else.",
+      "tab_warning": "Please don't leave this tab while the report is being generated.",
       "active_step_counter": "Step {current} / {total}",
       "steps": [
         "Matching against BTB Lab's scientific reference database...",

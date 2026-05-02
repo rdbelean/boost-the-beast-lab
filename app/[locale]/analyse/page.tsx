@@ -1859,6 +1859,25 @@ function AnalyseContent() {
               </div>
             </div>
 
+            {/* Tab-stay warning — backgrounding the tab during the
+                run aborts the report. UI-only mitigation while the
+                lifecycle bug is unresolved. */}
+            <div
+              style={{
+                marginBottom: 16,
+                padding: "10px 14px",
+                background: "#E63222",
+                color: "#ffffff",
+                fontSize: 12,
+                fontFamily: "Helvetica, Arial, sans-serif",
+                lineHeight: 1.55,
+                letterSpacing: "0.01em",
+                borderRadius: 4,
+              }}
+            >
+              {t("loading_overlay.tab_warning")}
+            </div>
+
             {/* Duration hint */}
             <div
               style={{

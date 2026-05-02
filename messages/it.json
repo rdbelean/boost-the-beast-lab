@@ -479,6 +479,7 @@
       "step_plans": "Preparazione dei piani di ottimizzazione…",
       "step_done": "Tutto pronto — vai al report…",
       "duration_hint": "Tranquillo — la creazione può richiedere fino a 5 minuti. Non devi fare altro.",
+      "tab_warning": "Per favore non lasciare questa scheda mentre il report viene generato.",
       "active_step_counter": "Passo {current} / {total}",
       "steps": [
         "Confronto con il database scientifico di riferimento di BTB Lab...",

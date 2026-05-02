@@ -479,6 +479,7 @@
       "step_plans": "Optimierungspläne werden vorbereitet…",
       "step_done": "Alles bereit — wechsle zum Report…",
       "duration_hint": "Nicht wundern — die Erstellung kann bis zu 5 Minuten dauern. Du musst nichts weiter tun.",
+      "tab_warning": "Bitte verlassen Sie nicht diesen Tab während der Report generiert wird.",
       "active_step_counter": "Schritt {current} / {total}",
       "steps": [
         "Abgleich mit der wissenschaftlichen Referenzdatenbank des BTB Lab...",
