@@ -65,7 +65,7 @@ interface AssessmentRequestBody {
   time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
   experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
   /** Phase-2 Tiefen-Inputs — feeden direkt in Daily-Protocol-Prompt. */
-  nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "none" | null;
+  nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "undereating" | "none" | null;
   stress_source?: "job" | "family" | "finances" | "health" | "future" | "none" | null;
   recovery_ritual?: "sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none" | null;
   /** Phase-1-Datenflussfix: diese drei wurden zuvor verworfen / verzerrt

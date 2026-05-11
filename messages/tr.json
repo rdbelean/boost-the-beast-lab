@@ -284,6 +284,7 @@
         "low_protein": "Yeterli protein alamıyorum — hedef miktarı nasıl tutacağımı bilmiyorum",
         "no_energy": "Enerjim düşük / öğleden sonra bitkin / kahveye bağımlı",
         "no_time": "Yemek yapmaya vakit yok / hızlıca hazır gıdaya kaçıyorum",
+        "undereating": "Sık sık yeterince yemiyorum — iştahım yok, vaktim yok ya da unutuyorum",
         "none": "Aslında iyi gidiyor — belirgin bir sorun yok"
       },
       "stress_source": {

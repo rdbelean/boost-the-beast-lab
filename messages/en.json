@@ -284,6 +284,7 @@
         "low_protein": "Too little protein — no idea how to hit my target",
         "no_energy": "No energy / afternoon crash / caffeine dependency",
         "no_time": "No time to cook / grabbing quick processed food",
+        "undereating": "I often undereat — no appetite, no time, or just forget",
         "none": "Nutrition is actually fine — no real pain point"
       },
       "stress_source": {

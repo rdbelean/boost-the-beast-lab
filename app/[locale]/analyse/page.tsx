@@ -140,7 +140,7 @@ interface FormData {
   stresslevel: string;
   mahlzeitenPlan: string;
   // Phase 2 — Tiefen-Inputs für personalisierte Daily-Life-Protocol-Habits
-  nutritionPainpoint: string; // cravings_evening | low_protein | no_energy | no_time | none
+  nutritionPainpoint: string; // cravings_evening | low_protein | no_energy | no_time | undereating | none
   stressSource: string; // job | family | finances | health | future | none
   recoveryRitual: string; // sport | nature | cooking | reading | meditation | social | none
   // Optional Freetext (max 1000 chars). Empty = current behaviour.
@@ -247,6 +247,7 @@ const NUTRITION_PAINPOINT_VALUES = new Set([
   "low_protein",
   "no_energy",
   "no_time",
+  "undereating",
   "none",
 ]);
 const STRESS_SOURCE_VALUES = new Set(["job", "family", "finances", "health", "future", "none"]);
@@ -1582,6 +1583,7 @@ function AnalyseContent() {
                     { label: t("q.nutrition_painpoint.low_protein"), value: "low_protein" },
                     { label: t("q.nutrition_painpoint.no_energy"), value: "no_energy" },
                     { label: t("q.nutrition_painpoint.no_time"), value: "no_time" },
+                    { label: t("q.nutrition_painpoint.undereating"), value: "undereating" },
                     { label: t("q.nutrition_painpoint.none"), value: "none" },
                   ]}
                 />

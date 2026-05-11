@@ -284,6 +284,7 @@
         "low_protein": "Troppa poca proteina — non so come raggiungere il fabbisogno",
         "no_energy": "Poca energia / calo pomeridiano / dipendenza dalla caffeina",
         "no_time": "Niente tempo per cucinare / ricorro a cibi pronti",
+        "undereating": "Mangio spesso troppo poco — niente appetito, niente tempo o me ne dimentico",
         "none": "L'alimentazione va bene — nessun vero problema"
       },
       "stress_source": {

@@ -32,7 +32,7 @@ export interface PlanPersonalization {
   time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
   experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
   training_days?: number | null;
-  nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "none" | null;
+  nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "undereating" | "none" | null;
   stress_source?: "job" | "family" | "finances" | "health" | "future" | "none" | null;
   recovery_ritual?: "sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none" | null;
 }
@@ -902,6 +902,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
       low_protein: "Mindestens 1 Block MUSS Protein-Targets konkret machen (z.B. 1,6–2,2 g/kg KG/Tag → Portionen × Mahlzeit runterbrechen).",
       no_energy: "Mindestens 1 Block MUSS Energie-Timing adressieren (Frühstücks-Timing, Koffein-Cutoff, Blutzucker-Stabilisierung).",
       no_time: "Mindestens 1 Block MUSS Meal-Prep-Friction reduzieren (Sonntags 30-Min-Prep, 2–3 Protein-Quellen vorkochen).",
+      undereating: "Mindestens 1 Block MUSS Unterernährung adressieren — 4–5 Mahlzeiten/Tag statt 2–3, +500 kcal/Tag Surplus-Ziel, kalorisch dichte Snacks (Nüsse, Avocado, Nussbutter) zwischen Hauptmahlzeiten, Pre-/Post-Workout-Protein-Shake als Kalorien-Floor.",
     };
     const entry = np[p.nutrition_painpoint];
     if (entry) deepRules.push(entry);
@@ -1022,6 +1023,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
       low_protein: "At least 1 block MUST make protein targets concrete (e.g. 1.6–2.2 g/kg body weight/day → break down portions × meal).",
       no_energy: "At least 1 block MUST address energy timing (breakfast timing, caffeine cutoff, blood-sugar stabilisation).",
       no_time: "At least 1 block MUST reduce meal-prep friction (Sunday 30-min prep, pre-cook 2–3 protein sources).",
+      undereating: "At least 1 block MUST address caloric undereating — 4–5 meals/day instead of 2–3, +500 kcal/day surplus target, calorie-dense snacks (nuts, avocado, nut butter) between main meals, pre/post-workout protein shake as a calorie floor.",
     };
     const entry = np[p.nutrition_painpoint];
     if (entry) deepRules.push(entry);
@@ -1142,6 +1144,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
       low_protein: "Almeno 1 blocco DEVE rendere concreti i target proteici (es. 1,6–2,2 g/kg peso corporeo/giorno → ripartire le porzioni × pasto).",
       no_energy: "Almeno 1 blocco DEVE affrontare l'energy timing (timing della colazione, cutoff della caffeina, stabilizzazione glicemica).",
       no_time: "Almeno 1 blocco DEVE ridurre la friction del meal-prep (prep di 30 min la domenica, pre-cuocere 2–3 fonti proteiche).",
+      undereating: "Almeno 1 blocco DEVE affrontare la sotto-alimentazione — 4–5 pasti/giorno invece di 2–3, surplus di +500 kcal/giorno, snack calorici densi (frutta secca, avocado, burro di noci) tra i pasti principali, shake proteico pre/post-workout come base calorica.",
     };
     const entry = np[p.nutrition_painpoint];
     if (entry) deepRules.push(entry);
@@ -1262,6 +1265,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
       low_protein: "En az 1 blok protein hedeflerini somutlaştırMALIDIR (örn. 1,6–2,2 g/kg vücut ağırlığı/gün → porsiyonları × öğüne böl).",
       no_energy: "En az 1 blok enerji zamanlamasını ele ALMALIDIR (kahvaltı zamanlaması, kafein cutoff'u, kan şekeri dengelenmesi).",
       no_time: "En az 1 blok meal-prep friksiyonunu azaltMALIDIR (pazar 30 dk prep, 2–3 protein kaynağını önceden pişir).",
+      undereating: "En az 1 blok yetersiz beslenmeyi ele almalı — 2–3 yerine günde 4–5 öğün, +500 kcal/gün fazlalık hedefi, ana öğünler arasında kalori yoğun atıştırmalıklar (kuruyemiş, avokado, fındık ezmesi), kalori tabanı olarak pre/post-workout protein shake.",
     };
     const entry = np[p.nutrition_painpoint];
     if (entry) deepRules.push(entry);

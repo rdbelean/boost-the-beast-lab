@@ -284,6 +284,7 @@
         "low_protein": "Zu wenig Protein — weiß nie wie ich genug reinbekomme",
         "no_energy": "Zu wenig Energie / Mittagstief / Kaffee-Abhängigkeit",
         "no_time": "Keine Zeit zu kochen / greife zu schnell zu Fertigessen",
+        "undereating": "Ich esse oft zu wenig — kein Hunger, keine Zeit oder vergessen",
         "none": "Läuft eigentlich gut — kein echter Painpoint"
       },
       "stress_source": {
