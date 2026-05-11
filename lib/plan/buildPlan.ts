@@ -2,6 +2,9 @@
 // /plans/[type] (for page rendering). The content is deterministic from
 // scores; /api/plan/generate layers an AI-enhanced version on top.
 
+import { PLAN_GLOSSARY, EXAMPLE_MARKER, PAUSE_PATTERN } from "@/lib/plan/glossary";
+import type { Locale } from "@/lib/supabase/types";
+
 export type PlanType = "activity" | "metabolic" | "recovery" | "stress";
 
 interface PlanMeta { title: string; subtitle: string; source: string }
@@ -42,10 +45,43 @@ function getPlanMeta(locale?: string): PlanMetaMap {
   return META_DE;
 }
 
-export interface PlanBlock {
+// Plan-v2 MVP: PlanBlock ist jetzt ein discriminated union.
+// Legacy-Blocks (heading + items[]) bleiben das Default — der Renderer
+// behandelt sie wie bisher. WeeklyTablePlanBlock (kind: "weekly_table")
+// ist der neue Block-Typ für die Tag-für-Tag-Tabelle (7 Rows mon→sun).
+
+export type WeekDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+
+export interface WeeklyRow {
+  day: WeekDay;
+  /** "Easy Run Z2 (Zone 2 — Tempo bei dem du noch sprechen kannst) — z.B. 30 Min lockerer Lauf" oder "Pause". */
+  action: string;
+  /** "30 Min" oder "—" (Pause-Days). */
+  duration: string;
+  /** 3–5 Wörter Begründung, keine Score-Referenzen. */
+  why: string;
+}
+
+export interface LegacyPlanBlock {
+  /** Optional discriminator — undefined / fehlend bedeutet Legacy-Block. */
+  kind?: undefined;
   heading: string;
   items: string[];
   rationale?: string;
+}
+
+export interface WeeklyTablePlanBlock {
+  kind: "weekly_table";
+  heading: string;
+  rows: WeeklyRow[];
+  rationale?: string;
+}
+
+export type PlanBlock = LegacyPlanBlock | WeeklyTablePlanBlock;
+
+/** Type-Guard für den neuen Block-Typ. */
+export function isWeeklyTableBlock(b: PlanBlock): b is WeeklyTablePlanBlock {
+  return b.kind === "weekly_table";
 }
 
 export interface PlanContent {
@@ -437,4 +473,187 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
       },
     ],
   };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Plan v2 MVP — Post-Processing + Quality-Validator
+// ─────────────────────────────────────────────────────────────────
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Score-Reference-Phrasen (alle 4 Locales). Matchen Score-Namen
+// gefolgt von Verben/Wörtern und einer Score-Zahl wie "58/100".
+const SCORE_REFERENCE_PATTERN =
+  /\b(Activity|Metabolic|Metabolik|Metabolico|Recovery|Stress)\b[\s\S]{0,30}?\b(Score|Punkt|skor)\b[\s\S]{0,30}?\b\d+\s*\/\s*100\b/gi;
+
+const SCORE_NAME_ONLY = /\b(Activity|Metabolic|Recovery|Stress)\s+Score\b/gi;
+
+// Locale-spezifischer Ersatztext für Score-Referenzen (substantiv-form).
+const SCORE_REPLACEMENT_BY_LOCALE: Record<Locale, Record<string, string>> = {
+  de: {
+    Activity: "Ausdauer-Niveau",
+    Metabolic: "Metabolik-Niveau",
+    Recovery: "Recovery-Niveau",
+    Stress: "Stress-Niveau",
+  },
+  en: {
+    Activity: "endurance level",
+    Metabolic: "metabolic level",
+    Recovery: "recovery level",
+    Stress: "stress level",
+  },
+  it: {
+    Activity: "livello di endurance",
+    Metabolic: "livello metabolico",
+    Recovery: "livello di recovery",
+    Stress: "livello di stress",
+  },
+  tr: {
+    Activity: "dayanıklılık seviyesi",
+    Metabolic: "metabolik seviye",
+    Recovery: "toparlanma seviyesi",
+    Stress: "stres seviyesi",
+  },
+};
+
+/** Wendet Glossar-Inject + Score-Reference-Replace auf einen Text an. */
+function transformPlanText(text: string, locale: Locale): string {
+  let out = text;
+
+  // 1. Score-Reference-Pass: ganze Phrasen wie "Activity Score liegt bei 58/100" → "Ausdauer-Niveau"
+  out = out.replace(SCORE_REFERENCE_PATTERN, (m) => {
+    for (const dim of ["Activity", "Metabolic", "Recovery", "Stress"] as const) {
+      if (new RegExp(`\\b${dim}\\b`, "i").test(m)) {
+        return SCORE_REPLACEMENT_BY_LOCALE[locale][dim];
+      }
+    }
+    return m;
+  });
+
+  // 2. Score-Name-Only-Pass: "Activity Score" alleinstehend → "Ausdauer-Niveau"
+  out = out.replace(SCORE_NAME_ONLY, (_m, p1: string) => {
+    const dim = p1.charAt(0).toUpperCase() + p1.slice(1).toLowerCase();
+    return SCORE_REPLACEMENT_BY_LOCALE[locale][dim] ?? p1;
+  });
+
+  // 3. Glossar-Pass: jedes Vorkommen ohne unmittelbar folgende "("-Klammer
+  //    bekommt die Klammer-Phrase injiziert.
+  const glossary = PLAN_GLOSSARY[locale];
+  // Sortiere nach Länge desc, damit "Zone 2" vor "Z2" matched (longer first).
+  const terms = Object.keys(glossary).sort((a, b) => b.length - a.length);
+  for (const term of terms) {
+    const explanation = glossary[term];
+    const pattern = new RegExp(`\\b${escapeRegex(term)}\\b(?!\\s*\\()`, "g");
+    out = out.replace(pattern, `${term} (${explanation})`);
+  }
+
+  return out;
+}
+
+/**
+ * Wendet Glossar-Inject + Score-Reference-Replace auf den gesamten Plan an.
+ * Deterministisches Sicherheitsnetz für Claude-Output.
+ */
+export function enforceGlossaryAndExamples(
+  plan: { blocks: PlanBlock[] },
+  locale: Locale,
+): { blocks: PlanBlock[] } {
+  return {
+    blocks: plan.blocks.map((b): PlanBlock => {
+      if (isWeeklyTableBlock(b)) {
+        return {
+          ...b,
+          heading: transformPlanText(b.heading, locale),
+          rows: b.rows.map((r) => ({
+            ...r,
+            action: transformPlanText(r.action, locale),
+            why: transformPlanText(r.why, locale),
+          })),
+          rationale: b.rationale ? transformPlanText(b.rationale, locale) : undefined,
+        };
+      }
+      return {
+        ...b,
+        heading: transformPlanText(b.heading, locale),
+        items: b.items.map((it) => transformPlanText(it, locale)),
+        rationale: b.rationale ? transformPlanText(b.rationale, locale) : undefined,
+      };
+    }),
+  };
+}
+
+/**
+ * Prüft den Plan auf Quality-Kriterien:
+ * - weekly_table existiert mit genau 7 Rows mon→sun
+ * - jede Action-Row (außer Pause) enthält "z.B."-Marker ODER eine "(...)"-Klammer
+ * - keine Score-Referenzen mehr im Text (nach Post-Processing)
+ * - daily-anchors-ähnliche Blocks: gleicher Konkrethheit-Check
+ */
+export function validatePlanQuality(
+  plan: { blocks: PlanBlock[] },
+  locale: Locale,
+): { ok: boolean; reasons: string[] } {
+  const reasons: string[] = [];
+  const marker = EXAMPLE_MARKER[locale];
+  const pausePattern = PAUSE_PATTERN[locale];
+
+  // 1. weekly_table-Block muss existieren mit genau 7 mon→sun-Rows
+  const wt = plan.blocks.find(isWeeklyTableBlock);
+  if (!wt) {
+    reasons.push("missing_weekly_table");
+  } else {
+    if (wt.rows.length !== 7) {
+      reasons.push(`weekly_table_rows_count_${wt.rows.length}`);
+    } else {
+      const expectedOrder: WeekDay[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+      wt.rows.forEach((r, i) => {
+        if (r.day !== expectedOrder[i]) {
+          reasons.push(`weekly_table_row_${i}_wrong_day_${r.day}`);
+        }
+      });
+    }
+    // 2. Per row: action MUSS marker ODER Klammer enthalten (Pause-Rows ausgenommen)
+    wt.rows.forEach((r) => {
+      if (pausePattern.test(r.action)) return; // Pause-Tag exempt
+      const hasMarker = r.action.includes(marker);
+      const hasParens = /\([^)]+\)/.test(r.action);
+      if (!hasMarker && !hasParens) {
+        reasons.push(`row_${r.day}_no_example_or_explanation`);
+      }
+    });
+  }
+
+  // 3. Score-Reference-Pass (nach Post-Processing sollten alle weg sein)
+  for (const b of plan.blocks) {
+    const allText = isWeeklyTableBlock(b)
+      ? `${b.heading} ${b.rows.map((r) => `${r.action} ${r.why}`).join(" ")}`
+      : `${b.heading} ${b.items.join(" ")}`;
+    if (SCORE_REFERENCE_PATTERN.test(allText) || SCORE_NAME_ONLY.test(allText)) {
+      reasons.push("score_reference_present");
+    }
+    // Reset regex state (g-flag carries lastIndex)
+    SCORE_REFERENCE_PATTERN.lastIndex = 0;
+    SCORE_NAME_ONLY.lastIndex = 0;
+  }
+
+  // 4. Anchor-ähnlicher Block (Heading enthält Anker/Anchor/Ancore/Çapa) — items müssen marker ODER Klammer haben.
+  // Toleranter Regex: Deklinationen ("täglichen Anker"), Plural-Endungen, Reihenfolge-Varianten.
+  const anchorBlock = plan.blocks.find(
+    (b) =>
+      !isWeeklyTableBlock(b) &&
+      /t(ä|a)gliche[a-zß]*\s+anker|daily\s+anchor|ancore?\s+quotidian[ae]|günlük\s+çapa/i.test(b.heading),
+  );
+  if (anchorBlock && !isWeeklyTableBlock(anchorBlock)) {
+    anchorBlock.items.forEach((item, i) => {
+      const hasMarker = item.includes(marker);
+      const hasParens = /\([^)]+\)/.test(item);
+      if (!hasMarker && !hasParens) {
+        reasons.push(`anchor_${i}_no_example_or_explanation`);
+      }
+    });
+  }
+
+  return { ok: reasons.length === 0, reasons };
 }

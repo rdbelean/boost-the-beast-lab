@@ -4,6 +4,13 @@ import { buildFullPrompt, type PlanType, type ScoreInput, type PlanPersonalizati
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 import { loadReportContext, type ReportContext } from "@/lib/reports/report-context";
 import { cleanJsonText } from "@/lib/reports/pipeline";
+import {
+  enforceGlossaryAndExamples,
+  validatePlanQuality,
+  type PlanBlock,
+} from "@/lib/plan/buildPlan";
+import { EXAMPLE_MARKER } from "@/lib/plan/glossary";
+import type { Locale } from "@/lib/supabase/types";
 
 export const runtime = "nodejs";
 // Sonnet 4.6 generating ~3000 tokens of structured plan content can take
@@ -12,9 +19,36 @@ export const runtime = "nodejs";
 // even longer. 60s was the legacy default and silently killed plan
 // generation under load. 180s gives Sonnet enough headroom while
 // staying well under Vercel Pro's 300s ceiling.
+//
+// Plan-v2 MVP: quality-retry loop kann bis 3 Anthropic-Calls auslösen.
+// 3 × Haiku-4.5 @ ~30-60s = 90-180s worst case. Bleibt unter 300s ceiling.
 export const maxDuration = 180;
 
-interface PlanBlock { heading: string; items: string[] }
+const MAX_QUALITY_ATTEMPTS = 3;
+
+function buildQualityRetryDirective(
+  locale: Locale,
+  attempt: number,
+  reasons: string[],
+): string {
+  const marker = EXAMPLE_MARKER[locale];
+  const reasonsList = reasons.join(", ");
+  if (locale === "en") {
+    return `QUALITY RETRY ATTEMPT ${attempt}/${MAX_QUALITY_ATTEMPTS}. Your previous output failed these checks: ${reasonsList}. Fix EVERY one. Specifically: weekly_table MUST contain exactly 7 rows in the order mon, tue, wed, thu, fri, sat, sun. EVERY action row (except Rest) MUST contain "${marker}" or a "(...)" parenthetical explanation. NEVER mention score numbers like "Activity Score 58/100" or score names like "Recovery Score".`;
+  }
+  if (locale === "it") {
+    return `QUALITY RETRY TENTATIVO ${attempt}/${MAX_QUALITY_ATTEMPTS}. Il tuo output precedente non ha superato questi controlli: ${reasonsList}. Correggi OGNI punto. In particolare: weekly_table DEVE contenere esattamente 7 righe nell'ordine mon, tue, wed, thu, fri, sat, sun. OGNI riga di azione (eccetto Riposo) DEVE contenere "${marker}" o una spiegazione in "(...)". MAI menzionare numeri di score come "Activity Score 58/100" o nomi di score come "Recovery Score".`;
+  }
+  if (locale === "tr") {
+    return `QUALITY RETRY DENEME ${attempt}/${MAX_QUALITY_ATTEMPTS}. Önceki çıktın şu kontrolleri geçemedi: ${reasonsList}. Hepsini düzelt. Özellikle: weekly_table TAM olarak mon, tue, wed, thu, fri, sat, sun sırasında 7 satır içermelidir. HER eylem satırı (Dinlenme hariç) "${marker}" veya bir "(...)" parantez açıklaması içermelidir. ASLA "Activity Score 58/100" gibi skor sayılarından veya "Recovery Score" gibi skor adlarından bahsetme.`;
+  }
+  // de
+  return `QUALITY-RETRY VERSUCH ${attempt}/${MAX_QUALITY_ATTEMPTS}. Dein vorheriger Output hat folgende Prüfungen NICHT bestanden: ${reasonsList}. Behebe ALLE diese Punkte. Insbesondere: weekly_table MUSS exakt 7 rows in der Reihenfolge mon, tue, wed, thu, fri, sat, sun enthalten. JEDE Action-Row (außer Pause) MUSS "${marker}" oder eine "(...)"-Klammer-Erklärung enthalten. NIEMALS Score-Zahlen wie "Activity Score 58/100" oder Score-Namen wie "Recovery Score" erwähnen.`;
+}
+
+function isValidLocale(v: string): v is Locale {
+  return v === "de" || v === "en" || v === "it" || v === "tr";
+}
 
 function hasValidKey(key: string | undefined): boolean {
   if (!key || key.length < 20) return false;
@@ -324,44 +358,109 @@ export async function POST(req: NextRequest) {
       return (response.content[0] as { type: string; text: string }).text;
     };
 
-    // First attempt — strip optional ```json fences before parsing.
-    let rawText = await callClaude();
-    let parsed: { blocks: PlanBlock[] };
-    try {
-      parsed = JSON.parse(cleanJsonText(rawText)) as { blocks: PlanBlock[] };
-    } catch (parseErr) {
-      console.warn(
-        "[Plans/BE/generate] first JSON parse failed — retrying with stricter directive",
-        { planType, locale, parseErrMsg: (parseErr as Error).message },
-      );
-      // Second attempt with reinforced directive — Claude sometimes
-      // wraps in fences despite "No markdown backticks" rule.
+    // Plan-v2 MVP: Quality-Retry-Loop.
+    // Pro Versuch: Anthropic-Call (mit JSON-Parse-Fallback) → Post-Processing
+    // (enforceGlossaryAndExamples) → validatePlanQuality. Bei Pass: return.
+    // Bei Fail: bis zu MAX_QUALITY_ATTEMPTS Wiederholungen mit progressiv
+    // härteren Directives. Nach MAX: best-effort + quality_warnings im Output.
+    const localeTyped: Locale = isValidLocale(locale) ? locale : "de";
+
+    let parsed: { blocks: PlanBlock[] } | null = null;
+    let lastProcessed: { blocks: PlanBlock[] } | null = null;
+    let lastReasons: string[] = [];
+
+    for (let attempt = 1; attempt <= MAX_QUALITY_ATTEMPTS; attempt++) {
+      const qualityDirective =
+        attempt > 1 && lastReasons.length > 0
+          ? buildQualityRetryDirective(localeTyped, attempt, lastReasons)
+          : "";
+
+      // ── Anthropic-Call mit eingebautem JSON-Parse-Fallback ──
+      let rawText: string;
       try {
-        rawText = await callClaude(
-          "RAW JSON ONLY. NO MARKDOWN FENCES. NO PROSE BEFORE OR AFTER. Start the response with the character `{` and end with `}`.",
-        );
+        rawText = await callClaude(qualityDirective);
         parsed = JSON.parse(cleanJsonText(rawText)) as { blocks: PlanBlock[] };
-      } catch (retryErr) {
-        console.error(
-          "[Plans/BE/generate] retry JSON parse also failed — raw output first 2000:",
-          rawText.slice(0, 2000),
+      } catch (parseErr) {
+        console.warn(
+          "[Plans/BE/generate] JSON parse failed — retrying with stricter directive",
+          { planType, locale, attempt, parseErrMsg: (parseErr as Error).message },
         );
-        console.error("[Plans/BE/generate] retry parse error:", retryErr);
-        return NextResponse.json(
-          { error: "plan_parse_failed", code: "plan_parse_failed", planType, locale },
-          { status: 502 },
-        );
+        try {
+          const jsonStrict =
+            "RAW JSON ONLY. NO MARKDOWN FENCES. NO PROSE BEFORE OR AFTER. Start with `{` and end with `}`.";
+          rawText = await callClaude(
+            qualityDirective ? `${qualityDirective}\n\n${jsonStrict}` : jsonStrict,
+          );
+          parsed = JSON.parse(cleanJsonText(rawText)) as { blocks: PlanBlock[] };
+        } catch (retryErr) {
+          console.error(
+            "[Plans/BE/generate] JSON parse twice failed — raw output first 2000:",
+            rawText!?.slice(0, 2000),
+          );
+          console.error("[Plans/BE/generate] parse error:", retryErr);
+          if (attempt === MAX_QUALITY_ATTEMPTS) {
+            return NextResponse.json(
+              { error: "plan_parse_failed", code: "plan_parse_failed", planType, locale },
+              { status: 502 },
+            );
+          }
+          lastReasons = ["json_parse_failed"];
+          continue;
+        }
       }
+
+      if (!parsed.blocks?.length) {
+        console.error("[Plans/BE/generate] Claude returned empty blocks array", { attempt });
+        if (attempt === MAX_QUALITY_ATTEMPTS) {
+          return NextResponse.json({ error: "AI returned empty plan" }, { status: 502 });
+        }
+        lastReasons = ["empty_blocks_array"];
+        continue;
+      }
+
+      // ── Post-Processing (deterministisch) ──
+      const processed = enforceGlossaryAndExamples(parsed, localeTyped);
+      lastProcessed = processed;
+
+      // ── Quality-Validation ──
+      const { ok, reasons } = validatePlanQuality(processed, localeTyped);
+      if (ok) {
+        console.log("[Plans/BE/generate] quality OK", {
+          attempt,
+          locale,
+          planType,
+          blocksCount: processed.blocks.length,
+        });
+        return NextResponse.json({ ...meta, locale, blocks: processed.blocks });
+      }
+
+      console.warn("[Plans/BE/generate] quality check failed", {
+        attempt,
+        locale,
+        planType,
+        reasons,
+      });
+      lastReasons = reasons;
     }
 
-    if (!parsed.blocks?.length) {
-      console.error("[Plans/BE/generate] Claude returned empty blocks array");
-      return NextResponse.json({ error: "AI returned empty plan" }, { status: 502 });
+    // ── Quality-Retry exhausted: best-effort mit Warnings im Output ──
+    console.warn("[Plans/BE/generate] quality-retry exhausted — returning best-effort", {
+      locale,
+      planType,
+      lastReasons,
+    });
+    if (lastProcessed) {
+      return NextResponse.json({
+        ...meta,
+        locale,
+        blocks: lastProcessed.blocks,
+        quality_warnings: lastReasons,
+      });
     }
-
-    console.log("[Plans/BE/generate] Claude output", { locale, type: planType, firstHeading: parsed.blocks[0]?.heading, blocksCount: parsed.blocks.length });
-
-    return NextResponse.json({ ...meta, locale, blocks: parsed.blocks });
+    return NextResponse.json(
+      { error: "plan_quality_failed", code: "plan_quality_failed", planType, locale },
+      { status: 502 },
+    );
   } catch (err) {
     // Structured error log — easier to read in Vercel function logs.
     const isAnthropicErr = err instanceof Anthropic.APIError;
