@@ -6,12 +6,16 @@ import { PDFDocument, rgb, degrees, type PDFPage, type PDFFont, type PDFImage, t
 import { embedLocaleFonts } from "./fonts";
 import type { Locale } from "@/lib/supabase/types";
 import { LOGO_WHITE_PNG_BASE64 } from "./logo";
+import {
+  type PlanBlock,
+  type LegacyPlanBlock,
+  type WeeklyTablePlanBlock,
+  type WeekDay,
+  isWeeklyTableBlock,
+} from "@/lib/plan/buildPlan";
+import { PAUSE_PATTERN } from "@/lib/plan/glossary";
 
-export interface PlanBlock {
-  heading: string;
-  items: string[];
-  rationale?: string;  // Scientific justification shown below items in PDF
-}
+export type { PlanBlock };
 
 export interface PlanPdfInput {
   title: string;
@@ -94,6 +98,21 @@ const PLAN_LABELS: Record<string, {
     urgency: ["KRİTİK", "EYLEM GEREKLİ", "OPTİMİZASYON POTANSİYELİ", "İNCE AYAR", "EN \u00DCST SEVİYE"],
     censorHint: "TAM VERSIYONDA",
   },
+};
+
+// Plan-v2 MVP — Day-Labels und Tabellen-Header pro Locale
+const DAY_LABELS: Record<string, Record<WeekDay, string>> = {
+  de: { mon: "Mo", tue: "Di", wed: "Mi", thu: "Do", fri: "Fr", sat: "Sa", sun: "So" },
+  en: { mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun" },
+  it: { mon: "Lun", tue: "Mar", wed: "Mer", thu: "Gio", fri: "Ven", sat: "Sab", sun: "Dom" },
+  tr: { mon: "Pzt", tue: "Sal", wed: "Çar", thu: "Per", fri: "Cum", sat: "Cmt", sun: "Paz" },
+};
+
+const TABLE_HEADERS: Record<string, { day: string; action: string; duration: string; why: string }> = {
+  de: { day: "TAG", action: "WAS", duration: "DAUER", why: "WARUM" },
+  en: { day: "DAY", action: "ACTION", duration: "TIME", why: "WHY" },
+  it: { day: "GIORNO", action: "AZIONE", duration: "DURATA", why: "PERCHÉ" },
+  tr: { day: "GÜN", action: "EYLEM", duration: "SÜRE", why: "NEDEN" },
 };
 
 // Module-level locale state. Set at entry of generatePlanPDF so the
@@ -365,7 +384,134 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
 const CENSOR_BAR_H = 14;
 const CENSOR_BAR_GAP = 6;
 
+// Plan-v2 MVP — Weekly-Table Helpers
+function weeklyTableColW(): { day: number; action: number; duration: number; why: number } {
+  return {
+    day: CW * 0.12,
+    action: CW * 0.48,
+    duration: CW * 0.15,
+    why: CW * 0.25,
+  };
+}
+
+function weeklyTableHeight(block: WeeklyTablePlanBlock, f: F, locale: string): number {
+  const colW = weeklyTableColW();
+  const padX = 8;
+  const padY = 6;
+  const rowMinH = 24;
+  const headingH = 28;
+  const tableHeaderH = 22;
+
+  const dayLabels = DAY_LABELS[locale] ?? DAY_LABELS["de"];
+
+  const bodyH = block.rows.reduce((acc, row) => {
+    const dayText = dayLabels[row.day] ?? row.day.toUpperCase();
+    const dayH = textH(tx(dayText), f.bold, 8, colW.day - padX * 2, 1.4);
+    const actionH = textH(tx(row.action), f.reg, 8.5, colW.action - padX * 2, 1.5);
+    const durH = textH(tx(row.duration), f.reg, 8.5, colW.duration - padX * 2, 1.4);
+    const whyH = textH(tx(row.why), f.reg, 8.5, colW.why - padX * 2, 1.4);
+    const rowH = Math.max(rowMinH, Math.max(dayH, actionH, durH, whyH) + padY * 2);
+    return acc + rowH;
+  }, 0);
+
+  return headingH + tableHeaderH + bodyH + 16;
+}
+
+function drawWeeklyTable(
+  page: PDFPage,
+  block: WeeklyTablePlanBlock,
+  f: F,
+  accentColor: Color,
+  startY: number,
+  locale = "de",
+): number {
+  const colW = weeklyTableColW();
+  const padX = 8;
+  const padY = 6;
+  const rowMinH = 24;
+
+  const dayLabels = DAY_LABELS[locale] ?? DAY_LABELS["de"];
+  const headers = TABLE_HEADERS[locale] ?? TABLE_HEADERS["de"];
+  const localeKey = (locale === "en" || locale === "it" || locale === "tr") ? locale : "de";
+  const pausePattern = PAUSE_PATTERN[localeKey];
+
+  // 1. Block-Heading ("Deine Woche")
+  let y = startY - 18;
+  page.drawText(tx(block.heading).toUpperCase(), {
+    x: MX, y, size: 9, font: f.bold, color: accentColor,
+  });
+  page.drawLine({
+    start: { x: MX, y: y - 6 },
+    end: { x: PW - MX, y: y - 6 },
+    thickness: 0.5, color: BORDER_C,
+  });
+  y -= 18;
+
+  // 2. Table-Header-Zeile
+  const tableX = MX;
+  const headerH = 22;
+  page.drawRectangle({ x: tableX, y: y - headerH, width: CW, height: headerH, color: BG_INSET });
+
+  let cx = tableX;
+  page.drawText(tx(headers.day), { x: cx + padX, y: y - 14, size: 7, font: f.bold, color: accentColor });
+  cx += colW.day;
+  page.drawText(tx(headers.action), { x: cx + padX, y: y - 14, size: 7, font: f.bold, color: accentColor });
+  cx += colW.action;
+  page.drawText(tx(headers.duration), { x: cx + padX, y: y - 14, size: 7, font: f.bold, color: accentColor });
+  cx += colW.duration;
+  page.drawText(tx(headers.why), { x: cx + padX, y: y - 14, size: 7, font: f.bold, color: accentColor });
+  y -= headerH;
+
+  // 3. Body-Rows mit zebra striping
+  for (let ri = 0; ri < block.rows.length; ri++) {
+    const row = block.rows[ri];
+    const isPause = pausePattern.test(row.action);
+    const rowBg = ri % 2 === 0 ? BG_CARD : BG_PAGE;
+    const dayText = dayLabels[row.day] ?? row.day.toUpperCase();
+
+    // Row-Height berechnen
+    const dayH = textH(tx(dayText), f.bold, 8, colW.day - padX * 2, 1.4);
+    const actionH = textH(tx(row.action), f.reg, 8.5, colW.action - padX * 2, 1.5);
+    const durH = textH(tx(row.duration), f.reg, 8.5, colW.duration - padX * 2, 1.4);
+    const whyH = textH(tx(row.why), f.reg, 8.5, colW.why - padX * 2, 1.4);
+    const rowH = Math.max(rowMinH, Math.max(dayH, actionH, durH, whyH) + padY * 2);
+
+    // Hintergrund
+    page.drawRectangle({ x: tableX, y: y - rowH, width: CW, height: rowH, color: rowBg });
+
+    // Zell-Texte (von oben innerhalb der Zelle)
+    const cellTopY = y - padY - 7;
+    const actionColor = isPause ? TXT_MUTED : TXT_WHITE;
+    const durColor = isPause ? TXT_MUTED : TXT_WHITE;
+
+    cx = tableX;
+    drawW(page, tx(dayText), cx + padX, cellTopY, colW.day - padX * 2, f.bold, 8, accentColor, 1.4, false);
+    cx += colW.day;
+    drawW(page, tx(row.action), cx + padX, cellTopY, colW.action - padX * 2, f.reg, 8.5, actionColor, 1.5, false);
+    cx += colW.action;
+    drawW(page, tx(row.duration), cx + padX, cellTopY, colW.duration - padX * 2, f.reg, 8.5, durColor, 1.4, false);
+    cx += colW.duration;
+    drawW(page, tx(row.why), cx + padX, cellTopY, colW.why - padX * 2, f.reg, 8.5, TXT_MUTED, 1.4, false);
+
+    // Vertikale Trennlinien zwischen Spalten
+    let sepX = tableX + colW.day;
+    page.drawLine({ start: { x: sepX, y: y - rowH }, end: { x: sepX, y }, thickness: 0.3, color: BORDER_C });
+    sepX += colW.action;
+    page.drawLine({ start: { x: sepX, y: y - rowH }, end: { x: sepX, y }, thickness: 0.3, color: BORDER_C });
+    sepX += colW.duration;
+    page.drawLine({ start: { x: sepX, y: y - rowH }, end: { x: sepX, y }, thickness: 0.3, color: BORDER_C });
+
+    y -= rowH;
+  }
+
+  return y - 16;
+}
+
 function blockHeight(block: PlanBlock, f: F, blockIndex = 0): number {
+  if (isWeeklyTableBlock(block)) {
+    return weeklyTableHeight(block, f, currentPlanLocale);
+  }
+
   const innerW = CW - 32;
   const headingH = 44;
 
@@ -396,6 +542,12 @@ function drawBlock(
   locale = "de",
   blockIndex = 0,
 ): number {
+  // Plan-v2 MVP: weekly_table-Block wird vom dedizierten drawWeeklyTable
+  // gerendert. Legacy-Blocks unverändert.
+  if (isWeeklyTableBlock(block)) {
+    return drawWeeklyTable(page, block, f, accentColor, startY, locale);
+  }
+
   const innerW = CW - 32;
   const bh = blockHeight(block, f, blockIndex) - 20;
   const censorBlock = isSamplePlan && blockIndex > 0;
@@ -486,7 +638,7 @@ function drawKeyTakeaways(
   accentColor: Color,
   startY: number,
 ): number {
-  const actions = plan.blocks.map((b) => b.items[0]).filter(Boolean);
+  const actions = plan.blocks.filter((b): b is LegacyPlanBlock => !isWeeklyTableBlock(b)).map((b) => b.items[0]).filter(Boolean);
   if (actions.length === 0) return startY;
 
   const innerW = CW - 32;  // 16pt left + 16pt right
@@ -564,7 +716,7 @@ function buildPlanContent(doc: PDFDocument, plan: PlanPdfInput, accentColor: Col
   const srcH = plan.source ? Math.max(44, textH(plan.source, f.reg, 8.5, srcInnerW, 1.5) + 28) : 0;
 
   {
-    const ktActions = plan.blocks.map((b) => b.items[0]).filter(Boolean);
+    const ktActions = plan.blocks.filter((b): b is LegacyPlanBlock => !isWeeklyTableBlock(b)).map((b) => b.items[0]).filter(Boolean);
     if (ktActions.length > 0) {
       const ktInnerW = CW - 32;
       const ktItemsH = ktActions.reduce(

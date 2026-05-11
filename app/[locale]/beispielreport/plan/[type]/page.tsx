@@ -104,6 +104,9 @@ export default function SamplePlanPage() {
           </div>
 
           {plan.blocks.map((block, blockIndex) => {
+            // v2 MVP: weekly_table-Blocks werden in der Sample-FE nicht
+            // gerendert (FE bleibt v1, nur PDF zeigt die Tabelle).
+            if (block.kind === "weekly_table") return null;
             const isFirstBlock = blockIndex === 0;
             const visibleItems = isFirstBlock ? block.items : block.items.slice(0, 2);
             const censoredCount = isFirstBlock ? 0 : Math.max(0, block.items.length - 2);
