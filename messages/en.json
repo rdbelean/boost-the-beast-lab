@@ -353,6 +353,21 @@
         "selten": "Rarely (3–7 per week)",
         "kaum": "Barely or never (0–2 per week)"
       },
+      "body_type": {
+        "label": "WHERE ARE YOU RIGHT NOW?",
+        "subtext": "Pick the figure that best matches your current body. This helps us interpret your BMI correctly.",
+        "skip": "Skip this question",
+        "select_gender_first": "Please select your sex first.",
+        "gender_picker_label": "Which figures would you like to see?",
+        "gender_picker_male": "Male figures",
+        "gender_picker_female": "Female figures",
+        "option_1": "Very lean",
+        "option_2": "Lean",
+        "option_3": "Athletic",
+        "option_4": "Muscular",
+        "option_5": "Bit more",
+        "option_6": "Strong build"
+      },
       "training_freq": {
         "label": "TRAINING FREQUENCY PER WEEK",
         "keiner": "No sport",

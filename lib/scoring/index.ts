@@ -42,6 +42,10 @@ import {
   type MetabolicBand,
   type FruitVegLevel,
 } from "./metabolic";
+import type {
+  BodyType,
+  BodyCompositionFlag,
+} from "./body-composition-types";
 import {
   calculateStressScore,
   type StressInputs,
@@ -95,6 +99,8 @@ export type {
   BMICategory,
   MetabolicBand,
   FruitVegLevel,
+  BodyType,
+  BodyCompositionFlag,
   StressInputs,
   StressResult,
   StressBand,

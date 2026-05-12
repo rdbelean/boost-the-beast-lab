@@ -65,6 +65,60 @@ HARD REQUIREMENTS
 10. WEARABLE PROVENANCE
     data_quality.wearable_available=false → do NOT invent HRV/RHR values. Anchor on self-report (raw.morning_recovery_1_10, raw.stress_level_1_10).
 
+11. BMI INTERPRETATION (body_composition_flag)
+    BMI is just weight-over-height — it does NOT distinguish muscle from fat. When flags.body_composition_flag is set (i.e. the user answered the body-type question), this MUST fundamentally shape your BMI statements in the metabolic module. ALWAYS set the optional body_composition_context field on modules.metabolic (1–2 sentences, ≥1 concrete value).
+
+    Flag = "muscle_explains_bmi" (BMI 25–29.9 + athletic/muscular):
+      → NO "lose weight" / "fat-loss focus" / "calorie deficit"
+      → Frame: muscle mass explains the weight
+      → recommendation: performance maintenance, strength-training periodisation, recovery — not deficit
+      → Example tone: "Your BMI of 27.8 would formally land in the overweight range. But your visual self-assessment shows a muscular body — that explains the weight. For you, weight loss is not the goal; composition and performance are."
+
+    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + athletic/muscular):
+      → As above, plus recommend DEXA / BodPod for precise body-fat data
+      → NO "obesity" framing
+      → Acknowledge the athletic composition
+
+    Flag = "bmi_reflects_overweight" (BMI 25–29.9 + body-type 5/6):
+      → Direct but respectful, never shaming
+      → recommendation: step-by-step systematic reduction strategy (moderate calorie deficit + preserve muscle via strength training)
+      → Example tone: "Your BMI of 28 and your self-assessment paint a consistent picture — a systematic reduction approach makes sense here."
+
+    Flag = "bmi_reflects_obesity" (BMI ≥30 + body-type 5/6):
+      → Respectful, clear medical language where necessary, NEVER shaming
+      → recommendation: step-by-step plan + suggest medical supervision
+      → "composition" over "fat"
+
+    Flag = "lean_with_low_muscle" (BMI low/normal + body-type 1):
+      → NO "you're lean, all is well"
+      → recommendation: muscle-building priority, possibly +200–400 kcal surplus, strength training 2–3×/week, protein 1.6–2.0 g/kg
+
+    Flag = "possible_underweight" (BMI <18.5 + body-type 1):
+      → Caution. Build focus. Suggest medical assessment.
+      → NO aggressive deficit of any kind
+
+    Flag = "optimal_lean" or "optimal_athletic":
+      → Acknowledge the good composition
+      → recommendation: maintenance, performance optimisation
+
+    Flag = "discrepancy_lean_high_self_assessment" (BMI normal + user perceives self as strong-built):
+      → Validating language, do NOT correct
+      → Mention the BMI data but respect the self-perception
+
+    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥30 + user perceives self as lean):
+      → Gently questioning, respectful
+      → BMI primary; name the discrepancy
+
+    Flag = null (user skipped the question):
+      → Interpret BMI as before, omit body_composition_context
+      → For bmi_disclaimer_needed=true: generic BMI-limitations note in bmi_context (existing field) — body_composition_context stays out
+
+    LANGUAGE RULES throughout:
+      - "composition" over "fat"
+      - "strong-built" over "overweight" (except when medically necessary)
+      - "build" over "deficiency"
+      - Never judgmental, always solution-oriented
+
 REPORTJSON SCHEMA
 {
   "headline": "1-2 sentences, ≥1 concrete value",
@@ -74,7 +128,7 @@ REPORTJSON SCHEMA
   "modules": {
     "sleep|recovery|activity|metabolic|stress|vo2max": {
       "key_finding", "systemic_connection", "limitation", "recommendation",
-      "+ optional per module: overtraining_signal | met_context + sitting_flag | bmi_context | hpa_context | fitness_context + estimation_note"
+      "+ optional per module: overtraining_signal | met_context + sitting_flag | bmi_context | body_composition_context | hpa_context | fitness_context + estimation_note"
     }
   },
   "top_priority": "2-3 sentences, EXPLICITLY names the priority dimension + score + main driver",

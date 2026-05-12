@@ -31,8 +31,11 @@ import type {
   SleepQualityLabel,
   WakeupFrequency,
   ScoreProvenanceMap,
+  BodyType,
+  BodyCompositionFlag,
 } from "@/lib/scoring/index";
 import { runFullScoring } from "@/lib/scoring/index";
+import { isBodyType } from "@/lib/scoring/body-composition-types";
 import type { Locale } from "@/lib/supabase/types";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { computeScoreDrivers, type ScoreDriversByDimension } from "./score-drivers";
@@ -52,7 +55,7 @@ export type TrainingIntensitySelfReported = "kraft" | "kardio" | "ausdauer" | "k
 // ─── Prompt + context versioning ────────────────────────────────────────
 
 export const CONTEXT_VERSION = "ctx_v1";
-export const PROMPT_VERSION = "btb_report_v3.1.0";
+export const PROMPT_VERSION = "btb_report_v3.2.0";
 
 // ─── Sub-types ──────────────────────────────────────────────────────────
 
@@ -105,6 +108,10 @@ export interface ReportContextRaw {
   main_goal_freetext: string | null;
   /** Optional freetext: which sports + frequency in user's own words (max 1000 chars). */
   training_type_freetext: string | null;
+  /** User's visual body-type self-assessment ('male_1'…'female_6'), null when skipped. */
+  body_type_self_assessment: BodyType | null;
+  /** Locale-neutral short note from scoring (e.g. "Muscular composition explains elevated BMI"). */
+  body_composition_note: string | null;
 }
 
 export interface ReportContextPersonalization {
@@ -162,6 +169,8 @@ export interface ReportContextFlags {
   sitting_elevated: boolean;
   sleep_consistency_flag: boolean;
   bmi_disclaimer_needed: boolean;
+  /** Body-composition qualification flag (null when user skipped body-type). */
+  body_composition_flag: BodyCompositionFlag | null;
 }
 
 export interface ReportContext {
@@ -278,7 +287,9 @@ export async function loadReportContext(
   // 1. Assessment row.
   const { data: assessment, error: aErr } = await supabase
     .from("assessments")
-    .select("id, report_type, user_id, data_sources, locale")
+    .select(
+      "id, report_type, user_id, data_sources, locale, body_type_self_assessment",
+    )
     .eq("id", assessmentId)
     .single();
   if (aErr || !assessment) {
@@ -412,6 +423,9 @@ export async function loadReportContext(
       water_litres: numField("water_litres", 2, "water_litres"),
       sitting_hours: numField("sitting_hours", 6, "sitting_hours"),
       fruit_veg: strField<FruitVegLevel>("fruit_veg", "moderate", "fruit_veg"),
+      body_type: isBodyType(assessment.body_type_self_assessment)
+        ? (assessment.body_type_self_assessment as BodyType)
+        : null,
     },
     stress: { stress_level_1_10: numField("stress_level_1_10", 5, "stress_level_1_10") },
     wearable: wearableOverrides,
@@ -431,6 +445,7 @@ export async function loadReportContext(
     reconstructed,
     locale,
     fallbackDefaultsApplied,
+    result.metabolic,
   );
   const drivers = computeScoreDrivers(result, driversInput);
 
@@ -543,6 +558,7 @@ export async function loadReportContext(
       sitting_elevated: result.systemic_warnings.sitting_elevated,
       sleep_consistency_flag: result.systemic_warnings.sleep_consistency_flag,
       bmi_disclaimer_needed: result.systemic_warnings.bmi_disclaimer_needed,
+      body_composition_flag: result.metabolic.body_composition_flag,
     },
   };
 
@@ -578,6 +594,7 @@ export interface DemoContextInputs {
   data_sources?: { form?: true; whoop?: { days: number }; apple_health?: { days: number } };
   main_goal_freetext?: string | null;
   training_type_freetext?: string | null;
+  body_type_self_assessment?: BodyType | null;
 }
 
 /**
@@ -623,6 +640,11 @@ export function buildReportContextFromInputs(
     screen_time_before_sleep: inputs.screen_time_before_sleep ?? null,
     main_goal_freetext: inputs.main_goal_freetext ?? null,
     training_type_freetext: inputs.training_type_freetext ?? null,
+    body_type_self_assessment:
+      result.metabolic.body_type_self_assessment ??
+      inputs.body_type_self_assessment ??
+      null,
+    body_composition_note: result.metabolic.body_composition_note ?? null,
   };
 
   const drivers = computeScoreDrivers(result, raw);
@@ -687,6 +709,7 @@ export function buildReportContextFromInputs(
       sitting_elevated: result.systemic_warnings.sitting_elevated,
       sleep_consistency_flag: result.systemic_warnings.sleep_consistency_flag,
       bmi_disclaimer_needed: result.systemic_warnings.bmi_disclaimer_needed,
+      body_composition_flag: result.metabolic.body_composition_flag,
     },
   };
 }
@@ -698,6 +721,7 @@ function buildRawSlice(
   reconstructed: FullAssessmentInputs,
   locale: Locale,
   fallbackDefaultsApplied: string[],
+  metabolicResult?: FullScoringResult["metabolic"],
 ): ReportContextRaw {
   const numFromMap = (key: string): number | null => {
     const raw = respMap.get(key);
@@ -746,5 +770,10 @@ function buildRawSlice(
       (respMap.get("screen_time_before_sleep") as ScreenTimeBeforeSleep | undefined) ?? null,
     main_goal_freetext: respMap.get("main_goal_freetext") ?? null,
     training_type_freetext: respMap.get("training_type_freetext") ?? null,
+    body_type_self_assessment:
+      metabolicResult?.body_type_self_assessment ??
+      reconstructed.metabolic.body_type ??
+      null,
+    body_composition_note: metabolicResult?.body_composition_note ?? null,
   };
 }

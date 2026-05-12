@@ -55,6 +55,9 @@ CREATE TABLE IF NOT EXISTS assessments (
 ALTER TABLE assessments ADD COLUMN IF NOT EXISTS is_test_mode BOOLEAN DEFAULT false;
 -- i18n — see supabase/add_locale.sql for the full migration.
 ALTER TABLE assessments ADD COLUMN IF NOT EXISTS locale VARCHAR(5) NOT NULL DEFAULT 'de';
+-- Body composition self-assessment — see supabase/add_body_composition.sql.
+ALTER TABLE assessments ADD COLUMN IF NOT EXISTS body_type_self_assessment VARCHAR(20);
+ALTER TABLE assessments ADD COLUMN IF NOT EXISTS body_composition_flag VARCHAR(60);
 
 -- FRAGEN KATALOG
 CREATE TABLE IF NOT EXISTS questions (

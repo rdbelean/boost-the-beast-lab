@@ -39,6 +39,13 @@ const PDF_LABELS: Record<Locale, {
   fitnessLevel: string;
   bmiKey: string;
   bmiCategory: string;
+  bodyTypeLabel: string;
+  bodyTypeOption1: string;
+  bodyTypeOption2: string;
+  bodyTypeOption3: string;
+  bodyTypeOption4: string;
+  bodyTypeOption5: string;
+  bodyTypeOption6: string;
   stressBand: string;
   actionNeed: string;
   actionHigh: string;
@@ -97,6 +104,13 @@ const PDF_LABELS: Record<Locale, {
     fitnessLevel: "Fitness-Level",
     bmiKey: "BMI",
     bmiCategory: "Kategorie",
+    bodyTypeLabel: "Selbsteinschätzung",
+    bodyTypeOption1: "Sehr schlank",
+    bodyTypeOption2: "Schlank",
+    bodyTypeOption3: "Athletisch",
+    bodyTypeOption4: "Muskulös",
+    bodyTypeOption5: "Etwas mehr",
+    bodyTypeOption6: "Kräftig",
     stressBand: "Stressband",
     actionNeed: "Handlungsbedarf",
     actionHigh: "HOCH",
@@ -155,6 +169,13 @@ const PDF_LABELS: Record<Locale, {
     fitnessLevel: "Fitness level",
     bmiKey: "BMI",
     bmiCategory: "Category",
+    bodyTypeLabel: "Self-assessment",
+    bodyTypeOption1: "Very lean",
+    bodyTypeOption2: "Lean",
+    bodyTypeOption3: "Athletic",
+    bodyTypeOption4: "Muscular",
+    bodyTypeOption5: "Bit more",
+    bodyTypeOption6: "Strong build",
     stressBand: "Stress band",
     actionNeed: "Action needed",
     actionHigh: "HIGH",
@@ -213,6 +234,13 @@ const PDF_LABELS: Record<Locale, {
     fitnessLevel: "Livello di fitness",
     bmiKey: "BMI",
     bmiCategory: "Categoria",
+    bodyTypeLabel: "Auto-valutazione",
+    bodyTypeOption1: "Molto magro",
+    bodyTypeOption2: "Magro",
+    bodyTypeOption3: "Atletico",
+    bodyTypeOption4: "Muscoloso",
+    bodyTypeOption5: "Un po' di più",
+    bodyTypeOption6: "Robusto",
     stressBand: "Band dello stress",
     actionNeed: "Azione richiesta",
     actionHigh: "ALTA",
@@ -271,6 +299,13 @@ const PDF_LABELS: Record<Locale, {
     fitnessLevel: "Fitness seviyesi",
     bmiKey: "BMI",
     bmiCategory: "Kategori",
+    bodyTypeLabel: "Öz değerlendirme",
+    bodyTypeOption1: "Çok zayıf",
+    bodyTypeOption2: "Zayıf",
+    bodyTypeOption3: "Atletik",
+    bodyTypeOption4: "Kaslı",
+    bodyTypeOption5: "Biraz fazla",
+    bodyTypeOption6: "Güçlü yapılı",
     stressBand: "Stres bandı",
     actionNeed: "Eylem gereksinimi",
     actionHigh: "Y\u00DCKSEK",
@@ -328,6 +363,8 @@ export interface PdfModule {
   met_context?: string;
   sitting_flag?: string | null;
   bmi_context?: string;
+  /** Body-composition qualification of the BMI (e.g. "muscle explains the BMI 27.8"). */
+  body_composition_context?: string;
   hpa_context?: string | null;
   estimation_note?: string;
   fitness_context?: string;
@@ -422,6 +459,8 @@ export interface PdfUserProfile {
   gender: string;
   bmi: number;
   bmi_category: string;
+  /** Visual body-type self-assessment ('male_1'..'female_6'). Null/undefined = user skipped. */
+  body_type?: string | null;
 }
 
 // ── Page dimensions ────────────────────────────────────────────────────────
@@ -1698,11 +1737,26 @@ export async function generatePDF(
     f, today,
   );
 
+  const bodyTypeRow: Array<[string, string]> = (() => {
+    if (!user.body_type) return [];
+    const num = user.body_type.split("_")[1];
+    const label =
+      num === "1" ? L.bodyTypeOption1 :
+      num === "2" ? L.bodyTypeOption2 :
+      num === "3" ? L.bodyTypeOption3 :
+      num === "4" ? L.bodyTypeOption4 :
+      num === "5" ? L.bodyTypeOption5 :
+      num === "6" ? L.bodyTypeOption6 :
+      "";
+    return label ? [[L.bodyTypeLabel, label]] : [];
+  })();
+
   buildModule(doc, "METABOLIC", scores.metabolic.score, scores.metabolic.band,
     content.modules.metabolic,
     [
       [L.bmiKey, `${user.bmi} kg/m2`],
       [L.bmiCategory, tx(user.bmi_category)],
+      ...bodyTypeRow,
       ...(wr.metabolic ?? []),
     ],
     f, today,

@@ -7,7 +7,9 @@ import {
   type FruitVegLevel,
   type SleepQualityLabel,
   type WakeupFrequency,
+  type BodyType,
 } from "@/lib/scoring/index";
+import { isBodyType } from "@/lib/scoring/body-composition-types";
 import type { Locale, ReportType, ScoreBand } from "@/lib/supabase/types";
 
 export const runtime = "nodejs";
@@ -84,6 +86,8 @@ interface AssessmentRequestBody {
   main_goal_freetext?: string | null;
   /** Optional freetext (max 1000 chars). Sports + frequency in own words. */
   training_type_freetext?: string | null;
+  /** Optional visual body-type self-assessment ('male_1'..'female_6'). Null = user skipped. */
+  body_type_self_assessment?: BodyType | null;
 }
 
 function isLocale(v: unknown): v is Locale {
@@ -129,6 +133,12 @@ function validate(body: Partial<AssessmentRequestBody>): string | null {
   if (typeof body.training_type_freetext === "string" && body.training_type_freetext.length > 1000) {
     return "training_type_freetext exceeds 1000 characters";
   }
+  if (
+    body.body_type_self_assessment != null &&
+    !isBodyType(body.body_type_self_assessment)
+  ) {
+    return "Invalid body_type_self_assessment";
+  }
   return null;
 }
 
@@ -172,6 +182,9 @@ export async function POST(req: NextRequest) {
         water_litres: body.water_litres,
         sitting_hours: body.sitting_hours,
         fruit_veg: body.fruit_veg,
+        body_type: isBodyType(body.body_type_self_assessment)
+          ? body.body_type_self_assessment
+          : null,
       },
       stress: { stress_level_1_10: body.stress_level_1_10 },
     };
@@ -200,6 +213,9 @@ export async function POST(req: NextRequest) {
         sitting_hours_per_day: body.sitting_hours,
         fruit_veg_label: body.fruit_veg as string,
         standing_hours_per_day: body.standing_hours_per_day,
+        body_type_self_assessment: isBodyType(body.body_type_self_assessment)
+          ? body.body_type_self_assessment
+          : null,
       };
       const origin = req.nextUrl.origin;
       const genRes = await fetch(`${origin}/api/report/generate`, {
@@ -285,6 +301,11 @@ export async function POST(req: NextRequest) {
     // if the schema's is_test_mode migration hasn't been applied yet.
     const testMode = isTestMode();
     const locale: Locale = isLocale(body.locale) ? body.locale : "de";
+    const bodyTypeValue: BodyType | null = isBodyType(
+      body.body_type_self_assessment,
+    )
+      ? body.body_type_self_assessment
+      : null;
     const { data: assessment, error: assessmentErr } = await supabase
       .from("assessments")
       .insert({
@@ -294,6 +315,7 @@ export async function POST(req: NextRequest) {
         status: "processing",
         report_type: body.reportType,
         locale,
+        body_type_self_assessment: bodyTypeValue,
       })
       .select("id")
       .single();
@@ -401,11 +423,21 @@ export async function POST(req: NextRequest) {
         water_litres: body.water_litres,
         sitting_hours: body.sitting_hours,
         fruit_veg: body.fruit_veg,
+        body_type: bodyTypeValue,
       },
       stress: { stress_level_1_10: body.stress_level_1_10 },
       wearable: wearableOverrides,
     };
     const result = runFullScoring(scoringInputs);
+
+    // Persist the computed body_composition_flag back to the assessments
+    // row so analytics / dashboards can query it without re-running scoring.
+    if (result.metabolic.body_composition_flag) {
+      await supabase
+        .from("assessments")
+        .update({ body_composition_flag: result.metabolic.body_composition_flag })
+        .eq("id", assessmentId);
+    }
 
     // 6. Persist derived metrics.
     const derivedRows = [

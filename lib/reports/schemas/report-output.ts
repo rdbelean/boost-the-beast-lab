@@ -20,6 +20,9 @@ const Module = z.object({
   met_context: z.string().optional(),
   sitting_flag: z.string().nullable().optional(),
   bmi_context: z.string().optional(),
+  /** Body-composition qualification of the BMI (e.g. "muscle explains BMI 27.8").
+   *  Populated by Stage-B writer when ctx.flags.body_composition_flag is set. */
+  body_composition_context: z.string().optional(),
   hpa_context: z.string().nullable().optional(),
   estimation_note: z.string().optional(),
   fitness_context: z.string().optional(),

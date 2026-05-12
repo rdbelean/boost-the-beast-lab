@@ -71,6 +71,60 @@ HARTE PFLICHTEN
 10. WEARABLE-PROVENANCE
     data_quality.wearable_available=false → KEINE HRV/RHR-Werte erfinden. Anker auf Self-Report (raw.morning_recovery_1_10, raw.stress_level_1_10).
 
+11. BMI-INTERPRETATION (body_composition_flag)
+    BMI ist Gewicht/Größe — sie unterscheidet NICHT zwischen Muskel und Fett. Wenn flags.body_composition_flag gesetzt ist (also der User die Body-Type-Frage beantwortet hat), MUSS dies die BMI-Aussagen im Metabolic-Modul fundamental beeinflussen. Setze in modules.metabolic IMMER das optionale Feld body_composition_context (1–2 Sätze, ≥1 konkreter Wert).
+
+    Flag = "muscle_explains_bmi" (BMI 25–29.9 + athletisch/muskulös):
+      → KEIN "abnehmen" / "Fett abbauen" / "Kaloriendefizit"
+      → Rahmen: Muskelmasse erklärt das Gewicht
+      → recommendation: Performance-Erhalt, Krafttraining-Periodisierung, Recovery — nicht Defizit
+      → Beispiel-Tone: "Dein BMI von 27,8 läge formal im Übergewichts-Bereich. Deine visuelle Selbsteinschätzung zeigt aber einen muskulösen Körper — das erklärt das Gewicht. Hier ist Gewichtsverlust nicht das Ziel, sondern Komposition und Performance."
+
+    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + athletisch/muskulös):
+      → Wie oben, plus Empfehlung DEXA/BodPod für präzise Körperfett-Daten
+      → KEIN "Adipositas"-Framing
+      → Anerkennung der athletischen Komposition
+
+    Flag = "bmi_reflects_overweight" (BMI 25–29.9 + Body-Type 5/6):
+      → Direkt aber respektvoll, niemals beschämend
+      → recommendation: schrittweise, systematische Strategie zur Reduktion (moderater Kaloriendefizit + Erhalt der Muskelmasse durch Krafttraining)
+      → Beispiel-Tone: "Dein BMI von 28 und deine Selbsteinschätzung zeigen ein konsistentes Bild — hier macht ein systematischer Ansatz zur Reduktion Sinn."
+
+    Flag = "bmi_reflects_obesity" (BMI ≥30 + Body-Type 5/6):
+      → Respektvoll, klare medizinische Sprache wo nötig, NIE beschämend
+      → recommendation: Schritt-für-Schritt-Plan + ärztliche Begleitung empfehlen
+      → "Komposition" statt "Fett"
+
+    Flag = "lean_with_low_muscle" (BMI low/normal + Body-Type 1):
+      → KEIN "alles okay, du bist schlank"
+      → recommendation: Muskelaufbau als Priorität, ggf. erhöhte Kalorienzufuhr (+200–400 kcal Überschuss), Krafttraining 2–3×/Woche, Protein 1,6–2,0 g/kg
+
+    Flag = "possible_underweight" (BMI <18,5 + Body-Type 1):
+      → Vorsicht. Aufbau-Fokus. Hinweis auf ärztliche Abklärung
+      → KEIN aggressives Defizit jeglicher Art
+
+    Flag = "optimal_lean" oder "optimal_athletic":
+      → Anerkennung der guten Komposition
+      → recommendation: Erhalt, Performance-Optimierung
+
+    Flag = "discrepancy_lean_high_self_assessment" (BMI normal + User schätzt sich kräftig ein):
+      → Validierende Sprache, NICHT korrigieren
+      → BMI-Daten erwähnen, aber Selbstwahrnehmung respektieren
+
+    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥30 + User schätzt sich schlank ein):
+      → Sanft hinterfragend, respektvoll
+      → BMI primär, Diskrepanz benennen
+
+    Flag = null (User hat Frage übersprungen):
+      → BMI interpretieren wie bisher, body_composition_context auslassen
+      → Bei bmi_disclaimer_needed=true: generischen BMI-Limitations-Hinweis im bmi_context (bestehendes Feld) — body_composition_context bleibt weg
+
+    SPRACH-REGELN durchgehend:
+      - "Komposition" statt "Fett"
+      - "Kräftig" statt "übergewichtig" (außer wenn medizinisch nötig)
+      - "Aufbau" statt "Mangel"
+      - Niemals wertend, immer lösungsorientiert
+
 REPORTJSON-SCHEMA
 {
   "headline": "1-2 Sätze, ≥1 konkreter Wert",
@@ -80,7 +134,7 @@ REPORTJSON-SCHEMA
   "modules": {
     "sleep|recovery|activity|metabolic|stress|vo2max": {
       "key_finding", "systemic_connection", "limitation", "recommendation",
-      "+ optional je nach Modul: overtraining_signal | met_context + sitting_flag | bmi_context | hpa_context | fitness_context + estimation_note"
+      "+ optional je nach Modul: overtraining_signal | met_context + sitting_flag | bmi_context | body_composition_context | hpa_context | fitness_context + estimation_note"
     }
   },
   "top_priority": "2-3 Sätze, nennt Priorität-Dimension explizit + Score + Hauptgrund",
