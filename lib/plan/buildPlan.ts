@@ -518,11 +518,9 @@ const SCORE_REPLACEMENT_BY_LOCALE: Record<Locale, Record<string, string>> = {
   },
 };
 
-/** Wendet Glossar-Inject + Score-Reference-Replace auf einen Text an. */
-function transformPlanText(text: string, locale: Locale): string {
+/** Score-Reference-Replace läuft auf WHOLE text (auch inside parens). */
+function applyScoreReplaces(text: string, locale: Locale): string {
   let out = text;
-
-  // 1. Score-Reference-Pass: ganze Phrasen wie "Activity Score liegt bei 58/100" → "Ausdauer-Niveau"
   out = out.replace(SCORE_REFERENCE_PATTERN, (m) => {
     for (const dim of ["Activity", "Metabolic", "Recovery", "Stress"] as const) {
       if (new RegExp(`\\b${dim}\\b`, "i").test(m)) {
@@ -531,22 +529,73 @@ function transformPlanText(text: string, locale: Locale): string {
     }
     return m;
   });
-
-  // 2. Score-Name-Only-Pass: "Activity Score" alleinstehend → "Ausdauer-Niveau"
   out = out.replace(SCORE_NAME_ONLY, (_m, p1: string) => {
     const dim = p1.charAt(0).toUpperCase() + p1.slice(1).toLowerCase();
     return SCORE_REPLACEMENT_BY_LOCALE[locale][dim] ?? p1;
   });
+  return out;
+}
 
-  // 3. Glossar-Pass: jedes Vorkommen ohne unmittelbar folgende "("-Klammer
-  //    bekommt die Klammer-Phrase injiziert.
+/**
+ * Prüft ob der Character-Index `idx` im Text INNERHALB von runden Klammern
+ * liegt, via Depth-Count über den Text bis idx.
+ */
+function isInsideParens(text: string, idx: number): boolean {
+  let depth = 0;
+  for (let i = 0; i < idx; i++) {
+    if (text[i] === "(") depth++;
+    else if (text[i] === ")") depth = Math.max(0, depth - 1);
+  }
+  return depth > 0;
+}
+
+/**
+ * Wendet Score-Replace (whole text) + Glossar-Inject (outside-parens-only,
+ * first-occurrence-only) auf einen Text an.
+ *
+ * Critical fix für den Doppel-Klammer-Bug:
+ * 1. Glossar-Replace skippt Matches die INNERHALB existierender Klammern liegen
+ *    (KI hat bereits eine Erklärung in Klammern angegeben — z.B. "Z2-Lauf (Zone 2 - ...)").
+ * 2. Lookahead `(?!\s*\()` arbeitet auf dem WHOLE text, sieht also auch wenn
+ *    der Begriff direkt von der KI-Klammer gefolgt wird ("VO2max (deine ...)").
+ * 3. Pro Begriff wird nur das ERSTE outside-parens Vorkommen expandiert; alle
+ *    weiteren Vorkommen im Plan bleiben nackt für bessere Leserlichkeit.
+ *
+ * @param expandedTerms Set wird mutiert — jeder erste Match registriert.
+ */
+function transformPlanText(
+  text: string,
+  locale: Locale,
+  expandedTerms: Set<string>,
+): string {
+  // 1. Score-Replace auf ganzen Text (auch inside parens, falls KI dort welche packt)
+  let out = applyScoreReplaces(text, locale);
+
+  // 2. Glossar-Replace: pro Term FIRST outside-parens match expandieren
   const glossary = PLAN_GLOSSARY[locale];
-  // Sortiere nach Länge desc, damit "Zone 2" vor "Z2" matched (longer first).
+  // Sortiere nach Begriff-Länge desc — "Zone 2" (6) wird vor "Z2" (2) geprüft.
   const terms = Object.keys(glossary).sort((a, b) => b.length - a.length);
+
   for (const term of terms) {
-    const explanation = glossary[term];
+    if (expandedTerms.has(term)) continue;
+    // g-Flag für mehrere exec-Calls (wir scannen bis zum ersten outside-parens Match)
     const pattern = new RegExp(`\\b${escapeRegex(term)}\\b(?!\\s*\\()`, "g");
-    out = out.replace(pattern, `${term} (${explanation})`);
+    let match: RegExpExecArray | null;
+    pattern.lastIndex = 0;
+    // eslint-disable-next-line no-cond-assign
+    while ((match = pattern.exec(out)) !== null) {
+      const idx = match.index;
+      if (!isInsideParens(out, idx)) {
+        // Outside parens — expandiere genau dieses Vorkommen
+        out =
+          out.slice(0, idx) +
+          `${term} (${glossary[term]})` +
+          out.slice(idx + term.length);
+        expandedTerms.add(term);
+        break; // first-occurrence-only
+      }
+      // Inside parens — skip, scan weiter (pattern.lastIndex hat sich bereits durch exec bewegt)
+    }
   }
 
   return out;
@@ -555,30 +604,35 @@ function transformPlanText(text: string, locale: Locale): string {
 /**
  * Wendet Glossar-Inject + Score-Reference-Replace auf den gesamten Plan an.
  * Deterministisches Sicherheitsnetz für Claude-Output.
+ *
+ * Ein expandedTerms-Set wird über ALLE Blocks geteilt: jeder Glossar-Begriff
+ * bekommt im gesamten Plan maximal EINE Klammer-Erklärung (beim ersten
+ * Vorkommen). Weitere Vorkommen bleiben nackt, was den Text leserlicher hält.
  */
 export function enforceGlossaryAndExamples(
   plan: { blocks: PlanBlock[] },
   locale: Locale,
 ): { blocks: PlanBlock[] } {
+  const expandedTerms = new Set<string>();
   return {
     blocks: plan.blocks.map((b): PlanBlock => {
       if (isWeeklyTableBlock(b)) {
         return {
           ...b,
-          heading: transformPlanText(b.heading, locale),
+          heading: transformPlanText(b.heading, locale, expandedTerms),
           rows: b.rows.map((r) => ({
             ...r,
-            action: transformPlanText(r.action, locale),
-            why: transformPlanText(r.why, locale),
+            action: transformPlanText(r.action, locale, expandedTerms),
+            why: transformPlanText(r.why, locale, expandedTerms),
           })),
-          rationale: b.rationale ? transformPlanText(b.rationale, locale) : undefined,
+          rationale: b.rationale ? transformPlanText(b.rationale, locale, expandedTerms) : undefined,
         };
       }
       return {
         ...b,
-        heading: transformPlanText(b.heading, locale),
-        items: b.items.map((it) => transformPlanText(it, locale)),
-        rationale: b.rationale ? transformPlanText(b.rationale, locale) : undefined,
+        heading: transformPlanText(b.heading, locale, expandedTerms),
+        items: b.items.map((it) => transformPlanText(it, locale, expandedTerms)),
+        rationale: b.rationale ? transformPlanText(b.rationale, locale, expandedTerms) : undefined,
       };
     }),
   };
