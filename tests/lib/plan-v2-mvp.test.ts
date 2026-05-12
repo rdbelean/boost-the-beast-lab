@@ -58,6 +58,90 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
     expect(item).toContain("Norwegian 4×4 Protocol (4× schnell laufen für 4 Min");
     expect(item).toContain("VO2max (deine maximale Sauerstoffaufnahme");
   });
+
+  // ─── REGRESSION: Doppel-Klammer-Bug ───────────────────────────
+
+  it("doppel-klammer-bug: Z2 ausserhalb + Zone 2 inside existing parens", () => {
+    // Original AI-Output: Z2-Lauf hat eigene Klammer mit Zone 2-Erklärung
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{
+        heading: "Test",
+        items: ["Z2-Lauf (Zone 2 - Tempo bei dem du noch sprechen kannst) + Mobility..."],
+      }],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    const item = (out.blocks[0] as Exclude<PlanBlock, WeeklyTablePlanBlock>).items[0];
+
+    // Zone 2 innerhalb der existierenden Klammer DARF NICHT re-expanded werden
+    expect(item).not.toMatch(/Zone 2 \(Tempo/);
+    // Es darf nur EINE Klammer pro Begriff geben — keine Verschachtelung
+    expect(item).not.toMatch(/\(\([^)]+\)/); // keine "((...)" Sequenz
+    // Z2 ausserhalb der originalen Klammer darf einmal expandiert sein
+    expect(item).toMatch(/Z2 \(Zone 2 — Tempo/);
+    // Die originale AI-Klammer "(Zone 2 - Tempo bei dem du noch sprechen kannst)" muss intakt bleiben
+    expect(item).toContain("(Zone 2 - Tempo bei dem du noch sprechen kannst)");
+  });
+
+  it("first-occurrence-only: VO2max in zwei Blocks bekommt nur EINMAL Klammer", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [
+        { heading: "Block 1", items: ["Trainiere VO2max regelmäßig."] },
+        { heading: "Block 2", items: ["Steiger dein VO2max weiter."] },
+      ],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    const allText = out.blocks
+      .flatMap((b) => ("items" in b ? b.items : []))
+      .join(" ");
+    const explanationMatches = allText.match(/VO2max \(deine maximale Sauerstoffaufnahme/g) || [];
+    expect(explanationMatches.length).toBe(1);
+  });
+
+  it("first-occurrence-only: VO2max zwei Mal im selben Item bekommt nur EINMAL Klammer", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{
+        heading: "Test",
+        items: ["VO2max steigern. Dein VO2max liegt bei 42 ml/kg/min."],
+      }],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    const item = (out.blocks[0] as Exclude<PlanBlock, WeeklyTablePlanBlock>).items[0];
+    const explanationMatches = item.match(/VO2max \(deine maximale Sauerstoffaufnahme/g) || [];
+    expect(explanationMatches.length).toBe(1);
+  });
+
+  it("global-uniqueness: jeder Glossar-Begriff im Plan maximal EINMAL erklärt", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [
+        { heading: "Block 1", items: ["VO2max in Z2 verbessern. Long Run am Sonntag."] },
+        {
+          kind: "weekly_table",
+          heading: "Deine Woche",
+          rows: [
+            { day: "mon", action: "Easy Run Z2 — z.B. 30 Min", duration: "30 Min", why: "Basis" },
+            { day: "tue", action: "Pause", duration: "—", why: "Erholung" },
+            { day: "wed", action: "Tempo-Lauf — z.B. 25 Min", duration: "25 Min", why: "Schwelle" },
+            { day: "thu", action: "Pause", duration: "—", why: "Erholung" },
+            { day: "fri", action: "VO2max Intervalle — z.B. 5x3 Min schnell", duration: "30 Min", why: "Spitze" },
+            { day: "sat", action: "Long Run — z.B. 60 Min", duration: "60 Min", why: "Ausdauer" },
+            { day: "sun", action: "Pause", duration: "—", why: "Erholung" },
+          ],
+        },
+        { heading: "Anker", items: ["VO2max-Check 1x/Monat. Z2 nicht überspringen."] },
+      ],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    const allText = JSON.stringify(out);
+    // Jeder Begriff darf maximal 1× von seiner Erklärung gefolgt sein
+    const vo2maxParens = (allText.match(/VO2max \(deine maximale Sauerstoffaufnahme/g) || []).length;
+    const z2Parens = (allText.match(/Z2 \(Zone 2 — Tempo bei dem/g) || []).length;
+    const longRunParens = (allText.match(/Long Run \(der längste Lauf der Woche/g) || []).length;
+    const tempoParens = (allText.match(/Tempo-Lauf \(schnelles aber kontrolliertes/g) || []).length;
+    expect(vo2maxParens).toBeLessThanOrEqual(1);
+    expect(z2Parens).toBeLessThanOrEqual(1);
+    expect(longRunParens).toBeLessThanOrEqual(1);
+    expect(tempoParens).toBeLessThanOrEqual(1);
+  });
 });
 
 // ─── 2. Score-Reference Auto-Replace ─────────────────────────────────
