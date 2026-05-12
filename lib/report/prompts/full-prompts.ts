@@ -250,6 +250,13 @@ ABSOLUTE GRENZEN — nicht verhandelbar:
 - Keine erfundenen Zahlen, die nicht im Input stehen
 - VO2max immer als Schätzung kommunizieren (keine Labormessung)
 - BMI immer als Populationsschätzer kommunizieren (kein individuelles Urteil)
+- BMI-INTERPRETATION mit body_composition_flag: BMI unterscheidet NICHT zwischen Muskel und Fett. Wenn body_composition_flag im Input gesetzt ist, MUSS das deine BMI-Aussagen prägen:
+  · "muscle_explains_bmi" / "strong_muscle_explains_high_bmi": athletische Komposition anerkennen, KEIN Fettabbau-/Defizit-Framing, Empfehlung Performance-Erhalt + Krafttraining; ggf. DEXA/BodPod erwähnen.
+  · "bmi_reflects_overweight" / "bmi_reflects_obesity": direkt aber respektvoll, schrittweise Reduktion (moderater Defizit + Krafttraining), niemals beschämend; "Komposition" statt "Fett", "kräftig" statt "übergewichtig".
+  · "lean_with_low_muscle" / "possible_underweight": KEIN "alles okay schlank"-Framing — Muskelaufbau-Fokus, Kalorienzufuhr +, Protein 1,6–2,0 g/kg; bei Untergewicht Hinweis auf ärztliche Abklärung.
+  · "optimal_lean" / "optimal_athletic": Erhalt + Performance-Optimierung.
+  · "discrepancy_*"-Flags: Selbstwahrnehmung respektieren, BMI als primären Marker behandeln, Diskrepanz sanft benennen.
+  · null (User hat Frage übersprungen): BMI normal interpretieren wie bisher, generischer Disclaimer wenn bmi_disclaimer_needed=true.
 - Immer als "Performance-Insight" formulieren, nie als "Befund" oder "Diagnose"
 - Keine Studien zitieren, die nicht im System hinterlegt sind
 
@@ -427,6 +434,13 @@ ABSOLUTE LIMITS — non-negotiable:
 - No invented numbers that aren't in the input
 - Always communicate VO2max as an estimate (not a lab measurement)
 - Always communicate BMI as a population-level estimator (not an individual verdict)
+- BMI INTERPRETATION with body_composition_flag: BMI does NOT distinguish muscle from fat. When body_composition_flag is set in the input, this MUST shape your BMI statements:
+  · "muscle_explains_bmi" / "strong_muscle_explains_high_bmi": acknowledge athletic composition, NO fat-loss / deficit framing, recommendation = performance maintenance + strength training; consider mentioning DEXA/BodPod for precise body-fat data.
+  · "bmi_reflects_overweight" / "bmi_reflects_obesity": direct but respectful, step-by-step reduction (moderate deficit + strength training to preserve muscle), never shaming; "composition" over "fat", "strong-built" over "overweight".
+  · "lean_with_low_muscle" / "possible_underweight": NO "you're lean, all good" framing — muscle-building focus, +calorie surplus, protein 1.6–2.0 g/kg; for underweight suggest medical assessment.
+  · "optimal_lean" / "optimal_athletic": maintenance + performance optimisation.
+  · "discrepancy_*" flags: respect self-perception, treat BMI as primary marker, name the discrepancy gently.
+  · null (user skipped the question): interpret BMI as before, generic disclaimer when bmi_disclaimer_needed=true.
 - Always frame as a "performance insight", never as a "finding" or "diagnosis"
 - Do not cite studies that are not on the system's reference list
 
@@ -604,6 +618,13 @@ LIMITI ASSOLUTI — non negoziabili:
 - Nessun numero inventato che non sia nell'input
 - Comunicare sempre il VO2max come stima (non una misurazione di laboratorio)
 - Comunicare sempre il BMI come stimatore di popolazione (non un giudizio individuale)
+- INTERPRETAZIONE BMI con body_composition_flag: il BMI NON distingue muscolo da grasso. Quando body_composition_flag è impostato, DEVE plasmare le tue affermazioni sul BMI:
+  · "muscle_explains_bmi" / "strong_muscle_explains_high_bmi": riconoscere la composizione atletica, NIENTE framing perdita di grasso / deficit, recommendation = mantenimento performance + allenamento di forza; eventualmente menzionare DEXA/BodPod.
+  · "bmi_reflects_overweight" / "bmi_reflects_obesity": diretto ma rispettoso, riduzione graduale (deficit moderato + forza per preservare la massa muscolare), mai svalutante; "composizione" invece di "grasso", "robusto" invece di "sovrappeso".
+  · "lean_with_low_muscle" / "possible_underweight": NIENTE "sei magro, va tutto bene" — focus su costruzione muscolare, surplus calorico, proteine 1,6–2,0 g/kg; per sottopeso suggerire accertamento medico.
+  · "optimal_lean" / "optimal_athletic": mantenimento + ottimizzazione performance.
+  · flag "discrepancy_*": rispettare l'autopercezione, trattare il BMI come marker primario, nominare la discrepanza con delicatezza.
+  · null (utente ha saltato la domanda): interpretare il BMI come prima, disclaimer generico se bmi_disclaimer_needed=true.
 - Formulare sempre come "performance insight", mai come "diagnosi" o "referto"
 - Non citare studi che non sono nella lista del sistema
 
@@ -782,6 +803,13 @@ MUTLAK SINIRLAR — pazarlık edilemez:
 - Girdide olmayan uydurulmuş sayı yok
 - VO2max her zaman tahmin olarak iletilmeli (laboratuvar ölçümü değil)
 - BMI her zaman popülasyon düzeyinde tahmin olarak iletilmeli (bireysel yargı değil)
+- body_composition_flag ile BMI YORUMU: BMI kası ve yağı AYIRT ETMEZ. Girdide body_composition_flag ayarlandığında, bu BMI ifadelerini şekillendirmeli:
+  · "muscle_explains_bmi" / "strong_muscle_explains_high_bmi": atletik kompozisyonu kabul et, yağ kaybı / açık çerçeveleme YOK, recommendation = performans koruma + kuvvet antrenmanı; uygun olursa DEXA/BodPod öner.
+  · "bmi_reflects_overweight" / "bmi_reflects_obesity": doğrudan ama saygılı, adım adım azaltma (ılımlı açık + kası koruyan kuvvet), asla utandırıcı değil; "yağ" yerine "kompozisyon", "fazla kilolu" yerine "güçlü yapılı".
+  · "lean_with_low_muscle" / "possible_underweight": "zayıfsın, her şey yolunda" çerçevesi YOK — kas yapımı odağı, +kalori, protein 1,6–2,0 g/kg; düşük kilo için tıbbi değerlendirme öner.
+  · "optimal_lean" / "optimal_athletic": koruma + performans optimizasyonu.
+  · "discrepancy_*" flag'leri: öz algıya saygı duy, BMI'yi birincil marker olarak ele al, uyuşmazlığı kibarca isimlendir.
+  · null (kullanıcı soruyu atladı): BMI'yi eskisi gibi yorumla, bmi_disclaimer_needed=true ise genel disclaimer.
 - Her zaman "performans içgörüsü" olarak ifade et, asla "tanı" veya "bulgu" olarak değil
 - Sistemde kayıtlı olmayan çalışmaları alıntılama
 
@@ -1153,6 +1181,10 @@ METABOLIC
 Metabolic Score: ${r.metabolic.metabolic_score_0_100}/100 | Band: ${r.metabolic.metabolic_band}
 BMI: ${r.metabolic.bmi} kg/m² (${r.metabolic.bmi_category})
 BMI-Disclaimer nötig: ${warnings.bmi_disclaimer_needed}
+Body-Type-Selbsteinschätzung: ${r.metabolic.body_type_self_assessment ?? "übersprungen"}
+Body-Composition-Flag: ${r.metabolic.body_composition_flag ?? "none"}
+Body-Composition-Notiz: ${r.metabolic.body_composition_note ?? "—"}
+BMI-Penalty-Modifier angewendet: ${r.metabolic.bmi_penalty_modifier_applied}
 Mahlzeiten/Tag: ${ctx.meals_per_day}
 Wasserkonsum: ${ctx.water_litres}L/Tag
 Obst & Gemüse: ${ctx.fruit_veg_label}
@@ -1371,6 +1403,10 @@ METABOLIC
 Metabolic Score: ${r.metabolic.metabolic_score_0_100}/100 | Band: ${r.metabolic.metabolic_band}
 BMI: ${r.metabolic.bmi} kg/m² (${r.metabolic.bmi_category})
 BMI disclaimer needed: ${warnings.bmi_disclaimer_needed}
+Body-type self-assessment: ${r.metabolic.body_type_self_assessment ?? "skipped"}
+Body-composition flag: ${r.metabolic.body_composition_flag ?? "none"}
+Body-composition note: ${r.metabolic.body_composition_note ?? "—"}
+BMI penalty modifier applied: ${r.metabolic.bmi_penalty_modifier_applied}
 Meals/day: ${ctx.meals_per_day}
 Water intake: ${ctx.water_litres}L/day
 Fruit & vegetables: ${ctx.fruit_veg_label}
@@ -1589,6 +1625,10 @@ METABOLIC
 Metabolic Score: ${r.metabolic.metabolic_score_0_100}/100 | Band: ${r.metabolic.metabolic_band}
 BMI: ${r.metabolic.bmi} kg/m² (${r.metabolic.bmi_category})
 BMI disclaimer necessario: ${warnings.bmi_disclaimer_needed}
+Auto-valutazione body-type: ${r.metabolic.body_type_self_assessment ?? "saltato"}
+Body-composition flag: ${r.metabolic.body_composition_flag ?? "none"}
+Body-composition nota: ${r.metabolic.body_composition_note ?? "—"}
+BMI penalty modifier applicato: ${r.metabolic.bmi_penalty_modifier_applied}
 Pasti/giorno: ${ctx.meals_per_day}
 Consumo idrico: ${ctx.water_litres}L/giorno
 Frutta e verdura: ${ctx.fruit_veg_label}
@@ -1807,6 +1847,10 @@ METABOLİK
 Metabolic Score: ${r.metabolic.metabolic_score_0_100}/100 | Band: ${r.metabolic.metabolic_band}
 BMI: ${r.metabolic.bmi} kg/m² (${r.metabolic.bmi_category})
 BMI disclaimer gerekli: ${warnings.bmi_disclaimer_needed}
+Body-type öz değerlendirmesi: ${r.metabolic.body_type_self_assessment ?? "atlandı"}
+Body-composition flag: ${r.metabolic.body_composition_flag ?? "none"}
+Body-composition not: ${r.metabolic.body_composition_note ?? "—"}
+BMI penalty modifier uygulandı: ${r.metabolic.bmi_penalty_modifier_applied}
 Öğün/gün: ${ctx.meals_per_day}
 Su tüketimi: ${ctx.water_litres}L/gün
 Meyve & sebze: ${ctx.fruit_veg_label}

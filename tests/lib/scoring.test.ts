@@ -137,6 +137,75 @@ describe("calculateMetabolicScore", () => {
     });
     expect(hi.metabolic_score_0_100).toBeGreaterThan(lo.metabolic_score_0_100);
   });
+
+  it("body_type undefined → no modifier, no flag", () => {
+    const r = calculateMetabolicScore({
+      height_cm: 180, weight_kg: 90,
+      meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
+    });
+    expect(r.bmi_category).toBe("overweight");
+    expect(r.body_composition_flag).toBeNull();
+    expect(r.bmi_penalty_modifier_applied).toBe(0);
+  });
+
+  it("Athlete BMI 27.8 + male_4 → muscle_explains_bmi, score uplifted", () => {
+    const athlete = calculateMetabolicScore({
+      height_cm: 180, weight_kg: 90,
+      meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
+      body_type: "male_4",
+    });
+    const baseline = calculateMetabolicScore({
+      height_cm: 180, weight_kg: 90,
+      meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
+    });
+    expect(athlete.body_composition_flag).toBe("muscle_explains_bmi");
+    expect(athlete.bmi_penalty_modifier_applied).toBe(0.6);
+    expect(athlete.metabolic_score_0_100).toBeGreaterThan(
+      baseline.metabolic_score_0_100,
+    );
+  });
+
+  it("Overweight BMI 27.8 + male_5 → bmi_reflects_overweight, no uplift", () => {
+    const heavy = calculateMetabolicScore({
+      height_cm: 180, weight_kg: 90,
+      meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
+      body_type: "male_5",
+    });
+    const baseline = calculateMetabolicScore({
+      height_cm: 180, weight_kg: 90,
+      meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
+    });
+    expect(heavy.body_composition_flag).toBe("bmi_reflects_overweight");
+    expect(heavy.bmi_penalty_modifier_applied).toBe(0);
+    expect(heavy.metabolic_score_0_100).toBe(baseline.metabolic_score_0_100);
+  });
+
+  it("Strong muscle BMI 31 + male_4 → strong_muscle_explains_high_bmi", () => {
+    const r = calculateMetabolicScore({
+      height_cm: 175, weight_kg: 95,
+      meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
+      body_type: "male_4",
+    });
+    expect(r.body_composition_flag).toBe("strong_muscle_explains_high_bmi");
+    expect(r.bmi_penalty_modifier_applied).toBe(0.8);
+  });
+
+  it("Possible underweight: BMI 18.4 + female_1 → modifier intensifies penalty", () => {
+    const lean = calculateMetabolicScore({
+      height_cm: 165, weight_kg: 50,
+      meals_per_day: 3, water_litres: 2, sitting_hours: 6, fruit_veg: "good",
+      body_type: "female_1",
+    });
+    const baseline = calculateMetabolicScore({
+      height_cm: 165, weight_kg: 50,
+      meals_per_day: 3, water_litres: 2, sitting_hours: 6, fruit_veg: "good",
+    });
+    expect(lean.body_composition_flag).toBe("possible_underweight");
+    expect(lean.bmi_penalty_modifier_applied).toBe(-0.3);
+    expect(lean.metabolic_score_0_100).toBeLessThan(
+      baseline.metabolic_score_0_100,
+    );
+  });
 });
 
 // ─── Stress ─────────────────────────────────────────────────────────────

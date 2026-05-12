@@ -270,6 +270,12 @@
   display: block;
   margin-bottom: 6px;
 }
+.questionSubtext {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-secondary, #9CA3AF);
+  margin: 0 0 16px 0;
+}
 .questionGrid2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

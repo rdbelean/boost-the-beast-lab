@@ -262,6 +262,7 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
       gender: ctx.user.gender,
       bmi,
       bmi_category: bmiCategory,
+      body_type: r.metabolic.body_type_self_assessment ?? null,
     },
     demoLocale,
   );
@@ -701,6 +702,7 @@ Return ONLY valid JSON array, no markdown:
           gender: ctx.user.gender,
           bmi,
           bmi_category: bmiCategory,
+          body_type: result.metabolic.body_type_self_assessment ?? null,
         },
         locale,
         pdfWearableRows,

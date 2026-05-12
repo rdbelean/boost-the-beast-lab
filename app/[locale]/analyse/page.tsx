@@ -9,6 +9,8 @@ import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";
 import CustomSelect from "@/components/analyse/CustomSelect";
 import FreetextField from "@/components/analyse/FreetextField";
+import BodyTypeSelector from "@/components/analyse/BodyTypeSelector";
+import type { BodyType } from "@/lib/scoring/body-composition-types";
 import { buildPlan, type PlanType, type PlanBlock } from "@/lib/plan/buildPlan";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cachePdf, cacheKeyFor, base64ToBytes, fetchPdfBytes } from "@/lib/pdf/pdfCache";
@@ -120,6 +122,8 @@ interface FormData {
   groesse: number;
   gewicht: number;
   obstGemuese: string; // NEU: keine | wenig | moderat | optimal
+  // Visual body-type self-assessment (optional — null when skipped).
+  bodyType: BodyType | null;
   // Kategorie 2 — Aktivität & Training
   trainingsfreq: string;
   trainingsart: string;
@@ -311,6 +315,7 @@ function buildAssessmentPayload(f: FormData) {
     height_cm: f.groesse,
     weight_kg: f.gewicht,
     fruit_veg: FRUIT_VEG_MAP[f.obstGemuese] ?? "moderate",
+    body_type_self_assessment: f.bodyType,
     // Activity — IPAQ raw. Walking is now derived from "Stunden auf den Beinen":
     //   walking_total_minutes_week = standing_hours × 60 × 5 days (conservative avg)
     // walking_days + walking_minutes_per_day are retained for legacy compatibility
@@ -434,6 +439,7 @@ function AnalyseContent() {
     groesse: 178,
     gewicht: 78,
     obstGemuese: "haelfte",
+    bodyType: null,
     trainingsfreq: "3-4x",
     trainingsart: "kraft",
     moderateDauer: "30-60",
@@ -1278,6 +1284,17 @@ function AnalyseContent() {
                     { label: t("q.fruit_veg.selten"), value: "selten" },
                     { label: t("q.fruit_veg.kaum"), value: "kaum" },
                   ]}
+                />
+              </div>
+
+              {/* Q4c: Body-Type-Selbsteinschätzung (optional, qualifiziert BMI) */}
+              <div className={styles.questionCard} ref={nextCardRef}>
+                <span className={styles.questionLabel}>{t("q.body_type.label")}</span>
+                <p className={styles.questionSubtext}>{t("q.body_type.subtext")}</p>
+                <BodyTypeSelector
+                  gender={GENDER_MAP[form.geschlecht] ?? ""}
+                  value={form.bodyType}
+                  onChange={(bt) => set("bodyType", bt)}
                 />
               </div>
             </div>

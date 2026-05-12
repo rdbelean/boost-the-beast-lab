@@ -353,6 +353,21 @@
         "selten": "Nadiren (haftada 3–7)",
         "kaum": "Neredeyse hiç (haftada 0–2)"
       },
+      "body_type": {
+        "label": "ŞU AN NEREDESİN?",
+        "subtext": "Şu anki vücuduna en yakın figürü seç. Bu bilgi BMI'nı doğru yorumlamamıza yardımcı olur.",
+        "skip": "Bu soruyu atla",
+        "select_gender_first": "Lütfen önce cinsiyetini seç.",
+        "gender_picker_label": "Hangi figürleri görmek istersin?",
+        "gender_picker_male": "Erkek figürleri",
+        "gender_picker_female": "Kadın figürleri",
+        "option_1": "Çok zayıf",
+        "option_2": "Zayıf",
+        "option_3": "Atletik",
+        "option_4": "Kaslı",
+        "option_5": "Biraz fazla",
+        "option_6": "Güçlü yapılı"
+      },
       "training_freq": {
         "label": "HAFTALIK ANTRENMAN SIKLIĞI",
         "keiner": "Hiç yok",

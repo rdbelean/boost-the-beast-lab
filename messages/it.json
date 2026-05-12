@@ -353,6 +353,21 @@
         "selten": "Raramente (3–7 a settimana)",
         "kaum": "Quasi mai o mai (0–2 a settimana)"
       },
+      "body_type": {
+        "label": "DOVE SEI ADESSO?",
+        "subtext": "Scegli la figura che più assomiglia al tuo corpo attuale. Questa informazione ci aiuta a interpretare correttamente il tuo BMI.",
+        "skip": "Salta questa domanda",
+        "select_gender_first": "Seleziona prima il tuo sesso.",
+        "gender_picker_label": "Quali figure vuoi vedere?",
+        "gender_picker_male": "Figure maschili",
+        "gender_picker_female": "Figure femminili",
+        "option_1": "Molto magro",
+        "option_2": "Magro",
+        "option_3": "Atletico",
+        "option_4": "Muscoloso",
+        "option_5": "Un po' di più",
+        "option_6": "Robusto"
+      },
       "training_freq": {
         "label": "FREQUENZA DI ALLENAMENTO A SETTIMANA",
         "keiner": "Nessuno sport",

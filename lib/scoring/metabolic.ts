@@ -41,6 +41,16 @@ export type MetabolicBand = "low" | "moderate" | "good" | "excellent";
 
 export type FruitVegLevel = "none" | "low" | "moderate" | "good" | "optimal";
 
+import type {
+  BodyType,
+  BodyCompositionFlag,
+} from "./body-composition-types";
+import {
+  applyBmiPenaltyModifier,
+  calculateBodyCompositionFlag,
+  getBodyCompositionDetails,
+} from "./body-composition";
+
 export interface MetabolicInputs {
   height_cm: number;
   weight_kg: number;
@@ -48,6 +58,8 @@ export interface MetabolicInputs {
   water_litres: number;
   sitting_hours: number;
   fruit_veg: FruitVegLevel;
+  // Visual body-type self-assessment (optional — user may skip).
+  body_type?: BodyType | null;
 }
 
 export interface MetabolicResult {
@@ -57,6 +69,13 @@ export interface MetabolicResult {
   metabolic_band: MetabolicBand;
   bmi_disclaimer_needed: boolean;
   sitting_hours: number;
+  // Body-composition qualification (null when user skipped body-type Q).
+  body_type_self_assessment: BodyType | null;
+  body_composition_flag: BodyCompositionFlag | null;
+  body_composition_note: string | null;
+  // The actual modifier applied to bmiSc this run (0 = no change). Kept for
+  // debugging / report-context inspection.
+  bmi_penalty_modifier_applied: number;
 }
 
 function bmiScore(bmi: number): { score: number; category: BMICategory } {
@@ -126,7 +145,17 @@ export function calculateMetabolicScore(
       ? wearable.weight_kg
       : inputs.weight_kg;
   const bmi = Math.round((effectiveWeight / (heightM * heightM)) * 10) / 10;
-  const { score: bmiSc, category } = bmiScore(bmi);
+  const { score: bmiScRaw, category } = bmiScore(bmi);
+
+  // Body-composition flag qualifies the BMI sub-score before weighting.
+  // Athletic users with BMI 27 (muscle_explains_bmi, modifier 0.6) get the
+  // BMI penalty 60%-forgiven; users whose self-assessment matches BMI
+  // (modifier 0) keep the full penalty.
+  const bodyType = inputs.body_type ?? null;
+  const bodyCompFlag = calculateBodyCompositionFlag(bmi, bodyType);
+  const { note: bodyCompNote, bmi_penalty_modifier: modifier } =
+    getBodyCompositionDetails(bodyCompFlag);
+  const bmiSc = applyBmiPenaltyModifier(bmiScRaw, modifier);
 
   // Briefing weights: BMI 30 · Sitting 20 · Water 18 · Meals 17 · FruitVeg 15
   const metabolic_score_0_100 = Math.round(
@@ -148,5 +177,9 @@ export function calculateMetabolicScore(
     metabolic_band: bandFor(metabolic_score_0_100),
     bmi_disclaimer_needed,
     sitting_hours: inputs.sitting_hours,
+    body_type_self_assessment: bodyType,
+    body_composition_flag: bodyCompFlag,
+    body_composition_note: bodyCompNote || null,
+    bmi_penalty_modifier_applied: modifier,
   };
 }

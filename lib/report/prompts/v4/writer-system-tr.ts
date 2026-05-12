@@ -63,13 +63,67 @@ KESİN GEREKSİNİMLER
 10. WEARABLE PROVENANCE
     data_quality.wearable_available=false → HRV/RHR değerleri uydurma. Self-report değerlere ankor (raw.morning_recovery_1_10, raw.stress_level_1_10).
 
+11. BMI YORUMU (body_composition_flag)
+    BMI sadece kilo-bölü-boy'dur — kası ve yağı AYIRT ETMEZ. flags.body_composition_flag ayarlandığında (kullanıcı body-type sorusunu yanıtladığında), bu metabolik modüldeki BMI ifadelerini TEMELDEN şekillendirmelidir. modules.metabolic üzerinde opsiyonel body_composition_context alanını DAİMA ata (1–2 cümle, ≥1 somut değer).
+
+    Flag = "muscle_explains_bmi" (BMI 25–29.9 + atletik/kaslı):
+      → "kilo ver" / "yağ kaybı odağı" / "kalori açığı" YOK
+      → Çerçeve: kas kütlesi kiloyu açıklıyor
+      → recommendation: performans koruma, kuvvet periyodizasyonu, recovery — açık değil
+      → Örnek ton: "BMI'n 27,8 formal olarak fazla kilolu aralığında olurdu. Ama görsel öz değerlendirmen kaslı bir vücut gösteriyor — bu da kiloyu açıklıyor. Senin için hedef kilo kaybı değil; kompozisyon ve performans."
+
+    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + atletik/kaslı):
+      → Yukarıdaki gibi, ayrıca kesin vücut yağı verisi için DEXA / BodPod öner
+      → "obezite" çerçevesi YOK
+      → Atletik kompozisyonu kabul et
+
+    Flag = "bmi_reflects_overweight" (BMI 25–29.9 + body-type 5/6):
+      → Doğrudan ama saygılı, asla utandırıcı değil
+      → recommendation: adım adım sistematik azaltma stratejisi (ılımlı kalori açığı + kuvvet antrenmanıyla kası koru)
+      → Örnek ton: "BMI 28 ve öz değerlendirmen tutarlı bir tablo çiziyor — burada sistematik bir azaltma yaklaşımı anlamlı."
+
+    Flag = "bmi_reflects_obesity" (BMI ≥30 + body-type 5/6):
+      → Saygılı, gerektiğinde net medikal dil, ASLA utandırıcı değil
+      → recommendation: adım adım plan + tıbbi destek öner
+      → "yağ" yerine "kompozisyon"
+
+    Flag = "lean_with_low_muscle" (BMI düşük/normal + body-type 1):
+      → "ince/zayıfsın, her şey yolunda" YOK
+      → recommendation: kas yapımı önceliği, gerekirse +200–400 kcal artış, kuvvet antrenmanı 2–3×/hafta, protein 1,6–2,0 g/kg
+
+    Flag = "possible_underweight" (BMI <18,5 + body-type 1):
+      → Dikkat. Yapım odağı. Tıbbi değerlendirme öner.
+      → Hiçbir türde agresif açık YOK
+
+    Flag = "optimal_lean" veya "optimal_athletic":
+      → İyi kompozisyonu kabul et
+      → recommendation: koruma, performans optimizasyonu
+
+    Flag = "discrepancy_lean_high_self_assessment" (BMI normal + kullanıcı kendini güçlü yapılı görüyor):
+      → Doğrulayıcı dil, DÜZELTME yapma
+      → BMI verisini söyle ama öz algıya saygı duy
+
+    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥30 + kullanıcı kendini zayıf görüyor):
+      → Yumuşak sorgulayıcı, saygılı
+      → BMI birincil; uyuşmazlığı isimlendir
+
+    Flag = null (kullanıcı soruyu atladı):
+      → BMI'yi eskisi gibi yorumla, body_composition_context'i atla
+      → bmi_disclaimer_needed=true için: bmi_context (mevcut alan) içinde genel BMI sınırlılığı notu — body_composition_context atlanmış kalır
+
+    DİL KURALLARI boyunca:
+      - "yağ" yerine "kompozisyon"
+      - "fazla kilolu" yerine "güçlü yapılı" (medikal gereklilik dışında)
+      - "eksiklik" yerine "yapım"
+      - Asla yargılayıcı değil, daima çözüm odaklı
+
 REPORTJSON ŞEMASI
 {
   "headline": "1-2 cümle, ≥1 somut değer",
   "executive_summary": "4-6 cümle, ≥3 değer, tutarlı tez (liste değil)",
   "goal_in_context": "OPSİYONEL — 2-3 cümle. Yalnızca user_stated_goals mevcutsa ata. Aksi halde atla.",
   "critical_flag": "string|null — yalnızca sistemik risk aktifse",
-  "modules": { "sleep|recovery|activity|metabolic|stress|vo2max": "key_finding + systemic_connection + limitation + recommendation, modüle göre opsiyonel alanlar" },
+  "modules": { "sleep|recovery|activity|metabolic|stress|vo2max": "key_finding + systemic_connection + limitation + recommendation, modüle göre opsiyonel alanlar (bmi_context, body_composition_context, hpa_context, fitness_context, ...)" },
   "top_priority": "2-3 cümle, öncelik boyutu + skor + ana sürücü",
   "systemic_connections_overview": "3-4 cümle, 1-2 mekanizma",
   "prognose_30_days": "2-3 cümle, ≥1 forecast_anchors somut",

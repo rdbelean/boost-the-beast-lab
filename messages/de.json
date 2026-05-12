@@ -353,6 +353,21 @@
         "selten": "Eher selten (3–7 pro Woche)",
         "kaum": "Kaum bis gar nicht (0–2 pro Woche)"
       },
+      "body_type": {
+        "label": "WO STEHST DU GERADE?",
+        "subtext": "Wähle die Figur, die deinem aktuellen Körper am nächsten kommt. Diese Info hilft uns, deinen BMI richtig einzuordnen.",
+        "skip": "Diese Frage überspringen",
+        "select_gender_first": "Bitte wähle erst dein Geschlecht.",
+        "gender_picker_label": "Welche Figuren möchtest du sehen?",
+        "gender_picker_male": "Männliche Figuren",
+        "gender_picker_female": "Weibliche Figuren",
+        "option_1": "Sehr schlank",
+        "option_2": "Schlank",
+        "option_3": "Athletisch",
+        "option_4": "Muskulös",
+        "option_5": "Etwas mehr",
+        "option_6": "Kräftig"
+      },
       "training_freq": {
         "label": "TRAININGSFREQUENZ PRO WOCHE",
         "keiner": "Kein Sport",
