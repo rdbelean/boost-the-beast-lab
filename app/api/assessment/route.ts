@@ -67,7 +67,8 @@ interface AssessmentRequestBody {
   time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
   experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
   /** Phase-2 Tiefen-Inputs — feeden direkt in Daily-Protocol-Prompt. */
-  nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "undereating" | "none" | null;
+  /** Multi-Select: Array von 1+ Painpoints. "none" exklusiv. */
+  nutrition_painpoint?: Array<"cravings_evening" | "low_protein" | "no_energy" | "no_time" | "undereating" | "none"> | null;
   /** Multi-Select: Array von 1+ Stress-Quellen. "none" exklusiv. */
   stress_source?: Array<"job" | "family" | "finances" | "health" | "future" | "none"> | null;
   /** Multi-Select: Array von 1+ Recovery-Ritualen. "none" exklusiv. */
@@ -325,9 +326,9 @@ export async function POST(req: NextRequest) {
     const assessmentId = assessment.id as string;
 
     // 4. Persist raw responses.
-    //    Arrays (Multi-Select: stress_source, recovery_ritual) werden als
-    //    JSON-stringified TEXT gespeichert — read-back parsed via JSON.parse
-    //    in lib/reports/report-context.ts. Single-Werte bleiben als String.
+    //    Arrays (Multi-Select: nutrition_painpoint, stress_source, recovery_ritual)
+    //    werden als JSON-stringified TEXT gespeichert — read-back parsed via
+    //    JSON.parse in lib/reports/report-context.ts. Single-Werte bleiben als String.
     const responseRows = Object.entries(body)
       .filter(([k]) => k !== "email" && k !== "reportType" && k !== "wearable_upload_id")
       .map(([k, v]) => ({

@@ -553,7 +553,7 @@ export async function POST(req: NextRequest) {
         main_goal: ctx.personalization.main_goal ?? "feel_better",
         time_budget: ctx.personalization.time_budget ?? "moderate",
         experience_level: ctx.personalization.experience_level ?? "intermediate",
-        nutrition_painpoint: ctx.personalization.nutrition_painpoint ?? FALLBACK_NOT_SPECIFIED[locale],
+        nutrition_painpoint: ctx.personalization.nutrition_painpoint?.join(", ") ?? FALLBACK_NOT_SPECIFIED[locale],
         stress_source: ctx.personalization.stress_source?.join(", ") ?? FALLBACK_NOT_SPECIFIED[locale],
         recovery_ritual: ctx.personalization.recovery_ritual?.join(", ") ?? FALLBACK_NOT_SPECIFIED[locale],
       };

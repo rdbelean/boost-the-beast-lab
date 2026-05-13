@@ -118,7 +118,8 @@ export interface ReportContextPersonalization {
   main_goal: MainGoal | null;
   time_budget: TimeBudget | null;
   experience_level: ExperienceLevel | null;
-  nutrition_painpoint: NutritionPainpoint | null;
+  /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
+  nutrition_painpoint: NutritionPainpoint[] | null;
   /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
   stress_source: StressSource[] | null;
   /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
@@ -535,7 +536,7 @@ export async function loadReportContext(
     main_goal: (respMap.get("main_goal") as MainGoal | undefined) ?? null,
     time_budget: (respMap.get("time_budget") as TimeBudget | undefined) ?? null,
     experience_level: (respMap.get("experience_level") as ExperienceLevel | undefined) ?? null,
-    nutrition_painpoint: (respMap.get("nutrition_painpoint") as NutritionPainpoint | undefined) ?? null,
+    nutrition_painpoint: parseMultiValueResponse(respMap.get("nutrition_painpoint")) as NutritionPainpoint[] | null,
     stress_source: parseMultiValueResponse(respMap.get("stress_source")) as StressSource[] | null,
     recovery_ritual: parseMultiValueResponse(respMap.get("recovery_ritual")) as RecoveryRitual[] | null,
   };
@@ -616,7 +617,7 @@ export interface DemoContextInputs {
   main_goal?: MainGoal | null;
   time_budget?: TimeBudget | null;
   experience_level?: ExperienceLevel | null;
-  nutrition_painpoint?: NutritionPainpoint | null;
+  nutrition_painpoint?: NutritionPainpoint[] | null;
   stress_source?: StressSource[] | null;
   recovery_ritual?: RecoveryRitual[] | null;
   data_sources?: { form?: true; whoop?: { days: number }; apple_health?: { days: number } };
