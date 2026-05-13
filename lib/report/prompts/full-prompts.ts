@@ -49,8 +49,10 @@ export interface PremiumPromptContext {
   experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
   /** Phase-2-Tiefe — Pflicht-Zitation im daily_life_protocol. */
   nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "undereating" | "none" | null;
-  stress_source?: "job" | "family" | "finances" | "health" | "future" | "none" | null;
-  recovery_ritual?: "sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none" | null;
+  /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
+  stress_source?: Array<"job" | "family" | "finances" | "health" | "future" | "none"> | null;
+  /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
+  recovery_ritual?: Array<"sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none"> | null;
   /** Data sources that fed this assessment — drives measured-vs-self-reported language. */
   data_sources?: {
     form: true;
@@ -186,6 +188,24 @@ const DISCLAIMER: Record<Locale, string> = {
   it: "Tutte le indicazioni sono insight di performance basati su modelli da dati auto-riportati. Non sostituiscono la diagnostica medica. Il VO2max è una stima algoritmica — non una misurazione di laboratorio.",
   tr: "Tüm ifadeler, kullanıcı tarafından bildirilen verilere dayalı model tabanlı performans içgörüleridir. Tıbbi teşhisin yerini almaz. VO2max algoritmik bir tahmindir — laboratuvar ölçümü değildir.",
 };
+
+/**
+ * Formats a multi-select array (stress_source / recovery_ritual) for prompt
+ * interpolation. Joins values with ", " — Claude versteht das als Liste
+ * und produziert Habits für jeden Wert. Null/leeres Array → fallback string.
+ */
+function formatMultiSelectForPrompt(value: readonly string[] | null | undefined, fallback: string): string {
+  if (!value || value.length === 0) return fallback;
+  return value.join(", ");
+}
+
+/**
+ * Prüft ob ein Multi-Select-Array einen bestimmten Wert enthält. Verwendet
+ * in den Prompt-Rules ("Wenn stress_source 'job' enthält: ...").
+ */
+function multiSelectIncludes(value: readonly string[] | null | undefined, target: string): boolean {
+  return Array.isArray(value) && value.includes(target);
+}
 
 // ─── trainingIntensityLabel (locale-aware helper, exported) ──────────────
 
@@ -1120,8 +1140,8 @@ Bildschirmzeit vor dem Schlaf: ${screenTime ?? notSpecified}
 TIEFEN-INPUTS (PFLICHT-ZITATION im daily_life_protocol)
 ═══════════════════════════════════════════════════════════
 Ernährungs-Painpoint: ${ctx.nutrition_painpoint ?? notSpecified}
-Haupt-Stressor: ${ctx.stress_source ?? notSpecified}
-Liebstes Erholungs-Ritual: ${ctx.recovery_ritual ?? notSpecified}
+Haupt-Stressor: ${formatMultiSelectForPrompt(ctx.stress_source, notSpecified)}
+Liebstes Erholungs-Ritual: ${formatMultiSelectForPrompt(ctx.recovery_ritual, notSpecified)}
 
 HARTE REGEL: Mindestens 3 der Habits im daily_life_protocol MÜSSEN diese drei Inputs NAMENTLICH adressieren.
 - Wenn nutrition_painpoint = "cravings_evening": mindestens 1 Evening- oder Nutrition-Habit, die Heißhunger adressiert (z.B. "30 g Protein beim Abendessen — stabilisiert Blutzucker → weniger Cravings").
@@ -1129,11 +1149,11 @@ HARTE REGEL: Mindestens 3 der Habits im daily_life_protocol MÜSSEN diese drei I
 - Wenn nutrition_painpoint = "no_energy": mindestens 1 Morning- oder Nutrition-Habit, die Energie-Stabilisierung adressiert (z.B. "Erstes Frühstück innerhalb 60 Min nach Aufstehen — stabilisiert Cortisol-Kurve").
 - Wenn nutrition_painpoint = "no_time": mindestens 1 Habit die Mahlzeiten-Friction reduziert (z.B. "5-Min-Prep-Routine Sonntag Abend — 3 Portionen Protein vorkochen").
 - Wenn nutrition_painpoint = "undereating": mindestens 1 Nutrition-Habit mit Frequenz-Anker und Kalorien-Floor (z.B. "3 Hauptmahlzeiten + 2 Snacks täglich — kalorisch dichte Optionen wie Nüsse/Nussbutter zwischen den Mahlzeiten platzieren").
-- Wenn stress_source = "job": mindestens 1 Work-Day-Habit die Arbeits-Stress-Recovery adressiert (z.B. "Nach letztem Meeting: 3 Min Atem-Reset BEVOR du aufstehst").
-- Wenn stress_source = "family": mindestens 1 Evening-Habit die Familien-Reset-Routine adressiert (z.B. "10 Min Allein-Zeit nach dem Nachhause-Kommen, bevor du in den Familien-Modus gehst").
-- Wenn stress_source = "finances": mindestens 1 Habit die Finanz-Stress-Cognitive-Load adressiert (z.B. "1× pro Woche 20-Min-Finanz-Check in festem Zeitslot — reduziert diffuse Dauer-Sorge").
-- Wenn stress_source = "health" oder "future": mindestens 1 Habit die Unsicherheits-Toleranz trainiert (z.B. "Abend-Journal: 3 kontrollierbare Dinge heute — kalibriert Fokus").
-- Wenn recovery_ritual ≠ "none": baue eine der Habits auf diesem Ritual auf (z.B. bei "nature": "Micro-Nature-Break: 5 Min draußen zwischen 2 Meetings" — nutzt das was der User schon liebt, statt was Neues aufzudrücken).
+- Wenn stress_source enthält "job": mindestens 1 Work-Day-Habit die Arbeits-Stress-Recovery adressiert (z.B. "Nach letztem Meeting: 3 Min Atem-Reset BEVOR du aufstehst").
+- Wenn stress_source enthält "family": mindestens 1 Evening-Habit die Familien-Reset-Routine adressiert (z.B. "10 Min Allein-Zeit nach dem Nachhause-Kommen, bevor du in den Familien-Modus gehst").
+- Wenn stress_source enthält "finances": mindestens 1 Habit die Finanz-Stress-Cognitive-Load adressiert (z.B. "1× pro Woche 20-Min-Finanz-Check in festem Zeitslot — reduziert diffuse Dauer-Sorge").
+- Wenn stress_source enthält "health" oder "future": mindestens 1 Habit die Unsicherheits-Toleranz trainiert (z.B. "Abend-Journal: 3 kontrollierbare Dinge heute — kalibriert Fokus").
+- Wenn recovery_ritual nicht-leer und nicht nur ["none"]: für JEDES Ritual in der Liste baue eine der Habits auf diesem Ritual auf (z.B. bei "nature": "Micro-Nature-Break: 5 Min draußen zwischen 2 Meetings" — nutzt das was der User schon liebt, statt was Neues aufzudrücken).
 
 Diese Regeln ersetzen NICHT die Zitierpflicht von Rohzahlen — sie kommen zusätzlich. Jede Daily-Habit braucht EINEN konkreten User-Input als Anker.
 
@@ -1342,8 +1362,8 @@ Screen time before sleep: ${screenTime ?? notSpecified}
 DEEP INPUTS (MANDATORY CITATION in daily_life_protocol)
 ═══════════════════════════════════════════════════════════
 Nutrition painpoint: ${ctx.nutrition_painpoint ?? notSpecified}
-Main stressor: ${ctx.stress_source ?? notSpecified}
-Favourite recovery ritual: ${ctx.recovery_ritual ?? notSpecified}
+Main stressor: ${formatMultiSelectForPrompt(ctx.stress_source, notSpecified)}
+Favourite recovery ritual: ${formatMultiSelectForPrompt(ctx.recovery_ritual, notSpecified)}
 
 HARD RULE: At least 3 of the habits in daily_life_protocol MUST address these three inputs BY NAME.
 - If nutrition_painpoint = "cravings_evening": at least 1 evening or nutrition habit addressing cravings (e.g. "30 g protein at dinner — stabilises blood sugar → fewer cravings").
@@ -1351,11 +1371,11 @@ HARD RULE: At least 3 of the habits in daily_life_protocol MUST address these th
 - If nutrition_painpoint = "no_energy": at least 1 morning or nutrition habit addressing energy stabilisation (e.g. "first breakfast within 60 min of waking — stabilises the cortisol curve").
 - If nutrition_painpoint = "no_time": at least 1 habit reducing meal friction (e.g. "5-min prep routine Sunday evening — pre-cook 3 portions of protein").
 - If nutrition_painpoint = "undereating": at least 1 nutrition habit with a frequency anchor and calorie floor (e.g. "3 main meals + 2 snacks daily — place calorie-dense options like nuts/nut butter between meals").
-- If stress_source = "job": at least 1 work-day habit addressing work-stress recovery (e.g. "after the last meeting: 3-min breath reset BEFORE you stand up").
-- If stress_source = "family": at least 1 evening habit addressing the family-reset routine (e.g. "10 min alone time after coming home, before switching into family mode").
-- If stress_source = "finances": at least 1 habit addressing finance-stress cognitive load (e.g. "1× per week 20-min finance check in a fixed slot — reduces diffuse ongoing worry").
-- If stress_source = "health" or "future": at least 1 habit training tolerance for uncertainty (e.g. "evening journal: 3 controllable things today — calibrates focus").
-- If recovery_ritual ≠ "none": build one of the habits on this ritual (e.g. for "nature": "micro-nature break: 5 min outside between 2 meetings" — uses what the user already loves, instead of imposing something new).
+- If stress_source contains "job": at least 1 work-day habit addressing work-stress recovery (e.g. "after the last meeting: 3-min breath reset BEFORE you stand up").
+- If stress_source contains "family": at least 1 evening habit addressing the family-reset routine (e.g. "10 min alone time after coming home, before switching into family mode").
+- If stress_source contains "finances": at least 1 habit addressing finance-stress cognitive load (e.g. "1× per week 20-min finance check in a fixed slot — reduces diffuse ongoing worry").
+- If stress_source contains "health" or "future": at least 1 habit training tolerance for uncertainty (e.g. "evening journal: 3 controllable things today — calibrates focus").
+- If recovery_ritual non-empty and not only ["none"]: for EACH ritual in the list build one of the habits on this ritual (e.g. for "nature": "micro-nature break: 5 min outside between 2 meetings" — uses what the user already loves, instead of imposing something new).
 
 These rules do NOT replace the obligation to cite raw numbers — they are additional. Every daily habit needs ONE concrete user input as an anchor.
 
@@ -1564,8 +1584,8 @@ Tempo davanti allo schermo prima del sonno: ${screenTime ?? notSpecified}
 INPUT APPROFONDITI (CITAZIONE OBBLIGATORIA in daily_life_protocol)
 ═══════════════════════════════════════════════════════════
 Painpoint alimentare: ${ctx.nutrition_painpoint ?? notSpecified}
-Principale fonte di stress: ${ctx.stress_source ?? notSpecified}
-Rituale di recupero preferito: ${ctx.recovery_ritual ?? notSpecified}
+Principale fonte di stress: ${formatMultiSelectForPrompt(ctx.stress_source, notSpecified)}
+Rituale di recupero preferito: ${formatMultiSelectForPrompt(ctx.recovery_ritual, notSpecified)}
 
 REGOLA VINCOLANTE: Almeno 3 delle abitudini in daily_life_protocol DEVONO affrontare questi tre input PER NOME.
 - Se nutrition_painpoint = "cravings_evening": almeno 1 abitudine evening o nutrition che affronta le voglie (es. "30 g di proteine a cena — stabilizza la glicemia → meno voglie").
@@ -1573,11 +1593,11 @@ REGOLA VINCOLANTE: Almeno 3 delle abitudini in daily_life_protocol DEVONO affron
 - Se nutrition_painpoint = "no_energy": almeno 1 abitudine morning o nutrition che affronta la stabilizzazione dell'energia (es. "prima colazione entro 60 min dal risveglio — stabilizza la curva del cortisolo").
 - Se nutrition_painpoint = "no_time": almeno 1 abitudine che riduce l'attrito sui pasti (es. "routine prep di 5 min domenica sera — pre-cucina 3 porzioni di proteine").
 - Se nutrition_painpoint = "undereating": almeno 1 abitudine nutrition con ancoraggio di frequenza e base calorica (es. "3 pasti principali + 2 snack al giorno — posiziona opzioni caloriche dense come frutta secca/burro di noci tra i pasti").
-- Se stress_source = "job": almeno 1 abitudine work-day che affronta il recupero dallo stress lavorativo (es. "dopo l'ultimo meeting: 3 min di reset respiratorio PRIMA di alzarti").
-- Se stress_source = "family": almeno 1 abitudine evening che affronta la routine di reset familiare (es. "10 min di tempo da solo dopo essere tornato a casa, prima di passare in modalità famiglia").
-- Se stress_source = "finances": almeno 1 abitudine che affronta il carico cognitivo dello stress finanziario (es. "1× a settimana check finanziario di 20 min in slot fisso — riduce la preoccupazione diffusa continua").
-- Se stress_source = "health" o "future": almeno 1 abitudine che allena la tolleranza all'incertezza (es. "journal serale: 3 cose controllabili oggi — calibra il focus").
-- Se recovery_ritual ≠ "none": costruisci una delle abitudini su questo rituale (es. per "nature": "micro-pausa nature: 5 min fuori tra 2 meeting" — usa ciò che l'utente già ama, invece di imporre qualcosa di nuovo).
+- Se stress_source contiene "job": almeno 1 abitudine work-day che affronta il recupero dallo stress lavorativo (es. "dopo l'ultimo meeting: 3 min di reset respiratorio PRIMA di alzarti").
+- Se stress_source contiene "family": almeno 1 abitudine evening che affronta la routine di reset familiare (es. "10 min di tempo da solo dopo essere tornato a casa, prima di passare in modalità famiglia").
+- Se stress_source contiene "finances": almeno 1 abitudine che affronta il carico cognitivo dello stress finanziario (es. "1× a settimana check finanziario di 20 min in slot fisso — riduce la preoccupazione diffusa continua").
+- Se stress_source contiene "health" o "future": almeno 1 abitudine che allena la tolleranza all'incertezza (es. "journal serale: 3 cose controllabili oggi — calibra il focus").
+- Se recovery_ritual non vuoto e non solo ["none"]: per OGNI ritual nella lista costruisci una delle abitudini su questo rituale (es. per "nature": "micro-pausa nature: 5 min fuori tra 2 meeting" — usa ciò che l'utente già ama, invece di imporre qualcosa di nuovo).
 
 Queste regole NON sostituiscono l'obbligo di citare i numeri grezzi — sono aggiuntive. Ogni abitudine quotidiana ha bisogno di UN input utente concreto come ancora.
 
@@ -1786,8 +1806,8 @@ Uyumadan önce ekran süresi: ${screenTime ?? notSpecified}
 DERİN GİRDİLER (daily_life_protocol'da ZORUNLU ATIF)
 ═══════════════════════════════════════════════════════════
 Beslenme painpoint'i: ${ctx.nutrition_painpoint ?? notSpecified}
-Ana stres kaynağı: ${ctx.stress_source ?? notSpecified}
-En sevilen toparlanma rituali: ${ctx.recovery_ritual ?? notSpecified}
+Ana stres kaynağı: ${formatMultiSelectForPrompt(ctx.stress_source, notSpecified)}
+En sevilen toparlanma rituali: ${formatMultiSelectForPrompt(ctx.recovery_ritual, notSpecified)}
 
 BAĞLAYICI KURAL: daily_life_protocol'daki alışkanlıkların en az 3'ü bu üç girdiyi İSİMLE ele almalı.
 - nutrition_painpoint = "cravings_evening" ise: aşırı isteklere yönelik en az 1 evening veya nutrition alışkanlığı (örn. "akşam yemeğinde 30 g protein — kan şekerini stabilize eder → daha az aşırı istek").
@@ -1795,11 +1815,11 @@ BAĞLAYICI KURAL: daily_life_protocol'daki alışkanlıkların en az 3'ü bu ü�
 - nutrition_painpoint = "no_energy" ise: enerji stabilizasyonuna yönelik en az 1 morning veya nutrition alışkanlığı (örn. "uyandıktan sonraki 60 dk içinde ilk kahvaltı — kortizol eğrisini stabilize eder").
 - nutrition_painpoint = "no_time" ise: öğün sürtüşmesini azaltan en az 1 alışkanlık (örn. "Pazar akşamı 5 dk hazırlık rutini — 3 porsiyon proteini önceden pişir").
 - nutrition_painpoint = "undereating" ise: frekans çıpası ve kalori tabanı içeren en az 1 nutrition alışkanlığı (örn. "günde 3 ana öğün + 2 atıştırmalık — öğünler arasına kuruyemiş/fındık ezmesi gibi kalori yoğun seçenekler yerleştir").
-- stress_source = "job" ise: iş stresinden toparlanmaya yönelik en az 1 work-day alışkanlığı (örn. "son toplantıdan sonra: ayağa kalkmadan ÖNCE 3 dk nefes reseti").
-- stress_source = "family" ise: aile reset rutinini ele alan en az 1 evening alışkanlığı (örn. "eve döndükten sonra aile moduna geçmeden önce 10 dk yalnız zaman").
-- stress_source = "finances" ise: finansal stres bilişsel yükünü ele alan en az 1 alışkanlık (örn. "haftada 1× sabit slotta 20 dk finans kontrolü — yaygın sürekli endişeyi azaltır").
-- stress_source = "health" veya "future" ise: belirsizlik toleransını eğiten en az 1 alışkanlık (örn. "akşam günlüğü: bugün kontrol edilebilir 3 şey — odağı kalibre eder").
-- recovery_ritual ≠ "none" ise: alışkanlıklardan birini bu ritualin üzerine kur (örn. "nature" için: "mikro-doğa molası: 2 toplantı arasında 5 dk dışarıda" — kullanıcının zaten sevdiği şeyi kullanır, yeni bir şey dayatmaz).
+- stress_source "job" içeriyorsa: iş stresinden toparlanmaya yönelik en az 1 work-day alışkanlığı (örn. "son toplantıdan sonra: ayağa kalkmadan ÖNCE 3 dk nefes reseti").
+- stress_source "family" içeriyorsa: aile reset rutinini ele alan en az 1 evening alışkanlığı (örn. "eve döndükten sonra aile moduna geçmeden önce 10 dk yalnız zaman").
+- stress_source "finances" içeriyorsa: finansal stres bilişsel yükünü ele alan en az 1 alışkanlık (örn. "haftada 1× sabit slotta 20 dk finans kontrolü — yaygın sürekli endişeyi azaltır").
+- stress_source "health" veya "future" içeriyorsa: belirsizlik toleransını eğiten en az 1 alışkanlık (örn. "akşam günlüğü: bugün kontrol edilebilir 3 şey — odağı kalibre eder").
+- recovery_ritual boş değil ve sadece ["none"] değilse: listedeki HER ritual için alışkanlıklardan birini bu ritualin üzerine kur (örn. "nature" için: "mikro-doğa molası: 2 toplantı arasında 5 dk dışarıda" — kullanıcının zaten sevdiği şeyi kullanır, yeni bir şey dayatmaz).
 
 Bu kurallar ham sayıları alıntılama yükümlülüğünün yerine GEÇMEZ — ek olarak gelir. Her günlük alışkanlığın çapa olarak BİR somut kullanıcı girdisine ihtiyacı vardır.
 

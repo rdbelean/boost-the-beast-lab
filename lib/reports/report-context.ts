@@ -119,8 +119,10 @@ export interface ReportContextPersonalization {
   time_budget: TimeBudget | null;
   experience_level: ExperienceLevel | null;
   nutrition_painpoint: NutritionPainpoint | null;
-  stress_source: StressSource | null;
-  recovery_ritual: RecoveryRitual | null;
+  /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
+  stress_source: StressSource[] | null;
+  /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
+  recovery_ritual: RecoveryRitual[] | null;
 }
 
 export interface ReportContextScoring {
@@ -250,6 +252,32 @@ const FRUIT_VEG_LOCAL: Record<Locale, Record<string, string>> = {
     optimal: "neredeyse her öğün (18–21/hafta)",
   },
 };
+
+/**
+ * Parsed eine Multi-Select-Response aus der responses-Tabelle.
+ *
+ * Schreib-Pfad in /api/assessment: Arrays werden via JSON.stringify abgelegt
+ * (`'["job","family"]'`). Legacy-Werte (vor Multi-Select-Refactor): einzelner
+ * String (`'job'`). Read-back versucht JSON.parse zuerst; bei Fail wrap-in-array.
+ *
+ * Returns null nur wenn raw value komplett fehlt oder leeres Array entstehen würde.
+ */
+function parseMultiValueResponse(raw: unknown): string[] | null {
+  if (raw === undefined || raw === null || raw === "") return null;
+  const str = String(raw).trim();
+  if (str.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(str) as unknown;
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.filter((v): v is string => typeof v === "string" && v.length > 0);
+        return cleaned.length > 0 ? cleaned : null;
+      }
+    } catch {
+      // fall through
+    }
+  }
+  return [str];
+}
 
 function localizeSleepQuality(value: SleepQualityLabel, locale: Locale): string {
   return SLEEP_QUALITY_LOCAL[locale]?.[value] ?? value;
@@ -508,8 +536,8 @@ export async function loadReportContext(
     time_budget: (respMap.get("time_budget") as TimeBudget | undefined) ?? null,
     experience_level: (respMap.get("experience_level") as ExperienceLevel | undefined) ?? null,
     nutrition_painpoint: (respMap.get("nutrition_painpoint") as NutritionPainpoint | undefined) ?? null,
-    stress_source: (respMap.get("stress_source") as StressSource | undefined) ?? null,
-    recovery_ritual: (respMap.get("recovery_ritual") as RecoveryRitual | undefined) ?? null,
+    stress_source: parseMultiValueResponse(respMap.get("stress_source")) as StressSource[] | null,
+    recovery_ritual: parseMultiValueResponse(respMap.get("recovery_ritual")) as RecoveryRitual[] | null,
   };
 
   // 10. Assemble.
@@ -589,8 +617,8 @@ export interface DemoContextInputs {
   time_budget?: TimeBudget | null;
   experience_level?: ExperienceLevel | null;
   nutrition_painpoint?: NutritionPainpoint | null;
-  stress_source?: StressSource | null;
-  recovery_ritual?: RecoveryRitual | null;
+  stress_source?: StressSource[] | null;
+  recovery_ritual?: RecoveryRitual[] | null;
   data_sources?: { form?: true; whoop?: { days: number }; apple_health?: { days: number } };
   main_goal_freetext?: string | null;
   training_type_freetext?: string | null;

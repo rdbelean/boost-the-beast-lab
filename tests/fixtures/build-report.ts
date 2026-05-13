@@ -85,7 +85,7 @@ export function buildValidReportFor(ctx: ReportContext): ReportJSON {
       key_finding: `Stress-Score ${stressScore} bei selbstberichtetem Level ${stress}/10.`,
       systemic_connection: `Sleep-Buffer ${r.stress.sleep_buffer}, Recovery-Buffer ${r.stress.recovery_buffer}.`,
       limitation: "Subjektive 1–10-Skala.",
-      recommendation: `Stress-Quelle ${ctx.personalization.stress_source ?? "unbekannt"} adressieren.`,
+      recommendation: `Stress-Quelle ${ctx.personalization.stress_source?.join(", ") ?? "unbekannt"} adressieren.`,
       hpa_context: ctx.flags.hpa_axis_risk
         ? `HPA-Achsen-Risiko aktiv bei Stress ${stress}/10 + Recovery ${recoveryScore}.`
         : null,

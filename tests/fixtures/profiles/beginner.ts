@@ -51,6 +51,6 @@ export const beginnerContext = buildTestContext({
   time_budget: "minimal",
   experience_level: "beginner",
   nutrition_painpoint: "no_energy",
-  stress_source: "job",
-  recovery_ritual: "none",
+  stress_source: ["job"],
+  recovery_ritual: ["none"],
 });

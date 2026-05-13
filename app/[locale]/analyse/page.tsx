@@ -7,6 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import styles from "./analyse.module.css";
 import SliderInput from "@/components/analyse/SliderInput";
 import RadioGroup from "@/components/analyse/RadioGroup";
+import MultiSelect from "@/components/analyse/MultiSelect";
 import CustomSelect from "@/components/analyse/CustomSelect";
 import FreetextField from "@/components/analyse/FreetextField";
 import BodyTypeSelector from "@/components/analyse/BodyTypeSelector";
@@ -30,8 +31,8 @@ interface PlanPersonalization {
   experience_level?: string | null;
   training_days?: number | null;
   nutrition_painpoint?: string | null;
-  stress_source?: string | null;
-  recovery_ritual?: string | null;
+  stress_source?: string[] | null;
+  recovery_ritual?: string[] | null;
 }
 
 async function generatePlanBundle(
@@ -146,8 +147,8 @@ interface FormData {
   mahlzeitenPlan: string;
   // Phase 2 — Tiefen-Inputs für personalisierte Daily-Life-Protocol-Habits
   nutritionPainpoint: string; // cravings_evening | low_protein | no_energy | no_time | undereating | none
-  stressSource: string; // job | family | finances | health | future | none
-  recoveryRitual: string; // sport | nature | cooking | reading | meditation | social | none
+  stressSource: string[]; // ≥1 von [job, family, finances, health, future, none]; "none" exklusiv
+  recoveryRitual: string[]; // ≥1 von [sport, nature, cooking, reading, meditation, social, none]; "none" exklusiv
   // Optional Freetext (max 1000 chars). Empty = current behaviour.
   mainGoalFreetext: string;
   trainingTypeFreetext: string;
@@ -354,8 +355,14 @@ function buildAssessmentPayload(f: FormData) {
     // Erholungs-Ritual, kann Claude drei Habits ausspielen die exakt DIESE
     // Kombination adressieren statt generischer Tipps.
     nutrition_painpoint: NUTRITION_PAINPOINT_VALUES.has(f.nutritionPainpoint) ? f.nutritionPainpoint : null,
-    stress_source: STRESS_SOURCE_VALUES.has(f.stressSource) ? f.stressSource : null,
-    recovery_ritual: RECOVERY_RITUAL_VALUES.has(f.recoveryRitual) ? f.recoveryRitual : null,
+    stress_source: (() => {
+      const valid = f.stressSource.filter((v) => STRESS_SOURCE_VALUES.has(v));
+      return valid.length > 0 ? valid : null;
+    })(),
+    recovery_ritual: (() => {
+      const valid = f.recoveryRitual.filter((v) => RECOVERY_RITUAL_VALUES.has(v));
+      return valid.length > 0 ? valid : null;
+    })(),
     // Phase-1-Datenflussfix: diese drei Felder landeten zuvor nicht im
     // assessment-Body und wurden im Report-Generator als 0 / Math.max-Heuristik
     // rekonstruiert. Jetzt direkt persistieren als responses-Rows
@@ -457,8 +464,8 @@ function AnalyseContent() {
     stresslevel: "moderat",
     mahlzeitenPlan: "kein",
     nutritionPainpoint: "",
-    stressSource: "",
-    recoveryRitual: "",
+    stressSource: [],
+    recoveryRitual: [],
     mainGoalFreetext: "",
     trainingTypeFreetext: "",
     selectedProduct: preselectedProduct,
@@ -658,8 +665,8 @@ function AnalyseContent() {
     form.gewicht > 0,
     !!form.obstGemuese,
     !!form.nutritionPainpoint,
-    !!form.stressSource,
-    !!form.recoveryRitual,
+    form.stressSource.length > 0,
+    form.recoveryRitual.length > 0,
     !!form.trainingsfreq,
     !!form.trainingsart,
     !!form.moderateDauer,
@@ -1629,9 +1636,10 @@ function AnalyseContent() {
                 <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
                   {t("q.stress_source.sub")}
                 </span>
-                <RadioGroup
+                <MultiSelect
                   value={form.stressSource}
-                  onChange={(v) => set("stressSource", v as string)}
+                  onChange={(v) => set("stressSource", v)}
+                  exclusiveValues={["none"]}
                   options={[
                     { label: t("q.stress_source.job"), value: "job" },
                     { label: t("q.stress_source.family"), value: "family" },
@@ -1649,9 +1657,10 @@ function AnalyseContent() {
                 <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
                   {t("q.recovery_ritual.sub")}
                 </span>
-                <RadioGroup
+                <MultiSelect
                   value={form.recoveryRitual}
-                  onChange={(v) => set("recoveryRitual", v as string)}
+                  onChange={(v) => set("recoveryRitual", v)}
+                  exclusiveValues={["none"]}
                   options={[
                     { label: t("q.recovery_ritual.sport"), value: "sport" },
                     { label: t("q.recovery_ritual.nature"), value: "nature" },
