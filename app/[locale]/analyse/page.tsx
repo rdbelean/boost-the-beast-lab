@@ -544,48 +544,41 @@ function AnalyseContent() {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Loading-bar time-based estimator: kriecht kontinuierlich von 5 → 95
-  // über EXPECTED_DURATION_MS. Signal-Bumps (setProgressCap) wirken als
-  // Beschleuniger. Niemals Hard-Stop bei einem Wert < 95 — das fixt den
-  // "stuck at 15 % für 40 s"-Bug.
+  // Loading-bar progress: 3-Layer-Combo (Exponential-Time-Curve + Signal-Bumps
+  // + Mindest-Velocity-Floor). Plateauiert nie länger als 8s an einer Stelle.
+  // Details in lib/analyse/progress-tick.ts.
   const startTimeRef = useRef<number>(0);
-  const EXPECTED_DURATION_MS = 100_000; // 100 s = realistic mean (70-110 s range)
-  const MAX_STEP_PER_TICK = 5; // verhindert Riesen-Jumps nach Tab-Sleep
+  const MAX_STEP_PER_TICK = 5; // catch-up cap nach Tab-Sleep
 
   useEffect(() => {
     if (!loading) return;
     if (startTimeRef.current === 0) startTimeRef.current = Date.now();
     const interval = setInterval(() => {
-      setLoadingProgress((prev) => {
-        const elapsedMs = Date.now() - startTimeRef.current;
-        return computeNextProgress({
+      setLoadingProgress((prev) =>
+        computeNextProgress({
           prev,
           signalCap: progressCap,
-          elapsedMs,
-          expectedDurationMs: EXPECTED_DURATION_MS,
+          elapsedMs: Date.now() - startTimeRef.current,
           maxStepPerTick: MAX_STEP_PER_TICK,
-        });
-      });
+        }),
+      );
     }, 120);
     return () => clearInterval(interval);
   }, [loading, progressCap]);
 
-  // VisibilityChange: wenn Tab wieder fokussiert wird, sofort einen Tick
-  // forcen (sonst wartet React bis zum nächsten Interval-Slot).
+  // VisibilityChange: forced re-tick wenn Tab wieder fokussiert wird.
   useEffect(() => {
     if (!loading) return;
     function onVisible(): void {
       if (document.visibilityState !== "visible") return;
-      setLoadingProgress((prev) => {
-        const elapsedMs = Date.now() - startTimeRef.current;
-        return computeNextProgress({
+      setLoadingProgress((prev) =>
+        computeNextProgress({
           prev,
           signalCap: progressCap,
-          elapsedMs,
-          expectedDurationMs: EXPECTED_DURATION_MS,
+          elapsedMs: Date.now() - startTimeRef.current,
           maxStepPerTick: MAX_STEP_PER_TICK,
-        });
-      });
+        }),
+      );
     }
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
