@@ -35,8 +35,10 @@ export interface PlanPersonalization {
   experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
   training_days?: number | null;
   nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "undereating" | "none" | null;
-  stress_source?: "job" | "family" | "finances" | "health" | "future" | "none" | null;
-  recovery_ritual?: "sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none" | null;
+  /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
+  stress_source?: Array<"job" | "family" | "finances" | "health" | "future" | "none"> | null;
+  /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
+  recovery_ritual?: Array<"sport" | "nature" | "cooking" | "reading" | "meditation" | "social" | "none"> | null;
 }
 
 export interface ExtractedEntities {
@@ -56,6 +58,31 @@ interface BuildArgs {
   scores: ScoreInput;
   personalization: PlanPersonalization;
   extractedEntities?: ExtractedEntities | null;
+}
+
+/** Joint die Multi-Select-Werte für die Prompt-Interpolation. */
+function formatMultiSelectPlan(value: readonly string[] | null | undefined, fallback: string): string {
+  if (!value || value.length === 0) return fallback;
+  return value.join(", ");
+}
+
+/** Iteriert über Multi-Select-Werte und pusht für jeden eine Rule aus der Map. */
+function pushMultiSelectRules(
+  values: readonly string[] | null | undefined,
+  ruleMap: Record<string, string>,
+  out: string[],
+): void {
+  if (!values || values.length === 0) return;
+  // "none" exklusiv: einzelner none-Wert → keine Rules
+  if (values.length === 1 && values[0] === "none") return;
+  const seen = new Set<string>();
+  for (const v of values) {
+    if (v === "none") continue;
+    if (seen.has(v)) continue;
+    seen.add(v);
+    const rule = ruleMap[v];
+    if (rule) out.push(rule);
+  }
 }
 
 function normalize(locale: string | undefined): Locale {
@@ -1211,7 +1238,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
     const entry = np[p.nutrition_painpoint];
     if (entry) deepRules.push(entry);
   }
-  if (p.stress_source && p.stress_source !== "none" && (type === "stress" || type === "recovery")) {
+  if (type === "stress" || type === "recovery") {
     const ss: Record<string, string> = {
       job: 'Mindestens 1 Block MUSS Arbeits-Stress-Recovery adressieren (z.B. 3-Min-Atem-Reset nach letztem Meeting, klare Feierabend-Transition, keine Arbeits-Mails nach 20 Uhr).',
       family: 'Mindestens 1 Block MUSS Familien-Transitionen adressieren (z.B. 10 Min Allein-Zeit nach Heimkommen, bevor in den Familien-Modus).',
@@ -1219,10 +1246,9 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
       health: 'Mindestens 1 Block MUSS Gesundheits-Unsicherheit kalibrieren (z.B. Abend-Journal: 3 kontrollierbare Dinge heute).',
       future: 'Mindestens 1 Block MUSS Zukunfts-Angst kalibrieren (z.B. Journaling auf "3 heute-kontrollierbare Dinge" fokussieren).',
     };
-    const entry = ss[p.stress_source];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.stress_source, ss, deepRules);
   }
-  if (p.recovery_ritual && p.recovery_ritual !== "none") {
+  {
     const rr: Record<string, string> = {
       sport: "Baue auf dem Ritual SPORT auf — keine komplett neue Routine aufzwingen.",
       nature: 'Integriere NATUR-Exposure explizit (z.B. "5 Min draußen zwischen 2 Meetings" statt nur "Atem-Pause").',
@@ -1231,8 +1257,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
       meditation: "MEDITATION ausbauen statt komplett neu einführen — Dauer langsam steigern.",
       social: 'Soziale Interaktion als Regenerations-Tool framen (z.B. "1× pro Woche ungestörte Zeit mit wichtiger Person").',
     };
-    const entry = rr[p.recovery_ritual];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.recovery_ritual, rr, deepRules);
   }
   const deepRulesBlock = deepRules.length
     ? `\nTIEFEN-REGELN (diese Ausprägungen sind USER-spezifisch und müssen im Plan namentlich auftauchen):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n`
@@ -1245,8 +1270,8 @@ USER PERSONALISIERUNG (PFLICHT berücksichtigen):
 - Erfahrungslevel: ${p.experience_level ?? "intermediate (Default)"}
 - Aktuelle Trainingstage/Woche: ${p.training_days ?? "nicht angegeben"}
 - Ernährungs-Painpoint: ${p.nutrition_painpoint ?? "nicht angegeben"}
-- Haupt-Stressor: ${p.stress_source ?? "nicht angegeben"}
-- Liebstes Erholungs-Ritual: ${p.recovery_ritual ?? "nicht angegeben"}
+- Haupt-Stressor (kann mehrere sein): ${formatMultiSelectPlan(p.stress_source, "nicht angegeben")}
+- Liebstes Erholungs-Ritual (kann mehrere sein): ${formatMultiSelectPlan(p.recovery_ritual, "nicht angegeben")}
 
 HARTE REGELN:
 - Wenn time_budget="minimal" (10–20 Min/Tag): KEINE Sessions >15 Min. Micro-Workouts + Alltagsbewegung priorisieren. NIE Zone-2-45-Min empfehlen.
@@ -1332,7 +1357,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
     const entry = np[p.nutrition_painpoint];
     if (entry) deepRules.push(entry);
   }
-  if (p.stress_source && p.stress_source !== "none" && (type === "stress" || type === "recovery")) {
+  if (type === "stress" || type === "recovery") {
     const ss: Record<string, string> = {
       job: 'At least 1 block MUST address work-stress recovery (e.g. 3-min breath reset after the last meeting, clear end-of-day transition, no work emails after 8 pm).',
       family: 'At least 1 block MUST address family transitions (e.g. 10 min alone time after arriving home, before switching into family mode).',
@@ -1340,10 +1365,9 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
       health: 'At least 1 block MUST calibrate health uncertainty (e.g. evening journal: 3 controllable things today).',
       future: 'At least 1 block MUST calibrate future-anxiety (e.g. focus journaling on "3 things controllable today").',
     };
-    const entry = ss[p.stress_source];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.stress_source, ss, deepRules);
   }
-  if (p.recovery_ritual && p.recovery_ritual !== "none") {
+  {
     const rr: Record<string, string> = {
       sport: "Build on the user's existing SPORT ritual — do not impose a completely new routine.",
       nature: 'Integrate NATURE exposure explicitly (e.g. "5 min outside between two meetings" instead of just a "breath break").',
@@ -1352,8 +1376,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
       meditation: "Expand existing MEDITATION rather than introducing it from scratch — raise duration gradually.",
       social: 'Frame social interaction as a recovery tool (e.g. "1× per week uninterrupted time with an important person").',
     };
-    const entry = rr[p.recovery_ritual];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.recovery_ritual, rr, deepRules);
   }
   const deepRulesBlock = deepRules.length
     ? `\nDEEP RULES (these user-specific signals MUST appear by name in the plan):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n`
@@ -1366,8 +1389,8 @@ USER PERSONALIZATION (MANDATORY to respect):
 - Experience level: ${p.experience_level ?? "intermediate (default)"}
 - Current training days/week: ${p.training_days ?? "not specified"}
 - Nutrition pain point: ${p.nutrition_painpoint ?? "not specified"}
-- Main stressor: ${p.stress_source ?? "not specified"}
-- Favourite recovery ritual: ${p.recovery_ritual ?? "not specified"}
+- Main stressor (may include multiple): ${formatMultiSelectPlan(p.stress_source, "not specified")}
+- Favourite recovery ritual (may include multiple): ${formatMultiSelectPlan(p.recovery_ritual, "not specified")}
 
 HARD RULES:
 - If time_budget="minimal" (10–20 min/day): NO sessions >15 min. Prioritise micro-workouts + daily movement. NEVER recommend Zone-2-45-min.
@@ -1453,7 +1476,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
     const entry = np[p.nutrition_painpoint];
     if (entry) deepRules.push(entry);
   }
-  if (p.stress_source && p.stress_source !== "none" && (type === "stress" || type === "recovery")) {
+  if (type === "stress" || type === "recovery") {
     const ss: Record<string, string> = {
       job: 'Almeno 1 blocco DEVE affrontare il recupero dallo stress lavorativo (es. reset respiratorio di 3 min dopo l\'ultimo meeting, transizione chiara a fine giornata, niente email di lavoro dopo le 20:00).',
       family: 'Almeno 1 blocco DEVE affrontare le transizioni familiari (es. 10 min da solo/a dopo essere tornato/a a casa, prima di passare in modalità famiglia).',
@@ -1461,10 +1484,9 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
       health: 'Almeno 1 blocco DEVE calibrare l\'incertezza sulla salute (es. journal serale: 3 cose controllabili oggi).',
       future: 'Almeno 1 blocco DEVE calibrare l\'ansia da futuro (es. focalizzare il journaling su "3 cose controllabili oggi").',
     };
-    const entry = ss[p.stress_source];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.stress_source, ss, deepRules);
   }
-  if (p.recovery_ritual && p.recovery_ritual !== "none") {
+  {
     const rr: Record<string, string> = {
       sport: "Costruisci sul rituale esistente dello SPORT — non imporre una routine completamente nuova.",
       nature: 'Integra l\'esposizione alla NATURA in modo esplicito (es. "5 min all\'aperto tra due meeting" invece di una semplice "pausa respirazione").',
@@ -1473,8 +1495,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
       meditation: "Espandi la MEDITAZIONE già esistente invece di introdurla da zero — aumenta la durata gradualmente.",
       social: 'Inquadra l\'interazione sociale come strumento di recupero (es. "1× a settimana tempo indisturbato con una persona importante").',
     };
-    const entry = rr[p.recovery_ritual];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.recovery_ritual, rr, deepRules);
   }
   const deepRulesBlock = deepRules.length
     ? `\nREGOLE APPROFONDITE (questi segnali specifici dell'utente DEVONO apparire per nome nel piano):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n`
@@ -1487,8 +1508,8 @@ PERSONALIZZAZIONE UTENTE (OBBLIGATORIA):
 - Livello di esperienza: ${p.experience_level ?? "intermediate (default)"}
 - Giorni di allenamento attuali/settimana: ${p.training_days ?? "non specificato"}
 - Pain point nutrizionale: ${p.nutrition_painpoint ?? "non specificato"}
-- Fattore di stress principale: ${p.stress_source ?? "non specificato"}
-- Rituale di recupero preferito: ${p.recovery_ritual ?? "non specificato"}
+- Fattore di stress principale (può includere più valori): ${formatMultiSelectPlan(p.stress_source, "non specificato")}
+- Rituale di recupero preferito (può includere più valori): ${formatMultiSelectPlan(p.recovery_ritual, "non specificato")}
 
 REGOLE DURE:
 - Se time_budget="minimal" (10–20 min/giorno): NESSUNA sessione >15 min. Priorità a micro-workout + movimento quotidiano. MAI consigliare Zone-2-45-min.
@@ -1574,7 +1595,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
     const entry = np[p.nutrition_painpoint];
     if (entry) deepRules.push(entry);
   }
-  if (p.stress_source && p.stress_source !== "none" && (type === "stress" || type === "recovery")) {
+  if (type === "stress" || type === "recovery") {
     const ss: Record<string, string> = {
       job: 'En az 1 blok iş stresi iyileşmesini ele ALMALIDIR (örn. son toplantıdan sonra 3 dk nefes reseti, net mesai bitişi geçişi, saat 20:00\'den sonra iş maili yok).',
       family: 'En az 1 blok aile geçişlerini ele ALMALIDIR (örn. eve geldikten sonra aile moduna geçmeden 10 dk yalnız zaman).',
@@ -1582,10 +1603,9 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
       health: 'En az 1 blok sağlık belirsizliğini kalibre ETMELIDIR (örn. akşam journal: bugün kontrol edilebilen 3 şey).',
       future: 'En az 1 blok gelecek kaygısını kalibre ETMELIDIR (örn. journaling\'i "bugün kontrol edilebilen 3 şey"e odakla).',
     };
-    const entry = ss[p.stress_source];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.stress_source, ss, deepRules);
   }
-  if (p.recovery_ritual && p.recovery_ritual !== "none") {
+  {
     const rr: Record<string, string> = {
       sport: "Kullanıcının mevcut SPOR ritüeli üzerine inşa et — tamamen yeni bir rutin dayatma.",
       nature: 'DOĞA teması olarak açıkça entegre et (örn. sadece "nefes molası" değil, "iki toplantı arasında 5 dk dışarıda").',
@@ -1594,8 +1614,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
       meditation: "Mevcut MEDİTASYONU sıfırdan başlatmak yerine genişlet — süreyi kademeli olarak artır.",
       social: 'Sosyal etkileşimi iyileşme aracı olarak çerçevele (örn. "haftada 1× önemli bir kişiyle kesintisiz zaman").',
     };
-    const entry = rr[p.recovery_ritual];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.recovery_ritual, rr, deepRules);
   }
   const deepRulesBlock = deepRules.length
     ? `\nDERİN KURALLAR (kullanıcıya özel bu sinyaller planda adıyla geçmelidir):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n`
@@ -1608,8 +1627,8 @@ KULLANICI KİŞİSELLEŞTİRME (ZORUNLU):
 - Deneyim seviyesi: ${p.experience_level ?? "intermediate (varsayılan)"}
 - Mevcut antrenman günü/hafta: ${p.training_days ?? "belirtilmedi"}
 - Beslenme sorunu: ${p.nutrition_painpoint ?? "belirtilmedi"}
-- Ana stres kaynağı: ${p.stress_source ?? "belirtilmedi"}
-- En sevilen iyileşme ritüeli: ${p.recovery_ritual ?? "belirtilmedi"}
+- Ana stres kaynağı (birden fazla olabilir): ${formatMultiSelectPlan(p.stress_source, "belirtilmedi")}
+- En sevilen iyileşme ritüeli (birden fazla olabilir): ${formatMultiSelectPlan(p.recovery_ritual, "belirtilmedi")}
 
 KATI KURALLAR:
 - Eğer time_budget="minimal" (10–20 dk/gün): >15 dk seans YOK. Mikro-workout + günlük hareket önceliklidir. ASLA Zone-2-45-dk önerme.

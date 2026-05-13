@@ -51,6 +51,6 @@ export const athleteContext = buildTestContext({
   time_budget: "athlete",
   experience_level: "advanced",
   nutrition_painpoint: "no_time",
-  stress_source: "future",
-  recovery_ritual: "sport",
+  stress_source: ["future"],
+  recovery_ritual: ["sport"],
 });

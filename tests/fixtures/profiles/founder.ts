@@ -51,6 +51,6 @@ export const founderContext = buildTestContext({
   time_budget: "moderate",
   experience_level: "intermediate",
   nutrition_painpoint: "no_time",
-  stress_source: "job",
-  recovery_ritual: "nature",
+  stress_source: ["job"],
+  recovery_ritual: ["nature"],
 });

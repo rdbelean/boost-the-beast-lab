@@ -51,6 +51,6 @@ export const metabolicContext = buildTestContext({
   time_budget: "minimal",
   experience_level: "restart",
   nutrition_painpoint: "low_protein",
-  stress_source: "none",
-  recovery_ritual: "cooking",
+  stress_source: ["none"],
+  recovery_ritual: ["cooking"],
 });
