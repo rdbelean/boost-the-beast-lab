@@ -638,16 +638,60 @@ export function enforceGlossaryAndExamples(
   };
 }
 
+export interface DedicatedSectionsRequirement {
+  /** Anzahl gewählter Werte (ohne "none"). */
+  count: number;
+  /** Die Werte selbst (z.B. ["job", "family"]). */
+  values: string[];
+  /** Welches Multi-Select-Feld dies treibt — nur für Logging/Retry-Hint. */
+  field: "stress_source" | "recovery_ritual" | "nutrition_painpoint";
+}
+
+/**
+ * Ermittelt, ob ein Plan für eine dedizierte Sektion pro Multi-Select-Wert
+ * verantwortlich ist. Mapping pro spec:
+ *   stress    → stress_source
+ *   recovery  → recovery_ritual
+ *   metabolic → nutrition_painpoint
+ *   activity  → kein dedicated-section-Zwang
+ */
+export function dedicatedSectionsRequirement(
+  planType: PlanType,
+  p: {
+    stress_source?: readonly string[] | null;
+    recovery_ritual?: readonly string[] | null;
+    nutrition_painpoint?: readonly string[] | null;
+  },
+): DedicatedSectionsRequirement | null {
+  const filter = (xs: readonly string[] | null | undefined): string[] =>
+    (xs ?? []).filter((v) => v !== "none");
+  if (planType === "stress") {
+    const values = filter(p.stress_source);
+    return values.length === 0 ? null : { count: values.length, values, field: "stress_source" };
+  }
+  if (planType === "recovery") {
+    const values = filter(p.recovery_ritual);
+    return values.length === 0 ? null : { count: values.length, values, field: "recovery_ritual" };
+  }
+  if (planType === "metabolic") {
+    const values = filter(p.nutrition_painpoint);
+    return values.length === 0 ? null : { count: values.length, values, field: "nutrition_painpoint" };
+  }
+  return null;
+}
+
 /**
  * Prüft den Plan auf Quality-Kriterien:
  * - weekly_table existiert mit genau 7 Rows mon→sun
  * - jede Action-Row (außer Pause) enthält "z.B."-Marker ODER eine "(...)"-Klammer
  * - keine Score-Referenzen mehr im Text (nach Post-Processing)
  * - daily-anchors-ähnliche Blocks: gleicher Konkrethheit-Check
+ * - Wenn dedicatedSections übergeben (count >= 2): blocks-Anzahl >= count + 2.
  */
 export function validatePlanQuality(
   plan: { blocks: PlanBlock[] },
   locale: Locale,
+  options: { dedicatedSections?: DedicatedSectionsRequirement | null } = {},
 ): { ok: boolean; reasons: string[] } {
   const reasons: string[] = [];
   const marker = EXAMPLE_MARKER[locale];
@@ -707,6 +751,20 @@ export function validatePlanQuality(
         reasons.push(`anchor_${i}_no_example_or_explanation`);
       }
     });
+  }
+
+  // 5. Dedicated-section-per-multi-select-value:
+  // Wenn der User für die plan-spezifische Frage ≥2 Werte (ohne "none") gewählt
+  // hat, MUSS pro Wert ein eigener Block existieren. Minimal blocks =
+  // values.length + 2 (weekly_table + N dedizierte + ≥1 Baseline).
+  const ds = options.dedicatedSections;
+  if (ds && ds.count >= 2) {
+    const minBlocks = ds.count + 2;
+    if (plan.blocks.length < minBlocks) {
+      reasons.push(
+        `dedicated_sections_expected_${minBlocks}_got_${plan.blocks.length}_values_${ds.values.join("|")}`,
+      );
+    }
   }
 
   return { ok: reasons.length === 0, reasons };

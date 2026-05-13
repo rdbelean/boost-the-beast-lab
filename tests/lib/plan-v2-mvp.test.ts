@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   enforceGlossaryAndExamples,
   validatePlanQuality,
+  dedicatedSectionsRequirement,
   type PlanBlock,
   type WeeklyTablePlanBlock,
 } from "@/lib/plan/buildPlan";
@@ -287,6 +288,99 @@ describe("validatePlanQuality", () => {
     const result = validatePlanQuality(plan, "de");
     expect(result.ok).toBe(false);
     expect(result.reasons.some((r) => r.includes("wrong_day"))).toBe(true);
+  });
+
+  it("fails when dedicated-sections requirement is unmet (3 values → need 5 blocks, got 3)", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [
+        { heading: "Status", items: ["Test"] },
+        { heading: "Stress consolidated", items: ["job/family/finances combined"] },
+        makeWeeklyTable(),
+      ],
+    };
+    const result = validatePlanQuality(plan, "de", {
+      dedicatedSections: { count: 3, values: ["job", "family", "finances"], field: "stress_source" },
+    });
+    expect(result.ok).toBe(false);
+    expect(
+      result.reasons.some((r) => r.startsWith("dedicated_sections_expected_5_got_3_values_job|family|finances")),
+    ).toBe(true);
+  });
+
+  it("passes when dedicated-sections requirement is met (3 values → 5 blocks)", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [
+        { heading: "Status", items: ["Test"] },
+        { heading: "Job protocol", items: ["item — z.B. x"] },
+        { heading: "Family protocol", items: ["item — z.B. y"] },
+        { heading: "Finances protocol", items: ["item — z.B. z"] },
+        makeWeeklyTable(),
+      ],
+    };
+    const result = validatePlanQuality(plan, "de", {
+      dedicatedSections: { count: 3, values: ["job", "family", "finances"], field: "stress_source" },
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("skips dedicated-sections check when count < 2", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{ heading: "Status", items: ["Test"] }, makeWeeklyTable()],
+    };
+    const result = validatePlanQuality(plan, "de", {
+      dedicatedSections: { count: 1, values: ["job"], field: "stress_source" },
+    });
+    expect(result.ok).toBe(true);
+  });
+});
+
+// ─── 3b. dedicatedSectionsRequirement helper ─────────────────────────
+
+describe("dedicatedSectionsRequirement", () => {
+  it("stress plan → uses stress_source", () => {
+    const r = dedicatedSectionsRequirement("stress", { stress_source: ["job", "family"] });
+    expect(r).toEqual({ count: 2, values: ["job", "family"], field: "stress_source" });
+  });
+
+  it("recovery plan → uses recovery_ritual", () => {
+    const r = dedicatedSectionsRequirement("recovery", { recovery_ritual: ["sport", "nature"] });
+    expect(r).toEqual({ count: 2, values: ["sport", "nature"], field: "recovery_ritual" });
+  });
+
+  it("metabolic plan → uses nutrition_painpoint", () => {
+    const r = dedicatedSectionsRequirement("metabolic", {
+      nutrition_painpoint: ["cravings_evening", "low_protein", "no_time"],
+    });
+    expect(r).toEqual({
+      count: 3,
+      values: ["cravings_evening", "low_protein", "no_time"],
+      field: "nutrition_painpoint",
+    });
+  });
+
+  it("activity plan → null (no dedicated sections enforced)", () => {
+    const r = dedicatedSectionsRequirement("activity", { nutrition_painpoint: ["cravings_evening"] });
+    expect(r).toBeNull();
+  });
+
+  it('filters out "none" values', () => {
+    const r = dedicatedSectionsRequirement("stress", { stress_source: ["job", "none", "family"] });
+    expect(r).toEqual({ count: 2, values: ["job", "family"], field: "stress_source" });
+  });
+
+  it("returns null when only \"none\" selected", () => {
+    const r = dedicatedSectionsRequirement("stress", { stress_source: ["none"] });
+    expect(r).toBeNull();
+  });
+
+  it("returns null when field is empty", () => {
+    const r = dedicatedSectionsRequirement("stress", { stress_source: [] });
+    expect(r).toBeNull();
+  });
+
+  it("returns null when field is undefined", () => {
+    const r = dedicatedSectionsRequirement("stress", {});
+    expect(r).toBeNull();
   });
 });
 

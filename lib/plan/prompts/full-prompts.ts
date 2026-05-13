@@ -86,6 +86,67 @@ function pushMultiSelectRules(
   }
 }
 
+/**
+ * Liefert pro plan-type die nicht-"none"-Werte des relevanten Multi-Select-
+ * Feldes. Wenn ≥2 Werte gewählt: ein dedizierter Block pro Wert wird erzwungen.
+ * Mapping: stress→stress_source, recovery→recovery_ritual,
+ *          metabolic→nutrition_painpoint, activity→keine.
+ */
+function dedicatedSectionValuesForPrompt(type: PlanType, p: PlanPersonalization): string[] {
+  const filter = (xs: readonly string[] | null | undefined): string[] =>
+    (xs ?? []).filter((v) => v !== "none");
+  if (type === "stress") return filter(p.stress_source);
+  if (type === "recovery") return filter(p.recovery_ritual);
+  if (type === "metabolic") return filter(p.nutrition_painpoint);
+  return [];
+}
+
+/**
+ * Locale-spezifischer Pflicht-Block: für ≥2 gewählte Werte muss je ein
+ * eigener blocks[]-Eintrag erzeugt werden. Bei <2 Werten: leerer String.
+ */
+function buildDedicatedSectionsBlock(
+  type: PlanType,
+  p: PlanPersonalization,
+  locale: Locale,
+): string {
+  const values = dedicatedSectionValuesForPrompt(type, p);
+  if (values.length < 2) return "";
+  const list = values.join(", ");
+  const min = values.length + 2;
+  if (locale === "en") {
+    return `
+MANDATORY — ONE DEDICATED PLAN BLOCK PER SELECTED VALUE:
+For EACH selected value the user picked you MUST create a separate dedicated entry in blocks[] — each with a unique heading that explicitly names that value, and ≥4 concrete items[]. DO NOT consolidate multiple values into one block. DO NOT bury any value as a sub-bullet inside an unrelated block.
+Selected values (${values.length}): ${list}
+Required output: blocks[] MUST contain at least ${min} entries (1 weekly_table + ${values.length} dedicated value blocks + ≥1 additional baseline block).
+`;
+  }
+  if (locale === "it") {
+    return `
+OBBLIGATORIO — UN BLOCCO DI PIANO DEDICATO PER OGNI VALORE SELEZIONATO:
+Per OGNI valore che l'utente ha selezionato DEVI creare una voce dedicata separata in blocks[] — ognuna con un heading univoco che cita esplicitamente quel valore, e ≥4 items[] concreti. NON consolidare più valori in un unico blocco. NON nascondere alcun valore come sotto-bullet dentro un blocco non correlato.
+Valori selezionati (${values.length}): ${list}
+Output obbligatorio: blocks[] DEVE contenere almeno ${min} voci (1 weekly_table + ${values.length} blocchi dedicati ai valori + ≥1 blocco baseline aggiuntivo).
+`;
+  }
+  if (locale === "tr") {
+    return `
+ZORUNLU — SEÇİLEN HER DEĞER İÇİN AYRI BİR PLAN BLOĞU:
+Kullanıcının seçtiği HER değer için blocks[] içinde ayrı bir özel giriş OLUŞTURULMALIDIR — her biri değeri açıkça adlandıran benzersiz bir heading ve ≥4 somut items[] ile. Birden fazla değeri tek blokta birleştirme YASAK. Herhangi bir değeri ilgisiz bir bloğun alt-bullet'ına gömme YASAK.
+Seçilen değerler (${values.length}): ${list}
+Gerekli çıktı: blocks[] en az ${min} giriş içerMELİDİR (1 weekly_table + ${values.length} özel değer bloğu + ≥1 ek baseline blok).
+`;
+  }
+  // de
+  return `
+PFLICHT — JE EIN EIGENER PLAN-BLOCK PRO GEWÄHLTEM WERT:
+Für JEDEN vom User gewählten Wert MUSS ein eigener, separater Eintrag in blocks[] erzeugt werden — jeder mit einem eindeutigen heading, der den Wert namentlich erwähnt, und mindestens 4 konkreten items[]. KEINE Konsolidierung mehrerer Werte in einen Block. KEIN Wert als Sub-Bullet in einem fremden Block.
+Gewählte Werte (${values.length}): ${list}
+Pflicht-Output: blocks[] MUSS mindestens ${min} Einträge enthalten (1 weekly_table + ${values.length} dedizierte Werte-Blöcke + ≥1 weiterer Baseline-Block).
+`;
+}
+
 function normalize(locale: string | undefined): Locale {
   if (locale === "en" || locale === "it" || locale === "tr") return locale;
   return "de";
@@ -1262,6 +1323,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
   const deepRulesBlock = deepRules.length
     ? `\nTIEFEN-REGELN (diese Ausprägungen sind USER-spezifisch und müssen im Plan namentlich auftauchen):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n`
     : "";
+  const dedicatedSectionsBlock = buildDedicatedSectionsBlock(type, p, "de");
 
   const personalization = `
 USER PERSONALISIERUNG (PFLICHT berücksichtigen):
@@ -1279,7 +1341,7 @@ HARTE REGELN:
 - Wenn main_goal ∈ {feel_better, stress_sleep, longevity}: Training kommt NACH Schlaf/Stress/Ernährungs-Fixes in der Priorität. Keine HIIT-Empfehlungen.
 - Wenn training_days=0: Starten bei 1×/Woche. NIE 5×/Woche als Startempfehlung.
 - NUR wenn main_goal="performance" UND time_budget ∈ {committed, athlete} UND experience_level ∈ {intermediate, advanced}: DANN sind 4–5 Einheiten/Woche angebracht.
-${deepRulesBlock}`;
+${deepRulesBlock}${dedicatedSectionsBlock}`;
 
   if (type === "activity") {
     const gap = Math.max(0, 600 - s.activity.total_met_minutes_week);
@@ -1380,6 +1442,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
   const deepRulesBlock = deepRules.length
     ? `\nDEEP RULES (these user-specific signals MUST appear by name in the plan):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n`
     : "";
+  const dedicatedSectionsBlock = buildDedicatedSectionsBlock(type, p, "en");
 
   const personalization = `
 USER PERSONALIZATION (MANDATORY to respect):
@@ -1397,7 +1460,7 @@ HARD RULES:
 - If main_goal ∈ {feel_better, stress_sleep, longevity}: Training ranks AFTER sleep/stress/nutrition fixes. No HIIT recommendations.
 - If training_days=0: Start at 1×/week. NEVER 5×/week as a starting point.
 - ONLY if main_goal="performance" AND time_budget ∈ {committed, athlete} AND experience_level ∈ {intermediate, advanced}: THEN 4–5 sessions/week is appropriate.
-${deepRulesBlock}`;
+${deepRulesBlock}${dedicatedSectionsBlock}`;
 
   if (type === "activity") {
     const gap = Math.max(0, 600 - s.activity.total_met_minutes_week);
@@ -1498,6 +1561,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
   const deepRulesBlock = deepRules.length
     ? `\nREGOLE APPROFONDITE (questi segnali specifici dell'utente DEVONO apparire per nome nel piano):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n`
     : "";
+  const dedicatedSectionsBlock = buildDedicatedSectionsBlock(type, p, "it");
 
   const personalization = `
 PERSONALIZZAZIONE UTENTE (OBBLIGATORIA):
@@ -1515,7 +1579,7 @@ REGOLE DURE:
 - Se main_goal ∈ {feel_better, stress_sleep, longevity}: L'allenamento viene DOPO la cura di sonno/stress/nutrizione. Niente HIIT.
 - Se training_days=0: Partire da 1×/settimana. MAI 5×/settimana come punto di partenza.
 - SOLO se main_goal="performance" E time_budget ∈ {committed, athlete} E experience_level ∈ {intermediate, advanced}: ALLORA 4–5 sessioni/settimana sono appropriate.
-${deepRulesBlock}`;
+${deepRulesBlock}${dedicatedSectionsBlock}`;
 
   if (type === "activity") {
     const gap = Math.max(0, 600 - s.activity.total_met_minutes_week);
@@ -1616,6 +1680,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
   const deepRulesBlock = deepRules.length
     ? `\nDERİN KURALLAR (kullanıcıya özel bu sinyaller planda adıyla geçmelidir):\n${deepRules.map((r) => `- ${r}`).join("\n")}\n`
     : "";
+  const dedicatedSectionsBlock = buildDedicatedSectionsBlock(type, p, "tr");
 
   const personalization = `
 KULLANICI KİŞİSELLEŞTİRME (ZORUNLU):
@@ -1633,7 +1698,7 @@ KATI KURALLAR:
 - Eğer main_goal ∈ {feel_better, stress_sleep, longevity}: Antrenman uyku/stres/beslenme düzeltmelerinden SONRA gelir. HIIT önerme.
 - Eğer training_days=0: 1×/hafta ile başla. ASLA 5×/hafta başlangıç önerisi olamaz.
 - YALNIZCA main_goal="performance" VE time_budget ∈ {committed, athlete} VE experience_level ∈ {intermediate, advanced} ise: O ZAMAN 4–5 seans/hafta uygundur.
-${deepRulesBlock}`;
+${deepRulesBlock}${dedicatedSectionsBlock}`;
 
   if (type === "activity") {
     const gap = Math.max(0, 600 - s.activity.total_met_minutes_week);

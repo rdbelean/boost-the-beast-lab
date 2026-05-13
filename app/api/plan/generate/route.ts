@@ -7,6 +7,7 @@ import { cleanJsonText } from "@/lib/reports/pipeline";
 import {
   enforceGlossaryAndExamples,
   validatePlanQuality,
+  dedicatedSectionsRequirement,
   type PlanBlock,
 } from "@/lib/plan/buildPlan";
 import { EXAMPLE_MARKER } from "@/lib/plan/glossary";
@@ -26,6 +27,28 @@ export const maxDuration = 180;
 
 const MAX_QUALITY_ATTEMPTS = 3;
 
+function buildDedicatedSectionsRetryAddon(locale: Locale, reasons: string[]): string {
+  const r = reasons.find((x) => x.startsWith("dedicated_sections_expected_"));
+  if (!r) return "";
+  // Format: dedicated_sections_expected_${min}_got_${actual}_values_${a|b|c}
+  const m = /^dedicated_sections_expected_(\d+)_got_(\d+)_values_(.+)$/.exec(r);
+  if (!m) return "";
+  const min = m[1];
+  const actual = m[2];
+  const values = m[3].split("|").join(", ");
+  if (locale === "en") {
+    return ` CRITICAL: you produced ${actual} blocks but ${min} are required. The user selected these multi-select values: ${values}. EACH of these values MUST get its own dedicated block in blocks[] with a unique heading that names the value. NO consolidation. NO burying values as sub-bullets in unrelated blocks.`;
+  }
+  if (locale === "it") {
+    return ` CRITICO: hai prodotto ${actual} blocchi ma ne servono ${min}. L'utente ha selezionato questi valori multi-select: ${values}. OGNUNO di questi valori DEVE avere il proprio blocco dedicato in blocks[] con un heading univoco che cita il valore. NESSUNA consolidazione. NESSUN valore nascosto come sotto-bullet in blocchi non correlati.`;
+  }
+  if (locale === "tr") {
+    return ` KRİTİK: ${actual} blok ürettin ama ${min} gerekli. Kullanıcı şu çoklu seçim değerlerini seçti: ${values}. Bu değerlerin HER BİRİ blocks[] içinde değeri adlandıran benzersiz bir heading'le kendi özel bloğunu almalıdır. Birleştirme YOK. Değerleri ilgisiz blokların alt-bullet'larına gömme YOK.`;
+  }
+  // de
+  return ` KRITISCH: du hast ${actual} blocks erzeugt, aber ${min} sind gefordert. Der User hat folgende Multi-Select-Werte gewählt: ${values}. JEDER dieser Werte MUSS einen eigenen dedizierten Eintrag in blocks[] bekommen — mit einem eindeutigen heading, der den Wert namentlich nennt. KEINE Konsolidierung. KEINE Werte als Sub-Bullets in fremden Blöcken vergraben.`;
+}
+
 function buildQualityRetryDirective(
   locale: Locale,
   attempt: number,
@@ -33,17 +56,18 @@ function buildQualityRetryDirective(
 ): string {
   const marker = EXAMPLE_MARKER[locale];
   const reasonsList = reasons.join(", ");
+  const dedicatedAddon = buildDedicatedSectionsRetryAddon(locale, reasons);
   if (locale === "en") {
-    return `QUALITY RETRY ATTEMPT ${attempt}/${MAX_QUALITY_ATTEMPTS}. Your previous output failed these checks: ${reasonsList}. Fix EVERY one. Specifically: weekly_table MUST contain exactly 7 rows in the order mon, tue, wed, thu, fri, sat, sun. EVERY action row (except Rest) MUST contain "${marker}" or a "(...)" parenthetical explanation. NEVER mention score numbers like "Activity Score 58/100" or score names like "Recovery Score".`;
+    return `QUALITY RETRY ATTEMPT ${attempt}/${MAX_QUALITY_ATTEMPTS}. Your previous output failed these checks: ${reasonsList}. Fix EVERY one. Specifically: weekly_table MUST contain exactly 7 rows in the order mon, tue, wed, thu, fri, sat, sun. EVERY action row (except Rest) MUST contain "${marker}" or a "(...)" parenthetical explanation. NEVER mention score numbers like "Activity Score 58/100" or score names like "Recovery Score".${dedicatedAddon}`;
   }
   if (locale === "it") {
-    return `QUALITY RETRY TENTATIVO ${attempt}/${MAX_QUALITY_ATTEMPTS}. Il tuo output precedente non ha superato questi controlli: ${reasonsList}. Correggi OGNI punto. In particolare: weekly_table DEVE contenere esattamente 7 righe nell'ordine mon, tue, wed, thu, fri, sat, sun. OGNI riga di azione (eccetto Riposo) DEVE contenere "${marker}" o una spiegazione in "(...)". MAI menzionare numeri di score come "Activity Score 58/100" o nomi di score come "Recovery Score".`;
+    return `QUALITY RETRY TENTATIVO ${attempt}/${MAX_QUALITY_ATTEMPTS}. Il tuo output precedente non ha superato questi controlli: ${reasonsList}. Correggi OGNI punto. In particolare: weekly_table DEVE contenere esattamente 7 righe nell'ordine mon, tue, wed, thu, fri, sat, sun. OGNI riga di azione (eccetto Riposo) DEVE contenere "${marker}" o una spiegazione in "(...)". MAI menzionare numeri di score come "Activity Score 58/100" o nomi di score come "Recovery Score".${dedicatedAddon}`;
   }
   if (locale === "tr") {
-    return `QUALITY RETRY DENEME ${attempt}/${MAX_QUALITY_ATTEMPTS}. Önceki çıktın şu kontrolleri geçemedi: ${reasonsList}. Hepsini düzelt. Özellikle: weekly_table TAM olarak mon, tue, wed, thu, fri, sat, sun sırasında 7 satır içermelidir. HER eylem satırı (Dinlenme hariç) "${marker}" veya bir "(...)" parantez açıklaması içermelidir. ASLA "Activity Score 58/100" gibi skor sayılarından veya "Recovery Score" gibi skor adlarından bahsetme.`;
+    return `QUALITY RETRY DENEME ${attempt}/${MAX_QUALITY_ATTEMPTS}. Önceki çıktın şu kontrolleri geçemedi: ${reasonsList}. Hepsini düzelt. Özellikle: weekly_table TAM olarak mon, tue, wed, thu, fri, sat, sun sırasında 7 satır içermelidir. HER eylem satırı (Dinlenme hariç) "${marker}" veya bir "(...)" parantez açıklaması içermelidir. ASLA "Activity Score 58/100" gibi skor sayılarından veya "Recovery Score" gibi skor adlarından bahsetme.${dedicatedAddon}`;
   }
   // de
-  return `QUALITY-RETRY VERSUCH ${attempt}/${MAX_QUALITY_ATTEMPTS}. Dein vorheriger Output hat folgende Prüfungen NICHT bestanden: ${reasonsList}. Behebe ALLE diese Punkte. Insbesondere: weekly_table MUSS exakt 7 rows in der Reihenfolge mon, tue, wed, thu, fri, sat, sun enthalten. JEDE Action-Row (außer Pause) MUSS "${marker}" oder eine "(...)"-Klammer-Erklärung enthalten. NIEMALS Score-Zahlen wie "Activity Score 58/100" oder Score-Namen wie "Recovery Score" erwähnen.`;
+  return `QUALITY-RETRY VERSUCH ${attempt}/${MAX_QUALITY_ATTEMPTS}. Dein vorheriger Output hat folgende Prüfungen NICHT bestanden: ${reasonsList}. Behebe ALLE diese Punkte. Insbesondere: weekly_table MUSS exakt 7 rows in der Reihenfolge mon, tue, wed, thu, fri, sat, sun enthalten. JEDE Action-Row (außer Pause) MUSS "${marker}" oder eine "(...)"-Klammer-Erklärung enthalten. NIEMALS Score-Zahlen wie "Activity Score 58/100" oder Score-Namen wie "Recovery Score" erwähnen.${dedicatedAddon}`;
 }
 
 function isValidLocale(v: string): v is Locale {
@@ -364,6 +388,7 @@ export async function POST(req: NextRequest) {
     // Bei Fail: bis zu MAX_QUALITY_ATTEMPTS Wiederholungen mit progressiv
     // härteren Directives. Nach MAX: best-effort + quality_warnings im Output.
     const localeTyped: Locale = isValidLocale(locale) ? locale : "de";
+    const dedicatedSections = dedicatedSectionsRequirement(planType, personalization);
 
     let parsed: { blocks: PlanBlock[] } | null = null;
     let lastProcessed: { blocks: PlanBlock[] } | null = null;
@@ -423,7 +448,7 @@ export async function POST(req: NextRequest) {
       lastProcessed = processed;
 
       // ── Quality-Validation ──
-      const { ok, reasons } = validatePlanQuality(processed, localeTyped);
+      const { ok, reasons } = validatePlanQuality(processed, localeTyped, { dedicatedSections });
       if (ok) {
         console.log("[Plans/BE/generate] quality OK", {
           attempt,
