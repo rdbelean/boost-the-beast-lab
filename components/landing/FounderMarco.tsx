@@ -4,8 +4,9 @@ import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 
-// Marco-Portrait is served from /public/marco-portrait.png (downloaded from
-// boostthebeast.com — Marco is the owner of both brands, copyright-safe).
+// Marco-Portrait is served from /public/marco-portrait.jpg (1537×1023,
+// owner-provided). Frame is square (aspect-ratio: 1/1) — object-fit: cover
+// with object-position: center top crops the landscape image to the head.
 // Next <Image> handles responsive srcset + lazy-loading automatically.
 
 const CREDENTIAL_KEYS = ["1", "2", "3", "4"] as const;
@@ -38,10 +39,10 @@ export default function FounderMarco() {
           <div className={styles.founderPortraitWrap}>
             <div className={styles.founderPortraitFrame}>
               <Image
-                src="/marco-portrait.png"
+                src="/marco-portrait.jpg"
                 alt={t("portrait_alt")}
-                width={500}
-                height={500}
+                width={1537}
+                height={1023}
                 sizes="(max-width: 900px) 320px, 440px"
                 priority={false}
                 className={styles.founderPortrait}
