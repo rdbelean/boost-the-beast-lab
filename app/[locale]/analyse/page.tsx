@@ -14,7 +14,7 @@ import type { BodyType } from "@/lib/scoring/body-composition-types";
 import { buildPlan, type PlanType, type PlanBlock } from "@/lib/plan/buildPlan";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cachePdf, cacheKeyFor, base64ToBytes, fetchPdfBytes } from "@/lib/pdf/pdfCache";
-import { computeNextProgress } from "@/lib/analyse/progress-tick";
+import { computeLinearProgress, computeFinalProgress } from "@/lib/analyse/progress-tick";
 
 // ── Plan bundle cached in sessionStorage ─────────────────
 interface PlanBundle {
@@ -539,50 +539,45 @@ function AnalyseContent() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [progressCap, setProgressCap] = useState(5);
+  const [done, setDone] = useState(false);
   const [overallScore, setOverallScore] = useState<number | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Loading-bar progress: 3-Layer-Combo (Exponential-Time-Curve + Signal-Bumps
-  // + Mindest-Velocity-Floor). Plateauiert nie länger als 8s an einer Stelle.
-  // Details in lib/analyse/progress-tick.ts.
+  // Loading-bar progress: pure lineare Funktion der elapsed time.
+  // Keine Signal-Caps mehr — gleichmäßige Geschwindigkeit über die ganze
+  // Generierungs-Dauer (5 Min kalibriert). Backend-done triggert separate
+  // ease-out-Animation via requestAnimationFrame zu 100%.
   const startTimeRef = useRef<number>(0);
-  const MAX_STEP_PER_TICK = 5; // catch-up cap nach Tab-Sleep
 
+  // Linear-Phase: Tick alle 120ms, prev wird durch reine Zeitfunktion ersetzt
   useEffect(() => {
-    if (!loading) return;
+    if (!loading || done) return;
     if (startTimeRef.current === 0) startTimeRef.current = Date.now();
     const interval = setInterval(() => {
-      setLoadingProgress((prev) =>
-        computeNextProgress({
-          prev,
-          signalCap: progressCap,
-          elapsedMs: Date.now() - startTimeRef.current,
-          maxStepPerTick: MAX_STEP_PER_TICK,
-        }),
-      );
+      setLoadingProgress(computeLinearProgress(Date.now() - startTimeRef.current));
     }, 120);
     return () => clearInterval(interval);
-  }, [loading, progressCap]);
+  }, [loading, done]);
 
-  // VisibilityChange: forced re-tick wenn Tab wieder fokussiert wird.
+  // Final-Phase: ease-out cubic Animation auf 100% via rAF.
+  // Triggert genau einmal wenn done=true gesetzt wird.
   useEffect(() => {
-    if (!loading) return;
-    function onVisible(): void {
-      if (document.visibilityState !== "visible") return;
-      setLoadingProgress((prev) =>
-        computeNextProgress({
-          prev,
-          signalCap: progressCap,
-          elapsedMs: Date.now() - startTimeRef.current,
-          maxStepPerTick: MAX_STEP_PER_TICK,
-        }),
-      );
+    if (!done) return;
+    const startVal = loadingProgress;
+    const startMs = Date.now();
+    // Duration skaliert mit Gap: bei 60% → 1200ms, bei 99% → 300ms (Min)
+    const durationMs = Math.max(300, Math.min(1500, (100 - startVal) * 30));
+    let rafId = 0;
+    function animate(): void {
+      const next = computeFinalProgress(startVal, startMs, Date.now(), durationMs);
+      setLoadingProgress(next);
+      if (next < 100) rafId = requestAnimationFrame(animate);
     }
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [loading, progressCap]);
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [allScores, setAllScores] = useState<any>(null);
 
@@ -711,7 +706,7 @@ function AnalyseContent() {
     }
 
     setLoading(true);
-    setProgressCap(5);
+    setDone(false);
     setLoadingProgress(0);
     startTimeRef.current = Date.now();
 
@@ -746,9 +741,6 @@ function AnalyseContent() {
           setOverallScore(json.scores.overall_score_0_100);
         }
       }
-      // Scoring done — 15% cap
-      setProgressCap(15);
-
       // Backfill auth_user_id on the users row that was just created/upserted
       // by /api/assessment so the account page can find this report immediately.
       if (json?.assessmentId) {
@@ -758,10 +750,11 @@ function AnalyseContent() {
       const scores = json?.scores;
 
       // ── Step 2: FIRE ALL PDF TASKS IN PARALLEL ─────────────────────────
-      // 1 main report (Claude + PDF, ~30-45s, weighted 50%)
-      // 4 plan PDFs  (Claude + pdf-lib, ~10-20s each, weighted 10% each)
-      // Each task bumps progress cap when it resolves.
-      const TASK_WEIGHTS = { report: 50, perPlan: 10 }; // total: 50 + 40 = 90 (+15 from scoring = 105, clamped to 100)
+      // 1 main report (Claude + PDF, ~30-45s)
+      // 4 plan PDFs  (Claude + pdf-lib, ~10-20s each)
+      // Loading-bar läuft pure linear via Timer — Task-Completion-Signals
+      // beeinflussen Bar NICHT, nur das finale `setDone(true)` triggert die
+      // ease-out-Animation auf 100%.
 
       const reportBody: Record<string, unknown> = json?.assessmentId
         ? { assessmentId: json.assessmentId, locale }
@@ -825,7 +818,6 @@ function AnalyseContent() {
           return (await r.json()) as { downloadUrl?: string; analysisExtraction?: unknown };
         })
         .then((data) => {
-          setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.report));
           return {
             downloadUrl: data?.downloadUrl ?? null,
             analysisExtraction: data?.analysisExtraction ?? null,
@@ -833,7 +825,6 @@ function AnalyseContent() {
         })
         .catch((e) => {
           console.warn("[analyse] report gen error", e);
-          setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.report));
           return { downloadUrl: null as string | null, analysisExtraction: null as unknown };
         });
 
@@ -859,12 +850,10 @@ function AnalyseContent() {
             extractedEntities,
           )
             .then((bundle) => {
-              setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
               return { planType, bundle };
             })
             .catch((e) => {
               console.warn(`[analyse] plan ${planType} failed`, e);
-              setProgressCap((c) => Math.min(100, c + TASK_WEIGHTS.perPlan));
               return { planType, bundle: null as PlanBundle | null };
             }),
         );
@@ -959,10 +948,10 @@ function AnalyseContent() {
         }
       }
 
-      // Finalize progress and route. setProgressCap(100) reicht — die
-      // smooth Animation kriecht in ~500-800 ms auf 100 (kein abrupter Sprung).
-      // Die router.push-Verzögerung gibt der Bar Zeit, optisch anzukommen.
-      setProgressCap(100);
+      // Backend done — triggert ease-out cubic Animation auf 100% via rAF.
+      // Die router.push-Verzögerung (600ms) gibt der Final-Animation Zeit
+      // optisch anzukommen (Animation läuft 300–1500ms je nach Gap).
+      setDone(true);
 
       setTimeout(() => {
         sessionStorage.setItem(
