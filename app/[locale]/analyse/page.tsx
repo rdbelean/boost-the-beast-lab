@@ -14,6 +14,7 @@ import type { BodyType } from "@/lib/scoring/body-composition-types";
 import { buildPlan, type PlanType, type PlanBlock } from "@/lib/plan/buildPlan";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cachePdf, cacheKeyFor, base64ToBytes, fetchPdfBytes } from "@/lib/pdf/pdfCache";
+import { computeNextProgress } from "@/lib/analyse/progress-tick";
 
 // ── Plan bundle cached in sessionStorage ─────────────────
 interface PlanBundle {
@@ -543,19 +544,51 @@ function AnalyseContent() {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Smooth progress animation — interpolates toward the current cap so the
-  // bar feels alive even while API calls are in flight.
+  // Loading-bar time-based estimator: kriecht kontinuierlich von 5 → 95
+  // über EXPECTED_DURATION_MS. Signal-Bumps (setProgressCap) wirken als
+  // Beschleuniger. Niemals Hard-Stop bei einem Wert < 95 — das fixt den
+  // "stuck at 15 % für 40 s"-Bug.
+  const startTimeRef = useRef<number>(0);
+  const EXPECTED_DURATION_MS = 100_000; // 100 s = realistic mean (70-110 s range)
+  const MAX_STEP_PER_TICK = 5; // verhindert Riesen-Jumps nach Tab-Sleep
+
   useEffect(() => {
     if (!loading) return;
+    if (startTimeRef.current === 0) startTimeRef.current = Date.now();
     const interval = setInterval(() => {
       setLoadingProgress((prev) => {
-        if (prev >= progressCap) return prev;
-        // Approach cap faster when far away, slower near it
-        const delta = Math.max(0.3, (progressCap - prev) * 0.08);
-        return Math.min(progressCap, prev + delta);
+        const elapsedMs = Date.now() - startTimeRef.current;
+        return computeNextProgress({
+          prev,
+          signalCap: progressCap,
+          elapsedMs,
+          expectedDurationMs: EXPECTED_DURATION_MS,
+          maxStepPerTick: MAX_STEP_PER_TICK,
+        });
       });
     }, 120);
     return () => clearInterval(interval);
+  }, [loading, progressCap]);
+
+  // VisibilityChange: wenn Tab wieder fokussiert wird, sofort einen Tick
+  // forcen (sonst wartet React bis zum nächsten Interval-Slot).
+  useEffect(() => {
+    if (!loading) return;
+    function onVisible(): void {
+      if (document.visibilityState !== "visible") return;
+      setLoadingProgress((prev) => {
+        const elapsedMs = Date.now() - startTimeRef.current;
+        return computeNextProgress({
+          prev,
+          signalCap: progressCap,
+          elapsedMs,
+          expectedDurationMs: EXPECTED_DURATION_MS,
+          maxStepPerTick: MAX_STEP_PER_TICK,
+        });
+      });
+    }
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, [loading, progressCap]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [allScores, setAllScores] = useState<any>(null);
@@ -687,6 +720,7 @@ function AnalyseContent() {
     setLoading(true);
     setProgressCap(5);
     setLoadingProgress(0);
+    startTimeRef.current = Date.now();
 
     try {
       setErrorMsg(null);
@@ -932,9 +966,10 @@ function AnalyseContent() {
         }
       }
 
-      // Finalize progress and route
+      // Finalize progress and route. setProgressCap(100) reicht — die
+      // smooth Animation kriecht in ~500-800 ms auf 100 (kein abrupter Sprung).
+      // Die router.push-Verzögerung gibt der Bar Zeit, optisch anzukommen.
       setProgressCap(100);
-      setLoadingProgress(100);
 
       setTimeout(() => {
         sessionStorage.setItem(
