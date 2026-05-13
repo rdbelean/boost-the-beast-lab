@@ -34,7 +34,8 @@ export interface PlanPersonalization {
   time_budget?: "minimal" | "moderate" | "committed" | "athlete" | null;
   experience_level?: "beginner" | "restart" | "intermediate" | "advanced" | null;
   training_days?: number | null;
-  nutrition_painpoint?: "cravings_evening" | "low_protein" | "no_energy" | "no_time" | "undereating" | "none" | null;
+  /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
+  nutrition_painpoint?: Array<"cravings_evening" | "low_protein" | "no_energy" | "no_time" | "undereating" | "none"> | null;
   /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
   stress_source?: Array<"job" | "family" | "finances" | "health" | "future" | "none"> | null;
   /** Multi-Select Quiz: kann mehrere Werte enthalten. "none" exklusiv. */
@@ -1227,7 +1228,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "de", s);
 
   const deepRules: string[] = [];
-  if (p.nutrition_painpoint && p.nutrition_painpoint !== "none" && (type === "metabolic" || type === "activity")) {
+  if (type === "metabolic" || type === "activity") {
     const np: Record<string, string> = {
       cravings_evening: 'Mindestens 1 Block MUSS "Heißhunger abends" explizit adressieren — konkret mit Protein-Timing (z.B. 30 g Protein beim Abendessen stabilisiert Blutzucker → weniger Cravings in der Nacht).',
       low_protein: "Mindestens 1 Block MUSS Protein-Targets konkret machen (z.B. 1,6–2,2 g/kg KG/Tag → Portionen × Mahlzeit runterbrechen).",
@@ -1235,8 +1236,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
       no_time: "Mindestens 1 Block MUSS Meal-Prep-Friction reduzieren (Sonntags 30-Min-Prep, 2–3 Protein-Quellen vorkochen).",
       undereating: "Mindestens 1 Block MUSS Unterernährung adressieren — 4–5 Mahlzeiten/Tag statt 2–3, +500 kcal/Tag Surplus-Ziel, kalorisch dichte Snacks (Nüsse, Avocado, Nussbutter) zwischen Hauptmahlzeiten, Pre-/Post-Workout-Protein-Shake als Kalorien-Floor.",
     };
-    const entry = np[p.nutrition_painpoint];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.nutrition_painpoint, np, deepRules);
   }
   if (type === "stress" || type === "recovery") {
     const ss: Record<string, string> = {
@@ -1269,7 +1269,7 @@ USER PERSONALISIERUNG (PFLICHT berücksichtigen):
 - Zeitbudget: ${p.time_budget ?? "moderate (Default)"}
 - Erfahrungslevel: ${p.experience_level ?? "intermediate (Default)"}
 - Aktuelle Trainingstage/Woche: ${p.training_days ?? "nicht angegeben"}
-- Ernährungs-Painpoint: ${p.nutrition_painpoint ?? "nicht angegeben"}
+- Ernährungs-Painpoint (kann mehrere sein): ${formatMultiSelectPlan(p.nutrition_painpoint, "nicht angegeben")}
 - Haupt-Stressor (kann mehrere sein): ${formatMultiSelectPlan(p.stress_source, "nicht angegeben")}
 - Liebstes Erholungs-Ritual (kann mehrere sein): ${formatMultiSelectPlan(p.recovery_ritual, "nicht angegeben")}
 
@@ -1346,7 +1346,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "en", s);
 
   const deepRules: string[] = [];
-  if (p.nutrition_painpoint && p.nutrition_painpoint !== "none" && (type === "metabolic" || type === "activity")) {
+  if (type === "metabolic" || type === "activity") {
     const np: Record<string, string> = {
       cravings_evening: 'At least 1 block MUST explicitly address evening cravings — concretely with protein timing (e.g. 30 g protein at dinner stabilises blood sugar → fewer cravings at night).',
       low_protein: "At least 1 block MUST make protein targets concrete (e.g. 1.6–2.2 g/kg body weight/day → break down portions × meal).",
@@ -1354,8 +1354,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
       no_time: "At least 1 block MUST reduce meal-prep friction (Sunday 30-min prep, pre-cook 2–3 protein sources).",
       undereating: "At least 1 block MUST address caloric undereating — 4–5 meals/day instead of 2–3, +500 kcal/day surplus target, calorie-dense snacks (nuts, avocado, nut butter) between main meals, pre/post-workout protein shake as a calorie floor.",
     };
-    const entry = np[p.nutrition_painpoint];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.nutrition_painpoint, np, deepRules);
   }
   if (type === "stress" || type === "recovery") {
     const ss: Record<string, string> = {
@@ -1388,7 +1387,7 @@ USER PERSONALIZATION (MANDATORY to respect):
 - Time budget: ${p.time_budget ?? "moderate (default)"}
 - Experience level: ${p.experience_level ?? "intermediate (default)"}
 - Current training days/week: ${p.training_days ?? "not specified"}
-- Nutrition pain point: ${p.nutrition_painpoint ?? "not specified"}
+- Nutrition pain point (may include multiple): ${formatMultiSelectPlan(p.nutrition_painpoint, "not specified")}
 - Main stressor (may include multiple): ${formatMultiSelectPlan(p.stress_source, "not specified")}
 - Favourite recovery ritual (may include multiple): ${formatMultiSelectPlan(p.recovery_ritual, "not specified")}
 
@@ -1465,7 +1464,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "it", s);
 
   const deepRules: string[] = [];
-  if (p.nutrition_painpoint && p.nutrition_painpoint !== "none" && (type === "metabolic" || type === "activity")) {
+  if (type === "metabolic" || type === "activity") {
     const np: Record<string, string> = {
       cravings_evening: 'Almeno 1 blocco DEVE affrontare esplicitamente le voglie serali — concretamente con protein timing (es. 30 g di proteine a cena stabilizzano la glicemia → meno voglie di notte).',
       low_protein: "Almeno 1 blocco DEVE rendere concreti i target proteici (es. 1,6–2,2 g/kg peso corporeo/giorno → ripartire le porzioni × pasto).",
@@ -1473,8 +1472,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
       no_time: "Almeno 1 blocco DEVE ridurre la friction del meal-prep (prep di 30 min la domenica, pre-cuocere 2–3 fonti proteiche).",
       undereating: "Almeno 1 blocco DEVE affrontare la sotto-alimentazione — 4–5 pasti/giorno invece di 2–3, surplus di +500 kcal/giorno, snack calorici densi (frutta secca, avocado, burro di noci) tra i pasti principali, shake proteico pre/post-workout come base calorica.",
     };
-    const entry = np[p.nutrition_painpoint];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.nutrition_painpoint, np, deepRules);
   }
   if (type === "stress" || type === "recovery") {
     const ss: Record<string, string> = {
@@ -1507,7 +1505,7 @@ PERSONALIZZAZIONE UTENTE (OBBLIGATORIA):
 - Tempo disponibile: ${p.time_budget ?? "moderate (default)"}
 - Livello di esperienza: ${p.experience_level ?? "intermediate (default)"}
 - Giorni di allenamento attuali/settimana: ${p.training_days ?? "non specificato"}
-- Pain point nutrizionale: ${p.nutrition_painpoint ?? "non specificato"}
+- Pain point nutrizionale (può includere più valori): ${formatMultiSelectPlan(p.nutrition_painpoint, "non specificato")}
 - Fattore di stress principale (può includere più valori): ${formatMultiSelectPlan(p.stress_source, "non specificato")}
 - Rituale di recupero preferito (può includere più valori): ${formatMultiSelectPlan(p.recovery_ritual, "non specificato")}
 
@@ -1584,7 +1582,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "tr", s);
 
   const deepRules: string[] = [];
-  if (p.nutrition_painpoint && p.nutrition_painpoint !== "none" && (type === "metabolic" || type === "activity")) {
+  if (type === "metabolic" || type === "activity") {
     const np: Record<string, string> = {
       cravings_evening: 'En az 1 blok akşam isteklerini açıkça ele ALMALIDIR — somut olarak protein zamanlamasıyla (örn. akşam yemeğinde 30 g protein kan şekerini dengeler → gece daha az istek).',
       low_protein: "En az 1 blok protein hedeflerini somutlaştırMALIDIR (örn. 1,6–2,2 g/kg vücut ağırlığı/gün → porsiyonları × öğüne böl).",
@@ -1592,8 +1590,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
       no_time: "En az 1 blok meal-prep friksiyonunu azaltMALIDIR (pazar 30 dk prep, 2–3 protein kaynağını önceden pişir).",
       undereating: "En az 1 blok yetersiz beslenmeyi ele almalı — 2–3 yerine günde 4–5 öğün, +500 kcal/gün fazlalık hedefi, ana öğünler arasında kalori yoğun atıştırmalıklar (kuruyemiş, avokado, fındık ezmesi), kalori tabanı olarak pre/post-workout protein shake.",
     };
-    const entry = np[p.nutrition_painpoint];
-    if (entry) deepRules.push(entry);
+    pushMultiSelectRules(p.nutrition_painpoint, np, deepRules);
   }
   if (type === "stress" || type === "recovery") {
     const ss: Record<string, string> = {
@@ -1626,7 +1623,7 @@ KULLANICI KİŞİSELLEŞTİRME (ZORUNLU):
 - Zaman bütçesi: ${p.time_budget ?? "moderate (varsayılan)"}
 - Deneyim seviyesi: ${p.experience_level ?? "intermediate (varsayılan)"}
 - Mevcut antrenman günü/hafta: ${p.training_days ?? "belirtilmedi"}
-- Beslenme sorunu: ${p.nutrition_painpoint ?? "belirtilmedi"}
+- Beslenme sorunu (birden fazla olabilir): ${formatMultiSelectPlan(p.nutrition_painpoint, "belirtilmedi")}
 - Ana stres kaynağı (birden fazla olabilir): ${formatMultiSelectPlan(p.stress_source, "belirtilmedi")}
 - En sevilen iyileşme ritüeli (birden fazla olabilir): ${formatMultiSelectPlan(p.recovery_ritual, "belirtilmedi")}
 

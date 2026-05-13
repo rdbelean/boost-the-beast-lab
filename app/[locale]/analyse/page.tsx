@@ -30,7 +30,7 @@ interface PlanPersonalization {
   time_budget?: string | null;
   experience_level?: string | null;
   training_days?: number | null;
-  nutrition_painpoint?: string | null;
+  nutrition_painpoint?: string[] | null;
   stress_source?: string[] | null;
   recovery_ritual?: string[] | null;
 }
@@ -146,7 +146,7 @@ interface FormData {
   stresslevel: string;
   mahlzeitenPlan: string;
   // Phase 2 — Tiefen-Inputs für personalisierte Daily-Life-Protocol-Habits
-  nutritionPainpoint: string; // cravings_evening | low_protein | no_energy | no_time | undereating | none
+  nutritionPainpoint: string[]; // ≥1 von [cravings_evening, low_protein, no_energy, no_time, undereating, none]; "none" exklusiv
   stressSource: string[]; // ≥1 von [job, family, finances, health, future, none]; "none" exklusiv
   recoveryRitual: string[]; // ≥1 von [sport, nature, cooking, reading, meditation, social, none]; "none" exklusiv
   // Optional Freetext (max 1000 chars). Empty = current behaviour.
@@ -354,7 +354,10 @@ function buildAssessmentPayload(f: FormData) {
     // User "Heißhunger abends" angibt + "Job" als Stressor + "Natur" als
     // Erholungs-Ritual, kann Claude drei Habits ausspielen die exakt DIESE
     // Kombination adressieren statt generischer Tipps.
-    nutrition_painpoint: NUTRITION_PAINPOINT_VALUES.has(f.nutritionPainpoint) ? f.nutritionPainpoint : null,
+    nutrition_painpoint: (() => {
+      const valid = f.nutritionPainpoint.filter((v) => NUTRITION_PAINPOINT_VALUES.has(v));
+      return valid.length > 0 ? valid : null;
+    })(),
     stress_source: (() => {
       const valid = f.stressSource.filter((v) => STRESS_SOURCE_VALUES.has(v));
       return valid.length > 0 ? valid : null;
@@ -463,7 +466,7 @@ function AnalyseContent() {
     wasserkonsum: 2,
     stresslevel: "moderat",
     mahlzeitenPlan: "kein",
-    nutritionPainpoint: "",
+    nutritionPainpoint: [],
     stressSource: [],
     recoveryRitual: [],
     mainGoalFreetext: "",
@@ -664,7 +667,7 @@ function AnalyseContent() {
     form.groesse > 0,
     form.gewicht > 0,
     !!form.obstGemuese,
-    !!form.nutritionPainpoint,
+    form.nutritionPainpoint.length > 0,
     form.stressSource.length > 0,
     form.recoveryRitual.length > 0,
     !!form.trainingsfreq,
@@ -1616,9 +1619,10 @@ function AnalyseContent() {
                 <span style={{ display: "block", fontSize: "0.85em", opacity: 0.7, marginBottom: "0.75rem" }}>
                   {t("q.nutrition_painpoint.sub")}
                 </span>
-                <RadioGroup
+                <MultiSelect
                   value={form.nutritionPainpoint}
-                  onChange={(v) => set("nutritionPainpoint", v as string)}
+                  onChange={(v) => set("nutritionPainpoint", v)}
+                  exclusiveValues={["none"]}
                   options={[
                     { label: t("q.nutrition_painpoint.cravings_evening"), value: "cravings_evening" },
                     { label: t("q.nutrition_painpoint.low_protein"), value: "low_protein" },

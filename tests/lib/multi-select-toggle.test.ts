@@ -43,3 +43,33 @@ describe("toggleMultiSelect", () => {
     expect(toggleMultiSelect(["a", "b"], "a")).toEqual(["b"]);
   });
 });
+
+describe("toggleMultiSelect — nutrition_painpoint scenarios", () => {
+  it("user picks cravings_evening + low_protein simultaneously", () => {
+    let state: string[] = [];
+    state = toggleMultiSelect(state, "cravings_evening", EXCLUSIVE);
+    state = toggleMultiSelect(state, "low_protein", EXCLUSIVE);
+    expect(state).toEqual(["cravings_evening", "low_protein"]);
+  });
+
+  it('selecting "none" after picking pains clears the pains', () => {
+    let state: string[] = ["cravings_evening", "no_energy"];
+    state = toggleMultiSelect(state, "none", EXCLUSIVE);
+    expect(state).toEqual(["none"]);
+  });
+
+  it('picking a real pain after "none" replaces "none"', () => {
+    let state: string[] = ["none"];
+    state = toggleMultiSelect(state, "undereating", EXCLUSIVE);
+    expect(state).toEqual(["undereating"]);
+  });
+
+  it("toggling all five real pains keeps them all selected without none", () => {
+    let state: string[] = [];
+    for (const v of ["cravings_evening", "low_protein", "no_energy", "no_time", "undereating"]) {
+      state = toggleMultiSelect(state, v, EXCLUSIVE);
+    }
+    expect(state).toEqual(["cravings_evening", "low_protein", "no_energy", "no_time", "undereating"]);
+    expect(state).not.toContain("none");
+  });
+});
