@@ -58,16 +58,16 @@ function buildQualityRetryDirective(
   const reasonsList = reasons.join(", ");
   const dedicatedAddon = buildDedicatedSectionsRetryAddon(locale, reasons);
   if (locale === "en") {
-    return `QUALITY RETRY ATTEMPT ${attempt}/${MAX_QUALITY_ATTEMPTS}. Your previous output failed these checks: ${reasonsList}. Fix EVERY one. Specifically: weekly_table MUST contain exactly 7 rows in the order mon, tue, wed, thu, fri, sat, sun. EVERY action row (except Rest) MUST contain "${marker}" or a "(...)" parenthetical explanation. NEVER mention score numbers like "Activity Score 58/100" or score names like "Recovery Score".${dedicatedAddon}`;
+    return `QUALITY RETRY ATTEMPT ${attempt}/${MAX_QUALITY_ATTEMPTS}. Your previous output failed these checks: ${reasonsList}. Fix EVERY one. EVERY recommendation MUST contain "${marker}" or a "(...)" parenthetical explanation. NEVER mention score numbers like "Activity Score 58/100" or score names like "Recovery Score".${dedicatedAddon}`;
   }
   if (locale === "it") {
-    return `QUALITY RETRY TENTATIVO ${attempt}/${MAX_QUALITY_ATTEMPTS}. Il tuo output precedente non ha superato questi controlli: ${reasonsList}. Correggi OGNI punto. In particolare: weekly_table DEVE contenere esattamente 7 righe nell'ordine mon, tue, wed, thu, fri, sat, sun. OGNI riga di azione (eccetto Riposo) DEVE contenere "${marker}" o una spiegazione in "(...)". MAI menzionare numeri di score come "Activity Score 58/100" o nomi di score come "Recovery Score".${dedicatedAddon}`;
+    return `QUALITY RETRY TENTATIVO ${attempt}/${MAX_QUALITY_ATTEMPTS}. Il tuo output precedente non ha superato questi controlli: ${reasonsList}. Correggi OGNI punto. OGNI raccomandazione DEVE contenere "${marker}" o una spiegazione in "(...)". MAI menzionare numeri di score come "Activity Score 58/100" o nomi di score come "Recovery Score".${dedicatedAddon}`;
   }
   if (locale === "tr") {
-    return `QUALITY RETRY DENEME ${attempt}/${MAX_QUALITY_ATTEMPTS}. Önceki çıktın şu kontrolleri geçemedi: ${reasonsList}. Hepsini düzelt. Özellikle: weekly_table TAM olarak mon, tue, wed, thu, fri, sat, sun sırasında 7 satır içermelidir. HER eylem satırı (Dinlenme hariç) "${marker}" veya bir "(...)" parantez açıklaması içermelidir. ASLA "Activity Score 58/100" gibi skor sayılarından veya "Recovery Score" gibi skor adlarından bahsetme.${dedicatedAddon}`;
+    return `QUALITY RETRY DENEME ${attempt}/${MAX_QUALITY_ATTEMPTS}. Önceki çıktın şu kontrolleri geçemedi: ${reasonsList}. Hepsini düzelt. HER öneri "${marker}" veya bir "(...)" parantez açıklaması içermelidir. ASLA "Activity Score 58/100" gibi skor sayılarından veya "Recovery Score" gibi skor adlarından bahsetme.${dedicatedAddon}`;
   }
   // de
-  return `QUALITY-RETRY VERSUCH ${attempt}/${MAX_QUALITY_ATTEMPTS}. Dein vorheriger Output hat folgende Prüfungen NICHT bestanden: ${reasonsList}. Behebe ALLE diese Punkte. Insbesondere: weekly_table MUSS exakt 7 rows in der Reihenfolge mon, tue, wed, thu, fri, sat, sun enthalten. JEDE Action-Row (außer Pause) MUSS "${marker}" oder eine "(...)"-Klammer-Erklärung enthalten. NIEMALS Score-Zahlen wie "Activity Score 58/100" oder Score-Namen wie "Recovery Score" erwähnen.${dedicatedAddon}`;
+  return `QUALITY-RETRY VERSUCH ${attempt}/${MAX_QUALITY_ATTEMPTS}. Dein vorheriger Output hat folgende Prüfungen NICHT bestanden: ${reasonsList}. Behebe ALLE diese Punkte. JEDE Empfehlung MUSS "${marker}" oder eine "(...)"-Klammer-Erklärung enthalten. NIEMALS Score-Zahlen wie "Activity Score 58/100" oder Score-Namen wie "Recovery Score" erwähnen.${dedicatedAddon}`;
 }
 
 function isValidLocale(v: string): v is Locale {
