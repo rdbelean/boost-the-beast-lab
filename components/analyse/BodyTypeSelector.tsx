@@ -103,8 +103,8 @@ export default function BodyTypeSelector({
                 <Image
                   src={imageFilename(bt)}
                   alt={optionLabel}
-                  width={220}
-                  height={400}
+                  width={2816}
+                  height={1536}
                   loading={idx < 2 ? "eager" : "lazy"}
                   sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
                   className={styles.image}

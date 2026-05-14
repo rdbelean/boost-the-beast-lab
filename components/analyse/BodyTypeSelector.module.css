@@ -158,7 +158,7 @@
   width: 100%;
   flex: 1 1 auto;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   overflow: hidden;
   /* Mobile: image area is at least 220px tall, ensuring the body type is recognisable */
@@ -177,31 +177,15 @@
   }
 }
 
+/* Source PNGs are 2816×1536 landscape with the figure centered in ~30% of the
+   canvas width — the rest is transparent. object-fit: cover crops the side
+   whitespace so the figure fills the visible card height. */
 .image {
-  width: auto;
-  height: auto;
-  /* Mobile caps — image fills the card without becoming so large that the
-     adjacent cards overflow the 375px viewport */
-  max-width: 120px;
-  max-height: 220px;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   object-position: center;
-  margin: 0 auto;
   display: block;
-}
-
-@media (min-width: 640px) {
-  .image {
-    max-width: 140px;
-    max-height: 240px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .image {
-    max-width: 180px;
-    max-height: 280px;
-  }
 }
 
 .label {
