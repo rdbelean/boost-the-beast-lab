@@ -14,7 +14,10 @@ export const runtime = "nodejs";
 // worst case ~120s. Stay well under Vercel Pro 300s ceiling.
 export const maxDuration = 240;
 
-const MAX_QUALITY_ATTEMPTS = 3;
+// Reduced from 3 in Phase B: semantic validators are now warnings (don't
+// trigger retries), so only structural failures (schema / JSON / PDF
+// overflow) drive retries. 2 attempts is enough headroom for those.
+const MAX_QUALITY_ATTEMPTS = 2;
 const SONNET_MODEL = "claude-sonnet-4-6";
 
 function isValidLocale(v: string): v is Locale {
@@ -89,8 +92,12 @@ export async function POST(req: NextRequest) {
     };
 
     let parsed: MasterPlan | null = null;
+    // `lastReasons` = STRUCTURAL failures that triggered a retry (schema /
+    // JSON parse / PDF overflow / anthropic). Semantic warnings flow into
+    // `accumulatedWarnings` instead and ship with the response.
     let lastReasons: string[] = [];
     let pdfBytes: Uint8Array | null = null;
+    let accumulatedWarnings: string[] = [];
     const routeStartedAt = Date.now();
     console.log("[MasterPlan/BE/generate] entry", {
       assessmentId,
@@ -195,23 +202,21 @@ export async function POST(req: NextRequest) {
 
       parsed = parseResult.data;
 
-      // Semantic validation
+      // Semantic validation — Phase B: warnings only, NEVER retry-trigger.
+      // Goal-mention, forbidden-phrase, stress-cap etc. are best-effort
+      // signals that get logged + shipped in the response. The user always
+      // gets a plan; quality issues surface as `quality_warnings`.
       const semantic = validateMasterPlan(parsed, { locale: localeTyped, inputs });
-      if (!semantic.ok) {
-        console.warn("[MasterPlan/BE/generate] semantic validation failed", {
+      if (semantic.warnings.length > 0) {
+        console.warn("[MasterPlan/BE/generate] semantic warnings (non-blocking)", {
           attempt,
           attemptElapsedMs: Date.now() - attemptStartedAt,
-          reasons: semantic.reasons,
+          warnings: semantic.warnings,
         });
-        if (attempt === MAX_QUALITY_ATTEMPTS) {
-          lastReasons = semantic.reasons;
-          break;
-        }
-        lastReasons = semantic.reasons;
-        continue;
+        accumulatedWarnings = [...accumulatedWarnings, ...semantic.warnings];
       }
 
-      // PDF overflow check
+      // PDF overflow check — STRUCTURAL, still hard-fail-with-retry.
       const pdfResult = await generateMasterPlanPDF({ plan: parsed, locale: localeTyped });
       if (pdfResult.overflowed) {
         console.warn("[MasterPlan/BE/generate] pdf_overflow", {
@@ -237,6 +242,7 @@ export async function POST(req: NextRequest) {
       totalElapsedMs: Date.now() - routeStartedAt,
       ok: !!(parsed && pdfBytes),
       lastReasons,
+      qualityWarningsCount: accumulatedWarnings.length,
     });
 
     if (!parsed || !pdfBytes) {
@@ -251,7 +257,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       plan: parsed,
       pdfBase64,
-      quality_warnings: lastReasons,
+      quality_warnings: accumulatedWarnings,
     });
   } catch (err) {
     console.error("[MasterPlan/BE/generate] fatal", err);

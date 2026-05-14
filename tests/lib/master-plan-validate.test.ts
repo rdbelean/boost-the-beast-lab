@@ -47,35 +47,31 @@ function makeInputs(overrides: Partial<MasterPlanInputs> = {}): MasterPlanInputs
   };
 }
 
-describe("validateMasterPlan", () => {
-  it("ok on a clean plan", () => {
+describe("validateMasterPlan (best-effort semantics — Phase B)", () => {
+  it("clean plan returns empty warnings", () => {
     const result = validateMasterPlan(makePlan(), { locale: "de", inputs: makeInputs() });
-    expect(result.ok).toBe(true);
-    expect(result.reasons).toEqual([]);
+    expect(result.warnings).toEqual([]);
   });
 
-  it("flags forbidden phrase 'trink mehr wasser'", () => {
+  it("forbidden phrase 'trink mehr wasser' becomes a warning (not a fail)", () => {
     const plan = makePlan();
     plan.rows[0].nutrition = ["Trink mehr Wasser"];
     const result = validateMasterPlan(plan, { locale: "de", inputs: makeInputs() });
-    expect(result.ok).toBe(false);
-    expect(result.reasons.some((r) => r.startsWith("forbidden_phrase_"))).toBe(true);
+    expect(result.warnings.some((r) => r.startsWith("forbidden_phrase_"))).toBe(true);
   });
 
-  it("flags score-reference in intro", () => {
+  it("score-reference in intro becomes a warning", () => {
     const plan = makePlan({ intro: "Dein performance Activity Score liegt bei 58/100 — solide Basis. Wir bauen darauf auf um deine Ziele zu erreichen mit konkreten Aktionen jeden Tag." });
     const result = validateMasterPlan(plan, { locale: "de", inputs: makeInputs() });
-    expect(result.ok).toBe(false);
-    expect(result.reasons).toContain("score_reference_present");
+    expect(result.warnings).toContain("score_reference_present");
   });
 
-  it("flags stress-cap violation (low stress, 7 training days)", () => {
+  it("stress-cap violation becomes a warning", () => {
     const plan = makePlan();
     // All 7 rows are training (no rest)
     const inputs = makeInputs({ scores: { ...makeInputs().scores, stress: 40 } });
     const result = validateMasterPlan(plan, { locale: "de", inputs });
-    expect(result.ok).toBe(false);
-    expect(result.reasons.some((r) => r.startsWith("stress_cap_violation_"))).toBe(true);
+    expect(result.warnings.some((r) => r.startsWith("stress_cap_violation_"))).toBe(true);
   });
 
   it("respects rest-day cells (no training-day count)", () => {
@@ -84,50 +80,45 @@ describe("validateMasterPlan", () => {
     for (let i = 0; i < 4; i++) plan.rows[i].training = ["PAUSE"];
     const inputs = makeInputs({ scores: { ...makeInputs().scores, stress: 40 } });
     const result = validateMasterPlan(plan, { locale: "de", inputs });
-    // 3 training days, cap = 3 → OK
-    expect(result.reasons.filter((r) => r.startsWith("stress_cap_violation_"))).toEqual([]);
+    // 3 training days, cap = 3 → no stress_cap_violation in warnings
+    expect(result.warnings.filter((r) => r.startsWith("stress_cap_violation_"))).toEqual([]);
   });
 
-  it("flags forbidden HIIT at low stress", () => {
+  it("forbidden HIIT at low stress becomes a warning", () => {
     const plan = makePlan();
     plan.rows[0].training = ["HIIT Tabata 20s on 10s off — 8 rounds"];
     for (let i = 1; i < 7; i++) plan.rows[i].training = ["PAUSE"];
     const inputs = makeInputs({ scores: { ...makeInputs().scores, stress: 40 } });
     const result = validateMasterPlan(plan, { locale: "de", inputs });
-    expect(result.reasons.some((r) => r.startsWith("forbidden_intensity_"))).toBe(true);
+    expect(result.warnings.some((r) => r.startsWith("forbidden_intensity_"))).toBe(true);
   });
 
-  it("flags sleep cutoff violation (sleep<60, late time)", () => {
+  it("sleep-cutoff violation becomes a warning", () => {
     const plan = makePlan();
     plan.rows[0].training = ["Krafttraining um 19:00 Uhr (1 Std)"];
     const inputs = makeInputs({ scores: { ...makeInputs().scores, sleep: 50 } });
     const result = validateMasterPlan(plan, { locale: "de", inputs });
-    expect(result.reasons.some((r) => r.startsWith("sleep_cutoff_violation_"))).toBe(true);
+    expect(result.warnings.some((r) => r.startsWith("sleep_cutoff_violation_"))).toBe(true);
   });
 
-  it("flags volume push when activity ≥ 85", () => {
-    const plan = makePlan({
-      intro: "Diese Woche performance: erhöhe das Volumen um 20% durch tägliches add 30 min training neue Stunde. Wir bauen darauf auf.",
-    });
+  it("volume push at activity ≥ 85 becomes a warning", () => {
+    const plan = makePlan();
+    plan.rows[0].training = ["add 30 min weekly to your running base"];
     const inputs = makeInputs({ scores: { ...makeInputs().scores, activity: 90 } });
     const result = validateMasterPlan(plan, { locale: "de", inputs });
-    // intro mentions "performance" already; the volume-push check fires on training cells, not intro,
-    // so push the violation into a training cell:
-    plan.rows[0].training = ["add 30 min weekly to your running base"];
-    const result2 = validateMasterPlan(plan, { locale: "de", inputs });
-    expect(result2.reasons).toContain("volume_push_violation");
+    expect(result.warnings).toContain("volume_push_violation");
   });
 
-  it("flags missing goal_dropdown in intro", () => {
+  it("missing goal_dropdown in intro becomes a warning (not a fail)", () => {
     const plan = makePlan({
       intro:
         "Diese Woche bauen wir locker auf — keine direkten Bezüge zu deinen Wünschen, nur generische Empfehlungen für einen aktiveren Wochenstart und mehr Bewegung.",
     });
     const result = validateMasterPlan(plan, { locale: "de", inputs: makeInputs({ goal_dropdown: "performance" }) });
-    expect(result.reasons.some((r) => r.startsWith("goal_not_mentioned_dropdown_"))).toBe(true);
+    expect(result.warnings.some((r) => r.startsWith("goal_not_mentioned_dropdown_"))).toBe(true);
   });
 
-  it("flags missing goal_freetext in intro", () => {
+  it("missing goal_freetext in intro becomes a warning", () => {
     const plan = makePlan({
       intro:
         "Diese Woche kombiniert dein performance Ziel mit Erholung — wir bauen schrittweise Volumen auf während Pausen den Cortisol-Wert tief halten.",
@@ -137,6 +128,21 @@ describe("validateMasterPlan", () => {
       goal_freetext: "fitter werden im Marathon",
     });
     const result = validateMasterPlan(plan, { locale: "de", inputs });
-    expect(result.reasons).toContain("goal_not_mentioned_freetext");
+    expect(result.warnings).toContain("goal_not_mentioned_freetext");
+  });
+
+  it("German feel_better intro that doesn't contain English tokens — warning, not block", () => {
+    // This is the exact failure mode that broke production: dropdown="feel_better"
+    // with a German intro that says "Wohlbefinden" / "besser fühlen". Before Phase B
+    // this returned ok=false → 502. Now: warning only.
+    const plan = makePlan({
+      intro:
+        "Diese Woche fokussiert sich auf dein Wohlbefinden — wir bauen sanfte Routinen ein, die deinem Körper helfen sich zu regenerieren und mehr Energie zu spüren.",
+    });
+    const inputs = makeInputs({ goal_dropdown: "feel_better" });
+    const result = validateMasterPlan(plan, { locale: "de", inputs });
+    expect(result.warnings).toContain("goal_not_mentioned_dropdown_feel_better");
+    // CRITICAL: validator returns a warnings array, no `ok` field — caller never blocks
+    expect("ok" in result).toBe(false);
   });
 });
