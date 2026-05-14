@@ -24,14 +24,14 @@ function imageFilename(bt: BodyType): string {
 }
 
 // Per-image object-position override. Most PNGs are well-centered in canvas;
-// female_2..6 have the figure ≈ 45% of canvas width, so shift the cover-crop
-// window left to bring them back to visual center.
+// female_2..6 have the figure noticeably left of canvas center, so shift the
+// cover-crop window further left to bring them back to visual center.
 const OBJECT_POSITION_BY_BT: Partial<Record<BodyType, string>> = {
-  female_2: "45% center",
-  female_3: "45% center",
-  female_4: "45% center",
-  female_5: "45% center",
-  female_6: "45% center",
+  female_2: "30% center",
+  female_3: "30% center",
+  female_4: "30% center",
+  female_5: "30% center",
+  female_6: "30% center",
 };
 
 function objectPositionFor(bt: BodyType): string {
