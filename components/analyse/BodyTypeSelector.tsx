@@ -28,7 +28,7 @@ function imageFilename(bt: BodyType): string {
 // cover-crop window further left to bring them back to visual center.
 const OBJECT_POSITION_BY_BT: Partial<Record<BodyType, string>> = {
   female_2: "43% center",
-  female_3: "45% center",
+  female_3: "38% center",
   female_4: "50% center",
   female_5: "45% center",
   female_6: "45% center",
