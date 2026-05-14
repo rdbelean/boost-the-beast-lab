@@ -76,6 +76,9 @@ export interface MetabolicResult {
   // The actual modifier applied to bmiSc this run (0 = no change). Kept for
   // debugging / report-context inspection.
   bmi_penalty_modifier_applied: number;
+  // Flat bonus added to the composite score AFTER weighting (e.g. +5 for
+  // optimal_athletic). 0 when no bonus flag applies.
+  metabolic_score_bonus_applied: number;
 }
 
 function bmiScore(bmi: number): { score: number; category: BMICategory } {
@@ -148,22 +151,30 @@ export function calculateMetabolicScore(
   const { score: bmiScRaw, category } = bmiScore(bmi);
 
   // Body-composition flag qualifies the BMI sub-score before weighting.
-  // Athletic users with BMI 27 (muscle_explains_bmi, modifier 0.6) get the
-  // BMI penalty 60%-forgiven; users whose self-assessment matches BMI
-  // (modifier 0) keep the full penalty.
+  // v2: muscle_explains_bmi multiplier 0.7 (was 0.6) → 70% penalty forgiveness.
+  // v2: strong_muscle_explains_high_bmi multiplier 0.9 (was 0.8) → 90% forgiveness.
+  // v2: optimal_athletic adds a flat +5 bonus AFTER the composite is built.
   const bodyType = inputs.body_type ?? null;
   const bodyCompFlag = calculateBodyCompositionFlag(bmi, bodyType);
-  const { note: bodyCompNote, bmi_penalty_modifier: modifier } =
-    getBodyCompositionDetails(bodyCompFlag);
+  const {
+    note: bodyCompNote,
+    bmi_penalty_modifier: modifier,
+    metabolic_score_bonus: bonus,
+  } = getBodyCompositionDetails(bodyCompFlag);
   const bmiSc = applyBmiPenaltyModifier(bmiScRaw, modifier);
 
   // Briefing weights: BMI 30 · Sitting 20 · Water 18 · Meals 17 · FruitVeg 15
-  const metabolic_score_0_100 = Math.round(
+  const baseScore =
     bmiSc * 0.3 +
-      sittingScore(inputs.sitting_hours) * 0.2 +
-      waterScore(inputs.water_litres) * 0.18 +
-      mealsScore(inputs.meals_per_day) * 0.17 +
-      fruitVegScore(inputs.fruit_veg) * 0.15,
+    sittingScore(inputs.sitting_hours) * 0.2 +
+    waterScore(inputs.water_litres) * 0.18 +
+    mealsScore(inputs.meals_per_day) * 0.17 +
+    fruitVegScore(inputs.fruit_veg) * 0.15;
+
+  // Apply flat bonus AFTER composite; clamp to [0, 100].
+  const metabolic_score_0_100 = Math.max(
+    0,
+    Math.min(100, Math.round(baseScore) + bonus),
   );
 
   // Flag BMI disclaimer whenever category is not "normal" — muscular outliers
@@ -181,5 +192,6 @@ export function calculateMetabolicScore(
     body_composition_flag: bodyCompFlag,
     body_composition_note: bodyCompNote || null,
     bmi_penalty_modifier_applied: modifier,
+    metabolic_score_bonus_applied: bonus,
   };
 }

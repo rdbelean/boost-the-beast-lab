@@ -5,38 +5,71 @@ import {
   applyBmiPenaltyModifier,
 } from "@/lib/scoring/body-composition";
 
-describe("calculateBodyCompositionFlag", () => {
+describe("calculateBodyCompositionFlag — v2 narrowed", () => {
   it("returns null when bodyType is null", () => {
     expect(calculateBodyCompositionFlag(27.8, null)).toBeNull();
   });
 
+  // BMI 25–27.9 — lower overweight
   it("BMI 27.8 + male_4 (muscular) → muscle_explains_bmi", () => {
     expect(calculateBodyCompositionFlag(27.8, "male_4")).toBe(
       "muscle_explains_bmi",
     );
   });
 
-  it("BMI 27.8 + male_3 (athletic) → muscle_explains_bmi", () => {
-    expect(calculateBodyCompositionFlag(27.8, "male_3")).toBe(
-      "muscle_explains_bmi",
+  it("BMI 27 + male_3 (athletic) → bmi_reflects_overweight (v2 narrowed)", () => {
+    expect(calculateBodyCompositionFlag(27, "male_3")).toBe(
+      "bmi_reflects_overweight",
     );
   });
 
-  it("BMI 27.8 + male_5 (bit more) → bmi_reflects_overweight", () => {
+  it("BMI 27.8 + male_5 → bmi_reflects_overweight", () => {
     expect(calculateBodyCompositionFlag(27.8, "male_5")).toBe(
       "bmi_reflects_overweight",
     );
   });
 
-  it("BMI 27.8 + male_6 (strong build) → bmi_reflects_overweight", () => {
+  it("BMI 27.8 + male_6 → bmi_reflects_overweight", () => {
     expect(calculateBodyCompositionFlag(27.8, "male_6")).toBe(
       "bmi_reflects_overweight",
     );
   });
 
+  it("BMI 27 + female_1 → bmi_reflects_overweight (below 28 threshold)", () => {
+    expect(calculateBodyCompositionFlag(27, "female_1")).toBe(
+      "bmi_reflects_overweight",
+    );
+  });
+
+  // BMI 28–29.9 — upper overweight, discrepancy threshold for type 1/2
+  it("BMI 28.5 + female_1 → discrepancy_overweight_athletic_assessment (v2 threshold ≥28)", () => {
+    expect(calculateBodyCompositionFlag(28.5, "female_1")).toBe(
+      "discrepancy_overweight_athletic_assessment",
+    );
+  });
+
+  it("BMI 29 + female_2 → discrepancy_overweight_athletic_assessment", () => {
+    expect(calculateBodyCompositionFlag(29, "female_2")).toBe(
+      "discrepancy_overweight_athletic_assessment",
+    );
+  });
+
+  it("BMI 29 + male_4 → muscle_explains_bmi (still applies)", () => {
+    expect(calculateBodyCompositionFlag(29, "male_4")).toBe(
+      "muscle_explains_bmi",
+    );
+  });
+
+  // BMI ≥ 30 — obese range
   it("BMI 31 + male_4 (muscular) → strong_muscle_explains_high_bmi", () => {
     expect(calculateBodyCompositionFlag(31.0, "male_4")).toBe(
       "strong_muscle_explains_high_bmi",
+    );
+  });
+
+  it("BMI 31 + male_3 → bmi_reflects_obesity (v2 narrowed)", () => {
+    expect(calculateBodyCompositionFlag(31, "male_3")).toBe(
+      "bmi_reflects_obesity",
     );
   });
 
@@ -58,6 +91,7 @@ describe("calculateBodyCompositionFlag", () => {
     );
   });
 
+  // BMI 18.5–24.9 — normal range
   it("BMI 22 + female_3 → optimal_athletic", () => {
     expect(calculateBodyCompositionFlag(22.0, "female_3")).toBe(
       "optimal_athletic",
@@ -85,6 +119,7 @@ describe("calculateBodyCompositionFlag", () => {
     );
   });
 
+  // BMI < 18.5 — underweight
   it("BMI 18.4 + female_1 → possible_underweight", () => {
     expect(calculateBodyCompositionFlag(18.4, "female_1")).toBe(
       "possible_underweight",
@@ -100,7 +135,8 @@ describe("calculateBodyCompositionFlag", () => {
     );
   });
 
-  it("boundary: BMI 25.0 + male_4 → muscle_explains_bmi (not optimal_athletic)", () => {
+  // boundaries
+  it("boundary: BMI 25.0 + male_4 → muscle_explains_bmi", () => {
     expect(calculateBodyCompositionFlag(25.0, "male_4")).toBe(
       "muscle_explains_bmi",
     );
@@ -117,25 +153,49 @@ describe("calculateBodyCompositionFlag", () => {
       "strong_muscle_explains_high_bmi",
     );
   });
+
+  it("boundary: BMI 27.9 + male_1 → bmi_reflects_overweight (below 28 discrepancy)", () => {
+    expect(calculateBodyCompositionFlag(27.9, "male_1")).toBe(
+      "bmi_reflects_overweight",
+    );
+  });
+
+  it("boundary: BMI 28.0 + male_1 → discrepancy_overweight_athletic_assessment", () => {
+    expect(calculateBodyCompositionFlag(28.0, "male_1")).toBe(
+      "discrepancy_overweight_athletic_assessment",
+    );
+  });
 });
 
-describe("getBodyCompositionDetails", () => {
-  it("muscle_explains_bmi → modifier 0.6", () => {
-    expect(getBodyCompositionDetails("muscle_explains_bmi").bmi_penalty_modifier)
-      .toBe(0.6);
+describe("getBodyCompositionDetails — v2 multipliers + bonus", () => {
+  it("muscle_explains_bmi → modifier 0.7, bonus 0", () => {
+    const d = getBodyCompositionDetails("muscle_explains_bmi");
+    expect(d.bmi_penalty_modifier).toBe(0.7);
+    expect(d.metabolic_score_bonus).toBe(0);
   });
 
-  it("strong_muscle_explains_high_bmi → modifier 0.8", () => {
-    expect(
-      getBodyCompositionDetails("strong_muscle_explains_high_bmi")
-        .bmi_penalty_modifier,
-    ).toBe(0.8);
+  it("strong_muscle_explains_high_bmi → modifier 0.9, bonus 0", () => {
+    const d = getBodyCompositionDetails("strong_muscle_explains_high_bmi");
+    expect(d.bmi_penalty_modifier).toBe(0.9);
+    expect(d.metabolic_score_bonus).toBe(0);
   });
 
-  it("bmi_reflects_overweight → modifier 0.0", () => {
-    expect(
-      getBodyCompositionDetails("bmi_reflects_overweight").bmi_penalty_modifier,
-    ).toBe(0.0);
+  it("optimal_athletic → modifier 0, bonus +5", () => {
+    const d = getBodyCompositionDetails("optimal_athletic");
+    expect(d.bmi_penalty_modifier).toBe(0);
+    expect(d.metabolic_score_bonus).toBe(5);
+  });
+
+  it("optimal_lean → modifier 0, bonus 0", () => {
+    const d = getBodyCompositionDetails("optimal_lean");
+    expect(d.bmi_penalty_modifier).toBe(0);
+    expect(d.metabolic_score_bonus).toBe(0);
+  });
+
+  it("bmi_reflects_overweight → modifier 0, bonus 0", () => {
+    const d = getBodyCompositionDetails("bmi_reflects_overweight");
+    expect(d.bmi_penalty_modifier).toBe(0);
+    expect(d.metabolic_score_bonus).toBe(0);
   });
 
   it("possible_underweight → modifier -0.3 (intensifies penalty)", () => {
@@ -144,24 +204,25 @@ describe("getBodyCompositionDetails", () => {
     ).toBe(-0.3);
   });
 
-  it("null flag → modifier 0.0, empty note", () => {
+  it("null flag → modifier 0, bonus 0, empty note", () => {
     const d = getBodyCompositionDetails(null);
-    expect(d.bmi_penalty_modifier).toBe(0.0);
+    expect(d.bmi_penalty_modifier).toBe(0);
+    expect(d.metabolic_score_bonus).toBe(0);
     expect(d.note).toBe("");
   });
 });
 
-describe("applyBmiPenaltyModifier", () => {
+describe("applyBmiPenaltyModifier — v2 values", () => {
   it("modifier 0 leaves score unchanged", () => {
     expect(applyBmiPenaltyModifier(72, 0)).toBe(72);
   });
 
-  it("modifier 0.6 on bmiSc 72: 72 + 0.6×(100-72) = 88.8", () => {
-    expect(applyBmiPenaltyModifier(72, 0.6)).toBeCloseTo(88.8, 4);
+  it("modifier 0.7 on bmiSc 72 (BMI 27): 72 + 0.7×(100−72) = 91.6", () => {
+    expect(applyBmiPenaltyModifier(72, 0.7)).toBeCloseTo(91.6, 4);
   });
 
-  it("modifier 0.8 on bmiSc 45: 45 + 0.8×(100-45) = 89", () => {
-    expect(applyBmiPenaltyModifier(45, 0.8)).toBeCloseTo(89, 4);
+  it("modifier 0.9 on bmiSc 45 (BMI 31): 45 + 0.9×(100−45) = 94.5", () => {
+    expect(applyBmiPenaltyModifier(45, 0.9)).toBeCloseTo(94.5, 4);
   });
 
   it("modifier 1.0 pulls score to 100", () => {

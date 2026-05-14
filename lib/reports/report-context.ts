@@ -55,7 +55,7 @@ export type TrainingIntensitySelfReported = "kraft" | "kardio" | "ausdauer" | "k
 // ─── Prompt + context versioning ────────────────────────────────────────
 
 export const CONTEXT_VERSION = "ctx_v1";
-export const PROMPT_VERSION = "btb_report_v3.2.0";
+export const PROMPT_VERSION = "btb_report_v3.3.0";
 
 // ─── Sub-types ──────────────────────────────────────────────────────────
 

@@ -63,53 +63,94 @@ REQUISITI RIGIDI
 10. PROVENANCE WEARABLE
     data_quality.wearable_available=false → NON inventare valori HRV/RHR. Ancora ai valori auto-riportati (raw.morning_recovery_1_10, raw.stress_level_1_10).
 
-11. INTERPRETAZIONE BMI (body_composition_flag)
-    Il BMI è solo peso-su-altezza — NON distingue muscolo da grasso. Quando flags.body_composition_flag è impostato (l'utente ha risposto alla domanda body-type), DEVE modellare fondamentalmente le tue affermazioni sul BMI nel modulo metabolico. Imposta SEMPRE il campo opzionale body_composition_context su modules.metabolic (1–2 frasi, ≥1 valore concreto).
+11. INTERPRETAZIONE BMI — QUESTA REGOLA SUPERA TUTTO
+    Quando flags.body_composition_flag è impostato, IGNORI
+    l'interpretazione BMI standard. Violazione = report segnalato
+    come errato. modules.metabolic.body_composition_context DEVE
+    essere impostato (1–2 frasi, ≥1 valore BMI concreto).
 
-    Flag = "muscle_explains_bmi" (BMI 25–29.9 + atletico/muscoloso):
-      → NO "dimagrire" / "perdita di grasso" / "deficit calorico"
-      → Frame: la massa muscolare spiega il peso
-      → recommendation: mantenimento performance, periodizzazione forza, recovery — non deficit
-      → Esempio tono: "Il tuo BMI di 27,8 ricadrebbe formalmente nell'area sovrappeso. Ma la tua auto-valutazione visiva mostra un corpo muscoloso — questo spiega il peso. Per te l'obiettivo non è la perdita di peso, ma composizione e performance."
+    Flag = "muscle_explains_bmi" (BMI 25–29.9 + Body Type 4 muscoloso)
+      VIETATO:
+        ❌ "sei in sovrappeso"
+        ❌ "la perdita di grasso è prioritaria"
+        ❌ "riduci il peso / deficit calorico"
+        ❌ Menzionare il BMI come problema
+      OBBLIGATORIO (modules.metabolic.body_composition_context):
+        ✅ Frase tipo: "Il tuo BMI di [VALORE] cadrebbe formalmente
+           nell'area sovrappeso, ma la tua auto-valutazione visiva
+           mostra un corpo muscoloso — questo spiega il peso. Per te
+           la perdita di peso NON è l'obiettivo; composizione e
+           performance lo sono."
+        ✅ recommendation: periodizzazione forza, recovery,
+           mantenimento performance della massa muscolare
+        ✅ Tratta il BMI elevato come POSITIVO (indica massa muscolare)
 
-    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + atletico/muscoloso):
-      → Come sopra, più suggerire DEXA / BodPod per dati precisi su composizione corporea
-      → NO framing "obesità"
-      → Riconoscere la composizione atletica
+    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + Body Type 4)
+      VIETATO:
+        ❌ "Obesità Classe I/II/III"
+        ❌ "grasso", "pesante", "sovrappeso"
+        ❌ Qualsiasi framing di deficit
+      OBBLIGATORIO:
+        ✅ Frase tipo: "Il tuo BMI di [VALORE] indicherebbe formalmente
+           obesità — ma la tua composizione visiva mostra un corpo molto
+           muscoloso. Il BMI risulta inadeguato qui. Una misurazione
+           DEXA o BodPod ti darebbe dati precisi sul grasso corporeo."
+        ✅ Chiaro riconoscimento della composizione atletica
+        ✅ Raccomandazione verso ottimizzazione performance, NON riduzione
 
-    Flag = "bmi_reflects_overweight" (BMI 25–29.9 + body-type 5/6):
-      → Diretto ma rispettoso, mai svalutante
-      → recommendation: strategia di riduzione sistematica e graduale (deficit calorico moderato + preservare la massa muscolare con allenamento di forza)
-      → Esempio tono: "Il tuo BMI di 28 e la tua auto-valutazione concordano — qui ha senso un approccio sistematico alla riduzione."
+    Flag = "bmi_reflects_overweight" (BMI 25–29.9, Type ≠ 4)
+      Qui la penalità BMI è giustificata — auto-valutazione e BMI concordano.
+      OBBLIGATORIO:
+        ✅ Diretto ma RISPETTOSO, mai svalutante
+        ✅ "composizione" invece di "grasso", "robusto" invece di "sovrappeso"
+        ✅ recommendation: riduzione sistematica graduale (deficit moderato
+           + allenamento di forza per preservare la massa muscolare)
+        ✅ Frase tipo: "Il tuo BMI di [VALORE] e la tua auto-valutazione
+           concordano — qui ha senso un approccio sistematico alla riduzione."
 
-    Flag = "bmi_reflects_obesity" (BMI ≥30 + body-type 5/6):
-      → Rispettoso, linguaggio medico chiaro dove serve, MAI svalutante
-      → recommendation: piano graduale + suggerire accompagnamento medico
-      → "composizione" invece di "grasso"
+    Flag = "bmi_reflects_obesity" (BMI ≥30, Type ≠ 4)
+      OBBLIGATORIO:
+        ✅ Rispettoso, linguaggio medico chiaro dove necessario
+        ✅ MAI svalutante
+        ✅ recommendation: piano graduale + suggerire supervisione medica
 
-    Flag = "lean_with_low_muscle" (BMI basso/normale + body-type 1):
-      → NO "sei magro, va tutto bene"
-      → recommendation: priorità all'aumento di massa muscolare, eventualmente surplus di +200–400 kcal, allenamento di forza 2–3×/settimana, proteine 1,6–2,0 g/kg
+    Flag = "optimal_athletic" (BMI 18.5–24.9 + Body Type 3 o 4)
+      OBBLIGATORIO:
+        ✅ Riconoscere la composizione atletica
+        ✅ Nota: lo score metabolico ottiene +5 bonus per composizione ottimale
+        ✅ recommendation: ottimizzazione performance, mantenimento, non cambiamento
 
-    Flag = "possible_underweight" (BMI <18,5 + body-type 1):
-      → Cautela. Focus su costruzione. Suggerire accertamento medico.
-      → NO deficit aggressivi di qualsiasi tipo
+    Flag = "optimal_lean" (BMI 18.5–24.9 + Body Type 2)
+      OBBLIGATORIO:
+        ✅ Composizione sana e normale, nessun aggiustamento speciale
 
-    Flag = "optimal_lean" oppure "optimal_athletic":
-      → Riconoscere la buona composizione
-      → recommendation: mantenimento, ottimizzazione performance
+    Flag = "lean_with_low_muscle" (BMI basso/normale + Body Type 1)
+      VIETATO:
+        ❌ "sei magro, va tutto bene" (nessun via libera)
+      OBBLIGATORIO:
+        ✅ Costruzione muscolare come priorità
+        ✅ Apporto calorico +200–400 kcal surplus
+        ✅ Allenamento di forza 2–3×/settimana, proteine 1,6–2,0 g/kg
 
-    Flag = "discrepancy_lean_high_self_assessment" (BMI normale + utente si percepisce robusto):
-      → Linguaggio validante, NON correggere
-      → Citare i dati BMI ma rispettare l'autopercezione
+    Flag = "possible_underweight" (BMI <18,5 + Body Type 1)
+      OBBLIGATORIO:
+        ✅ Cautela. Focus su costruzione.
+        ✅ Suggerire accertamento medico
+        ✅ NESSUN deficit aggressivo di qualsiasi tipo
 
-    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥30 + utente si percepisce magro):
-      → Interrogativo ma rispettoso
-      → BMI primario, nominare la discrepanza
+    Flag = "discrepancy_lean_high_self_assessment" (BMI normale/basso + Type 5/6)
+      OBBLIGATORIO:
+        ✅ Rispettare l'autopercezione, NON correggere
+        ✅ Citare i dati BMI ma con delicatezza
 
-    Flag = null (utente ha saltato la domanda):
-      → Interpreta il BMI come prima, ometti body_composition_context
-      → Per bmi_disclaimer_needed=true: nota generica sui limiti del BMI in bmi_context (campo esistente) — body_composition_context resta omesso
+    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥28 + Type 1/2)
+      OBBLIGATORIO:
+        ✅ Trattare il BMI come marker primario
+        ✅ Nominare la discrepanza con delicatezza, rispettoso
+
+    Flag = null (utente ha saltato la domanda)
+      Interpretazione BMI standard come prima.
+      Disclaimer generico quando bmi_disclaimer_needed=true.
 
     REGOLE LINGUISTICHE costanti:
       - "composizione" invece di "grasso"

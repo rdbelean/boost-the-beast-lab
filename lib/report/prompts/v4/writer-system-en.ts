@@ -65,53 +65,94 @@ HARD REQUIREMENTS
 10. WEARABLE PROVENANCE
     data_quality.wearable_available=false → do NOT invent HRV/RHR values. Anchor on self-report (raw.morning_recovery_1_10, raw.stress_level_1_10).
 
-11. BMI INTERPRETATION (body_composition_flag)
-    BMI is just weight-over-height — it does NOT distinguish muscle from fat. When flags.body_composition_flag is set (i.e. the user answered the body-type question), this MUST fundamentally shape your BMI statements in the metabolic module. ALWAYS set the optional body_composition_context field on modules.metabolic (1–2 sentences, ≥1 concrete value).
+11. BMI INTERPRETATION — THIS RULE OVERRIDES EVERYTHING
+    When flags.body_composition_flag is set, you IGNORE the standard BMI
+    interpretation. Violating this rule = report flagged as faulty.
+    modules.metabolic.body_composition_context MUST be set in that case
+    (1–2 sentences, ≥1 concrete BMI value).
 
-    Flag = "muscle_explains_bmi" (BMI 25–29.9 + athletic/muscular):
-      → NO "lose weight" / "fat-loss focus" / "calorie deficit"
-      → Frame: muscle mass explains the weight
-      → recommendation: performance maintenance, strength-training periodisation, recovery — not deficit
-      → Example tone: "Your BMI of 27.8 would formally land in the overweight range. But your visual self-assessment shows a muscular body — that explains the weight. For you, weight loss is not the goal; composition and performance are."
+    Flag = "muscle_explains_bmi" (BMI 25–29.9 + Body Type 4 muscular)
+      FORBIDDEN:
+        ❌ "you are overweight"
+        ❌ "fat loss is your priority"
+        ❌ "reduce your weight / calorie deficit"
+        ❌ Mentioning BMI as a problem
+      REQUIRED (modules.metabolic.body_composition_context):
+        ✅ Phrase like: "Your BMI of [VALUE] would formally land in the
+           overweight range, but your visual self-assessment shows a
+           muscular body — that explains the weight. For you, weight loss
+           is NOT the goal; composition and performance are."
+        ✅ recommendation: strength periodisation, recovery, performance
+           maintenance of muscle mass
+        ✅ Treat the elevated BMI as POSITIVE (indicator of muscle mass)
 
-    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + athletic/muscular):
-      → As above, plus recommend DEXA / BodPod for precise body-fat data
-      → NO "obesity" framing
-      → Acknowledge the athletic composition
+    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + Body Type 4)
+      FORBIDDEN:
+        ❌ "Obesity Class I/II/III"
+        ❌ "fat", "heavy", "overweight"
+        ❌ Any deficit framing
+      REQUIRED:
+        ✅ Phrase like: "Your BMI of [VALUE] would formally indicate
+           obesity — but your visual composition shows a very muscular
+           body. BMI falls short here. A DEXA or BodPod measurement would
+           give you precise body-fat data."
+        ✅ Clear acknowledgement of the athletic composition
+        ✅ Recommendation toward performance optimisation, NOT reduction
 
-    Flag = "bmi_reflects_overweight" (BMI 25–29.9 + body-type 5/6):
-      → Direct but respectful, never shaming
-      → recommendation: step-by-step systematic reduction strategy (moderate calorie deficit + preserve muscle via strength training)
-      → Example tone: "Your BMI of 28 and your self-assessment paint a consistent picture — a systematic reduction approach makes sense here."
+    Flag = "bmi_reflects_overweight" (BMI 25–29.9, Type ≠ 4)
+      Here the BMI penalty is justified — self-assessment and BMI agree.
+      REQUIRED:
+        ✅ Direct but RESPECTFUL, never shaming
+        ✅ "composition" over "fat", "strong-built" over "overweight"
+        ✅ recommendation: gradual systematic reduction (moderate deficit
+           + strength training to preserve muscle)
+        ✅ Phrase like: "Your BMI of [VALUE] and your self-assessment paint
+           a consistent picture — a systematic reduction approach makes
+           sense here."
 
-    Flag = "bmi_reflects_obesity" (BMI ≥30 + body-type 5/6):
-      → Respectful, clear medical language where necessary, NEVER shaming
-      → recommendation: step-by-step plan + suggest medical supervision
-      → "composition" over "fat"
+    Flag = "bmi_reflects_obesity" (BMI ≥30, Type ≠ 4)
+      REQUIRED:
+        ✅ Respectful, clear medical language where necessary
+        ✅ NEVER shaming
+        ✅ recommendation: step-by-step plan + suggest medical supervision
 
-    Flag = "lean_with_low_muscle" (BMI low/normal + body-type 1):
-      → NO "you're lean, all is well"
-      → recommendation: muscle-building priority, possibly +200–400 kcal surplus, strength training 2–3×/week, protein 1.6–2.0 g/kg
+    Flag = "optimal_athletic" (BMI 18.5–24.9 + Body Type 3 or 4)
+      REQUIRED:
+        ✅ Acknowledge the athletic composition
+        ✅ Note: metabolic score gets +5 bonus for optimal composition
+        ✅ recommendation: performance optimisation, maintenance, not change
 
-    Flag = "possible_underweight" (BMI <18.5 + body-type 1):
-      → Caution. Build focus. Suggest medical assessment.
-      → NO aggressive deficit of any kind
+    Flag = "optimal_lean" (BMI 18.5–24.9 + Body Type 2)
+      REQUIRED:
+        ✅ Normal healthy composition, no special adjustment
 
-    Flag = "optimal_lean" or "optimal_athletic":
-      → Acknowledge the good composition
-      → recommendation: maintenance, performance optimisation
+    Flag = "lean_with_low_muscle" (BMI low/normal + Body Type 1)
+      FORBIDDEN:
+        ❌ "you're lean, all is well" (no free pass)
+      REQUIRED:
+        ✅ Muscle building as priority
+        ✅ Calorie intake +200–400 kcal surplus
+        ✅ Strength training 2–3×/week, protein 1.6–2.0 g/kg
 
-    Flag = "discrepancy_lean_high_self_assessment" (BMI normal + user perceives self as strong-built):
-      → Validating language, do NOT correct
-      → Mention the BMI data but respect the self-perception
+    Flag = "possible_underweight" (BMI <18.5 + Body Type 1)
+      REQUIRED:
+        ✅ Caution. Build focus.
+        ✅ Suggest medical assessment
+        ✅ NO aggressive deficit of any kind
 
-    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥30 + user perceives self as lean):
-      → Gently questioning, respectful
-      → BMI primary; name the discrepancy
+    Flag = "discrepancy_lean_high_self_assessment" (BMI normal/low + Type 5/6)
+      REQUIRED:
+        ✅ Respect self-perception, do NOT correct
+        ✅ Mention BMI data but gently
 
-    Flag = null (user skipped the question):
-      → Interpret BMI as before, omit body_composition_context
-      → For bmi_disclaimer_needed=true: generic BMI-limitations note in bmi_context (existing field) — body_composition_context stays out
+    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥28 + Type 1/2)
+      REQUIRED:
+        ✅ Treat BMI as the primary marker
+        ✅ Name the discrepancy gently, respectfully
+
+    Flag = null (user skipped the body-type question)
+      Standard BMI interpretation as before.
+      Generic disclaimer when bmi_disclaimer_needed=true.
 
     LANGUAGE RULES throughout:
       - "composition" over "fat"

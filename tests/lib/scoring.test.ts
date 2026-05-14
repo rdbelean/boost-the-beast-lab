@@ -148,7 +148,7 @@ describe("calculateMetabolicScore", () => {
     expect(r.bmi_penalty_modifier_applied).toBe(0);
   });
 
-  it("Athlete BMI 27.8 + male_4 → muscle_explains_bmi, score uplifted", () => {
+  it("Athlete BMI 27.8 + male_4 → muscle_explains_bmi, v2 modifier 0.7, score uplifted", () => {
     const athlete = calculateMetabolicScore({
       height_cm: 180, weight_kg: 90,
       meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
@@ -159,7 +159,7 @@ describe("calculateMetabolicScore", () => {
       meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
     });
     expect(athlete.body_composition_flag).toBe("muscle_explains_bmi");
-    expect(athlete.bmi_penalty_modifier_applied).toBe(0.6);
+    expect(athlete.bmi_penalty_modifier_applied).toBe(0.7);
     expect(athlete.metabolic_score_0_100).toBeGreaterThan(
       baseline.metabolic_score_0_100,
     );
@@ -180,14 +180,41 @@ describe("calculateMetabolicScore", () => {
     expect(heavy.metabolic_score_0_100).toBe(baseline.metabolic_score_0_100);
   });
 
-  it("Strong muscle BMI 31 + male_4 → strong_muscle_explains_high_bmi", () => {
+  it("Strong muscle BMI 31 + male_4 → strong_muscle_explains_high_bmi, v2 modifier 0.9", () => {
     const r = calculateMetabolicScore({
       height_cm: 175, weight_kg: 95,
       meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
       body_type: "male_4",
     });
     expect(r.body_composition_flag).toBe("strong_muscle_explains_high_bmi");
-    expect(r.bmi_penalty_modifier_applied).toBe(0.8);
+    expect(r.bmi_penalty_modifier_applied).toBe(0.9);
+  });
+
+  it("Type 3 + overweight BMI no longer muscle_explains_bmi (v2 narrowed)", () => {
+    const r = calculateMetabolicScore({
+      height_cm: 180, weight_kg: 90,
+      meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
+      body_type: "male_3",
+    });
+    expect(r.body_composition_flag).toBe("bmi_reflects_overweight");
+    expect(r.bmi_penalty_modifier_applied).toBe(0);
+  });
+
+  it("Athletic optimal_athletic earns +5 bonus on metabolic score", () => {
+    const athletic = calculateMetabolicScore({
+      height_cm: 180, weight_kg: 72,
+      meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
+      body_type: "male_3",
+    });
+    const baseline = calculateMetabolicScore({
+      height_cm: 180, weight_kg: 72,
+      meals_per_day: 3, water_litres: 2.5, sitting_hours: 6, fruit_veg: "good",
+    });
+    expect(athletic.body_composition_flag).toBe("optimal_athletic");
+    expect(athletic.metabolic_score_bonus_applied).toBe(5);
+    expect(athletic.metabolic_score_0_100).toBe(
+      Math.min(100, baseline.metabolic_score_0_100 + 5),
+    );
   });
 
   it("Possible underweight: BMI 18.4 + female_1 → modifier intensifies penalty", () => {
