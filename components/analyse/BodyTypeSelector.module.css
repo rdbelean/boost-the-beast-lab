@@ -60,9 +60,17 @@
   gap: 0.75rem;
 }
 
+/* Tablet — 640-1023px: 3 columns, 12px gap */
 @media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+/* Desktop — ≥1024px: 3 columns, 16px gap */
+@media (min-width: 1024px) {
+  .grid {
     gap: 1rem;
   }
 }
@@ -72,8 +80,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   padding: 0.75rem;
+  /* Mobile minimums — guarantee Body Type cards are large enough to read on phones */
+  min-height: 260px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -87,6 +98,13 @@
 @media (min-width: 640px) {
   .card {
     padding: 1rem;
+    min-height: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    min-height: 360px;
   }
 }
 
@@ -113,6 +131,12 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .cardActive {
+    padding: calc(1rem - 1px);
+  }
+}
+
 .check {
   position: absolute;
   top: 6px;
@@ -132,18 +156,52 @@
 
 .imageWrap {
   width: 100%;
-  aspect-ratio: 11 / 20;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  /* Mobile: image area is at least 220px tall, ensuring the body type is recognisable */
+  min-height: 220px;
+}
+
+@media (min-width: 640px) {
+  .imageWrap {
+    min-height: 240px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .imageWrap {
+    min-height: 280px;
+  }
 }
 
 .image {
   width: auto;
-  height: 100%;
-  max-width: 100%;
+  height: auto;
+  /* Mobile caps — image fills the card without becoming so large that the
+     adjacent cards overflow the 375px viewport */
+  max-width: 120px;
+  max-height: 220px;
   object-fit: contain;
+  object-position: center;
+  margin: 0 auto;
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .image {
+    max-width: 140px;
+    max-height: 240px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .image {
+    max-width: 180px;
+    max-height: 280px;
+  }
 }
 
 .label {

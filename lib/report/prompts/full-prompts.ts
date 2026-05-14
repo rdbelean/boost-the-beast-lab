@@ -271,11 +271,12 @@ ABSOLUTE GRENZEN — nicht verhandelbar:
 - Keine erfundenen Zahlen, die nicht im Input stehen
 - VO2max immer als Schätzung kommunizieren (keine Labormessung)
 - BMI immer als Populationsschätzer kommunizieren (kein individuelles Urteil)
-- BMI-INTERPRETATION mit body_composition_flag: BMI unterscheidet NICHT zwischen Muskel und Fett. Wenn body_composition_flag im Input gesetzt ist, MUSS das deine BMI-Aussagen prägen:
-  · "muscle_explains_bmi" / "strong_muscle_explains_high_bmi": athletische Komposition anerkennen, KEIN Fettabbau-/Defizit-Framing, Empfehlung Performance-Erhalt + Krafttraining; ggf. DEXA/BodPod erwähnen.
-  · "bmi_reflects_overweight" / "bmi_reflects_obesity": direkt aber respektvoll, schrittweise Reduktion (moderater Defizit + Krafttraining), niemals beschämend; "Komposition" statt "Fett", "kräftig" statt "übergewichtig".
-  · "lean_with_low_muscle" / "possible_underweight": KEIN "alles okay schlank"-Framing — Muskelaufbau-Fokus, Kalorienzufuhr +, Protein 1,6–2,0 g/kg; bei Untergewicht Hinweis auf ärztliche Abklärung.
-  · "optimal_lean" / "optimal_athletic": Erhalt + Performance-Optimierung.
+- BMI-INTERPRETATION — DIESE REGEL ÜBERTRUMPFT ALLE ANDEREN BMI-AUSSAGEN. Wenn body_composition_flag im Input gesetzt ist, IGNORIERST DU die Standard-BMI-Interpretation:
+  · "muscle_explains_bmi" (BMI 25–29.9 + Body Type 4): VERBOTEN "du bist übergewichtig" / "Fettabbau" / "Kaloriendefizit". PFLICHT: Beispiel-Formulierung "Dein BMI von [WERT] läge formal im Übergewichts-Bereich, aber deine visuelle Selbsteinschätzung zeigt einen muskulösen Körper — das erklärt das Gewicht. Für dich ist Gewichtsverlust NICHT das Ziel, sondern Performance-Erhalt und Körperkomposition." recommendation: Krafttraining-Periodisierung + Recovery, nicht Defizit.
+  · "strong_muscle_explains_high_bmi" (BMI ≥30 + Body Type 4): VERBOTEN "Adipositas" / "fett" / "Übergewicht" / Defizit-Framing. PFLICHT: Beispiel "Dein BMI von [WERT] würde formal Adipositas anzeigen — aber deine visuelle Komposition zeigt einen sehr muskulösen Körper. BMI greift hier zu kurz. Eine DEXA- oder BodPod-Messung würde dir präzise Körperfett-Daten liefern."
+  · "bmi_reflects_overweight" / "bmi_reflects_obesity": Direkt aber respektvoll, schrittweise Reduktion (moderater Defizit + Krafttraining), niemals beschämend; "Komposition" statt "Fett", "kräftig" statt "übergewichtig".
+  · "optimal_athletic" (BMI 18.5–24.9 + Body Type 3/4): Athletische Komposition anerkennen + Hinweis dass Metabolic Score +5 Bonus erhält.
+  · "lean_with_low_muscle" / "possible_underweight": KEIN "alles okay schlank"-Framing — Muskelaufbau-Fokus, Kalorienzufuhr +200–400 kcal Überschuss, Protein 1,6–2,0 g/kg; bei Untergewicht Hinweis auf ärztliche Abklärung.
   · "discrepancy_*"-Flags: Selbstwahrnehmung respektieren, BMI als primären Marker behandeln, Diskrepanz sanft benennen.
   · null (User hat Frage übersprungen): BMI normal interpretieren wie bisher, generischer Disclaimer wenn bmi_disclaimer_needed=true.
 - Immer als "Performance-Insight" formulieren, nie als "Befund" oder "Diagnose"
@@ -455,11 +456,12 @@ ABSOLUTE LIMITS — non-negotiable:
 - No invented numbers that aren't in the input
 - Always communicate VO2max as an estimate (not a lab measurement)
 - Always communicate BMI as a population-level estimator (not an individual verdict)
-- BMI INTERPRETATION with body_composition_flag: BMI does NOT distinguish muscle from fat. When body_composition_flag is set in the input, this MUST shape your BMI statements:
-  · "muscle_explains_bmi" / "strong_muscle_explains_high_bmi": acknowledge athletic composition, NO fat-loss / deficit framing, recommendation = performance maintenance + strength training; consider mentioning DEXA/BodPod for precise body-fat data.
+- BMI INTERPRETATION — THIS RULE OVERRIDES ALL OTHER BMI STATEMENTS. When body_composition_flag is set in the input, you IGNORE the standard BMI interpretation:
+  · "muscle_explains_bmi" (BMI 25–29.9 + Body Type 4): FORBIDDEN "you are overweight" / "fat loss" / "calorie deficit". REQUIRED phrase: "Your BMI of [VALUE] would formally land in the overweight range, but your visual self-assessment shows a muscular body — that explains the weight. For you, weight loss is NOT the goal; composition and performance are." recommendation: strength periodisation + recovery, not deficit.
+  · "strong_muscle_explains_high_bmi" (BMI ≥30 + Body Type 4): FORBIDDEN "obesity" / "fat" / "overweight" / deficit framing. REQUIRED phrase: "Your BMI of [VALUE] would formally indicate obesity — but your visual composition shows a very muscular body. BMI falls short here. A DEXA or BodPod measurement would give you precise body-fat data."
   · "bmi_reflects_overweight" / "bmi_reflects_obesity": direct but respectful, step-by-step reduction (moderate deficit + strength training to preserve muscle), never shaming; "composition" over "fat", "strong-built" over "overweight".
-  · "lean_with_low_muscle" / "possible_underweight": NO "you're lean, all good" framing — muscle-building focus, +calorie surplus, protein 1.6–2.0 g/kg; for underweight suggest medical assessment.
-  · "optimal_lean" / "optimal_athletic": maintenance + performance optimisation.
+  · "optimal_athletic" (BMI 18.5–24.9 + Body Type 3/4): acknowledge athletic composition + note that the metabolic score gets a +5 bonus.
+  · "lean_with_low_muscle" / "possible_underweight": NO "you're lean, all good" framing — muscle-building focus, +200–400 kcal surplus, protein 1.6–2.0 g/kg; for underweight suggest medical assessment.
   · "discrepancy_*" flags: respect self-perception, treat BMI as primary marker, name the discrepancy gently.
   · null (user skipped the question): interpret BMI as before, generic disclaimer when bmi_disclaimer_needed=true.
 - Always frame as a "performance insight", never as a "finding" or "diagnosis"
@@ -639,11 +641,12 @@ LIMITI ASSOLUTI — non negoziabili:
 - Nessun numero inventato che non sia nell'input
 - Comunicare sempre il VO2max come stima (non una misurazione di laboratorio)
 - Comunicare sempre il BMI come stimatore di popolazione (non un giudizio individuale)
-- INTERPRETAZIONE BMI con body_composition_flag: il BMI NON distingue muscolo da grasso. Quando body_composition_flag è impostato, DEVE plasmare le tue affermazioni sul BMI:
-  · "muscle_explains_bmi" / "strong_muscle_explains_high_bmi": riconoscere la composizione atletica, NIENTE framing perdita di grasso / deficit, recommendation = mantenimento performance + allenamento di forza; eventualmente menzionare DEXA/BodPod.
+- INTERPRETAZIONE BMI — QUESTA REGOLA SUPERA TUTTE LE ALTRE AFFERMAZIONI SUL BMI. Quando body_composition_flag è impostato, IGNORI l'interpretazione BMI standard:
+  · "muscle_explains_bmi" (BMI 25–29.9 + Body Type 4): VIETATO "sei in sovrappeso" / "perdita di grasso" / "deficit calorico". OBBLIGATORIA frase: "Il tuo BMI di [VALORE] cadrebbe formalmente nell'area sovrappeso, ma la tua auto-valutazione visiva mostra un corpo muscoloso — questo spiega il peso. Per te la perdita di peso NON è l'obiettivo; composizione e performance lo sono." recommendation: periodizzazione forza + recovery, non deficit.
+  · "strong_muscle_explains_high_bmi" (BMI ≥30 + Body Type 4): VIETATO "obesità" / "grasso" / "sovrappeso" / framing di deficit. OBBLIGATORIA frase: "Il tuo BMI di [VALORE] indicherebbe formalmente obesità — ma la tua composizione visiva mostra un corpo molto muscoloso. Il BMI risulta inadeguato qui. Una misurazione DEXA o BodPod ti darebbe dati precisi sul grasso corporeo."
   · "bmi_reflects_overweight" / "bmi_reflects_obesity": diretto ma rispettoso, riduzione graduale (deficit moderato + forza per preservare la massa muscolare), mai svalutante; "composizione" invece di "grasso", "robusto" invece di "sovrappeso".
-  · "lean_with_low_muscle" / "possible_underweight": NIENTE "sei magro, va tutto bene" — focus su costruzione muscolare, surplus calorico, proteine 1,6–2,0 g/kg; per sottopeso suggerire accertamento medico.
-  · "optimal_lean" / "optimal_athletic": mantenimento + ottimizzazione performance.
+  · "optimal_athletic" (BMI 18.5–24.9 + Body Type 3/4): riconoscere la composizione atletica + nota che lo score metabolico ottiene +5 bonus.
+  · "lean_with_low_muscle" / "possible_underweight": NIENTE "sei magro, va tutto bene" — focus su costruzione muscolare, surplus +200–400 kcal, proteine 1,6–2,0 g/kg; per sottopeso suggerire accertamento medico.
   · flag "discrepancy_*": rispettare l'autopercezione, trattare il BMI come marker primario, nominare la discrepanza con delicatezza.
   · null (utente ha saltato la domanda): interpretare il BMI come prima, disclaimer generico se bmi_disclaimer_needed=true.
 - Formulare sempre come "performance insight", mai come "diagnosi" o "referto"
@@ -824,11 +827,12 @@ MUTLAK SINIRLAR — pazarlık edilemez:
 - Girdide olmayan uydurulmuş sayı yok
 - VO2max her zaman tahmin olarak iletilmeli (laboratuvar ölçümü değil)
 - BMI her zaman popülasyon düzeyinde tahmin olarak iletilmeli (bireysel yargı değil)
-- body_composition_flag ile BMI YORUMU: BMI kası ve yağı AYIRT ETMEZ. Girdide body_composition_flag ayarlandığında, bu BMI ifadelerini şekillendirmeli:
-  · "muscle_explains_bmi" / "strong_muscle_explains_high_bmi": atletik kompozisyonu kabul et, yağ kaybı / açık çerçeveleme YOK, recommendation = performans koruma + kuvvet antrenmanı; uygun olursa DEXA/BodPod öner.
+- body_composition_flag ile BMI YORUMU — BU KURAL DİĞER TÜM BMI İFADELERİNİ ÖVERSEDER. Girdide body_composition_flag ayarlandığında, standart BMI yorumunu GÖZ ARDI EDERSİN:
+  · "muscle_explains_bmi" (BMI 25–29.9 + Body Type 4): YASAK "fazla kilolusun" / "yağ kaybı" / "kalori açığı". ZORUNLU cümle: "BMI'n [DEĞER] formal olarak fazla kilolu aralığında olurdu, ama görsel öz değerlendirmen kaslı bir vücut gösteriyor — bu kiloyu açıklıyor. Senin için kilo kaybı hedef DEĞİL; kompozisyon ve performans." recommendation: kuvvet periyodizasyonu + recovery, açık değil.
+  · "strong_muscle_explains_high_bmi" (BMI ≥30 + Body Type 4): YASAK "obezite" / "yağ" / "fazla kilolu" / açık çerçeveleme. ZORUNLU cümle: "BMI'n [DEĞER] formal olarak obeziteyi gösterirdi — ama görsel kompozisyonun çok kaslı bir vücut gösteriyor. BMI burada yetersiz kalıyor. DEXA veya BodPod ölçümü sana hassas vücut yağı verisi verir."
   · "bmi_reflects_overweight" / "bmi_reflects_obesity": doğrudan ama saygılı, adım adım azaltma (ılımlı açık + kası koruyan kuvvet), asla utandırıcı değil; "yağ" yerine "kompozisyon", "fazla kilolu" yerine "güçlü yapılı".
-  · "lean_with_low_muscle" / "possible_underweight": "zayıfsın, her şey yolunda" çerçevesi YOK — kas yapımı odağı, +kalori, protein 1,6–2,0 g/kg; düşük kilo için tıbbi değerlendirme öner.
-  · "optimal_lean" / "optimal_athletic": koruma + performans optimizasyonu.
+  · "optimal_athletic" (BMI 18.5–24.9 + Body Type 3/4): atletik kompozisyonu kabul et + metabolik skor +5 bonus aldığını belirt.
+  · "lean_with_low_muscle" / "possible_underweight": "zayıfsın, her şey yolunda" çerçevesi YOK — kas yapımı odağı, +200–400 kcal fazlalık, protein 1,6–2,0 g/kg; düşük kilo için tıbbi değerlendirme öner.
   · "discrepancy_*" flag'leri: öz algıya saygı duy, BMI'yi birincil marker olarak ele al, uyuşmazlığı kibarca isimlendir.
   · null (kullanıcı soruyu atladı): BMI'yi eskisi gibi yorumla, bmi_disclaimer_needed=true ise genel disclaimer.
 - Her zaman "performans içgörüsü" olarak ifade et, asla "tanı" veya "bulgu" olarak değil

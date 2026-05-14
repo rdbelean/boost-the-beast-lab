@@ -63,53 +63,93 @@ KESİN GEREKSİNİMLER
 10. WEARABLE PROVENANCE
     data_quality.wearable_available=false → HRV/RHR değerleri uydurma. Self-report değerlere ankor (raw.morning_recovery_1_10, raw.stress_level_1_10).
 
-11. BMI YORUMU (body_composition_flag)
-    BMI sadece kilo-bölü-boy'dur — kası ve yağı AYIRT ETMEZ. flags.body_composition_flag ayarlandığında (kullanıcı body-type sorusunu yanıtladığında), bu metabolik modüldeki BMI ifadelerini TEMELDEN şekillendirmelidir. modules.metabolic üzerinde opsiyonel body_composition_context alanını DAİMA ata (1–2 cümle, ≥1 somut değer).
+11. BMI YORUMU — BU KURAL HER ŞEYİ ÖVERSEDER
+    flags.body_composition_flag ayarlandığında, standart BMI yorumunu
+    GÖZ ARDI EDERSİN. Bu kuralı ihlal = rapor hatalı işaretlenir.
+    modules.metabolic.body_composition_context bu durumda AYARLANMALIDIR
+    (1–2 cümle, ≥1 somut BMI değeri).
 
-    Flag = "muscle_explains_bmi" (BMI 25–29.9 + atletik/kaslı):
-      → "kilo ver" / "yağ kaybı odağı" / "kalori açığı" YOK
-      → Çerçeve: kas kütlesi kiloyu açıklıyor
-      → recommendation: performans koruma, kuvvet periyodizasyonu, recovery — açık değil
-      → Örnek ton: "BMI'n 27,8 formal olarak fazla kilolu aralığında olurdu. Ama görsel öz değerlendirmen kaslı bir vücut gösteriyor — bu da kiloyu açıklıyor. Senin için hedef kilo kaybı değil; kompozisyon ve performans."
+    Flag = "muscle_explains_bmi" (BMI 25–29.9 + Body Type 4 kaslı)
+      YASAK:
+        ❌ "fazla kilolusun"
+        ❌ "yağ kaybı önceliğin"
+        ❌ "kilo azaltma / kalori açığı"
+        ❌ BMI'yi sorun olarak anma
+      ZORUNLU (modules.metabolic.body_composition_context):
+        ✅ Şu tarz cümle: "BMI'n [DEĞER] formal olarak fazla kilolu
+           aralığında olurdu, ama görsel öz değerlendirmen kaslı bir
+           vücut gösteriyor — bu kiloyu açıklıyor. Senin için kilo
+           kaybı hedef DEĞİL; kompozisyon ve performans."
+        ✅ recommendation: kuvvet periyodizasyonu, recovery, kas
+           kütlesinin performans bakımı
+        ✅ Yüksek BMI'yi POZİTİF olarak ele al (kas kütlesi göstergesi)
 
-    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + atletik/kaslı):
-      → Yukarıdaki gibi, ayrıca kesin vücut yağı verisi için DEXA / BodPod öner
-      → "obezite" çerçevesi YOK
-      → Atletik kompozisyonu kabul et
+    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + Body Type 4)
+      YASAK:
+        ❌ "Obezite Sınıf I/II/III"
+        ❌ "yağ", "ağır", "fazla kilolu"
+        ❌ Herhangi bir açık çerçevelemesi
+      ZORUNLU:
+        ✅ Şu tarz cümle: "BMI'n [DEĞER] formal olarak obeziteyi
+           gösterirdi — ama görsel kompozisyonun çok kaslı bir vücut
+           gösteriyor. BMI burada yetersiz kalıyor. DEXA veya BodPod
+           ölçümü sana hassas vücut yağı verisi verir."
+        ✅ Atletik kompozisyonun net kabulü
+        ✅ Performans optimizasyonu öner, azaltma DEĞİL
 
-    Flag = "bmi_reflects_overweight" (BMI 25–29.9 + body-type 5/6):
-      → Doğrudan ama saygılı, asla utandırıcı değil
-      → recommendation: adım adım sistematik azaltma stratejisi (ılımlı kalori açığı + kuvvet antrenmanıyla kası koru)
-      → Örnek ton: "BMI 28 ve öz değerlendirmen tutarlı bir tablo çiziyor — burada sistematik bir azaltma yaklaşımı anlamlı."
+    Flag = "bmi_reflects_overweight" (BMI 25–29.9, Type ≠ 4)
+      Burada BMI cezası haklı — öz değerlendirme ve BMI uyumlu.
+      ZORUNLU:
+        ✅ Doğrudan ama SAYGILI, asla utandırıcı değil
+        ✅ "yağ" yerine "kompozisyon", "fazla kilolu" yerine "güçlü yapılı"
+        ✅ recommendation: kademeli sistematik azaltma (ılımlı açık +
+           kası korumak için kuvvet antrenmanı)
+        ✅ Şu tarz cümle: "BMI'n [DEĞER] ve öz değerlendirmen tutarlı
+           bir tablo çiziyor — burada sistematik bir yaklaşım anlamlı."
 
-    Flag = "bmi_reflects_obesity" (BMI ≥30 + body-type 5/6):
-      → Saygılı, gerektiğinde net medikal dil, ASLA utandırıcı değil
-      → recommendation: adım adım plan + tıbbi destek öner
-      → "yağ" yerine "kompozisyon"
+    Flag = "bmi_reflects_obesity" (BMI ≥30, Type ≠ 4)
+      ZORUNLU:
+        ✅ Saygılı, gerektiğinde net medikal dil
+        ✅ ASLA utandırıcı değil
+        ✅ recommendation: adım adım plan + tıbbi destek öner
 
-    Flag = "lean_with_low_muscle" (BMI düşük/normal + body-type 1):
-      → "ince/zayıfsın, her şey yolunda" YOK
-      → recommendation: kas yapımı önceliği, gerekirse +200–400 kcal artış, kuvvet antrenmanı 2–3×/hafta, protein 1,6–2,0 g/kg
+    Flag = "optimal_athletic" (BMI 18.5–24.9 + Body Type 3 veya 4)
+      ZORUNLU:
+        ✅ Atletik kompozisyonu kabul et
+        ✅ Not: metabolik skor optimal kompozisyon için +5 bonus alır
+        ✅ recommendation: performans optimizasyonu, koruma, değişim değil
 
-    Flag = "possible_underweight" (BMI <18,5 + body-type 1):
-      → Dikkat. Yapım odağı. Tıbbi değerlendirme öner.
-      → Hiçbir türde agresif açık YOK
+    Flag = "optimal_lean" (BMI 18.5–24.9 + Body Type 2)
+      ZORUNLU:
+        ✅ Normal sağlıklı kompozisyon, özel ayarlama yok
 
-    Flag = "optimal_lean" veya "optimal_athletic":
-      → İyi kompozisyonu kabul et
-      → recommendation: koruma, performans optimizasyonu
+    Flag = "lean_with_low_muscle" (BMI düşük/normal + Body Type 1)
+      YASAK:
+        ❌ "zayıfsın, her şey yolunda" (serbest geçiş yok)
+      ZORUNLU:
+        ✅ Kas yapımı öncelik
+        ✅ Kalori alımı +200–400 kcal fazlalık
+        ✅ Kuvvet antrenmanı 2–3×/hafta, protein 1,6–2,0 g/kg
 
-    Flag = "discrepancy_lean_high_self_assessment" (BMI normal + kullanıcı kendini güçlü yapılı görüyor):
-      → Doğrulayıcı dil, DÜZELTME yapma
-      → BMI verisini söyle ama öz algıya saygı duy
+    Flag = "possible_underweight" (BMI <18,5 + Body Type 1)
+      ZORUNLU:
+        ✅ Dikkat. Yapım odağı.
+        ✅ Tıbbi değerlendirme öner
+        ✅ Hiçbir türde agresif açık YOK
 
-    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥30 + kullanıcı kendini zayıf görüyor):
-      → Yumuşak sorgulayıcı, saygılı
-      → BMI birincil; uyuşmazlığı isimlendir
+    Flag = "discrepancy_lean_high_self_assessment" (BMI normal/düşük + Type 5/6)
+      ZORUNLU:
+        ✅ Öz algıya saygı duy, DÜZELTME yapma
+        ✅ BMI verisini söyle ama nazikçe
 
-    Flag = null (kullanıcı soruyu atladı):
-      → BMI'yi eskisi gibi yorumla, body_composition_context'i atla
-      → bmi_disclaimer_needed=true için: bmi_context (mevcut alan) içinde genel BMI sınırlılığı notu — body_composition_context atlanmış kalır
+    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥28 + Type 1/2)
+      ZORUNLU:
+        ✅ BMI'yi birincil marker olarak ele al
+        ✅ Uyuşmazlığı nazikçe isimlendir, saygılı
+
+    Flag = null (kullanıcı body-type sorusunu atladı)
+      Standart BMI yorumu önceki gibi.
+      bmi_disclaimer_needed=true ise genel disclaimer.
 
     DİL KURALLARI boyunca:
       - "yağ" yerine "kompozisyon"
