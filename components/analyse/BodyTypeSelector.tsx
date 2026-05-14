@@ -30,7 +30,7 @@ const OBJECT_POSITION_BY_BT: Partial<Record<BodyType, string>> = {
   female_2: "43% center",
   female_3: "42% center",
   female_4: "41% center",
-  female_5: "45% center",
+  female_5: "41% center",
   female_6: "45% center",
 };
 
