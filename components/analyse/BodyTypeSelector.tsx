@@ -23,6 +23,21 @@ function imageFilename(bt: BodyType): string {
   return `/body-types/${bt.replace("_", "-")}.png`;
 }
 
+// Per-image object-position override. Most PNGs are well-centered in canvas;
+// female_2..6 have the figure ≈ 45% of canvas width, so shift the cover-crop
+// window left to bring them back to visual center.
+const OBJECT_POSITION_BY_BT: Partial<Record<BodyType, string>> = {
+  female_2: "45% center",
+  female_3: "45% center",
+  female_4: "45% center",
+  female_5: "45% center",
+  female_6: "45% center",
+};
+
+function objectPositionFor(bt: BodyType): string {
+  return OBJECT_POSITION_BY_BT[bt] ?? "center";
+}
+
 export default function BodyTypeSelector({
   gender,
   value,
@@ -108,6 +123,7 @@ export default function BodyTypeSelector({
                   loading={idx < 2 ? "eager" : "lazy"}
                   sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
                   className={styles.image}
+                  style={{ objectPosition: objectPositionFor(bt) }}
                 />
               </span>
               <span className={styles.label}>{optionLabel}</span>
