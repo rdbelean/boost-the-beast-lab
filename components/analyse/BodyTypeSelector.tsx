@@ -27,7 +27,7 @@ function imageFilename(bt: BodyType): string {
 // female_2..6 have the figure noticeably left of canvas center, so shift the
 // cover-crop window further left to bring them back to visual center.
 const OBJECT_POSITION_BY_BT: Partial<Record<BodyType, string>> = {
-  female_2: "42% center",
+  female_2: "43% center",
   female_3: "45% center",
   female_4: "50% center",
   female_5: "45% center",
