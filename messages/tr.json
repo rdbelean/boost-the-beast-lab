@@ -762,6 +762,12 @@
     "plans": {
       "heading": "4 KİŞİSEL PLANIN",
       "subtitle": "Skorlarına göre kişiselleştirildi — paket içinde dahil. Her plan somut protokoller, haftalık planlar ve bilimsel öneriler içerir.",
+      "individual_heading": "BİREYSEL PLANLARIN",
+      "master": {
+        "label": "MASTER HAFTALIK PLANIN",
+        "desc": "Sana özel, hedeflerine göre uyarlandı",
+        "cta": "MASTER HAFTALIK PLANA GİT"
+      },
       "activity": {
         "label": "ACTIVITY-PLAN",
         "desc": "WHO/ACSM standardına göre antrenman hacmi, haftalık plan ve ilerleme",
@@ -782,6 +788,30 @@
         "desc": "Stres azaltma, yaşam tarzı optimizasyonu ve stres aracı olarak spor",
         "cta": "STRESS-PLAN'A GİT"
       }
+    },
+    "master_plan": {
+      "title_fallback": "Master Haftalık Plan",
+      "back_to_results": "Genel bakışa dön",
+      "still_generating": "Master Haftalık Planın oluşturuluyor — bir saniye …",
+      "not_ready": "Master Haftalık Planın henüz hazır değil.",
+      "retry": "Tekrar dene",
+      "retrying": "Oluşturuluyor …",
+      "open_pdf": "PDF indir",
+      "error_no_id": "Assessment ID bulunamadı. Lütfen genel bakışa dön.",
+      "error_generic": "Plan oluşturulamadı",
+      "strategy_heading": "BU HAFTAKİ STRATEJİN",
+      "col_day": "Gün",
+      "col_training": "Antrenman",
+      "col_nutrition": "Beslenme",
+      "col_recovery": "İyileşme",
+      "col_stress": "Stres Çapası",
+      "day_mon": "Pzt",
+      "day_tue": "Sal",
+      "day_wed": "Çar",
+      "day_thu": "Per",
+      "day_fri": "Cum",
+      "day_sat": "Cmt",
+      "day_sun": "Paz"
     },
     "data_insights": {
       "section_title": "VERİLERİNDEN",

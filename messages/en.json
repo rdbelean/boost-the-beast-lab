@@ -762,6 +762,12 @@
     "plans": {
       "heading": "YOUR 4 PERSONALIZED PLANS",
       "subtitle": "Personalized from your scores — included in your package. Each plan contains concrete protocols, weekly schedules, and scientific recommendations.",
+      "individual_heading": "YOUR INDIVIDUAL PLANS",
+      "master": {
+        "label": "YOUR MASTER WEEKLY PLAN",
+        "desc": "Personalised for you, tailored to your goals",
+        "cta": "GO TO MASTER WEEKLY PLAN"
+      },
       "activity": {
         "label": "ACTIVITY PLAN",
         "desc": "Training volume, weekly schedule & progression per WHO/ACSM standard",
@@ -782,6 +788,30 @@
         "desc": "Stress reduction, lifestyle optimization & sport as a stress tool",
         "cta": "GO TO STRESS PLAN"
       }
+    },
+    "master_plan": {
+      "title_fallback": "Master Weekly Plan",
+      "back_to_results": "Back to overview",
+      "still_generating": "Your Master Weekly Plan is being generated — one moment …",
+      "not_ready": "Your Master Weekly Plan is not ready yet.",
+      "retry": "Try again",
+      "retrying": "Generating …",
+      "open_pdf": "Download PDF",
+      "error_no_id": "No assessment ID found. Please go back to the overview.",
+      "error_generic": "Failed to generate plan",
+      "strategy_heading": "YOUR STRATEGY FOR THIS WEEK",
+      "col_day": "Day",
+      "col_training": "Training",
+      "col_nutrition": "Nutrition",
+      "col_recovery": "Recovery",
+      "col_stress": "Stress Anchor",
+      "day_mon": "Mon",
+      "day_tue": "Tue",
+      "day_wed": "Wed",
+      "day_thu": "Thu",
+      "day_fri": "Fri",
+      "day_sat": "Sat",
+      "day_sun": "Sun"
     },
     "data_insights": {
       "section_title": "FROM YOUR DATA",

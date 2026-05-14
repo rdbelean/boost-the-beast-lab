@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 const STORAGE_BUCKET = "Reports";
 const STORAGE_PLAN_PREFIX = "plans";
-const VALID_TYPES = new Set(["activity", "metabolic", "recovery", "stress"]);
+const VALID_TYPES = new Set(["activity", "metabolic", "recovery", "stress", "master"]);
 
 /** Streams a stored plan PDF from Supabase Storage.
  *  Path shape mirrors /api/plan/save upload target:

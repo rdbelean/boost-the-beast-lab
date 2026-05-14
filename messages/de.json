@@ -762,6 +762,12 @@
     "plans": {
       "heading": "DEINE 4 INDIVIDUELLEN PLÄNE",
       "subtitle": "Personalisiert auf Basis deiner Scores — inklusive in deinem Paket. Jeder Plan enthält konkrete Protokolle, Wochenpläne und wissenschaftliche Empfehlungen.",
+      "individual_heading": "DEINE INDIVIDUELLEN PLÄNE",
+      "master": {
+        "label": "DEIN MASTER-WOCHENPLAN",
+        "desc": "Personalisiert für dich, zugeschnitten auf deine Ziele",
+        "cta": "ZUM MASTER-WOCHENPLAN"
+      },
       "activity": {
         "label": "ACTIVITY-PLAN",
         "desc": "Trainingsvolumen, Wochenplan & Progression nach WHO/ACSM-Standard",
@@ -782,6 +788,30 @@
         "desc": "Stressreduktion, Lifestyle-Optimierung & Sport als Stress-Tool",
         "cta": "ZUM STRESS-PLAN"
       }
+    },
+    "master_plan": {
+      "title_fallback": "Master-Wochenplan",
+      "back_to_results": "Zurück zur Übersicht",
+      "still_generating": "Dein Master-Wochenplan wird gerade erstellt — einen Moment …",
+      "not_ready": "Dein Master-Wochenplan ist noch nicht bereit.",
+      "retry": "Erneut versuchen",
+      "retrying": "Erstelle …",
+      "open_pdf": "PDF herunterladen",
+      "error_no_id": "Keine Assessment-ID gefunden. Bitte gehe zurück zur Übersicht.",
+      "error_generic": "Fehler beim Erstellen des Plans",
+      "strategy_heading": "DEINE STRATEGIE FÜR DIESE WOCHE",
+      "col_day": "Tag",
+      "col_training": "Training",
+      "col_nutrition": "Ernährung",
+      "col_recovery": "Recovery",
+      "col_stress": "Stress-Anker",
+      "day_mon": "Mo",
+      "day_tue": "Di",
+      "day_wed": "Mi",
+      "day_thu": "Do",
+      "day_fri": "Fr",
+      "day_sat": "Sa",
+      "day_sun": "So"
     },
     "data_insights": {
       "section_title": "AUS DEINEN DATEN",

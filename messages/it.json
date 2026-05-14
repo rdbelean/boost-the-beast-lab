@@ -757,6 +757,12 @@
     "plans": {
       "heading": "I TUOI 4 PIANI PERSONALIZZATI",
       "subtitle": "Personalizzati sui tuoi punteggi — inclusi nel tuo pacchetto. Ogni piano contiene protocolli concreti, piani settimanali e raccomandazioni scientifiche.",
+      "individual_heading": "I TUOI PIANI INDIVIDUALI",
+      "master": {
+        "label": "IL TUO PIANO SETTIMANALE MASTER",
+        "desc": "Personalizzato per te, su misura per i tuoi obiettivi",
+        "cta": "VAI AL PIANO MASTER"
+      },
       "activity": {
         "label": "PIANO ACTIVITY",
         "desc": "Volume di allenamento, piano settimanale e progressione secondo standard WHO/ACSM",
@@ -777,6 +783,30 @@
         "desc": "Riduzione dello stress, ottimizzazione del lifestyle e sport come strumento anti-stress",
         "cta": "VAI AL PIANO STRESS"
       }
+    },
+    "master_plan": {
+      "title_fallback": "Piano Settimanale Master",
+      "back_to_results": "Torna alla panoramica",
+      "still_generating": "Il tuo Piano Settimanale Master è in fase di creazione — un momento …",
+      "not_ready": "Il tuo Piano Settimanale Master non è ancora pronto.",
+      "retry": "Riprova",
+      "retrying": "In creazione …",
+      "open_pdf": "Scarica PDF",
+      "error_no_id": "Nessun ID di assessment trovato. Torna alla panoramica.",
+      "error_generic": "Errore nella creazione del piano",
+      "strategy_heading": "LA TUA STRATEGIA PER QUESTA SETTIMANA",
+      "col_day": "Giorno",
+      "col_training": "Allenamento",
+      "col_nutrition": "Nutrizione",
+      "col_recovery": "Recupero",
+      "col_stress": "Ancora Anti-Stress",
+      "day_mon": "Lun",
+      "day_tue": "Mar",
+      "day_wed": "Mer",
+      "day_thu": "Gio",
+      "day_fri": "Ven",
+      "day_sat": "Sab",
+      "day_sun": "Dom"
     },
     "data_insights": {
       "section_title": "DAI TUOI DATI",
