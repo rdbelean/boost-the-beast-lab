@@ -51,11 +51,25 @@ export interface ValidateOptions {
   inputs: MasterPlanInputs;
 }
 
+/**
+ * Semantic validation for the master plan.
+ *
+ * Phase-B contract: all checks here are BEST-EFFORT — they produce
+ * `warnings`, never hard-fails. The route logs them as `quality_warnings`
+ * and ships the plan anyway. Structural failures (Zod schema, JSON parse,
+ * PDF overflow) are enforced at the route layer, not here.
+ *
+ * Rationale: the goal-mention check is intrinsically language-blind
+ * (English dropdown tokens compared against German/IT/TR prose), so making
+ * it a hard-fail produced deterministic 502s for non-English users. The
+ * other checks (forbidden phrases, stress-cap, sleep-cutoff, …) carry
+ * false-positive risk that doesn't justify blocking the user.
+ */
 export function validateMasterPlan(
   plan: MasterPlan,
   opts: ValidateOptions,
-): { ok: boolean; reasons: string[] } {
-  const reasons: string[] = [];
+): { warnings: string[] } {
+  const warnings: string[] = [];
   const { locale, inputs } = opts;
 
   // 1. Forbidden-phrases (whole plan)
@@ -63,14 +77,14 @@ export function validateMasterPlan(
   const introLower = plan.intro.toLowerCase();
   for (const phrase of getForbiddenPhrases(locale)) {
     if (allCellsLower.includes(phrase) || introLower.includes(phrase)) {
-      reasons.push(`forbidden_phrase_${phrase.replace(/\s+/g, "_")}`);
+      warnings.push(`forbidden_phrase_${phrase.replace(/\s+/g, "_")}`);
     }
   }
 
   // 2. Score-references
   const wholeText = plan.intro + " " + flattenCells(plan).join(" ");
   if (SCORE_REFERENCE_PATTERN.test(wholeText) || SCORE_NAME_ONLY.test(wholeText)) {
-    reasons.push("score_reference_present");
+    warnings.push("score_reference_present");
   }
   SCORE_REFERENCE_PATTERN.lastIndex = 0;
   SCORE_NAME_ONLY.lastIndex = 0;
@@ -80,7 +94,7 @@ export function validateMasterPlan(
   const trainingDayCount = trainingByDay.filter((c) => !isRestCell(c)).length;
   const caps = capsForStress(inputs.scores.stress);
   if (trainingDayCount > caps.maxTrainingDays) {
-    reasons.push(`stress_cap_violation_${trainingDayCount}_max_${caps.maxTrainingDays}`);
+    warnings.push(`stress_cap_violation_${trainingDayCount}_max_${caps.maxTrainingDays}`);
   }
 
   // 4. Forbidden intensities per stress tier
@@ -88,7 +102,7 @@ export function validateMasterPlan(
     const trainingTextLower = trainingByDay.flat().map((s) => s.toLowerCase()).join(" || ");
     for (const f of caps.forbidden) {
       if (trainingTextLower.includes(f)) {
-        reasons.push(`forbidden_intensity_${f.replace(/\s+/g, "_")}`);
+        warnings.push(`forbidden_intensity_${f.replace(/\s+/g, "_")}`);
       }
     }
   }
@@ -103,7 +117,7 @@ export function validateMasterPlan(
         const hour = parseInt(m[1], 10);
         if (hour >= cutoff) {
           const day = plan.rows[idx].day;
-          reasons.push(`sleep_cutoff_violation_${day}_${hour}`);
+          warnings.push(`sleep_cutoff_violation_${day}_${hour}`);
         }
       }
     });
@@ -114,7 +128,7 @@ export function validateMasterPlan(
     const volumePushRe = /\b(erhöhe[a-z]*\s+das\s+volumen|increase\s+volume|add\s+\d+\s+(min|km|sets)|progress(ion)?\s+to\s+\d+)/i;
     const trainingText = trainingByDay.flat().join(" ");
     if (volumePushRe.test(trainingText)) {
-      reasons.push("volume_push_violation");
+      warnings.push("volume_push_violation");
     }
   }
 
@@ -124,7 +138,7 @@ export function validateMasterPlan(
     const tokens = dropdownLower.split(/[_\s]+/).filter((t) => t.length >= 3);
     const found = tokens.some((t) => introLower.includes(t));
     if (!found) {
-      reasons.push(`goal_not_mentioned_dropdown_${inputs.goal_dropdown}`);
+      warnings.push(`goal_not_mentioned_dropdown_${inputs.goal_dropdown}`);
     }
   }
   if (inputs.goal_freetext && inputs.goal_freetext.trim().length > 0) {
@@ -134,9 +148,9 @@ export function validateMasterPlan(
       .filter((t) => t.length >= 4);
     const distinctFound = new Set(freetextTokens.filter((t) => introLower.includes(t)));
     if (distinctFound.size < 1) {
-      reasons.push("goal_not_mentioned_freetext");
+      warnings.push("goal_not_mentioned_freetext");
     }
   }
 
-  return { ok: reasons.length === 0, reasons };
+  return { warnings };
 }

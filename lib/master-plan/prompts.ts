@@ -325,14 +325,58 @@ ${JSON.stringify(PLAN_GLOSSARY.de, null, 2)}
 LOCALE: Deutsch, du-Form. Direkt. Kein medizinisches Latein. Keine Wellness-Phrasen.`;
 }
 
+// Locale-translated goal aliases — small hint to Sonnet so it can phrase the
+// intro with either the English machine value or its locale-natural equivalent.
+// The semantic validator is now best-effort, but giving Sonnet these aliases
+// makes the goal-mention warning fire less often in practice.
+const GOAL_ALIASES: Record<string, Record<Locale, string>> = {
+  feel_better: {
+    de: "sich besser fühlen / Wohlbefinden steigern",
+    en: "feel better",
+    it: "sentirsi meglio / migliorare il benessere",
+    tr: "kendini daha iyi hissetmek",
+  },
+  body_comp: {
+    de: "Körperkomposition / Muskelaufbau & Fettabbau",
+    en: "body composition",
+    it: "composizione corporea",
+    tr: "vücut kompozisyonu",
+  },
+  performance: {
+    de: "Performance / sportliche Leistung",
+    en: "performance",
+    it: "performance",
+    tr: "performans",
+  },
+  stress_sleep: {
+    de: "Stress reduzieren & besser schlafen",
+    en: "stress & sleep",
+    it: "stress e sonno",
+    tr: "stres ve uyku",
+  },
+  longevity: {
+    de: "Langlebigkeit / Gesundheitsspanne",
+    en: "longevity / healthspan",
+    it: "longevità / arco di salute",
+    tr: "uzun ömür / sağlıklı yaşam süresi",
+  },
+};
+
+function goalAliasFor(goal: string | null, locale: Locale): string {
+  if (!goal) return "—";
+  const localized = GOAL_ALIASES[goal]?.[locale];
+  return localized ? `${goal} (= ${localized})` : goal;
+}
+
 export function buildUserPrompt(inputs: MasterPlanInputs): string {
   const s = inputs.scores;
   const sources = inputs.wearable_sources.length > 0 ? inputs.wearable_sources.join(", ") : "self-report only";
+  const goalDropdownDisplay = goalAliasFor(inputs.goal_dropdown, inputs.locale);
   return `USER PROFILE:
 - Age ${inputs.user.age}, Gender ${inputs.user.gender}
 - Scores: activity=${s.activity}, sleep=${s.sleep}, metabolic=${s.metabolic}, stress=${s.stress}, vo2max=${s.vo2max}, overall=${s.overall}
 - Data sources: ${sources}${inputs.whoop_available ? " (Whoop available — feel free to reference HRV/recovery signals)" : ""}
-- Goal dropdown: ${inputs.goal_dropdown ?? "—"}
+- Goal dropdown: ${goalDropdownDisplay}
 - Goal freetext: ${inputs.goal_freetext ?? "—"}
 - Training dropdown: ${inputs.training_dropdown ?? "—"}
 - Training freetext: ${inputs.training_freetext ?? "—"}
