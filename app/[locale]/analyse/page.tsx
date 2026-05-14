@@ -115,26 +115,53 @@ async function generatePlanBundle(
 // Master-plan parallel pre-generation. Mirrors generatePlanBundle but hits the
 // Sonnet-driven master-plan pipeline. Returns the JSON plan + PDF bytes so the
 // /plans/master page can show it instantly when the user clicks the card.
+//
+// Phase-A diagnostic logging: every failure path emits an explicit log with
+// status code + response-body snippet so we can see in DevTools what the
+// /api/master-plan/generate endpoint actually returned.
 async function generateMasterPlanBundle(
   assessmentId: string | null,
   locale: string,
 ): Promise<{ plan: unknown; pdfBase64: string } | null> {
-  if (!assessmentId) return null;
+  if (!assessmentId) {
+    console.warn("[MasterPlan/FE/bundle] skipped — no assessmentId");
+    return null;
+  }
+  const startedAt = Date.now();
+  console.log("[MasterPlan/FE/bundle] start", { assessmentId, locale });
   try {
     const res = await fetch("/api/master-plan/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ assessmentId, locale }),
     });
+    const elapsedMs = Date.now() - startedAt;
     if (!res.ok) {
-      console.warn("[MasterPlan/FE/bundle] generate failed", res.status);
+      const body = await res.text().catch(() => "");
+      console.error("[MasterPlan/FE/bundle] generate failed", {
+        status: res.status,
+        elapsedMs,
+        bodySnippet: body.slice(0, 500),
+      });
       return null;
     }
-    const data = (await res.json()) as { plan?: unknown; pdfBase64?: string };
-    if (!data.plan || !data.pdfBase64) return null;
+    const data = (await res.json()) as { plan?: unknown; pdfBase64?: string; quality_warnings?: string[] };
+    if (!data.plan || !data.pdfBase64) {
+      console.error("[MasterPlan/FE/bundle] response missing plan/pdfBase64", {
+        elapsedMs,
+        hasPlan: !!data.plan,
+        hasPdf: !!data.pdfBase64,
+      });
+      return null;
+    }
+    console.log("[MasterPlan/FE/bundle] success", {
+      elapsedMs,
+      pdfSizeKb: Math.round(data.pdfBase64.length * 0.75 / 1024),
+      qualityWarnings: data.quality_warnings ?? [],
+    });
     return { plan: data.plan, pdfBase64: data.pdfBase64 };
   } catch (e) {
-    console.warn("[MasterPlan/FE/bundle] error", e);
+    console.error("[MasterPlan/FE/bundle] fetch threw", { elapsedMs: Date.now() - startedAt, error: (e as Error).message });
     return null;
   }
 }
@@ -1029,10 +1056,20 @@ function AnalyseContent() {
         );
         if (masterPlanBundle) {
           try {
-            sessionStorage.setItem("btb_master_plan", JSON.stringify(masterPlanBundle));
-          } catch {
-            /* quota — non-fatal, page falls back to retry button */
+            const payload = JSON.stringify(masterPlanBundle);
+            sessionStorage.setItem("btb_master_plan", payload);
+            console.log("[MasterPlan/FE/sessionStorage] wrote bundle", {
+              payloadKb: Math.round(payload.length / 1024),
+            });
+          } catch (e) {
+            console.error("[MasterPlan/FE/sessionStorage] write failed (probably quota)", {
+              error: (e as Error).message,
+              hasPlan: !!masterPlanBundle.plan,
+              pdfSizeKb: Math.round(masterPlanBundle.pdfBase64.length * 0.75 / 1024),
+            });
           }
+        } else {
+          console.warn("[MasterPlan/FE/sessionStorage] no bundle to write — pre-generation produced null");
         }
         // ?id={assessmentId} makes the URL the source of truth for
         // /results — if the user closes the tab and reopens it later,
