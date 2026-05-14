@@ -33,20 +33,6 @@ const DE: SamplePlansMap = {
           "Die Empfehlung von 150 Min/Woche moderater Aktivität ist keine willkürliche Zahl: Prospektivstudien mit über 655.000 Teilnehmern zeigen, dass bereits dieses Minimum das Sterblichkeitsrisiko um 31 % gegenüber Inaktivität senkt (Arem et al., JAMA Internal Medicine, 2015). Krafttraining 2×/Woche ist essenziell, weil Ausdauertraining allein keine ausreichende Muskelproteinsyntheseaktivierung liefert — Muskelmasse ist ein unabhängiger Prädiktor für metabolische Gesundheit und Langlebigkeit (McLeod et al., 2019). Sitzunterbrechungen alle 60 Min senken postprandiale Glukosespiegel messbar, unabhängig vom Gesamttraining (Dunstan et al., Diabetes Care, 2012).",
       },
       {
-        heading: "Wochenplan (Beispiel)",
-        items: [
-          "Montag: 30–45 Min Ausdauer (Laufen/Radfahren) — moderate Intensität",
-          "Dienstag: 30 Min Krafttraining (Ganzkörper)",
-          "Mittwoch: Aktive Erholung — 20–30 Min Gehen oder Yoga",
-          "Donnerstag: 30–45 Min Ausdauer — höhere Intensität (Intervalle)",
-          "Freitag: 30 Min Krafttraining (Ganzkörper)",
-          "Samstag: 45–60 Min Sport deiner Wahl",
-          "Sonntag: Erholung — leichte Bewegung optional",
-        ],
-        rationale:
-          "Die Wochenstruktur folgt dem Prinzip der Periodisierung und dem FITT-Modell (Frequency, Intensity, Time, Type) der ACSM. Wechselnde Intensitäten (moderate Ausdauer + Intervalle) optimieren sowohl aerobe Kapazität als auch anaerobe Schwelle. Der aktive Erholungstag (Mittwoch) fördert den venösen Rückfluss und reduziert Muskelkater (DOMS) ohne die Erholung zu verlangsamen. Zwei Kraft-Einheiten mit je einem Ruhetag dazwischen entsprechen dem ACSM-Standard für Muskelaufbau.",
-      },
-      {
         heading: "Monitoring & Progression",
         items: [
           "Schrittziel: ≥8.000 Schritte/Tag als Basis",

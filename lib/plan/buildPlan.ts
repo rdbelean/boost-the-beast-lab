@@ -2,7 +2,7 @@
 // /plans/[type] (for page rendering). The content is deterministic from
 // scores; /api/plan/generate layers an AI-enhanced version on top.
 
-import { PLAN_GLOSSARY, EXAMPLE_MARKER, PAUSE_PATTERN } from "@/lib/plan/glossary";
+import { PLAN_GLOSSARY, EXAMPLE_MARKER } from "@/lib/plan/glossary";
 import type { Locale } from "@/lib/supabase/types";
 
 export type PlanType = "activity" | "metabolic" | "recovery" | "stress";
@@ -45,44 +45,13 @@ function getPlanMeta(locale?: string): PlanMetaMap {
   return META_DE;
 }
 
-// Plan-v2 MVP: PlanBlock ist jetzt ein discriminated union.
-// Legacy-Blocks (heading + items[]) bleiben das Default — der Renderer
-// behandelt sie wie bisher. WeeklyTablePlanBlock (kind: "weekly_table")
-// ist der neue Block-Typ für die Tag-für-Tag-Tabelle (7 Rows mon→sun).
-
-export type WeekDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
-
-export interface WeeklyRow {
-  day: WeekDay;
-  /** "Easy Run Z2 (Zone 2 — Tempo bei dem du noch sprechen kannst) — z.B. 30 Min lockerer Lauf" oder "Pause". */
-  action: string;
-  /** "30 Min" oder "—" (Pause-Days). */
-  duration: string;
-  /** 3–5 Wörter Begründung, keine Score-Referenzen. */
-  why: string;
-}
-
 export interface LegacyPlanBlock {
-  /** Optional discriminator — undefined / fehlend bedeutet Legacy-Block. */
-  kind?: undefined;
   heading: string;
   items: string[];
   rationale?: string;
 }
 
-export interface WeeklyTablePlanBlock {
-  kind: "weekly_table";
-  heading: string;
-  rows: WeeklyRow[];
-  rationale?: string;
-}
-
-export type PlanBlock = LegacyPlanBlock | WeeklyTablePlanBlock;
-
-/** Type-Guard für den neuen Block-Typ. */
-export function isWeeklyTableBlock(b: PlanBlock): b is WeeklyTablePlanBlock {
-  return b.kind === "weekly_table";
-}
+export type PlanBlock = LegacyPlanBlock;
 
 export interface PlanContent {
   title: string;
@@ -107,7 +76,7 @@ export const PLAN_COLORS: Record<PlanType, string> = {
 // the headings alone still signal the output language to the user.
 type HeadingKey =
   | "starting"
-  | "weeklyTarget" | "weeklyPlan" | "monitoring" | "firstWeekActivity"
+  | "weeklyTarget" | "monitoring" | "firstWeekActivity"
   | "nutrition" | "hydration" | "firstWeekMetabolic"
   | "sleepHygiene" | "trainingRecovery" | "weekStructure" | "firstWeekRecovery"
   | "dailyStress" | "lifestyle" | "exerciseAsTool" | "firstWeekStress";
@@ -116,7 +85,6 @@ const HEADINGS: Record<string, Record<HeadingKey, string>> = {
   de: {
     starting: "Deine Ausgangslage",
     weeklyTarget: "Wochenziel (WHO/ACSM-Standard)",
-    weeklyPlan: "Wochenplan (Beispiel)",
     monitoring: "Monitoring & Progression",
     firstWeekActivity: "Deine erste Woche — Start-Protokoll",
     nutrition: "Ernährungs-Protokoll",
@@ -134,7 +102,6 @@ const HEADINGS: Record<string, Record<HeadingKey, string>> = {
   en: {
     starting: "Your Starting Point",
     weeklyTarget: "Weekly Target (WHO/ACSM Standard)",
-    weeklyPlan: "Weekly Plan (Example)",
     monitoring: "Monitoring & Progress",
     firstWeekActivity: "Your First Week — Start Protocol",
     nutrition: "Nutrition Protocol",
@@ -152,7 +119,6 @@ const HEADINGS: Record<string, Record<HeadingKey, string>> = {
   it: {
     starting: "La Tua Situazione Attuale",
     weeklyTarget: "Obiettivo Settimanale (Standard WHO/ACSM)",
-    weeklyPlan: "Piano Settimanale (Esempio)",
     monitoring: "Monitoraggio & Progressi",
     firstWeekActivity: "La Tua Prima Settimana — Protocollo di Inizio",
     nutrition: "Protocollo Nutrizionale",
@@ -170,7 +136,6 @@ const HEADINGS: Record<string, Record<HeadingKey, string>> = {
   tr: {
     starting: "Mevcut Durumun",
     weeklyTarget: "Haftalık Hedef (WHO/ACSM Standardı)",
-    weeklyPlan: "Haftalık Plan (Örnek)",
     monitoring: "İzleme & İlerleme",
     firstWeekActivity: "İlk Haftan — Başlangıç Protokolü",
     nutrition: "Beslenme Protokolü",
@@ -237,19 +202,6 @@ export function buildPlan(type: PlanType, scores: Record<string, unknown>, local
               : "Performance: 5×/Woche strukturiertes Training, Periodisierung einführen",
           ],
           rationale: "Die Empfehlung von 150 Min/Woche moderater Aktivität ist keine willkürliche Zahl: Prospektivstudien mit über 655.000 Teilnehmern zeigen, dass bereits dieses Minimum das Sterblichkeitsrisiko um 31 % gegenüber Inaktivität senkt (Arem et al., JAMA Internal Medicine, 2015). Krafttraining 2×/Woche ist essenziell, weil Ausdauertraining allein keine ausreichende Muskelproteinsyntheseaktivierung liefert — Muskelmasse ist ein unabhängiger Prädiktor für metabolische Gesundheit und Langlebigkeit (McLeod et al., 2019). Sitzunterbrechungen alle 60 Min senken postprandiale Glukosespiegel messbar, unabhängig vom Gesamttraining (Dunstan et al., Diabetes Care, 2012).",
-        },
-        {
-          heading: h(locale, "weeklyPlan"),
-          items: [
-            "Montag: 30–45 Min Ausdauer (Laufen/Radfahren) — moderate Intensität",
-            "Dienstag: 30 Min Krafttraining (Ganzkörper)",
-            "Mittwoch: Aktive Erholung — 20–30 Min Gehen oder Yoga",
-            "Donnerstag: 30–45 Min Ausdauer — höhere Intensität (Intervalle)",
-            "Freitag: 30 Min Krafttraining (Ganzkörper)",
-            "Samstag: 45–60 Min Sport deiner Wahl",
-            "Sonntag: Erholung — leichte Bewegung optional",
-          ],
-          rationale: "Die Wochenstruktur folgt dem Prinzip der Periodisierung und dem FITT-Modell (Frequency, Intensity, Time, Type) der ACSM. Wechselnde Intensitäten (moderate Ausdauer + Intervalle) optimieren sowohl aerobe Kapazität als auch anaerobe Schwelle. Der aktive Erholungstag (Mittwoch) fördert den venösen Rückfluss und reduziert Muskelkater (DOMS) ohne die Erholung zu verlangsamen. Zwei Kraft-Einheiten mit je einem Ruhetag dazwischen entsprechen dem ACSM-Empfehlungsstandard für Muskelaufbau — weniger führt nicht zu ausreichender Superkompensation.",
         },
         {
           heading: h(locale, "monitoring"),
@@ -616,18 +568,8 @@ export function enforceGlossaryAndExamples(
   const expandedTerms = new Set<string>();
   return {
     blocks: plan.blocks.map((b): PlanBlock => {
-      if (isWeeklyTableBlock(b)) {
-        return {
-          ...b,
-          heading: transformPlanText(b.heading, locale, expandedTerms),
-          rows: b.rows.map((r) => ({
-            ...r,
-            action: transformPlanText(r.action, locale, expandedTerms),
-            why: transformPlanText(r.why, locale, expandedTerms),
-          })),
-          rationale: b.rationale ? transformPlanText(b.rationale, locale, expandedTerms) : undefined,
-        };
-      }
+      // Defensive: skip unknown shapes (e.g. cached weekly_table outputs)
+      if (!Array.isArray(b.items)) return b;
       return {
         ...b,
         heading: transformPlanText(b.heading, locale, expandedTerms),
@@ -682,11 +624,9 @@ export function dedicatedSectionsRequirement(
 
 /**
  * Prüft den Plan auf Quality-Kriterien:
- * - weekly_table existiert mit genau 7 Rows mon→sun
- * - jede Action-Row (außer Pause) enthält "z.B."-Marker ODER eine "(...)"-Klammer
  * - keine Score-Referenzen mehr im Text (nach Post-Processing)
- * - daily-anchors-ähnliche Blocks: gleicher Konkrethheit-Check
- * - Wenn dedicatedSections übergeben (count >= 2): blocks-Anzahl >= count + 2.
+ * - daily-anchors-ähnliche Blocks: Konkrethheit-Check (Marker oder Klammer)
+ * - Wenn dedicatedSections übergeben (count >= 2): blocks-Anzahl >= count + 1.
  */
 export function validatePlanQuality(
   plan: { blocks: PlanBlock[] },
@@ -695,39 +635,10 @@ export function validatePlanQuality(
 ): { ok: boolean; reasons: string[] } {
   const reasons: string[] = [];
   const marker = EXAMPLE_MARKER[locale];
-  const pausePattern = PAUSE_PATTERN[locale];
 
-  // 1. weekly_table-Block muss existieren mit genau 7 mon→sun-Rows
-  const wt = plan.blocks.find(isWeeklyTableBlock);
-  if (!wt) {
-    reasons.push("missing_weekly_table");
-  } else {
-    if (wt.rows.length !== 7) {
-      reasons.push(`weekly_table_rows_count_${wt.rows.length}`);
-    } else {
-      const expectedOrder: WeekDay[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-      wt.rows.forEach((r, i) => {
-        if (r.day !== expectedOrder[i]) {
-          reasons.push(`weekly_table_row_${i}_wrong_day_${r.day}`);
-        }
-      });
-    }
-    // 2. Per row: action MUSS marker ODER Klammer enthalten (Pause-Rows ausgenommen)
-    wt.rows.forEach((r) => {
-      if (pausePattern.test(r.action)) return; // Pause-Tag exempt
-      const hasMarker = r.action.includes(marker);
-      const hasParens = /\([^)]+\)/.test(r.action);
-      if (!hasMarker && !hasParens) {
-        reasons.push(`row_${r.day}_no_example_or_explanation`);
-      }
-    });
-  }
-
-  // 3. Score-Reference-Pass (nach Post-Processing sollten alle weg sein)
+  // 1. Score-Reference-Pass (nach Post-Processing sollten alle weg sein)
   for (const b of plan.blocks) {
-    const allText = isWeeklyTableBlock(b)
-      ? `${b.heading} ${b.rows.map((r) => `${r.action} ${r.why}`).join(" ")}`
-      : `${b.heading} ${b.items.join(" ")}`;
+    const allText = `${b.heading} ${b.items.join(" ")}`;
     if (SCORE_REFERENCE_PATTERN.test(allText) || SCORE_NAME_ONLY.test(allText)) {
       reasons.push("score_reference_present");
     }
@@ -736,14 +647,12 @@ export function validatePlanQuality(
     SCORE_NAME_ONLY.lastIndex = 0;
   }
 
-  // 4. Anchor-ähnlicher Block (Heading enthält Anker/Anchor/Ancore/Çapa) — items müssen marker ODER Klammer haben.
+  // 2. Anchor-ähnlicher Block (Heading enthält Anker/Anchor/Ancore/Çapa) — items müssen marker ODER Klammer haben.
   // Toleranter Regex: Deklinationen ("täglichen Anker"), Plural-Endungen, Reihenfolge-Varianten.
-  const anchorBlock = plan.blocks.find(
-    (b) =>
-      !isWeeklyTableBlock(b) &&
-      /t(ä|a)gliche[a-zß]*\s+anker|daily\s+anchor|ancore?\s+quotidian[ae]|günlük\s+çapa/i.test(b.heading),
+  const anchorBlock = plan.blocks.find((b) =>
+    /t(ä|a)gliche[a-zß]*\s+anker|daily\s+anchor|ancore?\s+quotidian[ae]|günlük\s+çapa/i.test(b.heading),
   );
-  if (anchorBlock && !isWeeklyTableBlock(anchorBlock)) {
+  if (anchorBlock) {
     anchorBlock.items.forEach((item, i) => {
       const hasMarker = item.includes(marker);
       const hasParens = /\([^)]+\)/.test(item);
@@ -753,13 +662,13 @@ export function validatePlanQuality(
     });
   }
 
-  // 5. Dedicated-section-per-multi-select-value:
+  // 3. Dedicated-section-per-multi-select-value:
   // Wenn der User für die plan-spezifische Frage ≥2 Werte (ohne "none") gewählt
   // hat, MUSS pro Wert ein eigener Block existieren. Minimal blocks =
-  // values.length + 2 (weekly_table + N dedizierte + ≥1 Baseline).
+  // values.length + 1 (N dedizierte + ≥1 Baseline).
   const ds = options.dedicatedSections;
   if (ds && ds.count >= 2) {
-    const minBlocks = ds.count + 2;
+    const minBlocks = ds.count + 1;
     if (plan.blocks.length < minBlocks) {
       reasons.push(
         `dedicated_sections_expected_${minBlocks}_got_${plan.blocks.length}_values_${ds.values.join("|")}`,

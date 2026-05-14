@@ -4,7 +4,6 @@ import {
   validatePlanQuality,
   dedicatedSectionsRequirement,
   type PlanBlock,
-  type WeeklyTablePlanBlock,
 } from "@/lib/plan/buildPlan";
 import type { Locale } from "@/lib/supabase/types";
 
@@ -24,8 +23,7 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
         blocks: [{ heading: "Test", items: [`Steiger dein ${term} durch Training.`] }],
       };
       const out = enforceGlossaryAndExamples(plan, locale);
-      const item = (out.blocks[0] as Exclude<PlanBlock, WeeklyTablePlanBlock>).items[0];
-      expect(item).toContain(`${term} (${explanation}`);
+      expect(out.blocks[0].items[0]).toContain(`${term} (${explanation}`);
     });
   }
 
@@ -39,9 +37,7 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
       ],
     };
     const out = enforceGlossaryAndExamples(plan, "de");
-    const item = (out.blocks[0] as Exclude<PlanBlock, WeeklyTablePlanBlock>).items[0];
-    // Sollte unverändert sein — VO2max bereits mit Klammer, lookahead matched nicht
-    expect(item).toBe(plan.blocks[0] && "items" in plan.blocks[0] ? plan.blocks[0].items[0] : "");
+    expect(out.blocks[0].items[0]).toBe(plan.blocks[0].items[0]);
   });
 
   it("de: handles multiple terms in one text (longest-first matching)", () => {
@@ -54,7 +50,7 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
       ],
     };
     const out = enforceGlossaryAndExamples(plan, "de");
-    const item = (out.blocks[0] as Exclude<PlanBlock, WeeklyTablePlanBlock>).items[0];
+    const item = out.blocks[0].items[0];
     expect(item).toContain("Zone 2 (Tempo bei dem du noch sprechen kannst)");
     expect(item).toContain("Norwegian 4×4 Protocol (4× schnell laufen für 4 Min");
     expect(item).toContain("VO2max (deine maximale Sauerstoffaufnahme");
@@ -63,7 +59,6 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
   // ─── REGRESSION: Doppel-Klammer-Bug ───────────────────────────
 
   it("doppel-klammer-bug: Z2 ausserhalb + Zone 2 inside existing parens", () => {
-    // Original AI-Output: Z2-Lauf hat eigene Klammer mit Zone 2-Erklärung
     const plan: { blocks: PlanBlock[] } = {
       blocks: [{
         heading: "Test",
@@ -71,15 +66,11 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
       }],
     };
     const out = enforceGlossaryAndExamples(plan, "de");
-    const item = (out.blocks[0] as Exclude<PlanBlock, WeeklyTablePlanBlock>).items[0];
+    const item = out.blocks[0].items[0];
 
-    // Zone 2 innerhalb der existierenden Klammer DARF NICHT re-expanded werden
     expect(item).not.toMatch(/Zone 2 \(Tempo/);
-    // Es darf nur EINE Klammer pro Begriff geben — keine Verschachtelung
-    expect(item).not.toMatch(/\(\([^)]+\)/); // keine "((...)" Sequenz
-    // Z2 ausserhalb der originalen Klammer darf einmal expandiert sein
+    expect(item).not.toMatch(/\(\([^)]+\)/);
     expect(item).toMatch(/Z2 \(Zone 2 — Tempo/);
-    // Die originale AI-Klammer "(Zone 2 - Tempo bei dem du noch sprechen kannst)" muss intakt bleiben
     expect(item).toContain("(Zone 2 - Tempo bei dem du noch sprechen kannst)");
   });
 
@@ -91,9 +82,7 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
       ],
     };
     const out = enforceGlossaryAndExamples(plan, "de");
-    const allText = out.blocks
-      .flatMap((b) => ("items" in b ? b.items : []))
-      .join(" ");
+    const allText = out.blocks.flatMap((b) => b.items).join(" ");
     const explanationMatches = allText.match(/VO2max \(deine maximale Sauerstoffaufnahme/g) || [];
     expect(explanationMatches.length).toBe(1);
   });
@@ -106,7 +95,7 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
       }],
     };
     const out = enforceGlossaryAndExamples(plan, "de");
-    const item = (out.blocks[0] as Exclude<PlanBlock, WeeklyTablePlanBlock>).items[0];
+    const item = out.blocks[0].items[0];
     const explanationMatches = item.match(/VO2max \(deine maximale Sauerstoffaufnahme/g) || [];
     expect(explanationMatches.length).toBe(1);
   });
@@ -115,25 +104,12 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
     const plan: { blocks: PlanBlock[] } = {
       blocks: [
         { heading: "Block 1", items: ["VO2max in Z2 verbessern. Long Run am Sonntag."] },
-        {
-          kind: "weekly_table",
-          heading: "Deine Woche",
-          rows: [
-            { day: "mon", action: "Easy Run Z2 — z.B. 30 Min", duration: "30 Min", why: "Basis" },
-            { day: "tue", action: "Pause", duration: "—", why: "Erholung" },
-            { day: "wed", action: "Tempo-Lauf — z.B. 25 Min", duration: "25 Min", why: "Schwelle" },
-            { day: "thu", action: "Pause", duration: "—", why: "Erholung" },
-            { day: "fri", action: "VO2max Intervalle — z.B. 5x3 Min schnell", duration: "30 Min", why: "Spitze" },
-            { day: "sat", action: "Long Run — z.B. 60 Min", duration: "60 Min", why: "Ausdauer" },
-            { day: "sun", action: "Pause", duration: "—", why: "Erholung" },
-          ],
-        },
+        { heading: "Block 2", items: ["Tempo-Lauf integrieren. VO2max-Intervalle 1×/Woche."] },
         { heading: "Anker", items: ["VO2max-Check 1x/Monat. Z2 nicht überspringen."] },
       ],
     };
     const out = enforceGlossaryAndExamples(plan, "de");
     const allText = JSON.stringify(out);
-    // Jeder Begriff darf maximal 1× von seiner Erklärung gefolgt sein
     const vo2maxParens = (allText.match(/VO2max \(deine maximale Sauerstoffaufnahme/g) || []).length;
     const z2Parens = (allText.match(/Z2 \(Zone 2 — Tempo bei dem/g) || []).length;
     const longRunParens = (allText.match(/Long Run \(der längste Lauf der Woche/g) || []).length;
@@ -177,7 +153,7 @@ describe("enforceGlossaryAndExamples — Score-Reference Replace", () => {
         blocks: [{ heading: "Status", items: [input] }],
       };
       const out = enforceGlossaryAndExamples(plan, locale);
-      const item = (out.blocks[0] as Exclude<PlanBlock, WeeklyTablePlanBlock>).items[0];
+      const item = out.blocks[0].items[0];
       expect(item).toContain(expectedContains);
       expect(item).not.toMatch(/\d+\s*\/\s*100/);
     });
@@ -188,7 +164,7 @@ describe("enforceGlossaryAndExamples — Score-Reference Replace", () => {
       blocks: [{ heading: "Test", items: ["Dein Activity Score ist solide."] }],
     };
     const out = enforceGlossaryAndExamples(plan, "de");
-    const item = (out.blocks[0] as Exclude<PlanBlock, WeeklyTablePlanBlock>).items[0];
+    const item = out.blocks[0].items[0];
     expect(item).toContain("Ausdauer-Niveau");
     expect(item).not.toContain("Activity Score");
   });
@@ -197,68 +173,23 @@ describe("enforceGlossaryAndExamples — Score-Reference Replace", () => {
 // ─── 3. Quality-Validator ────────────────────────────────────────────
 
 describe("validatePlanQuality", () => {
-  const makeWeeklyTable = (): WeeklyTablePlanBlock => ({
-    kind: "weekly_table",
-    heading: "Deine Woche",
-    rows: [
-      { day: "mon", action: "Easy Run (lockerer Lauf) — z.B. 30 Min", duration: "30 Min", why: "Basis" },
-      { day: "tue", action: "Mobility — z.B. Stretching 15 Min", duration: "15 Min", why: "Erholung" },
-      { day: "wed", action: "Pause", duration: "—", why: "Erholung" },
-      { day: "thu", action: "Tempo-Lauf (schnelles aber kontrolliertes Lauftempo)", duration: "25 Min", why: "Schwelle" },
-      { day: "fri", action: "Krafttraining — z.B. Squats, Push-ups 3×10", duration: "30 Min", why: "Kraft" },
-      { day: "sat", action: "Long Run (langer Lauf) — z.B. 60 Min", duration: "60 Min", why: "Ausdauer" },
-      { day: "sun", action: "Pause", duration: "—", why: "Erholung" },
-    ],
-  });
-
-  it("ok=true when all checks pass", () => {
+  it("ok=true on a clean legacy-blocks plan", () => {
     const plan: { blocks: PlanBlock[] } = {
-      blocks: [{ heading: "Status", items: ["Test"] }, makeWeeklyTable()],
+      blocks: [
+        { heading: "Status", items: ["Test"] },
+        { heading: "Protokoll", items: ["Schritt 1 — z.B. konkret."] },
+      ],
     };
     const result = validatePlanQuality(plan, "de");
     expect(result.ok).toBe(true);
     expect(result.reasons).toEqual([]);
   });
 
-  it("fails when weekly_table is missing", () => {
-    const plan: { blocks: PlanBlock[] } = {
-      blocks: [{ heading: "Status", items: ["Test"] }],
-    };
-    const result = validatePlanQuality(plan, "de");
-    expect(result.ok).toBe(false);
-    expect(result.reasons).toContain("missing_weekly_table");
-  });
-
-  it("fails when weekly_table has 6 rows instead of 7", () => {
-    const wt = makeWeeklyTable();
-    wt.rows = wt.rows.slice(0, 6);
-    const plan: { blocks: PlanBlock[] } = { blocks: [wt] };
-    const result = validatePlanQuality(plan, "de");
-    expect(result.ok).toBe(false);
-    expect(result.reasons).toContain("weekly_table_rows_count_6");
-  });
-
-  it("Pause-row exempt from z.B. mandate", () => {
-    // Pause-Row mit "Pause" muss kein z.B. enthalten — sollte ok sein
-    const plan: { blocks: PlanBlock[] } = { blocks: [makeWeeklyTable()] };
-    const result = validatePlanQuality(plan, "de");
-    expect(result.ok).toBe(true);
-  });
-
-  it("fails when action-row has no z.B. and no parens", () => {
-    const wt = makeWeeklyTable();
-    wt.rows[0] = { day: "mon", action: "Trainiere irgendwas", duration: "30 Min", why: "Basis" };
-    const plan: { blocks: PlanBlock[] } = { blocks: [wt] };
-    const result = validatePlanQuality(plan, "de");
-    expect(result.ok).toBe(false);
-    expect(result.reasons).toContain("row_mon_no_example_or_explanation");
-  });
-
   it("fails when score reference is present in any block text", () => {
     const plan: { blocks: PlanBlock[] } = {
       blocks: [
         { heading: "Status", items: ["Dein Activity Score liegt bei 58/100."] },
-        makeWeeklyTable(),
+        { heading: "Protokoll", items: ["Schritt 1 — z.B. konkret."] },
       ],
     };
     const result = validatePlanQuality(plan, "de");
@@ -273,7 +204,6 @@ describe("validatePlanQuality", () => {
           heading: "Deine täglichen Anker",
           items: ["Trink mehr Wasser.", "Bewege dich öfter."],
         },
-        makeWeeklyTable(),
       ],
     };
     const result = validatePlanQuality(plan, "de");
@@ -281,21 +211,11 @@ describe("validatePlanQuality", () => {
     expect(result.reasons.some((r) => r.startsWith("anchor_"))).toBe(true);
   });
 
-  it("rows in wrong order fail validation", () => {
-    const wt = makeWeeklyTable();
-    [wt.rows[0], wt.rows[1]] = [wt.rows[1], wt.rows[0]];
-    const plan: { blocks: PlanBlock[] } = { blocks: [wt] };
-    const result = validatePlanQuality(plan, "de");
-    expect(result.ok).toBe(false);
-    expect(result.reasons.some((r) => r.includes("wrong_day"))).toBe(true);
-  });
-
-  it("fails when dedicated-sections requirement is unmet (3 values → need 5 blocks, got 3)", () => {
+  it("fails when dedicated-sections requirement is unmet (3 values → need 4 blocks, got 2)", () => {
     const plan: { blocks: PlanBlock[] } = {
       blocks: [
         { heading: "Status", items: ["Test"] },
         { heading: "Stress consolidated", items: ["job/family/finances combined"] },
-        makeWeeklyTable(),
       ],
     };
     const result = validatePlanQuality(plan, "de", {
@@ -303,18 +223,17 @@ describe("validatePlanQuality", () => {
     });
     expect(result.ok).toBe(false);
     expect(
-      result.reasons.some((r) => r.startsWith("dedicated_sections_expected_5_got_3_values_job|family|finances")),
+      result.reasons.some((r) => r.startsWith("dedicated_sections_expected_4_got_2_values_job|family|finances")),
     ).toBe(true);
   });
 
-  it("passes when dedicated-sections requirement is met (3 values → 5 blocks)", () => {
+  it("passes when dedicated-sections requirement is met (3 values → 4 blocks)", () => {
     const plan: { blocks: PlanBlock[] } = {
       blocks: [
         { heading: "Status", items: ["Test"] },
         { heading: "Job protocol", items: ["item — z.B. x"] },
         { heading: "Family protocol", items: ["item — z.B. y"] },
         { heading: "Finances protocol", items: ["item — z.B. z"] },
-        makeWeeklyTable(),
       ],
     };
     const result = validatePlanQuality(plan, "de", {
@@ -325,7 +244,7 @@ describe("validatePlanQuality", () => {
 
   it("skips dedicated-sections check when count < 2", () => {
     const plan: { blocks: PlanBlock[] } = {
-      blocks: [{ heading: "Status", items: ["Test"] }, makeWeeklyTable()],
+      blocks: [{ heading: "Status", items: ["Test"] }],
     };
     const result = validatePlanQuality(plan, "de", {
       dedicatedSections: { count: 1, values: ["job"], field: "stress_source" },

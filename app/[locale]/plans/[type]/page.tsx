@@ -408,9 +408,6 @@ function PlanPageInner() {
         </div>
 
         {plan.blocks.map((block) => {
-          // v2 MVP: weekly_table-Blocks werden hier (noch) nicht gerendert.
-          // Nur PDF zeigt die Tabelle; FE folgt in einer späteren Iteration.
-          if (block.kind === "weekly_table") return null;
           return (
           <section key={block.heading} className={styles.block}>
             <h2 className={styles.blockHeading}>{block.heading}</h2>
