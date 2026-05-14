@@ -91,20 +91,46 @@ export async function POST(req: NextRequest) {
     let parsed: MasterPlan | null = null;
     let lastReasons: string[] = [];
     let pdfBytes: Uint8Array | null = null;
+    const routeStartedAt = Date.now();
+    console.log("[MasterPlan/BE/generate] entry", {
+      assessmentId,
+      locale: localeTyped,
+      model: SONNET_MODEL,
+      max_tokens: 6000,
+      scores: inputs.scores,
+    });
 
     for (let attempt = 1; attempt <= MAX_QUALITY_ATTEMPTS; attempt++) {
       const directive =
         attempt > 1 && lastReasons.length > 0
           ? buildRetryDirective(localeTyped, attempt, MAX_QUALITY_ATTEMPTS, lastReasons)
           : "";
+      const attemptStartedAt = Date.now();
+      console.log("[MasterPlan/BE/generate] attempt-start", {
+        attempt,
+        hasDirective: directive !== "",
+        lastReasons,
+      });
 
       let rawText: string;
       try {
         rawText = await callClaude(directive);
       } catch (callErr) {
-        console.error("[MasterPlan/BE/generate] anthropic call failed", callErr);
+        const msg = callErr instanceof Error ? callErr.message : String(callErr);
+        const name = callErr instanceof Error ? callErr.name : "unknown";
+        // Log the full error so model-not-found or auth errors are visible.
+        console.error("[MasterPlan/BE/generate] anthropic call failed", {
+          attempt,
+          attemptElapsedMs: Date.now() - attemptStartedAt,
+          model: SONNET_MODEL,
+          errorName: name,
+          errorMsg: msg,
+        });
         if (attempt === MAX_QUALITY_ATTEMPTS) {
-          return NextResponse.json({ error: "master_plan_anthropic_failed" }, { status: 502 });
+          return NextResponse.json(
+            { error: "master_plan_anthropic_failed", detail: msg.slice(0, 200) },
+            { status: 502 },
+          );
         }
         lastReasons = ["anthropic_call_failed"];
         continue;
@@ -115,7 +141,11 @@ export async function POST(req: NextRequest) {
       try {
         candidate = JSON.parse(cleanJsonText(rawText));
       } catch (parseErr) {
-        console.warn("[MasterPlan/BE/generate] JSON parse failed", parseErr);
+        console.warn("[MasterPlan/BE/generate] JSON parse failed", {
+          attempt,
+          rawTextHead: rawText.slice(0, 200),
+          rawTextLen: rawText.length,
+        });
         // Retry with strict prefix
         try {
           rawText = await callClaude(
@@ -123,7 +153,11 @@ export async function POST(req: NextRequest) {
           );
           candidate = JSON.parse(cleanJsonText(rawText));
         } catch (parseErr2) {
-          console.error("[MasterPlan/BE/generate] JSON parse twice failed", parseErr2);
+          console.error("[MasterPlan/BE/generate] JSON parse twice failed", {
+            attempt,
+            rawTextHead: rawText.slice(0, 200),
+            err: parseErr2 instanceof Error ? parseErr2.message : String(parseErr2),
+          });
           if (attempt === MAX_QUALITY_ATTEMPTS) {
             return NextResponse.json({ error: "master_plan_parse_failed" }, { status: 502 });
           }
@@ -145,7 +179,12 @@ export async function POST(req: NextRequest) {
       const parseResult = MasterPlanSchema.safeParse(enriched);
       if (!parseResult.success) {
         const reasons = parseResult.error.errors.map((e) => `schema_${e.path.join(".")}_${e.code}`);
-        console.warn("[MasterPlan/BE/generate] schema invalid", reasons);
+        console.warn("[MasterPlan/BE/generate] schema invalid", {
+          attempt,
+          attemptElapsedMs: Date.now() - attemptStartedAt,
+          reasons,
+          zodIssues: parseResult.error.errors.slice(0, 3),
+        });
         if (attempt === MAX_QUALITY_ATTEMPTS) {
           lastReasons = reasons;
           break;
@@ -159,7 +198,11 @@ export async function POST(req: NextRequest) {
       // Semantic validation
       const semantic = validateMasterPlan(parsed, { locale: localeTyped, inputs });
       if (!semantic.ok) {
-        console.warn("[MasterPlan/BE/generate] semantic validation failed", semantic.reasons);
+        console.warn("[MasterPlan/BE/generate] semantic validation failed", {
+          attempt,
+          attemptElapsedMs: Date.now() - attemptStartedAt,
+          reasons: semantic.reasons,
+        });
         if (attempt === MAX_QUALITY_ATTEMPTS) {
           lastReasons = semantic.reasons;
           break;
@@ -171,7 +214,10 @@ export async function POST(req: NextRequest) {
       // PDF overflow check
       const pdfResult = await generateMasterPlanPDF({ plan: parsed, locale: localeTyped });
       if (pdfResult.overflowed) {
-        console.warn("[MasterPlan/BE/generate] pdf_overflow at attempt", attempt);
+        console.warn("[MasterPlan/BE/generate] pdf_overflow", {
+          attempt,
+          attemptElapsedMs: Date.now() - attemptStartedAt,
+        });
         if (attempt === MAX_QUALITY_ATTEMPTS) {
           return NextResponse.json({ error: "master_plan_overflow_unfixable" }, { status: 502 });
         }
@@ -179,9 +225,19 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
+      console.log("[MasterPlan/BE/generate] attempt success", {
+        attempt,
+        attemptElapsedMs: Date.now() - attemptStartedAt,
+        pdfSizeKb: Math.round(pdfResult.bytes.length / 1024),
+      });
       pdfBytes = pdfResult.bytes;
       break;
     }
+    console.log("[MasterPlan/BE/generate] exit", {
+      totalElapsedMs: Date.now() - routeStartedAt,
+      ok: !!(parsed && pdfBytes),
+      lastReasons,
+    });
 
     if (!parsed || !pdfBytes) {
       return NextResponse.json(
