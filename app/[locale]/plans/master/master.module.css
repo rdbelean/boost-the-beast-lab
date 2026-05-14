@@ -1,0 +1,179 @@
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  color: var(--text-primary, #fff);
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--text-muted, #9CA3AF);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.back:hover {
+  color: #E63222;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  color: var(--text-muted, #9CA3AF);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.notice {
+  background: var(--bg-card, #2a2a2c);
+  border: 1px solid var(--border, #444);
+  border-radius: 12px;
+  padding: 32px 24px;
+  text-align: center;
+  margin: 24px 0;
+}
+
+.notice p {
+  margin: 0 0 16px;
+  color: var(--text-muted, #9CA3AF);
+}
+
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(230, 50, 34, 0.2);
+  border-top-color: #E63222;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.retryBtn,
+.downloadBtn {
+  background: #E63222;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity 200ms ease;
+}
+
+.retryBtn:disabled,
+.downloadBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.downloadBtn {
+  margin-bottom: 24px;
+}
+
+.introBlock {
+  background: var(--bg-card, #2a2a2c);
+  border-left: 4px solid #E63222;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.introHeading {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #E63222;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.introText {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary, #fff);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  background: var(--bg-card, #2a2a2c);
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.table thead {
+  background: var(--bg-inset, #1f1f22);
+}
+
+.table th {
+  text-align: left;
+  padding: 12px 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #E63222;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border, #444);
+}
+
+.table td {
+  padding: 10px 10px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border, #444);
+}
+
+.dayCell {
+  color: #E63222;
+  font-weight: 700;
+  width: 60px;
+}
+
+.cellList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cellList li {
+  padding: 4px 0;
+  line-height: 1.4;
+}
+
+.cellList li::before {
+  content: "• ";
+  color: #E63222;
+  margin-right: 4px;
+}
+
+@media (max-width: 720px) {
+  .table {
+    font-size: 0.78rem;
+  }
+  .table th,
+  .table td {
+    padding: 8px 6px;
+  }
+}

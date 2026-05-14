@@ -112,6 +112,33 @@ async function generatePlanBundle(
   }
 }
 
+// Master-plan parallel pre-generation. Mirrors generatePlanBundle but hits the
+// Sonnet-driven master-plan pipeline. Returns the JSON plan + PDF bytes so the
+// /plans/master page can show it instantly when the user clicks the card.
+async function generateMasterPlanBundle(
+  assessmentId: string | null,
+  locale: string,
+): Promise<{ plan: unknown; pdfBase64: string } | null> {
+  if (!assessmentId) return null;
+  try {
+    const res = await fetch("/api/master-plan/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ assessmentId, locale }),
+    });
+    if (!res.ok) {
+      console.warn("[MasterPlan/FE/bundle] generate failed", res.status);
+      return null;
+    }
+    const data = (await res.json()) as { plan?: unknown; pdfBase64?: string };
+    if (!data.plan || !data.pdfBase64) return null;
+    return { plan: data.plan, pdfBase64: data.pdfBase64 };
+  } catch (e) {
+    console.warn("[MasterPlan/FE/bundle] error", e);
+    return null;
+  }
+}
+
 /* ── Types ─────────────────────────────────────────────── */
 interface FormData {
   // Personalisierungs-Inputs (treiben Report-Prompt-Adaptivität)
@@ -870,19 +897,32 @@ function AnalyseContent() {
 
       let downloadUrl: string | null;
       let planResults: { planType: PlanType; bundle: PlanBundle | null }[];
+      let masterPlanBundle: { plan: unknown; pdfBase64: string } | null = null;
+
+      // Master-plan fires parallel to the 4 individual plans + the report. Its
+      // result is independent — if it fails, the rest of the flow continues
+      // and the user sees a retry button on the master-plan card.
+      const masterPlanPromise = generateMasterPlanBundle(json?.assessmentId ?? null, locale);
 
       if (hasFreetext) {
         // Serialize: report first, then plans receive extractedEntities.
         const reportResult = await reportPromise;
         downloadUrl = reportResult.downloadUrl;
-        planResults = await Promise.all(startPlans(reportResult.analysisExtraction));
+        const [planRes, masterRes] = await Promise.all([
+          Promise.all(startPlans(reportResult.analysisExtraction)),
+          masterPlanPromise,
+        ]);
+        planResults = planRes;
+        masterPlanBundle = masterRes;
       } else {
         // Legacy parallel path — full speed when no freetext.
-        const [reportResult, ...rest] = await Promise.all([
+        const [reportResult, masterRes, ...rest] = await Promise.all([
           reportPromise,
+          masterPlanPromise,
           ...startPlans(null),
         ]);
         downloadUrl = reportResult.downloadUrl;
+        masterPlanBundle = masterRes;
         planResults = rest;
       }
       if (downloadUrl) setDownloadUrl(downloadUrl);
@@ -906,6 +946,18 @@ function AnalyseContent() {
               }),
             }).catch(() => {/* non-fatal */});
           }
+        }
+        // Master plan as 5th saved PDF.
+        if (masterPlanBundle?.pdfBase64) {
+          fetch("/api/plan/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              assessmentId: json.assessmentId,
+              planType: "master",
+              pdfBase64: masterPlanBundle.pdfBase64,
+            }),
+          }).catch(() => {/* non-fatal */});
         }
       }
 
@@ -972,8 +1024,16 @@ function AnalyseContent() {
             parentSessionId: sessionId ?? null,
             assessmentId: json?.assessmentId ?? null,
             plans,
+            hasMasterPlan: !!masterPlanBundle,
           }),
         );
+        if (masterPlanBundle) {
+          try {
+            sessionStorage.setItem("btb_master_plan", JSON.stringify(masterPlanBundle));
+          } catch {
+            /* quota — non-fatal, page falls back to retry button */
+          }
+        }
         // ?id={assessmentId} makes the URL the source of truth for
         // /results — if the user closes the tab and reopens it later,
         // the page rehydrates from /api/results/[id] instead of

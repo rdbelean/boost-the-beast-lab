@@ -4,7 +4,7 @@ import { getSupabaseServiceClient } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const VALID_PLAN_TYPES = new Set(["activity", "metabolic", "recovery", "stress"]);
+const VALID_PLAN_TYPES = new Set(["activity", "metabolic", "recovery", "stress", "master"]);
 const STORAGE_BUCKET = "Reports"; // reuse existing bucket; avoid needing a new bucket in Supabase
 const STORAGE_PLAN_PREFIX = "plans"; // → plans/{assessmentId}/{type}.pdf
 

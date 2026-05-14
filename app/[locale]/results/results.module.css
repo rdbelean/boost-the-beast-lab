@@ -965,6 +965,63 @@
   line-height: 1.6;
   max-width: 560px;
 }
+.masterPlanCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #111;
+  border: 1px solid #222;
+  border-left: 6px solid #E63222;
+  border-radius: 12px;
+  padding: 20px 28px;
+  margin: 0 0 28px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+.masterPlanCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(230, 50, 34, 0.2);
+  border-color: rgba(230, 50, 34, 0.5);
+}
+.masterPlanAccent {
+  width: 4px;
+  align-self: stretch;
+  background: #E63222;
+  border-radius: 2px;
+}
+.masterPlanBody {
+  flex: 1;
+}
+.masterPlanLabel {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.masterPlanSubtitle {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+.masterPlanArrow {
+  font-size: 1.5rem;
+  color: #E63222;
+  font-weight: 700;
+}
+.individualPlansHeading {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
 .plansGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;

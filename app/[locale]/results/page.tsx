@@ -1074,9 +1074,21 @@ function ResultsPageInner() {
           </div>
         </section>
 
-        {/* ─── INDIVIDUELLE PLÄNE ──────────────────────── */}
+        {/* ─── MASTER WEEKLY PLAN (full-width red banner above the 4 cards) ──── */}
         <section className={styles.plansSection}>
-          <h2 className={styles.plansSectionHeading}>{t("plans.heading")}</h2>
+          <Link
+            href={`/plans/master${assessmentId ? `?id=${encodeURIComponent(assessmentId)}` : ""}`}
+            className={styles.masterPlanCard}
+          >
+            <div className={styles.masterPlanAccent} />
+            <div className={styles.masterPlanBody}>
+              <div className={styles.masterPlanLabel}>{t("plans.master.label")}</div>
+              <div className={styles.masterPlanSubtitle}>{t("plans.master.desc")}</div>
+            </div>
+            <div className={styles.masterPlanArrow}>→</div>
+          </Link>
+
+          <h2 className={styles.individualPlansHeading}>{t("plans.individual_heading")}</h2>
           <p className={styles.plansSubtitle}>
             {t("plans.subtitle")}
           </p>
