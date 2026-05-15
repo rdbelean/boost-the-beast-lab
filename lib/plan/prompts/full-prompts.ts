@@ -1291,52 +1291,7 @@ METABOLIC-PLAN — Nutzerdaten:
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 
-METABOLIC-PLAN STRUCTURE — überschreibt den 5-Block-System-Prompt-Default. Erzeuge EXAKT 7 Blocks in dieser Reihenfolge:
-
-Block 1 — "Deine Ausgangslage": 3-4 items. Metabolic Score + BMI-Klassifikation + Body-Composition-Kontext + qualitative Stoffwechsel-Einordnung. KEIN konkretes Energie-Defizit oder Tagesumsatz.
-
-Block 2 — "Metabolische Wissenschaft": 3-4 items.
-- Metabolische Flexibilität (Wechsel zwischen Fett- und Glucose-Oxidation, Mitochondrien-Effizienz)
-- BMI-Wert klassifiziert + Limits (ungenau bei hoher Muskelmasse; Body-Fat-Percentage besser für Sportler)
-- Insulinsensitivität als zentraler Performance-Hebel + Mechanismus
-- BMR vs TDEE (basaler vs Gesamtumsatz, individueller Bedarf)
-
-Block 3 — "Makronährstoff-Wissenschaft": 3-4 items.
-- Protein: 0,8 g/kg sedentär, 1,6-2,2 g/kg bei Training. Mechanismus: Muskelproteinsynthese, Leucin-Schwelle 2-3g pro Mahlzeit.
-- Kohlenhydrate: Glykogen-Speicher, Insulin-Rolle, warum Pre-/Post-Workout-Timing relevant ist (KEINE konkreten Uhrzeiten — Master-Plan-Inhalt).
-- Fette: essenzielle Fettsäuren, Omega-3/Omega-6 (optimal 1:4 statt typische 1:20), hormonelle Funktion (Testosteron, Cortisol).
-- Mikronährstoff-Übersicht kurz, Details in Block 5.
-
-Block 4 — "Mahlzeit-Templates-Bibliothek": 4-6 items. Template-Konzepte, NICHT konkrete Uhrzeiten oder Wochentage:
-- Frühstücks-Template: 20-30g Protein + komplexe Carbs + Fett. Mechanismus: stabilisiert Blutzucker 3-4h.
-- Pre-Workout-Template (60-90 Min vor Training): schnelle Carbs + mäßig Protein + wenig Fett. Mechanismus: Magenentleerung + Glykogen-Verfügbarkeit.
-- Post-Workout-Template (innerhalb 60 Min): Protein + Carbs Ratio 1:2. Mechanismus: Muskelproteinsynthese + Glykogen-Resynthese.
-- Dinner-Template: Protein + Gemüse + komplexe Carbs. Mechanismus: Sättigung + Schlaf-Qualität.
-- Snack-Template (NUR wenn nutrition_painpoint "cravings_evening" oder "low_protein" enthält): Protein-fokussiert. Mechanismus: Heißhunger-Prävention + Leucin-Schwelle.
-- Refeed-Tag-Template (NUR wenn main_goal ∈ {body_comp, performance}): Kohlenhydrate hoch. Mechanismus: Leptin/Schilddrüsen-Erhalt im Defizit.
-Pro Template: 1 Bullet mit Template-Name + Makro-Komposition + Mechanismus. KEINE konkreten Uhrzeiten oder Wochentage.
-
-Block 5 — "Hydration + Mikronährstoffe": 2-3 items.
-- Wasser-Bedarf: 35-40 ml/kg KG baseline + 500-1000 ml pro Trainings-Stunde. Mechanismus: Plasma-Volumen, Performance.
-- Elektrolyte: Natrium 1-2g/Tag (mehr bei Schwitzen), Kalium 3-4g, Magnesium 400mg. Wann supplementieren.
-- Häufige Mängel bei Sportlern: Eisen (Frauen + Ausdauer), Vitamin D (Winter/Indoor), B12 (Vegetarier/Veganer). Wann testen lassen.
-
-Block 6 — "Body-Composition vs Gewicht": 2 items.
-- Warum die Waage allein irreführt (Glykogen-Wasser-Schwankungen, Muskelaufbau vs Fettverlust).
-- Bessere Tracking-Methoden: wöchentlicher Spiegel-Check, monatlicher Bauchumfang, Performance-Marker, eventuell DXA/Caliper alle 3-6 Monate.
-
-Block 7 — "Progress-Tracking": 2-3 items.
-- Realistische Erwartungen: Fettverlust 0,5-1% KG/Woche im Defizit; Muskelaufbau 0,25-0,5 kg/Monat als Trainierter.
-- Was wirklich tracken: Energie-Skala 1-10, Hunger-Skala, Training-Performance — NICHT nur Gewicht.
-- Re-Analyse nach 4 Wochen — Stress + Sleep + Aktivitäts-Marker beeinflussen Metabolic Score.
-
-EXPLIZIT VERBOTEN — diese Inhalte gehören NICHT in den Metabolic-Plan, sondern in andere Pläne:
-- Konkrete Mahlzeit-Uhrzeiten ("Frühstück um 7 Uhr", "Snack 15 Uhr", "Koffein-Cutoff 14 Uhr") → Master-Wochenplan
-- Tages-/Wochen-Meal-Prep-Routine ("Sonntags 30 Min vorbereiten", "Hähnchen vorkochen") → Master-Wochenplan
-- Trainings-Empfehlungen (Krafttraining, Z2, Long Run, Trainings-Schedule) → Activity-Plan + Master-Wochenplan
-- Stress-Anker, Atemübungen, Meditation, soziale Zeit → Stress-Plan + Master-Wochenplan
-- Schlaf-Hygiene, Schlafenszeit, Schlafzimmer-Setup → Recovery-Plan
-- "Deine wichtigsten Maßnahmen"-Zusammenfassung am Ende → weglassen, redundant`;
+Generiere einen detaillierten, personalisierten Metabolic-Plan mit konkreten Protokollen.`;
   }
 
   if (type === "recovery") {
@@ -1502,52 +1457,7 @@ METABOLIC PLAN — User data:
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 
-METABOLIC-PLAN STRUCTURE — overrides the 5-block system-prompt default. Generate EXACTLY 7 blocks in this order:
-
-Block 1 — "Your Starting Point": 3-4 items. Metabolic Score + BMI classification + body-composition context + qualitative metabolism framing. NO concrete energy deficit or daily expenditure number.
-
-Block 2 — "Metabolic Science": 3-4 items.
-- Metabolic flexibility (switching between fat and glucose oxidation, mitochondrial efficiency)
-- BMI value classified + limits (inaccurate at high muscle mass; body-fat percentage better for athletes)
-- Insulin sensitivity as central performance lever + mechanism
-- BMR vs TDEE (basal vs total expenditure, individual need)
-
-Block 3 — "Macronutrient Science": 3-4 items.
-- Protein: 0.8 g/kg sedentary, 1.6-2.2 g/kg with training. Mechanism: muscle protein synthesis, leucine threshold 2-3g per meal.
-- Carbohydrates: glycogen stores, insulin's role, why pre/post-workout timing matters (NO concrete clock times — Master Plan content).
-- Fats: essential fatty acids, omega-3/omega-6 (optimal 1:4 vs typical 1:20), hormonal function (testosterone, cortisol).
-- Micronutrient teaser — details in Block 5.
-
-Block 4 — "Meal Template Library": 4-6 items. Template concepts, NOT concrete clock times or weekdays:
-- Breakfast template: 20-30g protein + complex carbs + fat. Mechanism: stabilises blood sugar 3-4h.
-- Pre-workout template (60-90 min before training): fast carbs + moderate protein + low fat. Mechanism: gastric emptying + glycogen availability.
-- Post-workout template (within 60 min): protein + carbs in 1:2 ratio. Mechanism: muscle protein synthesis + glycogen resynthesis.
-- Dinner template: protein + vegetables + complex carbs. Mechanism: satiety + sleep quality.
-- Snack template (ONLY if nutrition_painpoint contains "cravings_evening" or "low_protein"): protein-focused. Mechanism: craving prevention + leucine threshold.
-- Refeed-day template (ONLY if main_goal ∈ {body_comp, performance}): carbohydrates high. Mechanism: leptin/thyroid preservation in deficit.
-Per template: 1 bullet with template name + macro composition + mechanism. NO concrete clock times or weekdays.
-
-Block 5 — "Hydration + Micronutrients": 2-3 items.
-- Water need: 35-40 ml/kg body weight baseline + 500-1000 ml per training hour. Mechanism: plasma volume, performance.
-- Electrolytes: sodium 1-2g/day (more when sweating), potassium 3-4g, magnesium 400mg. When to supplement.
-- Common deficiencies in athletes: iron (women + endurance), vitamin D (winter/indoor), B12 (vegetarians/vegans). When to test.
-
-Block 6 — "Body Composition vs Weight": 2 items.
-- Why the scale alone misleads (glycogen-water fluctuations, muscle gain vs fat loss).
-- Better tracking methods: weekly mirror check, monthly waist circumference, performance markers, possibly DXA/calipers every 3-6 months.
-
-Block 7 — "Progress Tracking": 2-3 items.
-- Realistic expectations: fat loss 0.5-1% body weight/week in deficit; muscle gain 0.25-0.5 kg/month as a trained individual.
-- What actually to track: energy scale 1-10, hunger scale, training performance — NOT just weight.
-- Re-analysis after 4 weeks — stress + sleep + activity markers influence Metabolic Score, not nutrition alone.
-
-EXPLICITLY FORBIDDEN — these belong in other plans, NOT here:
-- Concrete meal clock times ("breakfast 7am", "snack 3pm", "caffeine cutoff 2pm") → Master Weekly Plan
-- Day-/week-level meal-prep routine ("Sunday 30-min prep", "pre-cook chicken") → Master Weekly Plan
-- Training recommendations (strength, Z2, long run, training schedule) → Activity Plan + Master Plan
-- Stress anchors, breathing exercises, meditation, social time → Stress Plan + Master Plan
-- Sleep hygiene, bedtime, bedroom setup → Recovery Plan
-- "Your key actions" summary block at the end → drop, redundant`;
+Generate a detailed, personalised Metabolic plan with concrete protocols.`;
   }
 
   if (type === "recovery") {
@@ -1713,52 +1623,7 @@ PIANO METABOLICO — Dati utente:
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 
-METABOLIC-PLAN STRUCTURE — sovrascrive il default di 5 blocchi del system prompt. Genera ESATTAMENTE 7 blocchi in quest'ordine:
-
-Blocco 1 — "La tua situazione attuale": 3-4 items. Metabolic Score + classificazione BMI + contesto body-composition + inquadramento qualitativo del metabolismo. NESSUN deficit energetico concreto o numero di dispendio giornaliero.
-
-Blocco 2 — "Scienza del metabolismo": 3-4 items.
-- Flessibilità metabolica (passaggio tra ossidazione grassi/glucosio, efficienza mitocondriale)
-- Valore BMI classificato + limiti (impreciso ad alta massa muscolare; body-fat % migliore per sportivi)
-- Sensibilità insulinica come leva centrale di performance + meccanismo
-- BMR vs TDEE (metabolismo basale vs totale, fabbisogno individuale)
-
-Blocco 3 — "Scienza dei macronutrienti": 3-4 items.
-- Proteine: 0,8 g/kg sedentari, 1,6-2,2 g/kg con allenamento. Meccanismo: sintesi proteica muscolare, soglia leucina 2-3g per pasto.
-- Carboidrati: scorte di glicogeno, ruolo dell'insulina, perché il timing pre/post-workout è rilevante (NESSUN orario concreto — contenuto Master Plan).
-- Grassi: acidi grassi essenziali, omega-3/omega-6 (1:4 ottimale vs 1:20 tipico), funzione ormonale (testosterone, cortisolo).
-- Micronutrienti accenno breve — dettagli in Blocco 5.
-
-Blocco 4 — "Libreria di template pasti": 4-6 items. Concetti template, NON orari concreti né giorni della settimana:
-- Template colazione: 20-30g proteine + carbs complessi + grassi. Meccanismo: stabilizza la glicemia 3-4h.
-- Template pre-workout (60-90 min prima): carbs rapidi + proteine moderate + pochi grassi. Meccanismo: svuotamento gastrico + disponibilità glicogeno.
-- Template post-workout (entro 60 min): proteine + carbs ratio 1:2. Meccanismo: sintesi proteica muscolare + risintesi glicogeno.
-- Template cena: proteine + verdure + carbs complessi. Meccanismo: sazietà + qualità del sonno.
-- Template snack (SOLO se nutrition_painpoint contiene "cravings_evening" o "low_protein"): focus proteico. Meccanismo: prevenzione voglie + soglia leucina.
-- Template refeed-day (SOLO se main_goal ∈ {body_comp, performance}): carboidrati alti. Meccanismo: preservazione leptina/tiroide nel deficit.
-Per template: 1 bullet con nome + composizione macro + meccanismo. NESSUN orario concreto né giorno della settimana.
-
-Blocco 5 — "Idratazione + micronutrienti": 2-3 items.
-- Fabbisogno idrico: 35-40 ml/kg peso baseline + 500-1000 ml per ora di allenamento. Meccanismo: volume plasmatico, performance.
-- Elettroliti: sodio 1-2g/giorno (più con sudore), potassio 3-4g, magnesio 400mg. Quando integrare.
-- Carenze frequenti negli sportivi: ferro (donne + endurance), vitamina D (inverno/indoor), B12 (vegetariani/vegani). Quando testare.
-
-Blocco 6 — "Composizione corporea vs peso": 2 items.
-- Perché la bilancia da sola inganna (oscillazioni glicogeno-acqua, aumento muscolare vs perdita grasso).
-- Metodi di tracking migliori: check allo specchio settimanale, circonferenza vita mensile, marker di performance, eventualmente DXA/plicometria ogni 3-6 mesi.
-
-Blocco 7 — "Progress Tracking": 2-3 items.
-- Aspettative realistiche: perdita di grasso 0,5-1% peso/settimana nel deficit; aumento muscolare 0,25-0,5 kg/mese come allenato.
-- Cosa tracciare davvero: scala energia 1-10, scala fame, performance in allenamento — NON solo peso.
-- Re-analisi dopo 4 settimane — stress + sonno + marker attività influenzano il Metabolic Score, non solo l'alimentazione.
-
-ESPLICITAMENTE VIETATO — questi contenuti NON vanno qui, vanno in altri piani:
-- Orari concreti dei pasti ("colazione alle 7", "snack alle 15", "cutoff caffeina alle 14") → Master Weekly Plan
-- Routine di meal-prep giornaliera/settimanale ("domenica 30 min prep", "pre-cucina pollo") → Master Weekly Plan
-- Raccomandazioni di allenamento (forza, Z2, long run, schedule) → Activity Plan + Master Plan
-- Buffer di stress, esercizi di respirazione, meditazione, tempo sociale → Stress Plan + Master Plan
-- Igiene del sonno, orario di andata a letto, setup camera → Recovery Plan
-- Blocco "Le tue azioni principali" alla fine → omettere, ridondante`;
+Genera un piano metabolico dettagliato e personalizzato con protocolli concreti.`;
   }
 
   if (type === "recovery") {
@@ -1924,52 +1789,7 @@ METABOLİK PLAN — Kullanıcı verisi:
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 
-METABOLIC-PLAN STRUCTURE — system prompt'daki 5 bloklu varsayılanı geçersiz kılar. Şu sırayla TAM OLARAK 7 blok üret:
-
-Blok 1 — "Mevcut durumun": 3-4 madde. Metabolic Score + BMI sınıflandırması + body-composition bağlamı + metabolizmanın niteliksel çerçevelenmesi. Somut enerji açığı veya günlük tüketim sayısı YOK.
-
-Blok 2 — "Metabolizma Bilimi": 3-4 madde.
-- Metabolik esneklik (yağ/glukoz oksidasyonu arasında geçiş, mitokondri verimliliği)
-- BMI değeri sınıflandırılmış + sınırları (yüksek kas kütlesinde yanlış; sporcular için vücut yağ % daha iyi)
-- Performansın merkezi kaldıracı olarak insülin duyarlılığı + mekanizma
-- BMR vs TDEE (bazal vs toplam tüketim, bireysel ihtiyaç)
-
-Blok 3 — "Makro besin Bilimi": 3-4 madde.
-- Protein: sedanter 0,8 g/kg, antrenmanla 1,6-2,2 g/kg. Mekanizma: kas protein sentezi, lösin eşiği öğün başına 2-3g.
-- Karbonhidrat: glikojen depoları, insülin rolü, pre/post-workout zamanlamasının neden önemli olduğu (somut saat YOK — Master Plan içeriği).
-- Yağ: temel yağ asitleri, omega-3/omega-6 (ideal 1:4 vs tipik 1:20), hormonal işlev (testosteron, kortizol).
-- Mikrobesin kısa değini — detaylar Blok 5'te.
-
-Blok 4 — "Öğün Şablonları Kütüphanesi": 4-6 madde. Şablon kavramları, somut saatler veya haftanın günleri DEĞİL:
-- Kahvaltı şablonu: 20-30g protein + kompleks karbonhidrat + yağ. Mekanizma: kan şekerini 3-4 saat stabilize eder.
-- Pre-workout şablonu (antrenmandan 60-90 dk önce): hızlı karbonhidrat + orta protein + az yağ. Mekanizma: mide boşalması + glikojen kullanılabilirliği.
-- Post-workout şablonu (60 dk içinde): protein + karbonhidrat 1:2 oranı. Mekanizma: kas protein sentezi + glikojen yeniden sentezi.
-- Akşam yemeği şablonu: protein + sebze + kompleks karbonhidrat. Mekanizma: tokluk + uyku kalitesi.
-- Snack şablonu (SADECE nutrition_painpoint "cravings_evening" veya "low_protein" içeriyorsa): protein odaklı. Mekanizma: tatlı krizini önleme + lösin eşiği.
-- Refeed-gün şablonu (SADECE main_goal ∈ {body_comp, performance} ise): karbonhidrat yüksek. Mekanizma: defisitte leptin/tiroid korunması.
-Her şablon için 1 madde: şablon adı + makro kompozisyonu + mekanizma. Somut saat veya gün YOK.
-
-Blok 5 — "Hidrasyon + Mikrobesinler": 2-3 madde.
-- Su ihtiyacı: vücut ağırlığı başına 35-40 ml baseline + antrenman saati başına 500-1000 ml. Mekanizma: plazma hacmi, performans.
-- Elektrolitler: sodyum 1-2g/gün (terlerken daha fazla), potasyum 3-4g, magnezyum 400mg. Ne zaman takviye.
-- Sporcularda sık eksiklikler: demir (kadınlar + dayanıklılık), D vitamini (kış/iç mekan), B12 (vejetaryen/veganlar). Ne zaman test ettirilmeli.
-
-Blok 6 — "Vücut Kompozisyonu vs Kilo": 2 madde.
-- Terazinin tek başına neden yanıltıcı olduğu (glikojen-su dalgalanmaları, kas artışı vs yağ kaybı).
-- Daha iyi takip yöntemleri: haftalık ayna kontrolü, aylık bel çevresi, performans işaretleri, mümkünse 3-6 ayda bir DXA/kaliper.
-
-Blok 7 — "Progress Tracking": 2-3 madde.
-- Gerçekçi beklentiler: defisitte yağ kaybı vücut ağırlığının %0,5-1'i/hafta; antrenmanlı bir kişide kas artışı 0,25-0,5 kg/ay.
-- Gerçekten neyi takip et: enerji ölçeği 1-10, açlık ölçeği, antrenman performansı — sadece kilo DEĞİL.
-- 4 hafta sonra yeniden analiz — stres + uyku + aktivite işaretleri Metabolic Score'u etkiler, sadece beslenme değil.
-
-AÇIKÇA YASAK — bunlar burada değil, diğer planlarda olmalı:
-- Somut öğün saatleri ("kahvaltı 7'de", "snack 15'te", "kafein cutoff 14") → Master Weekly Plan
-- Günlük/haftalık meal-prep rutini ("pazar 30 dk hazırlık", "tavuğu önceden pişir") → Master Weekly Plan
-- Antrenman önerileri (kuvvet, Z2, long run, antrenman programı) → Activity Plan + Master Plan
-- Stres tamponları, nefes egzersizleri, meditasyon, sosyal zaman → Stress Plan + Master Plan
-- Uyku hijyeni, yatma saati, yatak odası kurulumu → Recovery Plan
-- Sonda "En önemli eylemlerin" özet bloğu → çıkar, gereksiz`;
+Detaylı, kişiselleştirilmiş bir Metabolik plan oluştur, somut protokoller ver.`;
   }
 
   if (type === "recovery") {
