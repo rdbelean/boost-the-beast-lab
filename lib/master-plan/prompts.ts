@@ -40,6 +40,12 @@ const FORBIDDEN_PHRASES: Record<Locale, string[]> = {
     "nimm dir zeit",
     "achte auf dich",
     "trink mehr wasser",
+    // Phase-B-Qualität: weitere Standard-Wellness-Phrasen
+    "beine hochlegen",
+    "spaziergang ohne handy",
+    "spazieren ohne handy",
+    "gehen ohne handy",
+    "box breathing",
   ],
   en: [
     "nature walk without phone",
@@ -53,6 +59,10 @@ const FORBIDDEN_PHRASES: Record<Locale, string[]> = {
     "take your time",
     "take care of yourself",
     "drink more water",
+    "legs up the wall",
+    "walk without phone",
+    "stroll without phone",
+    "box breathing",
   ],
   it: [
     "passeggiata nella natura senza telefono",
@@ -66,6 +76,10 @@ const FORBIDDEN_PHRASES: Record<Locale, string[]> = {
     "prenditi del tempo",
     "prenditi cura di te",
     "bevi più acqua",
+    "gambe in alto",
+    "passeggiata senza telefono",
+    "camminata senza telefono",
+    "box breathing",
   ],
   tr: [
     "telefonsuz doğa yürüyüşü",
@@ -79,6 +93,10 @@ const FORBIDDEN_PHRASES: Record<Locale, string[]> = {
     "kendine zaman ayır",
     "kendine iyi bak",
     "daha fazla su iç",
+    "bacakları yukarı",
+    "telefonsuz yürüyüş",
+    "telefonsuz dolaşma",
+    "box breathing",
   ],
 };
 
@@ -153,6 +171,31 @@ QUALITY STANDARD (per item, all three required):
 2. EVIDENCE-BASED: recognizable mechanism (vagus nerve, cortisol, parasympathetic, lactate, etc.).
 3. NON-GENERIC: NO wellness platitudes.
 
+RECOVERY + STRESS-ANCHOR — MECHANISM MANDATORY (NON-NEGOTIABLE):
+EVERY item in a recovery or stress_anchor cell MUST name a recognizable biological or neurophysiological mechanism — one of:
+- Vagus-nerve stimulation, parasympathetic activation
+- Cortisol reduction, HPA-axis down-regulation
+- Adenosine clearance, slow-wave sleep promotion
+- Mammalian Dive Reflex, bradycardia reflex
+- Heat-shock proteins, hormesis
+- Norepinephrine modulation, locus coeruleus reset
+- Lymph flow, venous return
+- Glymphatic system, BDNF, endogenous opioids
+Items without a recognizable mechanism are wellness platitudes and FORBIDDEN. PREFER one strong item with mechanism over two vague ones.
+DO: "Cold-Face-Splash 30 sec — Mammalian Dive Reflex drops HR rapidly"
+DO: "Contrast Shower 3× (1 min warm / 30 sec cold) — vasomotor adaptation + norepinephrine modulation"
+DON'T: "Legs up the wall 10 min" (no mechanism)
+DON'T: "Box Breathing 4-4-4-4" (mechanism not visible)
+DON'T: "Walk without phone" (no mechanism, generic)
+
+TIME-OF-DAY RULE — STRICT:
+- If a sleep cutoff applies (see HARD CONSTRAINTS above, e.g. "NO training after 17:00"): ALWAYS name the exact cutoff time ("before 17:00" / "by 17:00"). NEVER add a time-of-day label like "morning", "midday", "afternoon".
+- If NO sleep cutoff applies: NO time-of-day label in the training cell. Plan is time-neutral — the user decides when.
+- NEVER mix time-of-day + cutoff like "morning before 18:00". That's contradictory and forbidden.
+
+TIMING PRECISION:
+When a recommendation needs a time-of-day: give either a concrete clock time ("12:30", "17:00") OR a concrete trigger ("right after waking up", "after the last meeting", "before lunch", "Sunday 18:00 before the week"). NEVER vague labels like "midday", "during the day", "sometime", "when you have time". The user should know when without thinking.
+
 GOOD EXAMPLES (style templates — emulate, do not copy verbatim):
 - "Physiological Sigh: 2× short inhale, 1× long exhale, 4 reps. Drops acute stress under 90 sec (Huberman Lab)"
 - "Cold-Face-Splash: 30 sec cold water on face — Mammalian Dive Reflex, rapidly drops HR"
@@ -215,6 +258,21 @@ STANDARD QUALITATIVO (ogni voce):
 2. EVIDENCE-BASED: meccanismo riconoscibile (nervo vago, cortisolo, etc.).
 3. NON GENERICO: niente platitudini wellness.
 
+RECOVERY + ANCORA ANTI-STRESS — MECCANISMO OBBLIGATORIO (NON NEGOZIABILE):
+OGNI voce in una cella recovery o stress_anchor DEVE nominare un meccanismo biologico/neurofisiologico riconoscibile — uno tra: stimolazione del nervo vago, attivazione parasimpatica, riduzione del cortisolo, asse HPA, clearance dell'adenosina, riflesso del tuffo nei mammiferi, proteine heat-shock/ormesi, norepinefrina/locus coeruleus, ritorno venoso, sistema glinfatico, BDNF, oppioidi endogeni. Voci senza meccanismo riconoscibile sono platitudini wellness e VIETATE. MEGLIO una voce forte con meccanismo che due vaghe.
+DO: "Cold-Face-Splash 30 sec — riflesso del tuffo nei mammiferi, abbassa rapidamente HR"
+DON'T: "Gambe in alto 10 min" (nessun meccanismo)
+DON'T: "Box Breathing 4-4-4-4" (meccanismo non visibile)
+DON'T: "Passeggiata senza telefono" (nessun meccanismo, generico)
+
+REGOLA ORARIA — RIGOROSA:
+- Se vale un cutoff del sonno (es. "NESSUN allenamento dopo le 17:00"): nomina SEMPRE l'orario esatto del cutoff ("prima delle 17:00"). MAI aggiungere etichette di fascia oraria come "mattina", "pomeriggio".
+- Se NON c'è cutoff: NESSUNA etichetta oraria nella cella training. Il piano è neutro rispetto all'orario.
+- MAI mischiare fascia oraria + cutoff come "mattina prima delle 18". Contraddittorio e vietato.
+
+PRECISIONE TEMPORALE:
+Quando una raccomandazione necessita di un orario: indica un orario concreto ("12:30", "17:00") O un innesco concreto ("subito dopo il risveglio", "dopo l'ultima riunione", "prima di pranzo"). MAI etichette vaghe come "a mezzogiorno", "durante il giorno", "quando hai tempo".
+
 FRASI VIETATE:
 ${forbidden.map((p) => `- "${p}"`).join("\n")}
 
@@ -253,6 +311,21 @@ SADECE kullanıcının belirttiği sporları kullan: dropdown="${inputs.training
 HEDEFLER (intro'da zorunlu):
 - Dropdown: "${inputs.goal_dropdown ?? "(yok)"}"
 - Freetext: "${inputs.goal_freetext ?? "(yok)"}"
+
+İYİLEŞME + STRES ÇAPASI — MEKANİZMA ZORUNLU (PAZARLIK YOK):
+İyileşme veya stres_çapası hücresindeki HER madde tanınabilir bir biyolojik/nörofizyolojik mekanizmayı adlandırmalıdır: vagus stimülasyonu, parasempatik aktivasyon, kortizol düşümü, HPA aksı, adenozin temizliği, Memeli Dalış Refleksi, ısı şok proteinleri/hormesis, norepinefrin/locus coeruleus, venöz dönüş, glinfatik sistem, BDNF, endojen opioidler. Mekanizması olmayan maddeler wellness klişesidir ve YASAKTIR. İKİ vague yerine BİR güçlü madde tercih et.
+DO: "Cold-Face-Splash 30 sn — Memeli Dalış Refleksi HR'yi hızla düşürür"
+DON'T: "Bacakları yukarı 10 dk" (mekanizma yok)
+DON'T: "Box Breathing 4-4-4-4" (mekanizma görünmüyor)
+DON'T: "Telefonsuz yürüyüş" (mekanizma yok, jenerik)
+
+GÜN İÇİ ZAMAN KURALI — SIKI:
+- Uyku kesim saati varsa (örn. "17:00'dan SONRA antrenman YOK"): HER ZAMAN tam kesim saatini yaz ("17:00'dan önce"). ASLA "sabah", "öğleden sonra" gibi gün-bölümü etiketi ekleme.
+- Kesim saati YOKSA: training hücresinde gün-bölümü etiketi de YOK. Plan zaman-nötrdür — kullanıcı kendisi seçer.
+- ASLA gün-bölümü + kesim saatini birleştirme ("sabah saat 18'den önce" gibi). Çelişkilidir ve yasaktır.
+
+ZAMAN HASSASİYETİ:
+Bir öneri gün içinde bir zaman gerektirdiğinde: SOMUT saat ("12:30", "17:00") VEYA somut tetikleyici ("kalktıktan hemen sonra", "son toplantıdan sonra", "öğle yemeğinden önce") söyle. ASLA "öğlen", "gün içinde", "vakit bulduğunda" gibi muğlak ifadeler.
 
 YASAK İFADELER:
 ${forbidden.map((p) => `- "${p}"`).join("\n")}
@@ -299,6 +372,31 @@ QUALITÄTS-STANDARD (pro Item, alle drei erforderlich):
 1. KONKRET: spezifische Methode mit Dauer/Zahlen/Beispielen.
 2. EVIDENZBASIERT: erkennbarer Mechanismus (Vagusnerv, Cortisol, parasympathisch, Laktat etc.).
 3. NICHT-GENERISCH: keine 08/15-Wellness-Phrasen.
+
+RECOVERY + STRESS-ANKER — MECHANISMUS-PFLICHT (NICHT VERHANDELBAR):
+JEDE Empfehlung in einer Recovery- oder Stress-Anker-Zelle MUSS einen erkennbaren biologischen oder neurophysiologischen Mechanismus nennen — eines aus:
+- Vagusnerv-Stimulation, parasympathische Aktivierung
+- Cortisol-Senkung, HPA-Achsen-Down-Regulation
+- Adenosin-Clearance, Slow-Wave-Sleep-Promotion
+- Mammalian Dive Reflex, Bradykardie-Reflex
+- Heat-Shock-Proteine, Hormesis
+- Norepinephrin-Modulation, Locus-Coeruleus-Reset
+- Lymph-Flow, venöser Rückfluss
+- Glymphatisches System, BDNF, endogene Opioide
+Empfehlungen ohne erkennbaren Mechanismus sind Standard-Wellness-Müll und VERBOTEN. LIEBER EINE starke Empfehlung mit Mechanismus als zwei vage.
+DO: "Cold-Face-Splash 30 Sek — Mammalian Dive Reflex senkt HR rapide"
+DO: "Contrast Shower 3× (1 Min warm / 30 Sek kalt) — vasomotorische Adaptation + Norepinephrin-Modulation"
+DON'T: "Beine hochlegen 10 Min" (kein Mechanismus)
+DON'T: "Box Breathing 4-4-4-4" (Mechanismus nicht erkennbar)
+DON'T: "Spaziergang ohne Handy" (kein Mechanismus, generisch)
+
+TAGESZEIT-REGEL — STRENG:
+- Wenn ein Sleep-Cutoff gilt (siehe HARTE CONSTRAINTS oben, z.B. "KEIN Training nach 17 Uhr"): IMMER die exakte Cutoff-Uhrzeit nennen ("vor 17 Uhr" / "bis 17:00"). NIE eine zusätzliche Tageszeit-Angabe wie "morgens", "mittags", "nachmittags" hinzufügen.
+- Wenn KEIN Sleep-Cutoff gilt: KEINE Tageszeit-Angabe in der Training-Zelle. Plan ist tageszeitneutral — der User entscheidet selbst wann.
+- NIEMALS Tageszeit + Cutoff vermischen wie "morgens vor 18 Uhr". Das widerspricht sich und ist verboten.
+
+ZEITPUNKT-PRÄZISION:
+Wenn eine Empfehlung einen Zeitpunkt im Tag braucht: NENNE entweder eine konkrete Uhrzeit ("12:30", "17:00") ODER einen konkreten Auslöser ("direkt nach dem Aufstehen", "nach dem letzten Meeting", "vor dem Mittagessen", "Sonntag 18:00 vor der Woche"). NIE vage Begriffe wie "mittags", "tagsüber", "irgendwann", "wenn du Zeit hast". Der User soll ohne Nachdenken wissen wann.
 
 GUTE BEISPIELE (Stil-Vorlagen — nachahmen, nicht 1:1 kopieren):
 - "Physiological Sigh: 2× kurz einatmen, 1× lang ausatmen, 4 Wdh. Senkt akuten Stress in unter 90 Sek (Huberman Lab)"

@@ -131,6 +131,27 @@ describe("validateMasterPlan (best-effort semantics — Phase B)", () => {
     expect(result.warnings).toContain("goal_not_mentioned_freetext");
   });
 
+  it("flags 'Beine hochlegen' as forbidden (Phase-B-Qualität)", () => {
+    const plan = makePlan();
+    plan.rows[0].recovery = ["Legs-Up-The-Wall: 10 Min Beine hochlegen, venöser Rückfluss"];
+    const result = validateMasterPlan(plan, { locale: "de", inputs: makeInputs() });
+    expect(result.warnings).toContain("forbidden_phrase_beine_hochlegen");
+  });
+
+  it("flags 'Spaziergang ohne Handy' paraphrase (Phase-B-Qualität)", () => {
+    const plan = makePlan();
+    plan.rows[1].stress_anchor = ["5-Min Spaziergang ohne Handy nach der Arbeit"];
+    const result = validateMasterPlan(plan, { locale: "de", inputs: makeInputs() });
+    expect(result.warnings).toContain("forbidden_phrase_spaziergang_ohne_handy");
+  });
+
+  it("flags 'Box Breathing' standalone (Phase-B-Qualität)", () => {
+    const plan = makePlan();
+    plan.rows[2].stress_anchor = ["Box Breathing 4-4-4-4 für 5 Min"];
+    const result = validateMasterPlan(plan, { locale: "de", inputs: makeInputs() });
+    expect(result.warnings).toContain("forbidden_phrase_box_breathing");
+  });
+
   it("German feel_better intro that doesn't contain English tokens — warning, not block", () => {
     // This is the exact failure mode that broke production: dropdown="feel_better"
     // with a German intro that says "Wohlbefinden" / "besser fühlen". Before Phase B
