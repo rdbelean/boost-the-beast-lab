@@ -24,13 +24,29 @@ function tryReadSessionPlan(): CachedMasterPlan | null {
   }
 }
 
-function openPdfFromBase64(b64: string): void {
+function downloadFilenameFor(locale: string): string {
+  if (locale === "en") return "MasterPlan.pdf";
+  if (locale === "it") return "Piano-Master.pdf";
+  if (locale === "tr") return "Master-Plan.pdf";
+  return "Masterplan.pdf"; // de + default
+}
+
+// Downloads the PDF with a proper, locale-aware filename. Uses the anchor +
+// download-attribute pattern because Blob URLs carry no filename hint —
+// window.open(blobUrl) would surface as "Unknown.pdf" in Chrome.
+function downloadPdfFromBase64(b64: string, locale: string): void {
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   const blob = new Blob([bytes], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
-  window.open(url, "_blank");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = downloadFilenameFor(locale);
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
@@ -191,7 +207,7 @@ function MasterPlanPageInner() {
         <>
           <button
             type="button"
-            onClick={() => openPdfFromBase64(cached.pdfBase64)}
+            onClick={() => downloadPdfFromBase64(cached.pdfBase64, locale)}
             className={styles.downloadBtn}
           >
             {t("open_pdf")}
