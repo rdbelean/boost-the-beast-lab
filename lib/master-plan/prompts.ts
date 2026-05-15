@@ -151,6 +151,7 @@ HARD CONSTRAINTS — VIOLATING ANY OF THESE IS A FAIL:
 - Rest days: training cell = "REST", other cells (nutrition, recovery, stress_anchor) MUST still be filled normally.
 - NEVER mention numeric scores like "58/100" or score names like "Activity Score".
 - With sleep cutoff: state ONLY the cutoff time (e.g. "before 5pm"). DO NOT add a time-of-day descriptor ("morning", "noon") together with the cutoff. Without cutoff: no time-of-day descriptor at all.
+- IMPORTANT: Cutoff time applies ONLY to training. Do NOT add cutoff times to nutrition, recovery, or stress-anchor cells. A training day is any day with a training entry, even if light (RPE 3). If you plan 4 training days, 3 days must be PAUSE. Intro and table MUST be consistent.
 
 ACTIVITY CONSISTENCY:
 Use ONLY sports/activities the user mentioned in their quiz: dropdown="${inputs.training_dropdown ?? "—"}", freetext="${inputs.training_freetext ?? "—"}". Linguistic translation/rephrasing is allowed (e.g. "Rad" → "cycling" or "Fahrrad fahren"). DO NOT invent new activities. If both are empty: use bodyweight exercises + cardio walking as safe defaults.
@@ -214,6 +215,7 @@ VINCOLI VINCOLANTI — VIOLAZIONE = FAIL:
 - Giorni di riposo: cella training = "RIPOSO", altre celle (nutrition, recovery, stress_anchor) DEVONO essere comunque riempite.
 - MAI menzionare score numerici ("58/100") o nomi di score ("Activity Score").
 - Con cutoff del sonno: indica SOLO l'orario di cutoff (es. "prima delle 17"). NON aggiungere etichette di fascia oraria ("mattina", "mezzogiorno") insieme al cutoff. Senza cutoff: nessuna etichetta oraria.
+- IMPORTANTE: L'orario di cutoff vale SOLO per l'allenamento. NON aggiungere cutoff a nutrizione, recovery o stress-anchor. Un giorno di allenamento è ogni giorno con una sessione, anche se leggera (RPE 3). Se pianifichi 4 giorni di allenamento, 3 devono essere PAUSE. Intro e tabella DEVONO essere coerenti.
 
 CONSISTENZA ATTIVITÀ:
 Usa SOLO sport/attività menzionati dall'utente: dropdown="${inputs.training_dropdown ?? "—"}", freetext="${inputs.training_freetext ?? "—"}". Traduzione linguistica permessa. Inventare nuove attività vietato. Se entrambi vuoti: usa esercizi a corpo libero + camminata.
@@ -261,6 +263,7 @@ KATI KISITLAMALAR:
 - Dinlenme günleri: training hücresi = "DİNLENME", diğer hücreler doldurulmalıdır.
 - ASLA skor sayıları/adları yazma.
 - Uyku kesim saati varsa: SADECE kesim saatini yaz (örn. "17:00'dan önce"). Aynı zamanda gün-bölümü etiketi ("sabah", "öğlen") EKLEME. Kesim saati yoksa: gün-bölümü etiketi de yok.
+- ÖNEMLİ: Kesim saati SADECE antrenman için geçerlidir. Beslenme, recovery ve stres-anker hücrelerine kesim saati EKLEME. Antrenman günü, hafif olsa bile (RPE 3) antrenman içeren her gündür. 4 antrenman günü planlıyorsan, 3 günün PAUSE olması gerekir. Intro ve tablo TUTARLI olmalı.
 
 AKTİVİTE TUTARLILIĞI:
 SADECE kullanıcının belirttiği sporları kullan: dropdown="${inputs.training_dropdown ?? "—"}", freetext="${inputs.training_freetext ?? "—"}". Dilsel çeviri serbest. Aktivite uydurmak yasak. Her ikisi boşsa: vücut ağırlığı + yürüyüş varsayılan.
@@ -301,6 +304,7 @@ HARTE CONSTRAINTS — VERLETZUNG = FAIL:
 - Pause-Tage: training-Zelle = "PAUSE", andere Zellen (nutrition, recovery, stress_anchor) MÜSSEN normal befüllt werden.
 - NIEMALS Score-Zahlen ("58/100") oder Score-Namen ("Activity Score", "Recovery Score") erwähnen.
 - Bei Sleep-Cutoff: NUR die Cutoff-Zeit nennen (z.B. "vor 17 Uhr"). KEINE zusätzliche Tageszeit-Angabe ("morgens", "mittags") gleichzeitig. Ohne Cutoff: gar keine Tageszeit-Angabe.
+- WICHTIG: Cutoff-Zeit gilt NUR für Training. Bei Ernährung, Recovery und Stress-Anker: KEINE Cutoff-Angabe. Ein Trainingstag ist jeder Tag mit Training-Eintrag, auch wenn locker (RPE 3). Wenn 4 Trainingstage geplant sind, müssen 3 Tage PAUSE sein. Intro und Tabelle MÜSSEN konsistent sein.
 
 AKTIVITÄTS-KONSISTENZ:
 Verwende NUR Sportarten/Aktivitäten, die der User in seinen Quiz-Antworten erwähnt hat: dropdown="${inputs.training_dropdown ?? "—"}", freetext="${inputs.training_freetext ?? "—"}". Sprachliche Übersetzung oder Umformulierung ist erlaubt (z.B. "Rad" → "Cycling" oder "Fahrrad fahren"). Erfindung neuer Aktivitäten ist verboten. Wenn beide leer: Bodyweight-Übungen + Cardio-Walking als sichere Defaults.
