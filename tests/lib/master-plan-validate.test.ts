@@ -131,6 +131,20 @@ describe("validateMasterPlan (best-effort semantics — Phase B)", () => {
     expect(result.warnings).toContain("goal_not_mentioned_freetext");
   });
 
+  it("flags 'Box Breathing' as a Standard-Atem-Floskel (Best-Effort-Warning)", () => {
+    const plan = makePlan();
+    plan.rows[0].stress_anchor = ["Box Breathing 4-4-4-4 für 5 Min"];
+    const result = validateMasterPlan(plan, { locale: "de", inputs: makeInputs() });
+    expect(result.warnings).toContain("forbidden_phrase_box_breathing");
+  });
+
+  it("flags 'tief atmen' as a Standard-Atem-Floskel", () => {
+    const plan = makePlan();
+    plan.rows[1].stress_anchor = ["5 Min tief atmen nach der Arbeit"];
+    const result = validateMasterPlan(plan, { locale: "de", inputs: makeInputs() });
+    expect(result.warnings).toContain("forbidden_phrase_tief_atmen");
+  });
+
   it("German feel_better intro that doesn't contain English tokens — warning, not block", () => {
     // This is the exact failure mode that broke production: dropdown="feel_better"
     // with a German intro that says "Wohlbefinden" / "besser fühlen". Before Phase B
