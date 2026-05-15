@@ -1163,7 +1163,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "de", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'Mindestens 1 Block MUSS "Heißhunger abends" explizit adressieren — konkret mit Protein-Timing (z.B. 30 g Protein beim Abendessen stabilisiert Blutzucker → weniger Cravings in der Nacht).',
       low_protein: "Mindestens 1 Block MUSS Protein-Targets konkret machen (z.B. 1,6–2,2 g/kg KG/Tag → Portionen × Mahlzeit runterbrechen).",
@@ -1291,7 +1291,50 @@ METABOLIC-PLAN — Nutzerdaten:
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 
-Generiere einen detaillierten, personalisierten Metabolic-Plan mit konkreten Protokollen.`;
+METABOLIC-PLAN STRUCTURE — überschreibt den 5-Block-System-Prompt-Default. Erzeuge EXAKT 7 Blocks in dieser Reihenfolge:
+
+Block 1 — "Deine Ausgangslage": 3-4 items. Metabolic Score + BMI-Klassifikation + qualitativer Stoffwechsel-Hinweis + kurzer Cross-Plan-Verweis (Schlaf/Stress werden in Recovery- und Stress-Plan behandelt, Mahlzeit-Timing im Master-Wochenplan).
+
+Block 2 — "Metabolische Wissenschaft": 3-4 items.
+- Was der Metabolic Score misst (BMI + Aktivitäts- und Schlaf-Buffer)
+- BMI-Wert klassifiziert + Limits bei hoher Muskelmasse (Body-Fat-Percentage präziser für Sportler)
+- Insulinsensitivität als zentraler Performance-Hebel + Mechanismus (Glukose-Aufnahme, Muskel-Glykogen, Inflammation)
+- BMR vs TDEE (Grundumsatz vs Gesamtumsatz; konkrete Range kann aus Aktivitäts-Level abgeschätzt werden, ist aber individuell)
+
+Block 3 — "Protein-Prinzipien": 3-4 items.
+- Tagesbedarf: 1,6-2,2 g/kg Körpergewicht bei Training (rechne einen konkreten Range aus, basierend auf dem Körpergewicht des Users)
+- Leucin-Schwelle: ~2,5g Leucin pro Mahlzeit (≈ 25-30g hochwertiges Protein) triggert Muskelproteinsynthese
+- Verteilung: 4-5 Mahlzeiten à 25-40g Protein > 2 Mahlzeiten à 50-80g (Synthese-Maximierung)
+- Quellen-Vergleich: tierisch (komplettes Aminosäure-Profil, hoher Leucin-Anteil) vs pflanzlich (mehr Volumen + Kombination nötig: Hülsenfrüchte + Getreide)
+
+Block 4 — "Methoden-Bibliothek Mahlzeiten": 3-5 items. Template-Konzepte, NICHT konkrete Uhrzeiten oder Wochentage:
+- Frühstücks-Template: 20-30g Protein + komplexe Carbs + Fett. Mechanismus: stabilisiert Blutzucker 3-4h, reduziert Vormittags-Crash.
+- Post-Workout-Template (innerhalb 60 Min): Protein + Carbs Ratio 1:2. Mechanismus: Muskelproteinsynthese + Glykogen-Resynthese.
+- Protein-Snack-Template: 15-25g Protein + Ballaststoffe. Anwendung: zwischen Hauptmahlzeiten >4h, Heißhunger-Prävention.
+Optional je nach User-Daten:
+- Snack-Template wenn nutrition_painpoint "cravings_evening" oder "low_protein" enthält: Protein-fokussiert spät am Tag.
+- Refeed-Template wenn main_goal ∈ {body_comp, performance}: Carbs hoch an Trainingstagen — Leptin/Schilddrüsen-Erhalt im Defizit.
+
+Block 5 — "Hydration + Mikronährstoffe": 2-3 items.
+- Wasser-Bedarf: 35-40 ml/kg KG baseline + 500-1000 ml pro Trainings-Stunde. Mechanismus: Plasma-Volumen, Performance, Konzentrationsfähigkeit.
+- Elektrolyte: Natrium 1-2g/Tag (mehr bei starkem Schwitzen), Kalium 3-4g, Magnesium 400mg. Wann supplementieren (intensive Trainings-Phasen, Hitze).
+
+Block 6 — "Body-Composition vs Gewicht": 2-3 items.
+- Warum die Waage allein irreführt: Glykogen-Wasser-Schwankungen (1-3kg/Woche normal), Muskelaufbau vs Fettverlust kann sich gleich auf der Waage zeigen.
+- Bessere Tracking-Methoden: wöchentlicher Spiegel-Check, monatlicher Bauch-/Hüftumfang, Performance-Marker (Kraft, Ausdauer), eventuell DXA/Caliper alle 3-6 Monate.
+- Konkrete Wiege-Termine und -Rhythmus gehören in den Master-Wochenplan.
+
+Block 7 — "Progress-Tracking": 3-4 items.
+- Realistische Erwartungen: Fettverlust 0,5-1% Körpergewicht/Woche im Defizit; Muskelaufbau 0,25-0,5 kg/Monat als Trainierter.
+- Was wirklich tracken außer Gewicht: Energie-Skala 1-10, Hunger-Skala, Training-Performance, Schlaf-Qualität.
+- Re-Analyse nach 4 Wochen — Stress + Sleep + Aktivitäts-Marker beeinflussen Metabolic Score, nicht nur Ernährung.
+- KEIN Wiege-Plan, KEINE konkreten Mahlzeit-Zeiten — die gehören in den Master-Wochenplan.
+
+EXPLIZIT VERBOTEN — diese Inhalte gehören NICHT in den Metabolic-Plan, sondern in andere Pläne:
+- Tag-für-Tag-Mahlzeiten ("Mo 7:30 Eier", "Mi Mittag Hähnchen") → Master-Wochenplan
+- Trainings-Empfehlungen (Übungen, Sätze, RPE, Wochentage) → Activity-Plan + Master-Wochenplan
+- Schlaf-Hygiene (Bettzeit, Schlafzimmer-Temperatur, Bildschirm-Pause) → Recovery-Plan
+- Stress-Anker, Atemübungen, Meditation → Stress-Plan + Master-Wochenplan`;
   }
 
   if (type === "recovery") {
@@ -1329,7 +1372,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "en", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'At least 1 block MUST explicitly address evening cravings — concretely with protein timing (e.g. 30 g protein at dinner stabilises blood sugar → fewer cravings at night).',
       low_protein: "At least 1 block MUST make protein targets concrete (e.g. 1.6–2.2 g/kg body weight/day → break down portions × meal).",
@@ -1457,7 +1500,50 @@ METABOLIC PLAN — User data:
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 
-Generate a detailed, personalised Metabolic plan with concrete protocols.`;
+METABOLIC-PLAN STRUCTURE — overrides the 5-block system-prompt default. Generate EXACTLY 7 blocks in this order:
+
+Block 1 — "Your Starting Point": 3-4 items. Metabolic Score + BMI classification + qualitative metabolism note + brief cross-plan reminder (sleep/stress handled in Recovery and Stress plans, meal timing in Master Weekly Plan).
+
+Block 2 — "Metabolic Science": 3-4 items.
+- What the Metabolic Score actually measures (BMI + activity and sleep buffers)
+- BMI value classified + limits at high muscle mass (body-fat percentage more precise for athletes)
+- Insulin sensitivity as a central performance lever + mechanism (glucose uptake, muscle glycogen, inflammation)
+- BMR vs TDEE (basal vs total expenditure; a concrete range can be estimated from activity level but is individual)
+
+Block 3 — "Protein Principles": 3-4 items.
+- Daily target: 1.6-2.2 g/kg body weight with training (compute a concrete range from the user's body weight)
+- Leucine threshold: ~2.5g leucine per meal (≈ 25-30g high-quality protein) triggers muscle protein synthesis
+- Distribution: 4-5 meals × 25-40g protein > 2 meals × 50-80g (synthesis maximisation)
+- Source comparison: animal (complete amino-acid profile, high leucine) vs plant (more volume + combinations needed: legumes + grains)
+
+Block 4 — "Meal Method Library": 3-5 items. Template concepts, NOT concrete clock times or weekdays:
+- Breakfast template: 20-30g protein + complex carbs + fat. Mechanism: stabilises blood sugar 3-4h, reduces mid-morning crash.
+- Post-workout template (within 60 min): protein + carbs ratio 1:2. Mechanism: muscle protein synthesis + glycogen resynthesis.
+- Protein-snack template: 15-25g protein + fibre. Use when main meal is >4h away, craving prevention.
+Optional based on user data:
+- Snack template if nutrition_painpoint contains "cravings_evening" or "low_protein": protein-focused later in the day.
+- Refeed template if main_goal ∈ {body_comp, performance}: carbs high on training days — leptin/thyroid preservation in deficit.
+
+Block 5 — "Hydration + Micronutrients": 2-3 items.
+- Water need: 35-40 ml/kg body weight baseline + 500-1000 ml per training hour. Mechanism: plasma volume, performance, concentration.
+- Electrolytes: sodium 1-2g/day (more with heavy sweating), potassium 3-4g, magnesium 400mg. When to supplement (intense training phases, heat).
+
+Block 6 — "Body Composition vs Weight": 2-3 items.
+- Why the scale alone misleads: glycogen-water fluctuations (1-3kg/week is normal), muscle gain vs fat loss can look the same on the scale.
+- Better tracking methods: weekly mirror check, monthly waist/hip circumference, performance markers (strength, endurance), possibly DXA/calipers every 3-6 months.
+- Concrete weigh-in schedule and rhythm belong in the Master Weekly Plan.
+
+Block 7 — "Progress Tracking": 3-4 items.
+- Realistic expectations: fat loss 0.5-1% body weight/week in deficit; muscle gain 0.25-0.5 kg/month as a trained individual.
+- What actually to track beyond weight: energy scale 1-10, hunger scale, training performance, sleep quality.
+- Re-analysis after 4 weeks — stress + sleep + activity markers influence Metabolic Score, not nutrition alone.
+- NO weigh-in plan, NO concrete meal times — those belong in the Master Weekly Plan.
+
+EXPLICITLY FORBIDDEN — these belong in other plans, NOT here:
+- Day-by-day meals ("Mon 7:30 eggs", "Wed lunch chicken") → Master Weekly Plan
+- Training recommendations (exercises, sets, RPE, weekdays) → Activity Plan + Master Weekly Plan
+- Sleep hygiene (bedtime, bedroom temperature, screen pause) → Recovery Plan
+- Stress anchors, breathing exercises, meditation → Stress Plan + Master Weekly Plan`;
   }
 
   if (type === "recovery") {
@@ -1495,7 +1581,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "it", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'Almeno 1 blocco DEVE affrontare esplicitamente le voglie serali — concretamente con protein timing (es. 30 g di proteine a cena stabilizzano la glicemia → meno voglie di notte).',
       low_protein: "Almeno 1 blocco DEVE rendere concreti i target proteici (es. 1,6–2,2 g/kg peso corporeo/giorno → ripartire le porzioni × pasto).",
@@ -1623,7 +1709,50 @@ PIANO METABOLICO — Dati utente:
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 
-Genera un piano metabolico dettagliato e personalizzato con protocolli concreti.`;
+METABOLIC-PLAN STRUCTURE — sovrascrive il default di 5 blocchi del system prompt. Genera ESATTAMENTE 7 blocchi in quest'ordine:
+
+Blocco 1 — "La tua situazione attuale": 3-4 items. Metabolic Score + classificazione BMI + nota qualitativa sul metabolismo + breve richiamo cross-plan (sonno/stress trattati in Recovery e Stress plan, timing dei pasti nel Master Weekly Plan).
+
+Blocco 2 — "Scienza del metabolismo": 3-4 items.
+- Cosa misura davvero il Metabolic Score (BMI + buffer di attività e sonno)
+- Valore BMI classificato + limiti ad alta massa muscolare (body-fat % più precisa per gli sportivi)
+- Sensibilità insulinica come leva centrale di performance + meccanismo (uptake del glucosio, glicogeno muscolare, infiammazione)
+- BMR vs TDEE (metabolismo basale vs totale; un range concreto può essere stimato dal livello di attività, ma è individuale)
+
+Blocco 3 — "Principi proteici": 3-4 items.
+- Fabbisogno giornaliero: 1,6-2,2 g/kg peso corporeo con allenamento (calcola un range concreto basato sul peso dell'utente)
+- Soglia leucina: ~2,5g di leucina per pasto (≈ 25-30g di proteine di alta qualità) attiva la sintesi proteica muscolare
+- Distribuzione: 4-5 pasti × 25-40g proteine > 2 pasti × 50-80g (massimizzazione della sintesi)
+- Confronto fonti: animali (profilo aminoacidico completo, alta leucina) vs vegetali (più volume + combinazioni: legumi + cereali)
+
+Blocco 4 — "Libreria di metodi-pasto": 3-5 items. Concetti template, NON orari concreti né giorni della settimana:
+- Template colazione: 20-30g proteine + carbs complessi + grassi. Meccanismo: stabilizza la glicemia 3-4h, riduce il crollo di metà mattinata.
+- Template post-workout (entro 60 min): proteine + carbs ratio 1:2. Meccanismo: sintesi proteica muscolare + risintesi glicogeno.
+- Template snack proteico: 15-25g proteine + fibre. Uso: quando il pasto principale è > 4h di distanza, prevenzione voglie.
+Opzionali a seconda dei dati utente:
+- Template snack se nutrition_painpoint contiene "cravings_evening" o "low_protein": focus proteico verso sera.
+- Template refeed se main_goal ∈ {body_comp, performance}: carbs alti nei giorni di allenamento — preservazione leptina/tiroide nel deficit.
+
+Blocco 5 — "Idratazione + micronutrienti": 2-3 items.
+- Fabbisogno idrico: 35-40 ml/kg peso baseline + 500-1000 ml per ora di allenamento. Meccanismo: volume plasmatico, performance, concentrazione.
+- Elettroliti: sodio 1-2g/giorno (di più con sudorazione abbondante), potassio 3-4g, magnesio 400mg. Quando integrare (fasi intense, caldo).
+
+Blocco 6 — "Composizione corporea vs peso": 2-3 items.
+- Perché la bilancia da sola inganna: oscillazioni glicogeno-acqua (1-3kg/settimana normali), aumento muscolare vs perdita di grasso possono apparire uguali sulla bilancia.
+- Metodi di tracking migliori: check allo specchio settimanale, circonferenza vita/fianchi mensile, marker di performance (forza, endurance), eventualmente DXA/plicometria ogni 3-6 mesi.
+- Calendario e ritmo concreti delle pesate vanno nel Master Weekly Plan.
+
+Blocco 7 — "Progress Tracking": 3-4 items.
+- Aspettative realistiche: perdita di grasso 0,5-1% peso/settimana nel deficit; aumento muscolare 0,25-0,5 kg/mese come allenato.
+- Cosa tracciare davvero oltre il peso: scala energia 1-10, scala fame, performance in allenamento, qualità del sonno.
+- Re-analisi dopo 4 settimane — stress + sonno + marker attività influenzano il Metabolic Score, non solo l'alimentazione.
+- NESSUN piano delle pesate, NESSUN orario concreto dei pasti — vanno nel Master Weekly Plan.
+
+ESPLICITAMENTE VIETATO — questi contenuti NON vanno qui, vanno in altri piani:
+- Pasti giorno-per-giorno ("Lun 7:30 uova", "Mer pranzo pollo") → Master Weekly Plan
+- Raccomandazioni di allenamento (esercizi, serie, RPE, giorni della settimana) → Activity Plan + Master Weekly Plan
+- Igiene del sonno (orario di andata a letto, temperatura camera, pausa schermi) → Recovery Plan
+- Buffer di stress, esercizi di respirazione, meditazione → Stress Plan + Master Weekly Plan`;
   }
 
   if (type === "recovery") {
@@ -1661,7 +1790,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "tr", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'En az 1 blok akşam isteklerini açıkça ele ALMALIDIR — somut olarak protein zamanlamasıyla (örn. akşam yemeğinde 30 g protein kan şekerini dengeler → gece daha az istek).',
       low_protein: "En az 1 blok protein hedeflerini somutlaştırMALIDIR (örn. 1,6–2,2 g/kg vücut ağırlığı/gün → porsiyonları × öğüne böl).",
@@ -1789,7 +1918,50 @@ METABOLİK PLAN — Kullanıcı verisi:
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 
-Detaylı, kişiselleştirilmiş bir Metabolik plan oluştur, somut protokoller ver.`;
+METABOLIC-PLAN STRUCTURE — system prompt'daki 5 bloklu varsayılanı geçersiz kılar. Şu sırayla TAM OLARAK 7 blok üret:
+
+Blok 1 — "Mevcut durumun": 3-4 madde. Metabolic Score + BMI sınıflandırması + niteliksel metabolizma notu + kısa cross-plan hatırlatması (uyku/stres Recovery ve Stress planlarında, öğün zamanlaması Master Weekly Plan'da).
+
+Blok 2 — "Metabolizma Bilimi": 3-4 madde.
+- Metabolic Score'un gerçekte ne ölçtüğü (BMI + aktivite ve uyku tamponları)
+- BMI değeri sınıflandırılmış + yüksek kas kütlesindeki sınırları (sporcular için vücut yağ % daha hassas)
+- Performansın merkezi kaldıracı olarak insülin duyarlılığı + mekanizma (glukoz alımı, kas glikojeni, enflamasyon)
+- BMR vs TDEE (bazal vs toplam tüketim; aktivite seviyesinden somut bir aralık tahmin edilebilir ama bireyseldir)
+
+Blok 3 — "Protein Prensipleri": 3-4 madde.
+- Günlük hedef: antrenmanla 1,6-2,2 g/kg vücut ağırlığı (kullanıcının kilosuna göre somut bir aralık hesapla)
+- Lösin eşiği: öğün başına ~2,5g lösin (≈ 25-30g yüksek kaliteli protein) kas protein sentezini tetikler
+- Dağılım: 4-5 öğün × 25-40g protein > 2 öğün × 50-80g (sentez maksimizasyonu)
+- Kaynak karşılaştırması: hayvansal (tam amino asit profili, yüksek lösin) vs bitkisel (daha fazla hacim + kombinasyon: baklagiller + tahıllar)
+
+Blok 4 — "Öğün Metot Kütüphanesi": 3-5 madde. Şablon kavramları, somut saatler veya haftanın günleri DEĞİL:
+- Kahvaltı şablonu: 20-30g protein + kompleks karbonhidrat + yağ. Mekanizma: kan şekerini 3-4 saat stabilize eder, sabah ortası çöküşünü azaltır.
+- Post-workout şablonu (60 dk içinde): protein + karbonhidrat 1:2 oranı. Mekanizma: kas protein sentezi + glikojen yeniden sentezi.
+- Protein-snack şablonu: 15-25g protein + lif. Kullanım: ana öğün >4 saat uzaktayken, tatlı krizi önleme.
+Kullanıcı verilerine göre opsiyonel:
+- Snack şablonu nutrition_painpoint "cravings_evening" veya "low_protein" içeriyorsa: günün ilerleyen saatlerinde protein odaklı.
+- Refeed şablonu main_goal ∈ {body_comp, performance} ise: antrenman günlerinde karbonhidrat yüksek — defisitte leptin/tiroid koruması.
+
+Blok 5 — "Hidrasyon + Mikrobesinler": 2-3 madde.
+- Su ihtiyacı: vücut ağırlığı başına 35-40 ml baseline + antrenman saati başına 500-1000 ml. Mekanizma: plazma hacmi, performans, konsantrasyon.
+- Elektrolitler: sodyum 1-2g/gün (yoğun terlerken daha fazla), potasyum 3-4g, magnezyum 400mg. Ne zaman takviye (yoğun antrenman dönemleri, sıcak).
+
+Blok 6 — "Vücut Kompozisyonu vs Kilo": 2-3 madde.
+- Terazi neden tek başına yanıltıcı: glikojen-su dalgalanmaları (haftada 1-3kg normal), kas kazanımı vs yağ kaybı terazide aynı görünebilir.
+- Daha iyi takip yöntemleri: haftalık ayna kontrolü, aylık bel/kalça çevresi, performans işaretleri (kuvvet, dayanıklılık), mümkünse 3-6 ayda bir DXA/kaliper.
+- Somut tartılma takvimi ve ritmi Master Weekly Plan'a ait.
+
+Blok 7 — "Progress Tracking": 3-4 madde.
+- Gerçekçi beklentiler: defisitte yağ kaybı vücut ağırlığının %0,5-1'i/hafta; antrenmanlı kişide kas artışı 0,25-0,5 kg/ay.
+- Kilonun ötesinde gerçekten neyi takip et: enerji ölçeği 1-10, açlık ölçeği, antrenman performansı, uyku kalitesi.
+- 4 hafta sonra yeniden analiz — stres + uyku + aktivite işaretleri Metabolic Score'u etkiler, sadece beslenme değil.
+- Tartılma planı YOK, somut öğün saatleri YOK — bunlar Master Weekly Plan'a ait.
+
+AÇIKÇA YASAK — bunlar burada değil, diğer planlarda olmalı:
+- Gün-bazlı öğünler ("Pzt 7:30 yumurta", "Çar öğle tavuk") → Master Weekly Plan
+- Antrenman önerileri (egzersizler, setler, RPE, haftanın günleri) → Activity Plan + Master Weekly Plan
+- Uyku hijyeni (yatma saati, oda sıcaklığı, ekran molası) → Recovery Plan
+- Stres tamponları, nefes egzersizleri, meditasyon → Stress Plan + Master Weekly Plan`;
   }
 
   if (type === "recovery") {
