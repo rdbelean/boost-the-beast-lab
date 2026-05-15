@@ -1163,7 +1163,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "de", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic" || type === "activity") {
+  if (type === "metabolic") {
     const np: Record<string, string> = {
       cravings_evening: 'Mindestens 1 Block MUSS "Heißhunger abends" explizit adressieren — konkret mit Protein-Timing (z.B. 30 g Protein beim Abendessen stabilisiert Blutzucker → weniger Cravings in der Nacht).',
       low_protein: "Mindestens 1 Block MUSS Protein-Targets konkret machen (z.B. 1,6–2,2 g/kg KG/Tag → Portionen × Mahlzeit runterbrechen).",
@@ -1230,7 +1230,54 @@ ACTIVITY-PLAN — Nutzerdaten:
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (BMI: ${s.metabolic.bmi}, ${s.metabolic.bmi_category})
 
-Generiere einen detaillierten, personalisierten Activity-Plan. Nutze alle übermittelten Zahlen und erkläre das Warum hinter jeder Empfehlung.`;
+ACTIVITY-PLAN STRUCTURE — überschreibt den 5-Block-System-Prompt-Default. Erzeuge EXAKT 7 Blocks in dieser Reihenfolge:
+
+Block 1 — "Deine Ausgangslage": 3-4 items. Score + Bottleneck-Diagnose (MET-min/Woche Gap, VO2max-Klassifikation, Schlaf/Stress-Kontext).
+
+Block 2 — "VO2max-Wissenschaft": 3-4 items.
+- Was VO2max bedeutet (maximale Sauerstoffaufnahme in ml/kg/min)
+- User-Wert klassifizieren (Poor/Fair/Good/Excellent für Alter + Geschlecht)
+- Trainierbarkeits-Mechanismus (mitochondriale Dichte, kardiales Output, oxidative Enzyme)
+- Realistische Steigerungs-Erwartung (5-15% in 8-12 Wochen bei gezieltem Training)
+
+Block 3 — "Polarisiertes Training": 3-4 items.
+- 80/20-Verteilung (Seiler/Tønnessen-Forschung)
+- Zone-Konzept Z1-Z5 mit Klartext-Erklärungen
+- RPE-Skala 1-10 erklärt
+- Warum polarisiert > Threshold-Training
+
+Block 4 — "Methoden-Bibliothek": 3-6 items. Wähle 2-4 Methoden, die zu den vom User genannten Sportarten passen (siehe extractedEntities.sports oben falls vorhanden, sonst nach experience_level + main_goal):
+- Laufen / Running → Z2-Lauf + Tempo-Lauf (+ Norwegian 4×4 wenn experience_level ∈ {intermediate, advanced})
+- Kraft / Strength → 5×5-Schema + Bodyweight-Progression
+- Radfahren / Cycling → Z2 + Sweet-Spot-Intervalle
+- Schwimmen / Swimming → Schwellen-Intervalle + Long Swim
+- Hybrid Kraft+Ausdauer → 5×5 + Z2-Cardio
+- Team/Ballsport (Tennis/Fußball/Basketball) → Interval Play + Agility-Drills
+- Yoga / Mobility → Mobility-Flow + Krafttraining-Ergänzung
+- Wenn keine Sport-Eingabe / leer / "keine" → Bodyweight-Grundlagen + Z2-Walking als sichere Defaults
+Pro gewählter Methode 1 Bullet: Methoden-Name + Mechanismus + konkrete Anleitung (Sätze/Wdh/Dauer) + wann anwenden. KEINE generische Methoden-Bibel — nur 2-4 Methoden die zum User passen.
+
+Block 5 — "NEAT (Non-Exercise Activity Thermogenesis)": 2 items.
+- Was NEAT ist + warum 300-800 kcal/Tag möglicher Hebel
+- Wie NEAT additiv zu strukturiertem Training wirkt
+KEINE konkreten Treppen-/Aufzug-Tipps (Lifestyle-Content gehört in den Master-Wochenplan).
+
+Block 6 — "Trainings-Belastungs-Management": 2-3 items.
+- RPE-basierte Belastungs-Steuerung
+- Übertraining-Marker (HRV-Drop, Schlafverschlechterung, anhaltende Müdigkeit)
+- Wann Volumen reduzieren / erhöhen
+
+Block 7 — "Progress-Tracking": 3-4 items.
+- VO2max-Re-Test (Cooper-Test oder ähnlich)
+- Trainings-Konsistenz (Sessions/Woche, MET-min/Woche)
+- Re-Analyse nach 4 Wochen
+KEIN Gewicht-Tracking, KEIN Stress-Check — die gehören in Metabolic + Stress.
+
+EXPLIZIT VERBOTEN — diese Inhalte gehören NICHT in den Activity-Plan, sondern in andere Pläne:
+- Frühstücks-Timing, Koffein-Cutoff, Pre/Post-Workout-Mahlzeiten → Metabolic + Master-Wochenplan
+- Meal-Prep-System, Protein-Targets, Wiegen-Rhythmus → Metabolic
+- Tag-für-Tag-Trainings-Empfehlungen ("Mo VO2max, Mi Kraft, Fr Tempo") → Master-Wochenplan
+- Stress-Puffer, Meditation, Atemübungen → Stress + Master-Wochenplan`;
   }
 
   if (type === "metabolic") {
@@ -1282,7 +1329,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "en", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic" || type === "activity") {
+  if (type === "metabolic") {
     const np: Record<string, string> = {
       cravings_evening: 'At least 1 block MUST explicitly address evening cravings — concretely with protein timing (e.g. 30 g protein at dinner stabilises blood sugar → fewer cravings at night).',
       low_protein: "At least 1 block MUST make protein targets concrete (e.g. 1.6–2.2 g/kg body weight/day → break down portions × meal).",
@@ -1349,7 +1396,54 @@ ACTIVITY PLAN — User data:
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (BMI: ${s.metabolic.bmi}, ${s.metabolic.bmi_category})
 
-Generate a detailed, personalised Activity plan. Use every number provided and explain the WHY behind each recommendation.`;
+ACTIVITY-PLAN STRUCTURE — overrides the 5-block system-prompt default. Generate EXACTLY 7 blocks in this order:
+
+Block 1 — "Your Starting Point": 3-4 items. Score + bottleneck diagnosis (MET-min/week gap, VO2max classification, sleep/stress context).
+
+Block 2 — "VO2max Science": 3-4 items.
+- What VO2max means (maximum oxygen uptake in ml/kg/min)
+- User value classified (Poor/Fair/Good/Excellent for age + gender)
+- Trainability mechanism (mitochondrial density, cardiac output, oxidative enzymes)
+- Realistic improvement expectation (5-15% in 8-12 weeks with targeted training)
+
+Block 3 — "Polarised Training": 3-4 items.
+- 80/20 distribution (Seiler/Tønnessen research)
+- Zone concept Z1-Z5 with plain-language explanations
+- RPE scale 1-10 explained
+- Why polarised > threshold training
+
+Block 4 — "Method Library": 3-6 items. Pick 2-4 methods that match the user's sports (see extractedEntities.sports above if present, otherwise by experience_level + main_goal):
+- Running → Z2 run + tempo run (+ Norwegian 4×4 if experience_level ∈ {intermediate, advanced})
+- Strength → 5×5 scheme + bodyweight progression
+- Cycling → Z2 + sweet-spot intervals
+- Swimming → threshold intervals + long swim
+- Hybrid Strength+Endurance → 5×5 + Z2 cardio
+- Team/ball sports (tennis/football/basketball) → interval play + agility drills
+- Yoga / Mobility → mobility flow + complementary strength
+- If no sport entered / empty / "none" → bodyweight foundations + Z2 walking as safe defaults
+Per method: 1 bullet with method name + mechanism + concrete instruction (sets/reps/duration) + when to apply. NO generic method bible — only 2-4 methods that fit this user.
+
+Block 5 — "NEAT (Non-Exercise Activity Thermogenesis)": 2 items.
+- What NEAT is + why 300-800 kcal/day possible lever
+- How NEAT adds to structured training (additive, not replacing)
+NO concrete stairs-vs-elevator tips (lifestyle content belongs in the Master Weekly Plan).
+
+Block 6 — "Training Load Management": 2-3 items.
+- RPE-based load steering
+- Overtraining markers (HRV drop, sleep degradation, persistent fatigue)
+- When to reduce / increase volume
+
+Block 7 — "Progress Tracking": 3-4 items.
+- VO2max re-test (Cooper test or similar)
+- Training consistency (sessions/week, MET-min/week)
+- Re-analysis after 4 weeks
+NO weight tracking, NO stress check — those belong in Metabolic + Stress.
+
+EXPLICITLY FORBIDDEN — these belong in other plans, NOT here:
+- Breakfast timing, caffeine cutoff, pre/post-workout meals → Metabolic + Master Plan
+- Meal-prep system, protein targets, weighing rhythm → Metabolic
+- Day-by-day training recommendations ("Mon VO2max, Wed strength, Fri tempo") → Master Plan
+- Stress buffers, meditation, breathing exercises → Stress + Master Plan`;
   }
 
   if (type === "metabolic") {
@@ -1401,7 +1495,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "it", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic" || type === "activity") {
+  if (type === "metabolic") {
     const np: Record<string, string> = {
       cravings_evening: 'Almeno 1 blocco DEVE affrontare esplicitamente le voglie serali — concretamente con protein timing (es. 30 g di proteine a cena stabilizzano la glicemia → meno voglie di notte).',
       low_protein: "Almeno 1 blocco DEVE rendere concreti i target proteici (es. 1,6–2,2 g/kg peso corporeo/giorno → ripartire le porzioni × pasto).",
@@ -1468,7 +1562,54 @@ PIANO ATTIVITÀ — Dati utente:
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (BMI: ${s.metabolic.bmi}, ${s.metabolic.bmi_category})
 
-Genera un piano attività dettagliato e personalizzato. Usa ogni numero fornito e spiega il PERCHÉ dietro ogni raccomandazione.`;
+ACTIVITY-PLAN STRUCTURE — sovrascrive il default di 5 blocchi del system prompt. Genera ESATTAMENTE 7 blocchi in quest'ordine:
+
+Blocco 1 — "La tua situazione attuale": 3-4 items. Score + diagnosi del bottleneck (gap MET-min/settimana, classificazione VO2max, contesto sonno/stress).
+
+Blocco 2 — "Scienza del VO2max": 3-4 items.
+- Cosa significa VO2max (massimo consumo di ossigeno in ml/kg/min)
+- Valore utente classificato (Poor/Fair/Good/Excellent per età + genere)
+- Meccanismo di allenabilità (densità mitocondriale, gittata cardiaca, enzimi ossidativi)
+- Aspettativa realistica di miglioramento (5-15% in 8-12 settimane con allenamento mirato)
+
+Blocco 3 — "Allenamento polarizzato": 3-4 items.
+- Distribuzione 80/20 (ricerca Seiler/Tønnessen)
+- Concetto delle Zone Z1-Z5 con spiegazioni in linguaggio quotidiano
+- Scala RPE 1-10 spiegata
+- Perché polarizzato > threshold
+
+Blocco 4 — "Libreria di metodi": 3-6 items. Scegli 2-4 metodi che corrispondono agli sport dell'utente (vedi extractedEntities.sports sopra se presente, altrimenti per experience_level + main_goal):
+- Corsa → Z2 + tempo run (+ Norwegian 4×4 se experience_level ∈ {intermediate, advanced})
+- Forza → schema 5×5 + progressione a corpo libero
+- Ciclismo → Z2 + intervalli sweet-spot
+- Nuoto → intervalli alla soglia + long swim
+- Ibrido Forza+Resistenza → 5×5 + Z2 cardio
+- Sport di squadra/palla (tennis/calcio/basket) → interval play + drills di agilità
+- Yoga / Mobility → mobility flow + forza complementare
+- Se nessuno sport inserito / vuoto / "nessuno" → fondamentali a corpo libero + Z2 walking come default sicuri
+Per metodo: 1 bullet con nome + meccanismo + istruzione concreta (serie/ripetizioni/durata) + quando applicare. NIENTE bibbia generica dei metodi — solo 2-4 metodi adatti all'utente.
+
+Blocco 5 — "NEAT (Termogenesi non da esercizio)": 2 items.
+- Cosa è NEAT + perché 300-800 kcal/giorno come possibile leva
+- Come NEAT si aggiunge all'allenamento strutturato (additivo, non sostitutivo)
+NIENTE consigli concreti di scale/ascensore (contenuto lifestyle, va nel Master Weekly Plan).
+
+Blocco 6 — "Gestione del carico di allenamento": 2-3 items.
+- Steering del carico basato su RPE
+- Marker di overtraining (calo HRV, peggioramento sonno, fatica persistente)
+- Quando ridurre / aumentare il volume
+
+Blocco 7 — "Progress Tracking": 3-4 items.
+- Re-test VO2max (Cooper test o simile)
+- Consistenza di allenamento (sessioni/settimana, MET-min/settimana)
+- Re-analisi dopo 4 settimane
+NIENTE tracking del peso, NIENTE check dello stress — appartengono a Metabolic + Stress.
+
+ESPLICITAMENTE VIETATO — questi contenuti NON vanno qui, vanno in altri piani:
+- Timing della colazione, cutoff caffeina, pasti pre/post-workout → Metabolic + Master Plan
+- Sistema di meal-prep, target proteici, ritmo di pesatura → Metabolic
+- Raccomandazioni allenamento giorno-per-giorno ("Lun VO2max, Mer forza, Ven tempo") → Master Plan
+- Buffer di stress, meditazione, esercizi di respirazione → Stress + Master Plan`;
   }
 
   if (type === "metabolic") {
@@ -1520,7 +1661,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "tr", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic" || type === "activity") {
+  if (type === "metabolic") {
     const np: Record<string, string> = {
       cravings_evening: 'En az 1 blok akşam isteklerini açıkça ele ALMALIDIR — somut olarak protein zamanlamasıyla (örn. akşam yemeğinde 30 g protein kan şekerini dengeler → gece daha az istek).',
       low_protein: "En az 1 blok protein hedeflerini somutlaştırMALIDIR (örn. 1,6–2,2 g/kg vücut ağırlığı/gün → porsiyonları × öğüne böl).",
@@ -1587,7 +1728,54 @@ AKTİVİTE PLANI — Kullanıcı verisi:
 - Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (BMI: ${s.metabolic.bmi}, ${s.metabolic.bmi_category})
 
-Detaylı, kişiselleştirilmiş bir Aktivite planı oluştur. Verilen her sayıyı kullan ve her önerinin NEDENİNİ açıkla.`;
+ACTIVITY-PLAN STRUCTURE — system prompt'daki 5 bloklu varsayılanı geçersiz kılar. Şu sırayla TAM OLARAK 7 blok üret:
+
+Blok 1 — "Mevcut durumun": 3-4 madde. Skor + bottleneck-teşhisi (MET-dk/hafta gap, VO2max sınıflandırması, uyku/stres bağlamı).
+
+Blok 2 — "VO2max Bilimi": 3-4 madde.
+- VO2max nedir (maksimum oksijen alımı, ml/kg/dk)
+- Kullanıcı değeri sınıflandırılmış (Poor/Fair/Good/Excellent yaş + cinsiyete göre)
+- Antrene edilebilirlik mekanizması (mitokondri yoğunluğu, kardiyak output, oksidatif enzimler)
+- Gerçekçi iyileşme beklentisi (hedefli antrenmanla 8-12 haftada %5-15)
+
+Blok 3 — "Polarize Antrenman": 3-4 madde.
+- 80/20 dağılımı (Seiler/Tønnessen araştırması)
+- Z1-Z5 Zone kavramı, günlük dilde açıklamalarla
+- RPE 1-10 skalası açıklanmış
+- Polarize neden threshold'dan daha üstün
+
+Blok 4 — "Metot Kütüphanesi": 3-6 madde. Kullanıcının sporlarına uyan 2-4 metot seç (yukarıdaki extractedEntities.sports varsa ondan, yoksa experience_level + main_goal'a göre):
+- Koşu → Z2 koşu + tempo koşu (+ Norwegian 4×4 eğer experience_level ∈ {intermediate, advanced})
+- Kuvvet → 5×5 şeması + vücut ağırlığı progresyonu
+- Bisiklet → Z2 + sweet-spot intervalleri
+- Yüzme → eşik intervalleri + long swim
+- Hibrit Kuvvet+Dayanıklılık → 5×5 + Z2 kardiyo
+- Takım/top sporu (tenis/futbol/basket) → interval play + agility drills
+- Yoga / Mobility → mobility flow + tamamlayıcı kuvvet
+- Hiç spor girilmediyse / boş / "yok" → vücut ağırlığı temelleri + Z2 yürüyüş güvenli default
+Her metot için 1 madde: metot adı + mekanizma + somut talimat (set/tekrar/süre) + ne zaman uygulanır. Genel metot kütüphanesi YOK — sadece kullanıcıya uyan 2-4 metot.
+
+Blok 5 — "NEAT (Egzersiz-dışı Aktivite Termogenezi)": 2 madde.
+- NEAT nedir + neden 300-800 kcal/gün potansiyel kaldıraç
+- NEAT yapılandırılmış antrenmana nasıl eklenir (toplamsal, yerine geçmez)
+Somut merdiven/asansör ipuçları YOK (yaşam tarzı içeriği Master Weekly Plan'a ait).
+
+Blok 6 — "Antrenman Yükü Yönetimi": 2-3 madde.
+- RPE bazlı yük yönetimi
+- Aşırı antrenman belirteçleri (HRV düşüşü, uyku kötüleşmesi, kalıcı yorgunluk)
+- Ne zaman hacim azaltılır / artırılır
+
+Blok 7 — "Progress Tracking": 3-4 madde.
+- VO2max yeniden testi (Cooper test veya benzeri)
+- Antrenman tutarlılığı (seans/hafta, MET-dk/hafta)
+- 4 hafta sonra yeniden analiz
+Ağırlık takibi YOK, stres check YOK — bunlar Metabolic + Stress'e ait.
+
+AÇIKÇA YASAK — bunlar burada değil, diğer planlarda olmalı:
+- Kahvaltı zamanlaması, kafein cutoff'u, pre/post-workout öğünleri → Metabolic + Master Plan
+- Meal-prep sistemi, protein hedefleri, tartılma ritmi → Metabolic
+- Gün-gün antrenman önerileri ("Pzt VO2max, Çar kuvvet, Cum tempo") → Master Plan
+- Stres tampınları, meditasyon, nefes egzersizleri → Stress + Master Plan`;
   }
 
   if (type === "metabolic") {
