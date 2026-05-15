@@ -40,6 +40,11 @@ const FORBIDDEN_PHRASES: Record<Locale, string[]> = {
     "nimm dir zeit",
     "achte auf dich",
     "trink mehr wasser",
+    // Standard-Atem-Floskeln (Best-Effort-Warning, kein Hard-Fail)
+    "box breathing",
+    "tief atmen",
+    "tief durchatmen",
+    "tiefe atemübung",
   ],
   en: [
     "nature walk without phone",
@@ -53,6 +58,9 @@ const FORBIDDEN_PHRASES: Record<Locale, string[]> = {
     "take your time",
     "take care of yourself",
     "drink more water",
+    "box breathing",
+    "take deep breaths",
+    "deep breathing exercise",
   ],
   it: [
     "passeggiata nella natura senza telefono",
@@ -66,6 +74,8 @@ const FORBIDDEN_PHRASES: Record<Locale, string[]> = {
     "prenditi del tempo",
     "prenditi cura di te",
     "bevi più acqua",
+    "box breathing",
+    "respirazione profonda",
   ],
   tr: [
     "telefonsuz doğa yürüyüşü",
@@ -79,6 +89,8 @@ const FORBIDDEN_PHRASES: Record<Locale, string[]> = {
     "kendine zaman ayır",
     "kendine iyi bak",
     "daha fazla su iç",
+    "box breathing",
+    "derin nefes egzersizi",
   ],
 };
 
@@ -138,6 +150,7 @@ HARD CONSTRAINTS — VIOLATING ANY OF THESE IS A FAIL:
 - Activity score ${activity} → ${activity >= 85 ? "DO NOT recommend volume increases ('add X minutes', 'progress to N km'). User is already at high volume." : "volume progression is OK."}
 - Rest days: training cell = "REST", other cells (nutrition, recovery, stress_anchor) MUST still be filled normally.
 - NEVER mention numeric scores like "58/100" or score names like "Activity Score".
+- With sleep cutoff: state ONLY the cutoff time (e.g. "before 5pm"). DO NOT add a time-of-day descriptor ("morning", "noon") together with the cutoff. Without cutoff: no time-of-day descriptor at all.
 
 ACTIVITY CONSISTENCY:
 Use ONLY sports/activities the user mentioned in their quiz: dropdown="${inputs.training_dropdown ?? "—"}", freetext="${inputs.training_freetext ?? "—"}". Linguistic translation/rephrasing is allowed (e.g. "Rad" → "cycling" or "Fahrrad fahren"). DO NOT invent new activities. If both are empty: use bodyweight exercises + cardio walking as safe defaults.
@@ -200,6 +213,7 @@ VINCOLI VINCOLANTI — VIOLAZIONE = FAIL:
 - Activity ${activity} → ${activity >= 85 ? "NON consigliare aumenti di volume. L'utente è già ad alto volume." : "progressione di volume OK."}
 - Giorni di riposo: cella training = "RIPOSO", altre celle (nutrition, recovery, stress_anchor) DEVONO essere comunque riempite.
 - MAI menzionare score numerici ("58/100") o nomi di score ("Activity Score").
+- Con cutoff del sonno: indica SOLO l'orario di cutoff (es. "prima delle 17"). NON aggiungere etichette di fascia oraria ("mattina", "mezzogiorno") insieme al cutoff. Senza cutoff: nessuna etichetta oraria.
 
 CONSISTENZA ATTIVITÀ:
 Usa SOLO sport/attività menzionati dall'utente: dropdown="${inputs.training_dropdown ?? "—"}", freetext="${inputs.training_freetext ?? "—"}". Traduzione linguistica permessa. Inventare nuove attività vietato. Se entrambi vuoti: usa esercizi a corpo libero + camminata.
@@ -246,6 +260,7 @@ KATI KISITLAMALAR:
 - Activity ${activity} → ${activity >= 85 ? "Hacim artışı önerme." : "hacim artışı tamam."}
 - Dinlenme günleri: training hücresi = "DİNLENME", diğer hücreler doldurulmalıdır.
 - ASLA skor sayıları/adları yazma.
+- Uyku kesim saati varsa: SADECE kesim saatini yaz (örn. "17:00'dan önce"). Aynı zamanda gün-bölümü etiketi ("sabah", "öğlen") EKLEME. Kesim saati yoksa: gün-bölümü etiketi de yok.
 
 AKTİVİTE TUTARLILIĞI:
 SADECE kullanıcının belirttiği sporları kullan: dropdown="${inputs.training_dropdown ?? "—"}", freetext="${inputs.training_freetext ?? "—"}". Dilsel çeviri serbest. Aktivite uydurmak yasak. Her ikisi boşsa: vücut ağırlığı + yürüyüş varsayılan.
@@ -285,6 +300,7 @@ HARTE CONSTRAINTS — VERLETZUNG = FAIL:
 - Activity-Score ${activity} → ${activity >= 85 ? "KEINE Volume-Push-Empfehlungen. User ist bereits auf hohem Volumen." : "Volumen-Progression OK."}
 - Pause-Tage: training-Zelle = "PAUSE", andere Zellen (nutrition, recovery, stress_anchor) MÜSSEN normal befüllt werden.
 - NIEMALS Score-Zahlen ("58/100") oder Score-Namen ("Activity Score", "Recovery Score") erwähnen.
+- Bei Sleep-Cutoff: NUR die Cutoff-Zeit nennen (z.B. "vor 17 Uhr"). KEINE zusätzliche Tageszeit-Angabe ("morgens", "mittags") gleichzeitig. Ohne Cutoff: gar keine Tageszeit-Angabe.
 
 AKTIVITÄTS-KONSISTENZ:
 Verwende NUR Sportarten/Aktivitäten, die der User in seinen Quiz-Antworten erwähnt hat: dropdown="${inputs.training_dropdown ?? "—"}", freetext="${inputs.training_freetext ?? "—"}". Sprachliche Übersetzung oder Umformulierung ist erlaubt (z.B. "Rad" → "Cycling" oder "Fahrrad fahren"). Erfindung neuer Aktivitäten ist verboten. Wenn beide leer: Bodyweight-Übungen + Cardio-Walking als sichere Defaults.
