@@ -67,6 +67,97 @@ function formatMultiSelectPlan(value: readonly string[] | null | undefined, fall
   return value.join(", ");
 }
 
+/**
+ * Pro-Locale Painpoint-Labels für den Daten-Block. Verhindert dass
+ * Haiku rohe Enum-Strings ("low_protein", "no_energy") ins PDF echoed.
+ * Fallback bei unbekanntem Key: Raw-String zurückgeben (kein Crash).
+ */
+const PAINPOINT_LABELS: Record<Locale, Record<string, string>> = {
+  de: {
+    cravings_evening: "Heißhunger abends",
+    low_protein: "niedrige Proteinzufuhr",
+    no_energy: "Energiemangel über den Tag",
+    no_time: "wenig Zeit für Mahlzeiten",
+    undereating: "zu wenig essen",
+    none: "keine",
+  },
+  en: {
+    cravings_evening: "evening cravings",
+    low_protein: "low protein intake",
+    no_energy: "low daytime energy",
+    no_time: "little time for meals",
+    undereating: "undereating",
+    none: "none",
+  },
+  it: {
+    cravings_evening: "voglie serali",
+    low_protein: "apporto proteico basso",
+    no_energy: "poca energia durante il giorno",
+    no_time: "poco tempo per i pasti",
+    undereating: "sotto-alimentazione",
+    none: "nessuno",
+  },
+  tr: {
+    cravings_evening: "akşam istekleri",
+    low_protein: "düşük protein alımı",
+    no_energy: "gün boyu enerji eksikliği",
+    no_time: "yemekler için az zaman",
+    undereating: "yetersiz beslenme",
+    none: "yok",
+  },
+};
+
+function formatPainpointsForLocale(
+  value: readonly string[] | null | undefined,
+  locale: Locale,
+  fallback: string,
+): string {
+  if (!value || value.length === 0) return fallback;
+  const map = PAINPOINT_LABELS[locale];
+  return value.map((v) => map[v] ?? v).join(", ");
+}
+
+/**
+ * Pro-Locale Stress-Band-Adjektive. stress_band ist ein englisches Enum
+ * ("elevated"/"high"/...) aus lib/scoring/stress.ts; in lokalisierte
+ * Prompts darf nur das passende Adjektiv fließen, damit Haiku keine
+ * Pseudo-Templates erzeugt.
+ */
+const STRESS_BAND_LABELS: Record<Locale, Record<string, string>> = {
+  de: {
+    critical: "kritisch",
+    high: "hoch",
+    elevated: "erhöht",
+    moderate: "moderat",
+    low_stress: "niedrig",
+  },
+  en: {
+    critical: "critical",
+    high: "high",
+    elevated: "elevated",
+    moderate: "moderate",
+    low_stress: "low",
+  },
+  it: {
+    critical: "critico",
+    high: "alto",
+    elevated: "elevato",
+    moderate: "moderato",
+    low_stress: "basso",
+  },
+  tr: {
+    critical: "kritik",
+    high: "yüksek",
+    elevated: "yüksek",
+    moderate: "orta",
+    low_stress: "düşük",
+  },
+};
+
+function localizeStressBand(band: string, locale: Locale): string {
+  return STRESS_BAND_LABELS[locale][band] ?? band;
+}
+
 /** Iteriert über Multi-Select-Werte und pusht für jeden eine Rule aus der Map. */
 function pushMultiSelectRules(
   values: readonly string[] | null | undefined,
@@ -1205,7 +1296,7 @@ USER PERSONALISIERUNG (PFLICHT berücksichtigen):
 - Zeitbudget: ${p.time_budget ?? "moderate (Default)"}
 - Erfahrungslevel: ${p.experience_level ?? "intermediate (Default)"}
 - Aktuelle Trainingstage/Woche: ${p.training_days ?? "nicht angegeben"}
-- Ernährungs-Painpoint (kann mehrere sein): ${formatMultiSelectPlan(p.nutrition_painpoint, "nicht angegeben")}
+- Ernährungs-Painpoint (kann mehrere sein): ${formatPainpointsForLocale(p.nutrition_painpoint, "de", "nicht angegeben")}
 - Haupt-Stressor (kann mehrere sein): ${formatMultiSelectPlan(p.stress_source, "nicht angegeben")}
 - Liebstes Erholungs-Ritual (kann mehrere sein): ${formatMultiSelectPlan(p.recovery_ritual, "nicht angegeben")}
 
@@ -1215,6 +1306,7 @@ HARTE REGELN:
 - Wenn main_goal ∈ {feel_better, stress_sleep, longevity}: Training kommt NACH Schlaf/Stress/Ernährungs-Fixes in der Priorität. Keine HIIT-Empfehlungen.
 - Wenn training_days=0: Starten bei 1×/Woche. NIE 5×/Woche als Startempfehlung.
 - NUR wenn main_goal="performance" UND time_budget ∈ {committed, athlete} UND experience_level ∈ {intermediate, advanced}: DANN sind 4–5 Einheiten/Woche angebracht.
+- Schreibe sauberes Deutsch: Leerzeichen vor öffnender Klammer, Leerzeichen nach Doppelpunkt.
 ${deepRulesBlock}${dedicatedSectionsBlock}`;
 
   if (type === "activity") {
@@ -1289,7 +1381,7 @@ METABOLIC-PLAN — Nutzerdaten:
 - BMI: ${s.metabolic.bmi} kg/m² (${s.metabolic.bmi_category}) (WHO normal: 18.5–24.9)
 - Activity Score: ${s.activity.activity_score_0_100}/100 — MET-min/week: ${s.activity.total_met_minutes_week}
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
-- Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
+- Stress Score: ${s.stress.stress_score_0_100}/100 (${localizeStressBand(s.stress.stress_band, "de")})
 
 Generiere einen detaillierten, personalisierten Metabolic-Plan mit konkreten Protokollen.`;
   }
@@ -1371,7 +1463,7 @@ USER PERSONALIZATION (MANDATORY to respect):
 - Time budget: ${p.time_budget ?? "moderate (default)"}
 - Experience level: ${p.experience_level ?? "intermediate (default)"}
 - Current training days/week: ${p.training_days ?? "not specified"}
-- Nutrition pain point (may include multiple): ${formatMultiSelectPlan(p.nutrition_painpoint, "not specified")}
+- Nutrition pain point (may include multiple): ${formatPainpointsForLocale(p.nutrition_painpoint, "en", "not specified")}
 - Main stressor (may include multiple): ${formatMultiSelectPlan(p.stress_source, "not specified")}
 - Favourite recovery ritual (may include multiple): ${formatMultiSelectPlan(p.recovery_ritual, "not specified")}
 
@@ -1381,6 +1473,7 @@ HARD RULES:
 - If main_goal ∈ {feel_better, stress_sleep, longevity}: Training ranks AFTER sleep/stress/nutrition fixes. No HIIT recommendations.
 - If training_days=0: Start at 1×/week. NEVER 5×/week as a starting point.
 - ONLY if main_goal="performance" AND time_budget ∈ {committed, athlete} AND experience_level ∈ {intermediate, advanced}: THEN 4–5 sessions/week is appropriate.
+- Use clean English: space before an opening paren, space after a colon.
 ${deepRulesBlock}${dedicatedSectionsBlock}`;
 
   if (type === "activity") {
@@ -1455,7 +1548,7 @@ METABOLIC PLAN — User data:
 - BMI: ${s.metabolic.bmi} kg/m² (${s.metabolic.bmi_category}) (WHO normal: 18.5–24.9)
 - Activity Score: ${s.activity.activity_score_0_100}/100 — MET-min/week: ${s.activity.total_met_minutes_week}
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
-- Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
+- Stress Score: ${s.stress.stress_score_0_100}/100 (${localizeStressBand(s.stress.stress_band, "en")})
 
 Generate a detailed, personalised Metabolic plan with concrete protocols.`;
   }
@@ -1537,7 +1630,7 @@ PERSONALIZZAZIONE UTENTE (OBBLIGATORIA):
 - Tempo disponibile: ${p.time_budget ?? "moderate (default)"}
 - Livello di esperienza: ${p.experience_level ?? "intermediate (default)"}
 - Giorni di allenamento attuali/settimana: ${p.training_days ?? "non specificato"}
-- Pain point nutrizionale (può includere più valori): ${formatMultiSelectPlan(p.nutrition_painpoint, "non specificato")}
+- Pain point nutrizionale (può includere più valori): ${formatPainpointsForLocale(p.nutrition_painpoint, "it", "non specificato")}
 - Fattore di stress principale (può includere più valori): ${formatMultiSelectPlan(p.stress_source, "non specificato")}
 - Rituale di recupero preferito (può includere più valori): ${formatMultiSelectPlan(p.recovery_ritual, "non specificato")}
 
@@ -1547,6 +1640,7 @@ REGOLE DURE:
 - Se main_goal ∈ {feel_better, stress_sleep, longevity}: L'allenamento viene DOPO la cura di sonno/stress/nutrizione. Niente HIIT.
 - Se training_days=0: Partire da 1×/settimana. MAI 5×/settimana come punto di partenza.
 - SOLO se main_goal="performance" E time_budget ∈ {committed, athlete} E experience_level ∈ {intermediate, advanced}: ALLORA 4–5 sessioni/settimana sono appropriate.
+- Scrivi in italiano pulito: spazio prima della parentesi aperta, spazio dopo i due punti.
 ${deepRulesBlock}${dedicatedSectionsBlock}`;
 
   if (type === "activity") {
@@ -1621,7 +1715,7 @@ PIANO METABOLICO — Dati utente:
 - BMI: ${s.metabolic.bmi} kg/m² (${s.metabolic.bmi_category}) (WHO normal: 18,5–24,9)
 - Activity Score: ${s.activity.activity_score_0_100}/100 — MET-min/settimana: ${s.activity.total_met_minutes_week}
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
-- Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
+- Stress Score: ${s.stress.stress_score_0_100}/100 (${localizeStressBand(s.stress.stress_band, "it")})
 
 Genera un piano metabolico dettagliato e personalizzato con protocolli concreti.`;
   }
@@ -1703,7 +1797,7 @@ KULLANICI KİŞİSELLEŞTİRME (ZORUNLU):
 - Zaman bütçesi: ${p.time_budget ?? "moderate (varsayılan)"}
 - Deneyim seviyesi: ${p.experience_level ?? "intermediate (varsayılan)"}
 - Mevcut antrenman günü/hafta: ${p.training_days ?? "belirtilmedi"}
-- Beslenme sorunu (birden fazla olabilir): ${formatMultiSelectPlan(p.nutrition_painpoint, "belirtilmedi")}
+- Beslenme sorunu (birden fazla olabilir): ${formatPainpointsForLocale(p.nutrition_painpoint, "tr", "belirtilmedi")}
 - Ana stres kaynağı (birden fazla olabilir): ${formatMultiSelectPlan(p.stress_source, "belirtilmedi")}
 - En sevilen iyileşme ritüeli (birden fazla olabilir): ${formatMultiSelectPlan(p.recovery_ritual, "belirtilmedi")}
 
@@ -1713,6 +1807,7 @@ KATI KURALLAR:
 - Eğer main_goal ∈ {feel_better, stress_sleep, longevity}: Antrenman uyku/stres/beslenme düzeltmelerinden SONRA gelir. HIIT önerme.
 - Eğer training_days=0: 1×/hafta ile başla. ASLA 5×/hafta başlangıç önerisi olamaz.
 - YALNIZCA main_goal="performance" VE time_budget ∈ {committed, athlete} VE experience_level ∈ {intermediate, advanced} ise: O ZAMAN 4–5 seans/hafta uygundur.
+- Türkçeyi temiz yaz: açık paranteden önce boşluk, iki noktadan sonra boşluk.
 ${deepRulesBlock}${dedicatedSectionsBlock}`;
 
   if (type === "activity") {
@@ -1787,7 +1882,7 @@ METABOLİK PLAN — Kullanıcı verisi:
 - BMI: ${s.metabolic.bmi} kg/m² (${s.metabolic.bmi_category}) (WHO normal: 18,5–24,9)
 - Activity Score: ${s.activity.activity_score_0_100}/100 — MET-dk/hafta: ${s.activity.total_met_minutes_week}
 - Sleep Score: ${s.sleep.sleep_score_0_100}/100 (${s.sleep.sleep_band})
-- Stress Score: ${s.stress.stress_score_0_100}/100 (${s.stress.stress_band})
+- Stress Score: ${s.stress.stress_score_0_100}/100 (${localizeStressBand(s.stress.stress_band, "tr")})
 
 Detaylı, kişiselleştirilmiş bir Metabolik plan oluştur, somut protokoller ver.`;
   }
