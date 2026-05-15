@@ -1163,7 +1163,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "de", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'Mindestens 1 Block MUSS "Heißhunger abends" explizit adressieren — konkret mit Protein-Timing (z.B. 30 g Protein beim Abendessen stabilisiert Blutzucker → weniger Cravings in der Nacht).',
       low_protein: "Mindestens 1 Block MUSS Protein-Targets konkret machen (z.B. 1,6–2,2 g/kg KG/Tag → Portionen × Mahlzeit runterbrechen).",
@@ -1183,7 +1183,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
     };
     pushMultiSelectRules(p.stress_source, ss, deepRules);
   }
-  {
+  if (type !== "metabolic") {
     const rr: Record<string, string> = {
       sport: "Baue auf dem Ritual SPORT auf — keine komplett neue Routine aufzwingen.",
       nature: 'Integriere NATUR-Exposure explizit (z.B. "5 Min draußen zwischen 2 Meetings" statt nur "Atem-Pause").',
@@ -1374,7 +1374,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "en", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'At least 1 block MUST explicitly address evening cravings — concretely with protein timing (e.g. 30 g protein at dinner stabilises blood sugar → fewer cravings at night).',
       low_protein: "At least 1 block MUST make protein targets concrete (e.g. 1.6–2.2 g/kg body weight/day → break down portions × meal).",
@@ -1394,7 +1394,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
     };
     pushMultiSelectRules(p.stress_source, ss, deepRules);
   }
-  {
+  if (type !== "metabolic") {
     const rr: Record<string, string> = {
       sport: "Build on the user's existing SPORT ritual — do not impose a completely new routine.",
       nature: 'Integrate NATURE exposure explicitly (e.g. "5 min outside between two meetings" instead of just a "breath break").',
@@ -1585,7 +1585,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "it", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'Almeno 1 blocco DEVE affrontare esplicitamente le voglie serali — concretamente con protein timing (es. 30 g di proteine a cena stabilizzano la glicemia → meno voglie di notte).',
       low_protein: "Almeno 1 blocco DEVE rendere concreti i target proteici (es. 1,6–2,2 g/kg peso corporeo/giorno → ripartire le porzioni × pasto).",
@@ -1605,7 +1605,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
     };
     pushMultiSelectRules(p.stress_source, ss, deepRules);
   }
-  {
+  if (type !== "metabolic") {
     const rr: Record<string, string> = {
       sport: "Costruisci sul rituale esistente dello SPORT — non imporre una routine completamente nuova.",
       nature: 'Integra l\'esposizione alla NATURA in modo esplicito (es. "5 min all\'aperto tra due meeting" invece di una semplice "pausa respirazione").',
@@ -1796,7 +1796,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "tr", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'En az 1 blok akşam isteklerini açıkça ele ALMALIDIR — somut olarak protein zamanlamasıyla (örn. akşam yemeğinde 30 g protein kan şekerini dengeler → gece daha az istek).',
       low_protein: "En az 1 blok protein hedeflerini somutlaştırMALIDIR (örn. 1,6–2,2 g/kg vücut ağırlığı/gün → porsiyonları × öğüne böl).",
@@ -1816,7 +1816,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
     };
     pushMultiSelectRules(p.stress_source, ss, deepRules);
   }
-  {
+  if (type !== "metabolic") {
     const rr: Record<string, string> = {
       sport: "Kullanıcının mevcut SPOR ritüeli üzerine inşa et — tamamen yeni bir rutin dayatma.",
       nature: 'DOĞA teması olarak açıkça entegre et (örn. sadece "nefes molası" değil, "iki toplantı arasında 5 dk dışarıda").',
