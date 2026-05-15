@@ -1124,7 +1124,48 @@ ${trainingRealismRules.map((r) => `- ${r}`).join("\n")}
 `
     : "";
 
-  return `Erstelle einen ausführlichen, persönlichen Performance Report für dieses Profil. Nutze alle Daten präzise. Mache den Report so spezifisch wie möglich — jeder Satz soll sich auf genau diese Person beziehen, nicht auf ein Template.
+  return `═══════════════════════════════════════════════════════════
+ABSOLUTE REGEL — BMI INTERPRETATION
+═══════════════════════════════════════════════════════════
+
+Body Type Selbsteinschätzung: ${r.metabolic.body_type_self_assessment ?? "nicht angegeben"}
+BMI: ${r.metabolic.bmi}
+
+WENN body_type_self_assessment "male_3", "male_4", "female_3" oder "female_4" ist:
+
+  VERBOTEN — diese Wörter und Phrasen DARFST DU NICHT nutzen, auch wenn der BMI hoch ist:
+    ❌ "übergewichtig" / "Übergewicht"
+    ❌ "du musst abnehmen" / "Gewichtsverlust"
+    ❌ "Fettabbau als Priorität"
+    ❌ "Kaloriendefizit"
+    ❌ "zu schwer" / "zu hoher BMI" als Problem
+    ❌ Jegliche negative Aussage über das Körpergewicht
+
+  PFLICHT — stattdessen:
+    ✅ Behandle den hohen BMI als POSITIV (Hinweis auf Muskelmasse)
+    ✅ Formuliere wie: "Dein BMI von ${r.metabolic.bmi} reflektiert deine athletische
+       Komposition und Muskelmasse, nicht überschüssiges Fett."
+    ✅ Empfehlungen Richtung: Performance-Erhalt, Krafttraining, Recovery,
+       sportartspezifisches Training
+    ✅ Sprich den User als Athlet an, nicht als Patient mit Gewichtsproblem
+
+WENN body_type_self_assessment "male_5", "male_6", "female_5" oder "female_6" ist:
+  ✅ BMI-Penalty ist gerechtfertigt
+  ✅ Respektvoll, niemals beschämend
+  ❌ Wörter "fett" oder "dick" sind verboten
+  ✅ Stattdessen: "fülliger", "kräftiger", "mit mehr Körperfett"
+
+WENN body_type_self_assessment "male_1", "male_2", "female_1" oder "female_2" ist:
+  ✅ Standard BMI-Aussagen okay
+  ✅ Bei Untergewicht: Hinweis auf Aufbau
+
+WENN body_type_self_assessment "nicht angegeben" oder leer ist:
+  ✅ Standard BMI-Aussagen
+  ✅ Hinweis dass BMI nur eine grobe Orientierung ist
+
+═══════════════════════════════════════════════════════════
+
+Erstelle einen ausführlichen, persönlichen Performance Report für dieses Profil. Nutze alle Daten präzise. Mache den Report so spezifisch wie möglich — jeder Satz soll sich auf genau diese Person beziehen, nicht auf ein Template.
 
 REGELN:
 - Paraphrasiere die vorformulierten Interpretationen. Erfinde nichts.
@@ -1346,7 +1387,48 @@ ${trainingRealismRules.map((r) => `- ${r}`).join("\n")}
 `
     : "";
 
-  return `Create a detailed, personal performance report for this profile. Use all data precisely. Make the report as specific as possible — every sentence should refer to exactly this person, not a template.
+  return `═══════════════════════════════════════════════════════════
+ABSOLUTE RULE — BMI INTERPRETATION
+═══════════════════════════════════════════════════════════
+
+Body Type Self-Assessment: ${r.metabolic.body_type_self_assessment ?? "not specified"}
+BMI: ${r.metabolic.bmi}
+
+IF body_type_self_assessment is "male_3", "male_4", "female_3" or "female_4":
+
+  FORBIDDEN — you MUST NOT use these words even if the BMI is high:
+    ❌ "overweight"
+    ❌ "you need to lose weight" / "weight loss"
+    ❌ "fat loss as priority"
+    ❌ "calorie deficit"
+    ❌ "too heavy" / "BMI too high" framed as problem
+    ❌ Any negative statement about body weight
+
+  MANDATORY — instead you must:
+    ✅ Treat the high BMI as POSITIVE (indicates muscle mass)
+    ✅ Phrase like: "Your BMI of ${r.metabolic.bmi} reflects your athletic
+       composition and muscle mass, not excess fat."
+    ✅ Recommendations toward: performance maintenance, strength training,
+       recovery, sport-specific training
+    ✅ Address the user as an athlete, not as a patient with a weight problem
+
+IF body_type_self_assessment is "male_5", "male_6", "female_5" or "female_6":
+  ✅ BMI penalty is justified
+  ✅ Respectful, never shaming
+  ❌ Words like "fat" or "heavy" are forbidden
+  ✅ Use instead: "fuller", "stronger build", "carries more body fat"
+
+IF body_type_self_assessment is "male_1", "male_2", "female_1" or "female_2":
+  ✅ Standard BMI statements are okay
+  ✅ For underweight: hint at building up
+
+IF body_type_self_assessment is "not specified" or empty:
+  ✅ Standard BMI statements
+  ✅ Note that BMI is only a rough orientation
+
+═══════════════════════════════════════════════════════════
+
+Create a detailed, personal performance report for this profile. Use all data precisely. Make the report as specific as possible — every sentence should refer to exactly this person, not a template.
 
 RULES:
 - Paraphrase the pre-formulated interpretations. Do not invent.
@@ -1568,7 +1650,48 @@ ${trainingRealismRules.map((r) => `- ${r}`).join("\n")}
 `
     : "";
 
-  return `Crea un report di performance dettagliato e personale per questo profilo. Usa tutti i dati con precisione. Rendi il report il più specifico possibile — ogni frase deve riferirsi proprio a questa persona, non a un template.
+  return `═══════════════════════════════════════════════════════════
+REGOLA ASSOLUTA — INTERPRETAZIONE BMI
+═══════════════════════════════════════════════════════════
+
+Auto-valutazione body type: ${r.metabolic.body_type_self_assessment ?? "non specificato"}
+BMI: ${r.metabolic.bmi}
+
+SE body_type_self_assessment è "male_3", "male_4", "female_3" o "female_4":
+
+  VIETATO — NON DEVI usare queste parole anche se il BMI è alto:
+    ❌ "in sovrappeso" / "sovrappeso"
+    ❌ "devi dimagrire" / "perdita di peso"
+    ❌ "perdita di grasso come priorità"
+    ❌ "deficit calorico"
+    ❌ "troppo pesante" / "BMI troppo alto" presentato come problema
+    ❌ Qualsiasi affermazione negativa sul peso corporeo
+
+  OBBLIGATORIO — invece devi:
+    ✅ Tratta il BMI elevato come POSITIVO (indica massa muscolare)
+    ✅ Frase tipo: "Il tuo BMI di ${r.metabolic.bmi} riflette la tua composizione
+       atletica e massa muscolare, non grasso in eccesso."
+    ✅ Raccomandazioni verso: mantenimento performance, allenamento di forza,
+       recovery, allenamento sport-specifico
+    ✅ Rivolgiti all'utente come atleta, non come paziente con un problema di peso
+
+SE body_type_self_assessment è "male_5", "male_6", "female_5" o "female_6":
+  ✅ La penalità BMI è giustificata
+  ✅ Rispettoso, mai svalutante
+  ❌ Parole come "grasso" o "pesante" sono vietate
+  ✅ Usa invece: "più robusto", "con più massa corporea", "con più grasso corporeo"
+
+SE body_type_self_assessment è "male_1", "male_2", "female_1" o "female_2":
+  ✅ Affermazioni BMI standard vanno bene
+  ✅ Per sottopeso: accenno alla costruzione muscolare
+
+SE body_type_self_assessment è "non specificato" o vuoto:
+  ✅ Affermazioni BMI standard
+  ✅ Nota che il BMI è solo un orientamento approssimativo
+
+═══════════════════════════════════════════════════════════
+
+Crea un report di performance dettagliato e personale per questo profilo. Usa tutti i dati con precisione. Rendi il report il più specifico possibile — ogni frase deve riferirsi proprio a questa persona, non a un template.
 
 REGOLE:
 - Parafrasa le interpretazioni preformulate. Non inventare.
@@ -1790,7 +1913,48 @@ ${trainingRealismRules.map((r) => `- ${r}`).join("\n")}
 `
     : "";
 
-  return `Bu profil için ayrıntılı, kişisel bir performans raporu oluştur. Tüm verileri hassas biçimde kullan. Raporu olabildiğince spesifik yap — her cümle bir şablona değil, tam olarak bu kişiye atıfta bulunmalı.
+  return `═══════════════════════════════════════════════════════════
+MUTLAK KURAL — BMI YORUMU
+═══════════════════════════════════════════════════════════
+
+Body Type Öz Değerlendirmesi: ${r.metabolic.body_type_self_assessment ?? "belirtilmedi"}
+BMI: ${r.metabolic.bmi}
+
+EĞER body_type_self_assessment "male_3", "male_4", "female_3" veya "female_4" ise:
+
+  YASAK — BMI yüksek olsa bile bu kelimeleri KULLANMA:
+    ❌ "fazla kilolu" / "fazla kilo"
+    ❌ "kilo vermelisin" / "kilo kaybı"
+    ❌ "öncelikli yağ kaybı"
+    ❌ "kalori açığı"
+    ❌ "çok ağır" / "BMI çok yüksek" sorun olarak sunma
+    ❌ Vücut ağırlığı hakkında herhangi bir olumsuz ifade
+
+  ZORUNLU — bunun yerine:
+    ✅ Yüksek BMI'yi POZİTİF olarak ele al (kas kütlesi göstergesi)
+    ✅ Şu tarz cümleler: "BMI'n ${r.metabolic.bmi} atletik kompozisyonunu ve kas
+       kütleni yansıtıyor, aşırı yağı değil."
+    ✅ Öneriler şu yönde: performans koruma, kuvvet antrenmanı, recovery,
+       spora özel antrenman
+    ✅ Kullanıcıya kilo sorunu olan bir hasta gibi değil, atlet gibi hitap et
+
+EĞER body_type_self_assessment "male_5", "male_6", "female_5" veya "female_6" ise:
+  ✅ BMI cezası haklı
+  ✅ Saygılı, asla utandırıcı değil
+  ❌ "yağ" veya "ağır" gibi kelimeler yasak
+  ✅ Bunun yerine: "daha dolgun", "daha güçlü yapılı", "daha fazla vücut yağı taşıyan"
+
+EĞER body_type_self_assessment "male_1", "male_2", "female_1" veya "female_2" ise:
+  ✅ Standart BMI ifadeleri uygun
+  ✅ Düşük kilo için: yapım odağına ipucu
+
+EĞER body_type_self_assessment "belirtilmedi" veya boş ise:
+  ✅ Standart BMI ifadeleri
+  ✅ BMI'nin sadece kaba bir yönlendirme olduğunu not et
+
+═══════════════════════════════════════════════════════════
+
+Bu profil için ayrıntılı, kişisel bir performans raporu oluştur. Tüm verileri hassas biçimde kullan. Raporu olabildiğince spesifik yap — her cümle bir şablona değil, tam olarak bu kişiye atıfta bulunmalı.
 
 KURALLAR:
 - Önceden formüle edilmiş yorumları parafraze et. Uydurma.
