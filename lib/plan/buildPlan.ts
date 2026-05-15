@@ -616,7 +616,8 @@ export function dedicatedSectionsRequirement(
     return values.length === 0 ? null : { count: values.length, values, field: "recovery_ritual" };
   }
   if (planType === "metabolic") {
-    return null;
+    const values = filter(p.nutrition_painpoint);
+    return values.length === 0 ? null : { count: values.length, values, field: "nutrition_painpoint" };
   }
   return null;
 }

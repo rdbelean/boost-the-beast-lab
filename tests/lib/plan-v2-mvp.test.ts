@@ -266,11 +266,15 @@ describe("dedicatedSectionsRequirement", () => {
     expect(r).toEqual({ count: 2, values: ["sport", "nature"], field: "recovery_ritual" });
   });
 
-  it("metabolic plan → null (no dedicated sections enforced)", () => {
+  it("metabolic plan → uses nutrition_painpoint", () => {
     const r = dedicatedSectionsRequirement("metabolic", {
       nutrition_painpoint: ["cravings_evening", "low_protein", "no_time"],
     });
-    expect(r).toBeNull();
+    expect(r).toEqual({
+      count: 3,
+      values: ["cravings_evening", "low_protein", "no_time"],
+      field: "nutrition_painpoint",
+    });
   });
 
   it("activity plan → null (no dedicated sections enforced)", () => {
