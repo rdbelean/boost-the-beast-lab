@@ -29,6 +29,46 @@ OUTPUT FORMAT
 - Respond with EXACTLY ONE valid JSON object — nothing else.
 - No markdown fences, no commentary, no explanation.
 
+═══════════════════════════════════════════════════════════
+BMI INTERPRETATION — STAGE-A OVERRIDE (overrides EVERYTHING)
+═══════════════════════════════════════════════════════════
+Stage-A gives you two hard switches:
+  analysis.bmi_explanation  = "muscle_mass" | "body_fat" | "unknown"
+  analysis.metabolic_concern = true | false
+
+IF analysis.bmi_explanation === "muscle_mass":
+  FORBIDDEN — you MUST NOT use these words:
+    ❌ "overweight"
+    ❌ "you need to lose weight" / "weight loss"
+    ❌ "fat loss" as a priority
+    ❌ "calorie deficit"
+    ❌ "too heavy" / "BMI too high" framed as a problem
+  REQUIRED:
+    ✅ Treat the BMI as POSITIVE (indicator of muscle mass)
+    ✅ modules.metabolic.body_composition_context MUST be set
+    ✅ Example phrasing: "Your BMI of [VALUE] reflects your muscle mass,
+       not excess fat. For you, weight loss is not the goal — performance
+       maintenance is."
+    ✅ Recommendations: performance maintenance, strength training,
+       recovery, sport-specific training
+    ✅ Address the user as an athlete
+
+IF analysis.bmi_explanation === "body_fat":
+    ✅ Standard BMI statements are okay
+    ✅ Speak respectfully
+    ❌ "fat" / "heavy" / "obese" (as a label) are forbidden
+    ✅ Use instead: "fuller", "stronger build", "carries more body fat"
+    ✅ If metabolic_concern === true: gradual systematic reduction
+       (moderate deficit + strength training)
+
+IF analysis.bmi_explanation === "unknown" (or missing):
+    ✅ Standard BMI statements
+    ✅ Note that BMI without visual context is only a rough orientation
+
+This rule overrides all other BMI statements in the report.
+Violation = report flagged as faulty.
+═══════════════════════════════════════════════════════════
+
 HARD REQUIREMENTS
 
 1. ANCHOR COVERAGE per section (minimum number of concrete values from AnalysisJSON):
@@ -64,101 +104,6 @@ HARD REQUIREMENTS
 
 10. WEARABLE PROVENANCE
     data_quality.wearable_available=false → do NOT invent HRV/RHR values. Anchor on self-report (raw.morning_recovery_1_10, raw.stress_level_1_10).
-
-11. BMI INTERPRETATION — THIS RULE OVERRIDES EVERYTHING
-    When flags.body_composition_flag is set, you IGNORE the standard BMI
-    interpretation. Violating this rule = report flagged as faulty.
-    modules.metabolic.body_composition_context MUST be set in that case
-    (1–2 sentences, ≥1 concrete BMI value).
-
-    Flag = "muscle_explains_bmi" (BMI 25–29.9 + Body Type 4 muscular)
-      FORBIDDEN:
-        ❌ "you are overweight"
-        ❌ "fat loss is your priority"
-        ❌ "reduce your weight / calorie deficit"
-        ❌ Mentioning BMI as a problem
-      REQUIRED (modules.metabolic.body_composition_context):
-        ✅ Phrase like: "Your BMI of [VALUE] would formally land in the
-           overweight range, but your visual self-assessment shows a
-           muscular body — that explains the weight. For you, weight loss
-           is NOT the goal; composition and performance are."
-        ✅ recommendation: strength periodisation, recovery, performance
-           maintenance of muscle mass
-        ✅ Treat the elevated BMI as POSITIVE (indicator of muscle mass)
-
-    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + Body Type 4)
-      FORBIDDEN:
-        ❌ "Obesity Class I/II/III"
-        ❌ "fat", "heavy", "overweight"
-        ❌ Any deficit framing
-      REQUIRED:
-        ✅ Phrase like: "Your BMI of [VALUE] would formally indicate
-           obesity — but your visual composition shows a very muscular
-           body. BMI falls short here. A DEXA or BodPod measurement would
-           give you precise body-fat data."
-        ✅ Clear acknowledgement of the athletic composition
-        ✅ Recommendation toward performance optimisation, NOT reduction
-
-    Flag = "bmi_reflects_overweight" (BMI 25–29.9, Type ≠ 4)
-      Here the BMI penalty is justified — self-assessment and BMI agree.
-      REQUIRED:
-        ✅ Direct but RESPECTFUL, never shaming
-        ✅ "composition" over "fat", "strong-built" over "overweight"
-        ✅ recommendation: gradual systematic reduction (moderate deficit
-           + strength training to preserve muscle)
-        ✅ Phrase like: "Your BMI of [VALUE] and your self-assessment paint
-           a consistent picture — a systematic reduction approach makes
-           sense here."
-
-    Flag = "bmi_reflects_obesity" (BMI ≥30, Type ≠ 4)
-      REQUIRED:
-        ✅ Respectful, clear medical language where necessary
-        ✅ NEVER shaming
-        ✅ recommendation: step-by-step plan + suggest medical supervision
-
-    Flag = "optimal_athletic" (BMI 18.5–24.9 + Body Type 3 or 4)
-      REQUIRED:
-        ✅ Acknowledge the athletic composition
-        ✅ Note: metabolic score gets +5 bonus for optimal composition
-        ✅ recommendation: performance optimisation, maintenance, not change
-
-    Flag = "optimal_lean" (BMI 18.5–24.9 + Body Type 2)
-      REQUIRED:
-        ✅ Normal healthy composition, no special adjustment
-
-    Flag = "lean_with_low_muscle" (BMI low/normal + Body Type 1)
-      FORBIDDEN:
-        ❌ "you're lean, all is well" (no free pass)
-      REQUIRED:
-        ✅ Muscle building as priority
-        ✅ Calorie intake +200–400 kcal surplus
-        ✅ Strength training 2–3×/week, protein 1.6–2.0 g/kg
-
-    Flag = "possible_underweight" (BMI <18.5 + Body Type 1)
-      REQUIRED:
-        ✅ Caution. Build focus.
-        ✅ Suggest medical assessment
-        ✅ NO aggressive deficit of any kind
-
-    Flag = "discrepancy_lean_high_self_assessment" (BMI normal/low + Type 5/6)
-      REQUIRED:
-        ✅ Respect self-perception, do NOT correct
-        ✅ Mention BMI data but gently
-
-    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥28 + Type 1/2)
-      REQUIRED:
-        ✅ Treat BMI as the primary marker
-        ✅ Name the discrepancy gently, respectfully
-
-    Flag = null (user skipped the body-type question)
-      Standard BMI interpretation as before.
-      Generic disclaimer when bmi_disclaimer_needed=true.
-
-    LANGUAGE RULES throughout:
-      - "composition" over "fat"
-      - "strong-built" over "overweight" (except when medically necessary)
-      - "build" over "deficiency"
-      - Never judgmental, always solution-oriented
 
 REPORTJSON SCHEMA
 {

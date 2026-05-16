@@ -88,3 +88,29 @@ describe("AnalysisSchema — executive_evidence.user_stated_goals", () => {
     expect(parsed.success).toBe(true);
   });
 });
+
+describe("AnalysisSchema — bmi_explanation / metabolic_concern", () => {
+  it("accepts an analysis without bmi_explanation (backward-compat)", () => {
+    const a = buildValidAnalysisFor(beginnerContext);
+    expect(a).not.toHaveProperty("bmi_explanation");
+    const parsed = AnalysisSchema.safeParse(a);
+    expect(parsed.success).toBe(true);
+  });
+
+  it("accepts each valid bmi_explanation enum value", () => {
+    for (const v of ["muscle_mass", "body_fat", "unknown"] as const) {
+      const a = buildValidAnalysisFor(beginnerContext) as Record<string, unknown>;
+      a.bmi_explanation = v;
+      a.metabolic_concern = v === "body_fat";
+      const parsed = AnalysisSchema.safeParse(a);
+      expect(parsed.success).toBe(true);
+    }
+  });
+
+  it("rejects an invalid bmi_explanation value", () => {
+    const a = buildValidAnalysisFor(beginnerContext) as Record<string, unknown>;
+    a.bmi_explanation = "muscle"; // missing _mass suffix
+    const parsed = AnalysisSchema.safeParse(a);
+    expect(parsed.success).toBe(false);
+  });
+});

@@ -445,6 +445,20 @@ export async function runMainReportPipeline(
 ): Promise<MainPipelineResult> {
   const generations: GenerationRecord[] = [];
 
+  // Debug-anchor for Vercel logs — verifies that body-composition data
+  // actually arrives at the pipeline. If these three lines log null/null/NaN
+  // for a user who selected a body type, the issue is upstream in
+  // loadReportContext, not in the prompts.
+  console.log(
+    "[v4-pipeline] body_type_self_assessment:",
+    ctx.raw.body_type_self_assessment,
+  );
+  console.log(
+    "[v4-pipeline] body_composition_flag:",
+    ctx.flags.body_composition_flag,
+  );
+  console.log("[v4-pipeline] bmi:", ctx.scoring.result.metabolic.bmi);
+
   // ── Stage-A ──────────────────────────────────────────────────────────
   const stageA = await runMainReportAnalysis(ctx, {
     client: options.client,
