@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
+import { requireOwnership } from "@/lib/auth/ownership";
 
 const STORAGE_BUCKET = "Reports";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id: assessmentId } = await params;
@@ -12,6 +13,11 @@ export async function GET(
   if (!assessmentId) {
     return NextResponse.json({ error: "Missing assessment ID" }, { status: 400 });
   }
+
+  // Block UUID-enumeration: only the assessment owner (auth user or
+  // guest with valid Stripe session cookie) can download.
+  const forbidden = await requireOwnership(req, assessmentId);
+  if (forbidden) return forbidden;
 
   const supabase = getSupabaseServiceClient();
 

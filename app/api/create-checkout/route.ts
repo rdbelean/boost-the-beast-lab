@@ -167,50 +167,61 @@ export async function POST(req: NextRequest) {
     const origin = resolveOrigin(req);
     const stripeLocale: StripeLocale = locale;
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      locale: stripeLocale,
-      payment_method_types: ["card"],
-      customer_email: email || undefined,
-      customer_creation: "always",
-      payment_intent_data: {
-        setup_future_usage: "off_session",
-        description: product.name,
-      },
-      line_items: [
-        productId === "complete-analysis" && process.env.STRIPE_PRICE_ID
-          ? { price: process.env.STRIPE_PRICE_ID, quantity: 1 }
-          : {
-              price_data: {
-                currency: "eur",
-                unit_amount: product.price,
-                product_data: {
-                  name: product.name,
-                  description: product.description,
-                },
-              },
-              quantity: 1,
-            },
-      ],
-      allow_promotion_codes: true,
-      metadata: {
-        productId,
-        locale,
-      },
-      consent_collection: {
-        terms_of_service: "required",
-      },
-      custom_text: {
-        terms_of_service_acceptance: {
-          message: TOS_MESSAGE[locale],
+    // Idempotency key: email + product + minute-bucket. A user double-
+    // clicking the "Buy" button within the same minute gets the SAME
+    // Checkout Session back from Stripe (no duplicate charges, no
+    // duplicate paid_sessions rows). After 60 s a fresh attempt is a
+    // new session, which lets the user retry after a real failure.
+    const idempotencyBucket = Math.floor(Date.now() / 60_000);
+    const idempotencyKey = `checkout_${email || "anon"}_${productId}_${idempotencyBucket}`;
+
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        locale: stripeLocale,
+        payment_method_types: ["card"],
+        customer_email: email || undefined,
+        customer_creation: "always",
+        payment_intent_data: {
+          setup_future_usage: "off_session",
+          description: product.name,
         },
+        line_items: [
+          productId === "complete-analysis" && process.env.STRIPE_PRICE_ID
+            ? { price: process.env.STRIPE_PRICE_ID, quantity: 1 }
+            : {
+                price_data: {
+                  currency: "eur",
+                  unit_amount: product.price,
+                  product_data: {
+                    name: product.name,
+                    description: product.description,
+                  },
+                },
+                quantity: 1,
+              },
+        ],
+        allow_promotion_codes: true,
+        metadata: {
+          productId,
+          locale,
+        },
+        consent_collection: {
+          terms_of_service: "required",
+        },
+        custom_text: {
+          terms_of_service_acceptance: {
+            message: TOS_MESSAGE[locale],
+          },
+        },
+        // Locale-prefixed success so the user returns to /de/analyse/prepare,
+        // /en/analyse/prepare, etc. The proxy would redirect a bare path, but
+        // going direct avoids the extra hop.
+        success_url: `${origin}/${locale}/analyse/prepare?product=${productId}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/${locale}/kaufen`,
       },
-      // Locale-prefixed success so the user returns to /de/analyse/prepare,
-      // /en/analyse/prepare, etc. The proxy would redirect a bare path, but
-      // going direct avoids the extra hop.
-      success_url: `${origin}/${locale}/analyse/prepare?product=${productId}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/${locale}/kaufen`,
-    });
+      { idempotencyKey },
+    );
 
     return NextResponse.json({ url: session.url });
   } catch (err) {

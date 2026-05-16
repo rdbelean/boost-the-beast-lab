@@ -201,9 +201,28 @@ ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS payment_method_id TEXT;
 ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS parent_session_id TEXT;
 -- i18n — see supabase/add_locale.sql.
 ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS locale VARCHAR(5);
+-- Stripe security hardening — see supabase/add_stripe_security.sql.
+ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS amount_expected INTEGER;
+ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS suspicious BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS refunded_at TIMESTAMPTZ;
+ALTER TABLE paid_sessions ADD COLUMN IF NOT EXISTS stripe_charge_id TEXT;
 CREATE INDEX IF NOT EXISTS idx_paid_sessions_stripe_id ON paid_sessions(stripe_session_id);
+CREATE INDEX IF NOT EXISTS idx_paid_sessions_charge_id ON paid_sessions(stripe_charge_id) WHERE stripe_charge_id IS NOT NULL;
 ALTER TABLE paid_sessions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "service_role_all" ON paid_sessions FOR ALL USING (true);
+
+-- Stripe webhook idempotency — see supabase/add_stripe_security.sql.
+CREATE TABLE IF NOT EXISTS stripe_events_processed (
+  event_id TEXT PRIMARY KEY,
+  type TEXT NOT NULL,
+  processed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  meta JSONB
+);
+ALTER TABLE stripe_events_processed ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  CREATE POLICY "stripe_events_service_all" ON stripe_events_processed FOR ALL USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- =====================================================================
 -- AUTH LINKING (added when Supabase Auth was wired up)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
+import { requireOwnership } from "@/lib/auth/ownership";
 
 export const runtime = "nodejs";
 
@@ -14,7 +15,7 @@ const VALID_TYPES = new Set(["activity", "metabolic", "recovery", "stress", "mas
  *  the Storage object doesn't exist (migration compatibility for old plans
  *  that were written before the Storage move). */
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ assessmentId: string; type: string }> },
 ) {
   const { assessmentId, type } = await params;
@@ -22,6 +23,10 @@ export async function GET(
   if (!assessmentId || !VALID_TYPES.has(type)) {
     return NextResponse.json({ error: "Invalid plan identifier" }, { status: 400 });
   }
+
+  // Block UUID enumeration — only the owner can stream PDFs.
+  const forbidden = await requireOwnership(req, assessmentId);
+  if (forbidden) return forbidden;
 
   const supabase = getSupabaseServiceClient();
   const storagePath = `${STORAGE_PLAN_PREFIX}/${assessmentId}/${type}.pdf`;

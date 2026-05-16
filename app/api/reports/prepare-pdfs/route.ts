@@ -18,6 +18,7 @@ import {
   getEmailSignedUrl,
   type PlanPdfType,
 } from "@/lib/pdf/background-generator";
+import { requireOwnership } from "@/lib/auth/ownership";
 import { getStatus, type PdfType } from "@/lib/pdf/status";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { loadReportContext } from "@/lib/reports/report-context";
@@ -287,6 +288,9 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+
+    const forbidden = await requireOwnership(req, assessment_id);
+    if (forbidden) return forbidden;
 
     const l = locale as Locale;
     const providedPlanCount = Object.values(plan_pdfs).filter(Boolean).length;

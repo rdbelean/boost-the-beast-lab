@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { getCachedInterpretation, setCachedInterpretation } from "@/lib/reports/interpretation-cache";
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 import { loadReportContext, type ReportContext } from "@/lib/reports/report-context";
+import { requireOwnership } from "@/lib/auth/ownership";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -113,6 +114,9 @@ export async function POST(req: NextRequest) {
     if (!validDims.includes(dimension)) {
       return NextResponse.json({ error: "Invalid dimension" }, { status: 400 });
     }
+
+    const forbidden = await requireOwnership(req, assessment_id);
+    if (forbidden) return forbidden;
 
     // Cache check stays at the very top so a hit avoids the DB round-trip
     // for loadReportContext entirely. Cache key is unchanged: assessment_id

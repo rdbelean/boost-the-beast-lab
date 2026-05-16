@@ -291,7 +291,7 @@ export async function POST(req: NextRequest) {
     }
     const { data: paid } = await supabase
       .from("paid_sessions")
-      .select("stripe_session_id")
+      .select("stripe_session_id, refunded_at, suspicious")
       .eq("stripe_session_id", stripeSessionId)
       .maybeSingle();
     if (!paid) {
@@ -300,8 +300,22 @@ export async function POST(req: NextRequest) {
         { status: 402 },
       );
     }
-    // Week 2: also check paid.refunded_at + paid.suspicious flags
-    // (columns land with the Stripe-hardening migration).
+    if (paid.refunded_at) {
+      return NextResponse.json(
+        { error: "payment_refunded", code: "session_refunded" },
+        { status: 402 },
+      );
+    }
+    if (paid.suspicious) {
+      console.warn(
+        "[api/assessment] blocked suspicious session",
+        stripeSessionId,
+      );
+      return NextResponse.json(
+        { error: "payment_under_review", code: "session_suspicious" },
+        { status: 402 },
+      );
+    }
   }
 
   try {

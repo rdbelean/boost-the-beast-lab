@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStatus, type PdfType } from "@/lib/pdf/status";
 import { getSignedUrl } from "@/lib/pdf/background-generator";
 import type { Locale } from "@/lib/supabase/types";
+import { requireOwnership } from "@/lib/auth/ownership";
 
 export const runtime = "nodejs";
 export const maxDuration = 10;
@@ -19,6 +20,9 @@ export async function GET(req: NextRequest) {
   if (!assessmentId || !pdfType) {
     return NextResponse.json({ error: "Missing assessment_id or pdf_type" }, { status: 400 });
   }
+
+  const forbidden = await requireOwnership(req, assessmentId);
+  if (forbidden) return forbidden;
 
   try {
     const row = await getStatus(assessmentId, pdfType, locale);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCachedInterpretation, setCachedInterpretation } from "@/lib/reports/interpretation-cache";
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
+import { requireOwnership } from "@/lib/auth/ownership";
 
 export const runtime = "nodejs";
 export const maxDuration = 45;
@@ -36,6 +37,9 @@ export async function POST(req: NextRequest) {
     if (!assessment_id) {
       return NextResponse.json({ error: "Missing assessment_id" }, { status: 400 });
     }
+
+    const forbidden = await requireOwnership(req, assessment_id);
+    if (forbidden) return forbidden;
 
     const cached = await getCachedInterpretation(assessment_id, "_cross_insights", locale);
     if (cached) return NextResponse.json({ insights: cached });

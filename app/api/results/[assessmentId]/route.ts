@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loadReportContext } from "@/lib/reports/report-context";
 import { getStatus, type PdfType } from "@/lib/pdf/status";
+import { requireOwnership } from "@/lib/auth/ownership";
 
 export const runtime = "nodejs";
 export const maxDuration = 15;
@@ -25,18 +26,20 @@ const PLAN_TYPES: { type: "activity" | "metabolic" | "recovery" | "stress"; pdfT
   { type: "stress", pdfType: "plan_stress" },
 ];
 
-// TODO: lock down auth — today /api/report/download/[id] also accepts
-// any assessmentId without an auth gate, so this endpoint is consistent
-// with that trust model. Tighten both together when account linkage
-// is mandatory.
+// Ownership gate: blocks UUID enumeration. Only the assessment owner
+// (Supabase auth or guest with valid Stripe session cookie) can fetch
+// the recovery payload. Replaces the previous "TODO: lock down auth".
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ assessmentId: string }> },
 ) {
   const { assessmentId } = await params;
   if (!assessmentId) {
     return NextResponse.json({ error: "Missing assessmentId" }, { status: 400 });
   }
+
+  const forbidden = await requireOwnership(req, assessmentId);
+  if (forbidden) return forbidden;
 
   const ctx = await loadReportContext(assessmentId);
   if (!ctx.ok) {
