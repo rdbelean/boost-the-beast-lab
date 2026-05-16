@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 -- Personalization — see supabase/add_user_name.sql.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT;
+-- Anthropic cost tracking — see supabase/add_anthropic_cost_tracking.sql.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS total_anthropic_cost_cents INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS last_cost_alert_at TIMESTAMPTZ;
 
 -- INSTRUMENT VERSIONEN (Fragebogen-Versionierung)
 CREATE TABLE IF NOT EXISTS instrument_versions (
@@ -58,6 +61,10 @@ ALTER TABLE assessments ADD COLUMN IF NOT EXISTS locale VARCHAR(5) NOT NULL DEFA
 -- Body composition self-assessment — see supabase/add_body_composition.sql.
 ALTER TABLE assessments ADD COLUMN IF NOT EXISTS body_type_self_assessment VARCHAR(20);
 ALTER TABLE assessments ADD COLUMN IF NOT EXISTS body_composition_flag VARCHAR(60);
+-- Anthropic cost tracking — see supabase/add_anthropic_cost_tracking.sql.
+ALTER TABLE assessments ADD COLUMN IF NOT EXISTS anthropic_cost_cents INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE assessments ADD COLUMN IF NOT EXISTS anthropic_token_input INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE assessments ADD COLUMN IF NOT EXISTS anthropic_token_output INTEGER NOT NULL DEFAULT 0;
 
 -- FRAGEN KATALOG
 CREATE TABLE IF NOT EXISTS questions (

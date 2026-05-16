@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import {
+  clientIpKey,
+  enforceRateLimit,
+  rateLimiters,
+} from "@/lib/rate-limit";
+import {
   runFullScoring,
   type FullAssessmentInputs,
   type Gender,
@@ -15,16 +20,21 @@ import type { Locale, ReportType, ScoreBand } from "@/lib/supabase/types";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-// TODO: STRIPE WEBHOOK VERIFICATION
-// Bevor der Assessment-Flow startet, Payment-Status über Stripe-Session
-// oder Webhook-Signature prüfen. Nur wenn bezahlt → Report generieren.
-// Solange wir im Test-Modus sind, läuft der Flow ohne Bezahlung durch.
+// Test-mode bypass: ONLY honoured outside production. The TEST_MODE and
+// NEXT_PUBLIC_TEST_MODE env vars used to flip even in production, which
+// turned a misconfigured env into a free-report exploit. Now: production
+// never enters test mode regardless of env vars.
 function isTestMode(): boolean {
-  return (
-    process.env.NODE_ENV !== "production" ||
-    process.env.TEST_MODE === "true" ||
-    process.env.NEXT_PUBLIC_TEST_MODE === "true"
-  );
+  // Real production (Vercel production env, or NODE_ENV=production
+  // without a Vercel env marker like in custom hosts): NEVER test-mode,
+  // regardless of any TEST_MODE / NEXT_PUBLIC_TEST_MODE env vars. This
+  // closes the previous bypass where a misconfigured Vercel env could
+  // grant free reports.
+  if (process.env.VERCEL_ENV === "production") return false;
+  if (process.env.NODE_ENV === "production") return false;
+  // Local dev + Vercel preview: default to test-mode for iteration.
+  // Set TEST_MODE=false to exercise the production payment path locally.
+  return process.env.TEST_MODE !== "false";
 }
 
 interface AssessmentRequestBody {
@@ -146,6 +156,17 @@ function validate(body: Partial<AssessmentRequestBody>): string | null {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit BEFORE parsing body — submissions trigger scoring + (in
+  // real mode) downstream Anthropic calls + email dispatch. Hour + day
+  // caps per IP.
+  {
+    const ip = clientIpKey(req);
+    const blocked =
+      (await enforceRateLimit(rateLimiters.assessmentHour, `ip:${ip}`)) ??
+      (await enforceRateLimit(rateLimiters.assessmentDay, `ip:${ip}`));
+    if (blocked) return blocked;
+  }
+
   let body: AssessmentRequestBody;
   try {
     body = (await req.json()) as AssessmentRequestBody;
@@ -156,6 +177,16 @@ export async function POST(req: NextRequest) {
   const validationError = validate(body);
   if (validationError) {
     return NextResponse.json({ error: validationError }, { status: 400 });
+  }
+
+  // Email-scoped daily cap — catches IP-rotating bots that re-use one
+  // email. Cheap; skipped in test-mode-without-DB demo path.
+  if (body.email) {
+    const blocked = await enforceRateLimit(
+      rateLimiters.assessmentDay,
+      `email:${body.email.toLowerCase()}`,
+    );
+    if (blocked) return blocked;
   }
 
   // ── Offline Demo Mode: run scoring + PDF without Supabase ──
@@ -244,6 +275,34 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = getSupabaseServiceClient();
+
+  // ── Payment gate ───────────────────────────────────────────────────
+  // In production the user must have a valid paid_session before we
+  // burn compute on scoring + downstream Anthropic. The Stripe webhook
+  // populates paid_sessions; the analyse page sets btb_stripe_session
+  // cookie on first arrival. Test mode (non-production) bypasses.
+  if (!isTestMode()) {
+    const stripeSessionId = req.cookies.get("btb_stripe_session")?.value;
+    if (!stripeSessionId) {
+      return NextResponse.json(
+        { error: "payment_required", code: "no_session_cookie" },
+        { status: 402 },
+      );
+    }
+    const { data: paid } = await supabase
+      .from("paid_sessions")
+      .select("stripe_session_id")
+      .eq("stripe_session_id", stripeSessionId)
+      .maybeSingle();
+    if (!paid) {
+      return NextResponse.json(
+        { error: "payment_invalid", code: "session_not_paid" },
+        { status: 402 },
+      );
+    }
+    // Week 2: also check paid.refunded_at + paid.suspicious flags
+    // (columns land with the Stripe-hardening migration).
+  }
 
   try {
     // 1. Upsert user by email.

@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
+import {
+  clientIpKey,
+  enforceRateLimit,
+  rateLimiters,
+} from "@/lib/rate-limit";
+import { trackAnthropicCost } from "@/lib/anthropic/cost";
+import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { loadReportContext } from "@/lib/reports/report-context";
 import { cleanJsonText } from "@/lib/reports/pipeline";
 import { MasterPlanSchema, type MasterPlan } from "@/lib/master-plan/schema";
@@ -44,6 +51,16 @@ const SUBTITLE_BY_LOCALE: Record<Locale, string> = {
 };
 
 export async function POST(req: NextRequest) {
+  // Rate limit BEFORE parsing body — master plan is a Sonnet call with
+  // up to 6k output tokens, retries up to 2× on quality failures.
+  {
+    const ip = clientIpKey(req);
+    const blocked =
+      (await enforceRateLimit(rateLimiters.masterPlanGenerateHour, `ip:${ip}`)) ??
+      (await enforceRateLimit(rateLimiters.masterPlanGenerateDay, `ip:${ip}`));
+    if (blocked) return blocked;
+  }
+
   try {
     const body = await req.json();
     const locale = (body as { locale?: string }).locale ?? "de";
@@ -88,6 +105,15 @@ export async function POST(req: NextRequest) {
         input_tokens: response.usage?.input_tokens,
         output_tokens: response.usage?.output_tokens,
       });
+      // Track cost so master-plan retries hit the per-assessment cap.
+      if (assessmentId && response.usage) {
+        await trackAnthropicCost(getSupabaseServiceClient(), {
+          assessmentId,
+          model: SONNET_MODEL,
+          inputTokens: response.usage.input_tokens,
+          outputTokens: response.usage.output_tokens,
+        });
+      }
       return (response.content[0] as { type: string; text: string }).text;
     };
 

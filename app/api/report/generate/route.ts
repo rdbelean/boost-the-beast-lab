@@ -3,6 +3,15 @@ import Anthropic from "@anthropic-ai/sdk";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
+import {
+  clientIpKey,
+  enforceRateLimit,
+  rateLimiters,
+} from "@/lib/rate-limit";
+import {
+  trackAnthropicCost,
+  checkAssessmentCostCap,
+} from "@/lib/anthropic/cost";
 import { generatePDF, type PdfReportContent, type PdfWearableRows, type PdfHeroData } from "@/lib/pdf/generateReport";
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
 import type { Locale } from "@/lib/supabase/types";
@@ -289,6 +298,16 @@ async function handleDemoReport(req: NextRequest, ctx: DemoContext): Promise<Nex
 // ── DB-backed handler ─────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // Rate limit BEFORE parsing the body — a flood of 1-MB bodies should
+  // not exhaust lambda memory before we even reject it.
+  {
+    const ip = clientIpKey(req);
+    const blocked =
+      (await enforceRateLimit(rateLimiters.reportGenerateHour, `ip:${ip}`)) ??
+      (await enforceRateLimit(rateLimiters.reportGenerateDay, `ip:${ip}`));
+    if (blocked) return blocked;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let body: any;
   try {
@@ -311,6 +330,17 @@ export async function POST(req: NextRequest) {
   const assessmentId = body?.assessmentId as string | undefined;
   if (!assessmentId) {
     return NextResponse.json({ error: "Missing assessmentId or demoContext" }, { status: 400 });
+  }
+
+  // Second-tier rate limit keyed on assessmentId — a bot using many IPs
+  // but the same assessmentId still gets capped at 10/day for that one
+  // report. (Cheap to compute; same Upstash window if Upstash is on.)
+  {
+    const blocked = await enforceRateLimit(
+      rateLimiters.reportGenerateDay,
+      `aid:${assessmentId}`,
+    );
+    if (blocked) return blocked;
   }
 
   // Top-level try/catch wrapping EVERYTHING so lambda never crashes with
@@ -463,6 +493,26 @@ export async function POST(req: NextRequest) {
       console.error("[report/generate] ANTHROPIC_API_KEY missing/invalid — refusing to substitute stub");
       throw new Error("ai_unavailable: missing API key");
     }
+    // Cost-cap pre-check on the assessment — refuses to call Anthropic
+    // if previous attempts on this assessmentId already burned > $15.
+    // Catches retry storms and bot-driven repeated submits.
+    const costCapHit = await checkAssessmentCostCap(supabase, assessmentId);
+    if (costCapHit) {
+      console.warn(
+        "[report/generate] assessment cost cap reached — refusing Anthropic call",
+        costCapHit,
+      );
+      return NextResponse.json(
+        {
+          error: "cost_cap_reached",
+          code: "assessment_cost_cap",
+          spent_cents: costCapHit.spent,
+          cap_cents: costCapHit.cap,
+        },
+        { status: 429 },
+      );
+    }
+
     let report: PdfReportContent;
     let analysisExtraction: unknown = null;
     if (useV4) {
@@ -472,6 +522,20 @@ export async function POST(req: NextRequest) {
         client: getAnthropic(),
         skipJudge: true,
       });
+      // Best-effort cost tracking from each pipeline stage's token usage.
+      // Runs whether or not the pipeline succeeded — even failed stages
+      // burn tokens that we want to count toward the cap.
+      for (const gen of v4.generations) {
+        if (gen.prompt_tokens != null && gen.completion_tokens != null) {
+          await trackAnthropicCost(supabase, {
+            assessmentId,
+            userId: ctx.meta.user_id ?? undefined,
+            model: gen.model,
+            inputTokens: gen.prompt_tokens,
+            outputTokens: gen.completion_tokens,
+          });
+        }
+      }
       if (v4.ok) {
         report = v4.report as PdfReportContent;
         analysisExtraction = v4.analysis.executive_evidence?.user_stated_goals ?? null;

@@ -1,6 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { routing } from "@/i18n/routing";
 import { type NextRequest, NextResponse } from "next/server";
+import { clientIpKey, enforceRateLimit, rateLimiters } from "@/lib/rate-limit";
 
 // Next 16 renames the `middleware.ts` convention to `proxy.ts`.
 // next-intl's middleware factory is convention-agnostic — it exports
@@ -18,7 +19,10 @@ import { type NextRequest, NextResponse } from "next/server";
 //     the locale-prefixed equivalent, preserving query strings and
 //     fragments. This covers magic-links and Stripe success_urls that
 //     were created before the migration.
-//   • API routes, static assets, and /auth/callback are excluded via matcher.
+//   • API routes run through a global per-IP rate limiter only;
+//     per-route limits live in the route handlers themselves.
+//   • Static assets, /_next, /_vercel, and /auth/callback are excluded
+//     via matcher.
 
 const intlMiddleware = createMiddleware(routing);
 const LOCALES = routing.locales as readonly string[];
@@ -32,8 +36,25 @@ function getAnalyseLocale(pathname: string): string | null {
   return null;
 }
 
-export default function proxy(request: NextRequest): NextResponse {
+export default async function proxy(
+  request: NextRequest,
+): Promise<NextResponse> {
   const { pathname, searchParams } = request.nextUrl;
+
+  // ── API path: only the global per-IP rate limiter runs here ─────────
+  // Per-route limiters (e.g. /api/report/generate burst+daily caps) live
+  // in the route handlers because they need email/user context that this
+  // edge proxy doesn't have.
+  if (pathname.startsWith("/api/")) {
+    const ip = clientIpKey(request);
+    const blocked = await enforceRateLimit(
+      rateLimiters.globalMinute,
+      `ip:${ip}`,
+    );
+    if (blocked) return blocked;
+    return NextResponse.next();
+  }
+
   const locale = getAnalyseLocale(pathname);
 
   if (locale) {
@@ -78,10 +99,11 @@ export default function proxy(request: NextRequest): NextResponse {
 }
 
 export const config = {
-  // Skip Next internals, static assets, API routes, and the Supabase
-  // OAuth callback. Everything else runs through the proxy so locale
-  // detection and legacy-URL rewrites kick in.
+  // Skip Next internals, static assets, and the Supabase OAuth callback.
+  // API routes are INCLUDED so the global per-IP DDoS-shield limiter runs
+  // before route handlers. The proxy short-circuits for /api/* after the
+  // limiter check (no i18n logic for API requests).
   matcher: [
-    "/((?!api|auth/callback|_next|_vercel|.*\\..*).*)",
+    "/((?!auth/callback|_next|_vercel|.*\\..*).*)",
   ],
 };

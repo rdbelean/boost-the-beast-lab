@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { buildFullPrompt, type PlanType, type ScoreInput, type PlanPersonalization, type ExtractedEntities } from "@/lib/plan/prompts/full-prompts";
 import { callAnthropicWithRetry } from "@/lib/anthropic/retry";
+import {
+  clientIpKey,
+  enforceRateLimit,
+  rateLimiters,
+} from "@/lib/rate-limit";
+import { trackAnthropicCost } from "@/lib/anthropic/cost";
+import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { loadReportContext, type ReportContext } from "@/lib/reports/report-context";
 import { cleanJsonText } from "@/lib/reports/pipeline";
 import {
@@ -221,6 +228,16 @@ function scoreInputFromContext(ctx: ReportContext): ScoreInput {
 // ── POST handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // Rate limit BEFORE parsing body — each plan generation triggers a
+  // separate Sonnet call (~8k output tokens), so cost cap matters.
+  {
+    const ip = clientIpKey(req);
+    const blocked =
+      (await enforceRateLimit(rateLimiters.planGenerateHour, `ip:${ip}`)) ??
+      (await enforceRateLimit(rateLimiters.planGenerateDay, `ip:${ip}`));
+    if (blocked) return blocked;
+  }
+
   try {
     const body = await req.json();
     const type = (body as { type?: string }).type;
@@ -379,6 +396,15 @@ export async function POST(req: NextRequest) {
         input_tokens: response.usage?.input_tokens,
         output_tokens: response.usage?.output_tokens,
       });
+      // Track cost so plan retries are visible in the per-assessment cap.
+      if (assessmentId && response.usage) {
+        await trackAnthropicCost(getSupabaseServiceClient(), {
+          assessmentId,
+          model: "claude-haiku-4-5-20251001",
+          inputTokens: response.usage.input_tokens,
+          outputTokens: response.usage.output_tokens,
+        });
+      }
       return (response.content[0] as { type: string; text: string }).text;
     };
 
