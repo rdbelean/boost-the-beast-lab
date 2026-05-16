@@ -27,6 +27,45 @@ Kullanıcı içeriğini gerektiğinde Türkçeye çevir, ancak özel adları (ş
 - Yanıtın TAM OLARAK BİR geçerli JSON nesnesi — başka hiçbir şey değil.
 - Markdown fence yok, yorum yok, açıklama yok.
 
+═══════════════════════════════════════════════════════════
+BMI YORUMU — STAGE-A OVERRIDE (HER ŞEYİ ÖVERSEDER)
+═══════════════════════════════════════════════════════════
+Stage-A sana iki sert anahtar verir:
+  analysis.bmi_explanation  = "muscle_mass" | "body_fat" | "unknown"
+  analysis.metabolic_concern = true | false
+
+EĞER analysis.bmi_explanation === "muscle_mass" ise:
+  YASAK — bu kelimeleri ASLA kullanma:
+    ❌ "fazla kilolusun" / "fazla kilo"
+    ❌ "kilo vermelisin" / "kilo kaybı"
+    ❌ "yağ kaybı" önceliği
+    ❌ "kalori açığı"
+    ❌ "çok ağır" / "BMI çok yüksek" sorun olarak
+  ZORUNLU:
+    ✅ BMI'yi POZİTİF olarak ele al (kas kütlesi göstergesi)
+    ✅ modules.metabolic.body_composition_context AYARLANMALIDIR
+    ✅ Örnek cümle: "BMI'n [DEĞER] kas kütleni yansıtıyor, aşırı yağı
+       değil. Senin için kilo kaybı hedef değil — performans koruma."
+    ✅ Öneriler: performans koruma, kuvvet antrenmanı, recovery,
+       spora özel antrenman
+    ✅ Kullanıcıya atlet gibi hitap et
+
+EĞER analysis.bmi_explanation === "body_fat" ise:
+    ✅ Standart BMI ifadeleri uygun
+    ✅ Saygılı konuş
+    ❌ "yağ" / "ağır" / "obez" (etiket olarak) yasak
+    ✅ Bunun yerine: "daha dolgun", "daha güçlü yapılı", "daha fazla vücut yağı taşıyan"
+    ✅ Eğer metabolic_concern === true ise: kademeli sistematik azaltma
+       (ılımlı açık + kuvvet antrenmanı)
+
+EĞER analysis.bmi_explanation === "unknown" (veya eksikse):
+    ✅ Standart BMI ifadeleri
+    ✅ BMI'nin görsel bağlam olmadan sadece kaba bir yönlendirme olduğunu not et
+
+Bu kural raporda diğer tüm BMI ifadelerini översedere.
+İhlal = rapor hatalı işaretlenir.
+═══════════════════════════════════════════════════════════
+
 KESİN GEREKSİNİMLER
 
 1. ANCHOR COVERAGE (sekisyon başına minimum somut değer):
@@ -63,99 +102,6 @@ KESİN GEREKSİNİMLER
 10. WEARABLE PROVENANCE
     data_quality.wearable_available=false → HRV/RHR değerleri uydurma. Self-report değerlere ankor (raw.morning_recovery_1_10, raw.stress_level_1_10).
 
-11. BMI YORUMU — BU KURAL HER ŞEYİ ÖVERSEDER
-    flags.body_composition_flag ayarlandığında, standart BMI yorumunu
-    GÖZ ARDI EDERSİN. Bu kuralı ihlal = rapor hatalı işaretlenir.
-    modules.metabolic.body_composition_context bu durumda AYARLANMALIDIR
-    (1–2 cümle, ≥1 somut BMI değeri).
-
-    Flag = "muscle_explains_bmi" (BMI 25–29.9 + Body Type 4 kaslı)
-      YASAK:
-        ❌ "fazla kilolusun"
-        ❌ "yağ kaybı önceliğin"
-        ❌ "kilo azaltma / kalori açığı"
-        ❌ BMI'yi sorun olarak anma
-      ZORUNLU (modules.metabolic.body_composition_context):
-        ✅ Şu tarz cümle: "BMI'n [DEĞER] formal olarak fazla kilolu
-           aralığında olurdu, ama görsel öz değerlendirmen kaslı bir
-           vücut gösteriyor — bu kiloyu açıklıyor. Senin için kilo
-           kaybı hedef DEĞİL; kompozisyon ve performans."
-        ✅ recommendation: kuvvet periyodizasyonu, recovery, kas
-           kütlesinin performans bakımı
-        ✅ Yüksek BMI'yi POZİTİF olarak ele al (kas kütlesi göstergesi)
-
-    Flag = "strong_muscle_explains_high_bmi" (BMI ≥30 + Body Type 4)
-      YASAK:
-        ❌ "Obezite Sınıf I/II/III"
-        ❌ "yağ", "ağır", "fazla kilolu"
-        ❌ Herhangi bir açık çerçevelemesi
-      ZORUNLU:
-        ✅ Şu tarz cümle: "BMI'n [DEĞER] formal olarak obeziteyi
-           gösterirdi — ama görsel kompozisyonun çok kaslı bir vücut
-           gösteriyor. BMI burada yetersiz kalıyor. DEXA veya BodPod
-           ölçümü sana hassas vücut yağı verisi verir."
-        ✅ Atletik kompozisyonun net kabulü
-        ✅ Performans optimizasyonu öner, azaltma DEĞİL
-
-    Flag = "bmi_reflects_overweight" (BMI 25–29.9, Type ≠ 4)
-      Burada BMI cezası haklı — öz değerlendirme ve BMI uyumlu.
-      ZORUNLU:
-        ✅ Doğrudan ama SAYGILI, asla utandırıcı değil
-        ✅ "yağ" yerine "kompozisyon", "fazla kilolu" yerine "güçlü yapılı"
-        ✅ recommendation: kademeli sistematik azaltma (ılımlı açık +
-           kası korumak için kuvvet antrenmanı)
-        ✅ Şu tarz cümle: "BMI'n [DEĞER] ve öz değerlendirmen tutarlı
-           bir tablo çiziyor — burada sistematik bir yaklaşım anlamlı."
-
-    Flag = "bmi_reflects_obesity" (BMI ≥30, Type ≠ 4)
-      ZORUNLU:
-        ✅ Saygılı, gerektiğinde net medikal dil
-        ✅ ASLA utandırıcı değil
-        ✅ recommendation: adım adım plan + tıbbi destek öner
-
-    Flag = "optimal_athletic" (BMI 18.5–24.9 + Body Type 3 veya 4)
-      ZORUNLU:
-        ✅ Atletik kompozisyonu kabul et
-        ✅ Not: metabolik skor optimal kompozisyon için +5 bonus alır
-        ✅ recommendation: performans optimizasyonu, koruma, değişim değil
-
-    Flag = "optimal_lean" (BMI 18.5–24.9 + Body Type 2)
-      ZORUNLU:
-        ✅ Normal sağlıklı kompozisyon, özel ayarlama yok
-
-    Flag = "lean_with_low_muscle" (BMI düşük/normal + Body Type 1)
-      YASAK:
-        ❌ "zayıfsın, her şey yolunda" (serbest geçiş yok)
-      ZORUNLU:
-        ✅ Kas yapımı öncelik
-        ✅ Kalori alımı +200–400 kcal fazlalık
-        ✅ Kuvvet antrenmanı 2–3×/hafta, protein 1,6–2,0 g/kg
-
-    Flag = "possible_underweight" (BMI <18,5 + Body Type 1)
-      ZORUNLU:
-        ✅ Dikkat. Yapım odağı.
-        ✅ Tıbbi değerlendirme öner
-        ✅ Hiçbir türde agresif açık YOK
-
-    Flag = "discrepancy_lean_high_self_assessment" (BMI normal/düşük + Type 5/6)
-      ZORUNLU:
-        ✅ Öz algıya saygı duy, DÜZELTME yapma
-        ✅ BMI verisini söyle ama nazikçe
-
-    Flag = "discrepancy_overweight_athletic_assessment" (BMI ≥28 + Type 1/2)
-      ZORUNLU:
-        ✅ BMI'yi birincil marker olarak ele al
-        ✅ Uyuşmazlığı nazikçe isimlendir, saygılı
-
-    Flag = null (kullanıcı body-type sorusunu atladı)
-      Standart BMI yorumu önceki gibi.
-      bmi_disclaimer_needed=true ise genel disclaimer.
-
-    DİL KURALLARI boyunca:
-      - "yağ" yerine "kompozisyon"
-      - "fazla kilolu" yerine "güçlü yapılı" (medikal gereklilik dışında)
-      - "eksiklik" yerine "yapım"
-      - Asla yargılayıcı değil, daima çözüm odaklı
 
 REPORTJSON ŞEMASI
 {

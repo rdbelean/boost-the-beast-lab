@@ -151,6 +151,17 @@ export const AnalysisSchema = z.object({
     nutrition_micro_focus: z.array(HabitAnchor),
     total_time_budget_min: z.number().min(0).max(180),
   }),
+  /** Stage-A's verdict on what the user's BMI actually reflects, derived
+   *  from body_type_self_assessment × BMI. Drives the Writer's metabolic-
+   *  module prose: `muscle_mass` forbids fat-loss framing, `body_fat`
+   *  permits a respectful reduction recommendation, `unknown` falls back
+   *  to standard BMI language. Optional so older cached analyses + tests
+   *  remain parseable; Writer defaults absent/missing to "unknown". */
+  bmi_explanation: z.enum(["muscle_mass", "body_fat", "unknown"]).optional(),
+  /** Stage-A's verdict on whether the metabolic module should be framed
+   *  as a concern. False for muscular high-BMI users; true for users
+   *  whose visual self-assessment confirms the elevated BMI. */
+  metabolic_concern: z.boolean().optional(),
 });
 
 export type AnalysisJSON = z.infer<typeof AnalysisSchema>;
