@@ -1163,7 +1163,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "de", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'Mindestens 1 Block MUSS "Heißhunger abends" explizit adressieren — konkret mit Protein-Timing (z.B. 30 g Protein beim Abendessen stabilisiert Blutzucker → weniger Cravings in der Nacht).',
       low_protein: "Mindestens 1 Block MUSS Protein-Targets konkret machen (z.B. 1,6–2,2 g/kg KG/Tag → Portionen × Mahlzeit runterbrechen).",
@@ -1462,7 +1462,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "en", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'At least 1 block MUST explicitly address evening cravings — concretely with protein timing (e.g. 30 g protein at dinner stabilises blood sugar → fewer cravings at night).',
       low_protein: "At least 1 block MUST make protein targets concrete (e.g. 1.6–2.2 g/kg body weight/day → break down portions × meal).",
@@ -1761,7 +1761,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "it", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'Almeno 1 blocco DEVE affrontare esplicitamente le voglie serali — concretamente con protein timing (es. 30 g di proteine a cena stabilizzano la glicemia → meno voglie di notte).',
       low_protein: "Almeno 1 blocco DEVE rendere concreti i target proteici (es. 1,6–2,2 g/kg peso corporeo/giorno → ripartire le porzioni × pasto).",
@@ -2060,7 +2060,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
   const goalDir = goalDirective(type, extractedEntities, "tr", s);
 
   const deepRules: string[] = [];
-  if (type === "metabolic") {
+  if (false) {
     const np: Record<string, string> = {
       cravings_evening: 'En az 1 blok akşam isteklerini açıkça ele ALMALIDIR — somut olarak protein zamanlamasıyla (örn. akşam yemeğinde 30 g protein kan şekerini dengeler → gece daha az istek).',
       low_protein: "En az 1 blok protein hedeflerini somutlaştırMALIDIR (örn. 1,6–2,2 g/kg vücut ağırlığı/gün → porsiyonları × öğüne böl).",
