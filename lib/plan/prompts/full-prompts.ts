@@ -1403,7 +1403,55 @@ STRESS & LIFESTYLE-PLAN — Nutzerdaten:
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (${s.metabolic.metabolic_band})
 - Overall Score: ${s.overall_score_0_100}/100 (${s.overall_band})
 
-Generiere einen detaillierten, personalisierten Stress & Lifestyle-Plan mit konkreten Downregulations-Protokollen.`;
+STRESS-PLAN STRUCTURE — überschreibt den 5-Block-System-Prompt-Default. Erzeuge EXAKT 7 Blocks in dieser Reihenfolge. Jede Sektion muss konkret die User-Werte aufgreifen und durchrechnen, nicht generisch bleiben:
+
+Block 1 — "Deine Ausgangslage": 3 items.
+- Stress-Score klassifizieren (low/moderate/high/very high) + qualitatives Niveau (akut Belastung vs. chronisch erhöhter Sympathikus-Tonus); Stress-Source namentlich nennen falls vorhanden
+- Beziehung Stress ↔ Sleep ↔ Recovery konkret durchrechnen (z. B. "bei Stress-Score 78 und Sleep-Score 52 ist Sympathikus-Stuck-On wahrscheinlicher als isolierte Schlafprobleme — der Plan zielt auf den Sympathikus, nicht aufs Schlaf-Symptom")
+- Cross-Plan-Verweis: Schlaf-Tools im Recovery-Plan, Mahlzeiten-Timing im Metabolic-Plan, Trainings-Volumen im Activity-Plan, konkrete Wochentage/Uhrzeiten im Master-Wochenplan.
+
+Block 2 — "Stress-Physiologie": 4 items.
+- HPA-Achse (Hypothalamus → Hypophyse → Nebennierenrinde): akute Cortisol-Ausschüttung als Performance-Aktivator; bei chronischer Aktivierung dysreguliert (Cortisol-Awakening-Response abgeflacht, abends erhöht)
+- Sympathikus vs. Parasympathikus + Polyvagal-Theorie (Porges): ventraler Vagus = sozialer Verbindungs-/Regenerations-Modus; dorsaler Vagus = Shutdown-Modus bei Überforderung; Recovery passiert ausschließlich im parasympathisch-ventralen Zustand
+- Allostatic Load: Stress als "Akku-Verbraucher" — akut OK (Performance-Boost), chronisch toxisch (Performance-Verlust, Insulinresistenz, Immun-Suppression)
+- Cortisol-Awakening-Response: warum morgens hoch (30-45 Min nach Wachwerden, +50-75 % über Basis) und abends tief — was passiert wenn dieser Rhythmus invertiert ist (Einschlafen blockiert, Tiefschlaf gekappt, energiearmer Morgen)
+
+Block 3 — "Akut-Tools": 4 items mit konkreten Techniken + Dauer + Mechanismus.
+- Physiological Sigh (Doppel-Einatmung über die Nase, lange Ausatmung durch den Mund) — schnellste klinisch belegte Akut-Down-Regulation (Balban/Huberman, Cell Reports Med 2023). 1-3 Wiederholungen, Wirkung in 60-90 Sekunden. Anwendung: vor Meetings, nach Konflikten, beim Einschlafen-Wollen.
+- Box-Breathing 4-4-4-4 oder 4-7-8 — CO2-Toleranz↑, Vagus-Aktivierung; 3-5 Min, Navy-SEAL- und Anästhesie-Standard. Anwendung: Pre-Performance, Lampenfieber, akute Anspannung.
+- NSDR / Yoga Nidra 10-20 Min in liegender Position — Dopamin-Anstieg ~65 % (Kjaer et al. 2002), evidenzbasierter "halber Schlaf" für mentalen Reset. Anwendung: Mittag, nach intensivem Block, statt Power-Nap wenn Einschlafen schwerfällt.
+- Cold Exposure 1-3 Min @ 10-15°C (Dusche/Wanne) — Norepinephrin-Surge 2-3× über 1-2 h, mentale Klarheit + Resilienz; 3-4×/Woche. Anwendung: Morgenroutine; NICHT direkt nach Krafttraining (Hypertrophie-Signaling-Block).
+
+Block 4 — "Tagesrituale": 4 items mit Tageszeit-Ankern (KEINE Wochentage — die gehören in den Master-Wochenplan).
+- Morgen (erste 30 Min nach Wachwerden): 10-15 Min Tageslicht-Exposition + 0,5 L Wasser; optional 5-Min-Atem; setzt circadian + Cortisol-Awakening sauber. KEINE Mails/Slack in den ersten 30 Min — das zementiert Sympathikus-Dominanz für den Tag.
+- Mittags-Transition (1× zwischen Tasks/Meetings, 12-14 Uhr): 5-Min-Reset (Atem, kurzer Spaziergang, oder Power-Nap < 20 Min). Verhindert kumulativen Sympathikus-Aufbau.
+- Abend-Cutoff (60-90 Min vor Schlaf): Screen-Dimming, Last-Light-Anker, 10-Min-Journaling oder Lesen — keine Mails/Slack. Schlaf-Architektur-Details siehe Recovery-Plan.
+- Sonntag-Reset (15-Min-Block, fixe Uhrzeit): Wochen-Review = 3 Wins benennen, 1 Boundary für die kommende Woche setzen. Wirkt als mentaler "Sonntag-Atem" gegen Sunday-Scaries.
+
+Block 5 — "Mental Performance": 3 items.
+- Cognitive Reframing (Crum et al. 2013 — Stress-Mindset-Forschung): Stress als Performance-Signal statt Bedrohung. Konkret: bei Anspannung "Mein Körper macht mich bereit" statt "Ich bin überfordert". Effekt: gemessene Performance-Steigerung + Cortisol-Reaktivität↓.
+- Attention-Management: Single-Tasking-Blöcke 25-90 Min (Pomodoro oder Deep-Work). Phone-Distance: sichtbares Phone = -20 % kognitive Leistung (Ward et al. 2017). Keine vagen "Achtsamkeits"-Floskeln — konkrete Friction-Setups.
+- Identity-based Habits (Clear, Atomic Habits): "Ich bin jemand, der nach jedem Meeting tief ausatmet." Identity > Outcome > Behavior. 1 konkretes Identity-Statement für den User formulieren basierend auf seinem Hauptziel.
+
+Block 6 — "Stress-Source-spezifisch": 3-4 items, getrieben von TIEFEN-REGELN aus dem deepRulesBlock.
+- WICHTIG: dieser Block MUSS die Stress-Source-Tiefen-Regeln NAMENTLICH operationalisieren. Wenn stress_source=job: Feierabend-Transition mit konkretem Cue ("Schlüssel an Haken" / "Notebook-Klappe schließt Arbeit"); wenn family: 10-Min-Allein-Anker nach Heimkommen vor Familien-Modus; wenn finances: 1×/Woche 20-Min-Finanz-Check in festem Zeitslot statt diffuse Dauer-Sorge.
+- Bei mehreren Stress-Sources: ranken nach vermuteter Hebelwirkung, max. 2 namentlich operationalisieren (Lese-Ermüdung vermeiden). Priorisierung: job > family > finances > health > future.
+- Recovery-Ritual andocken statt ersetzen: wenn recovery_ritual=meditation, "baue deine bestehende Meditation aus" statt komplett neu einführen. Wenn recovery_ritual=nature, "5 Min draußen zwischen Meetings" statt nur generischer Atem-Pause.
+
+Block 7 — "Progress-Tracking": 3 items.
+- HRV (RMSSD in ms) als objektiver Stress-Marker — Trend über 7-14 Tage wichtiger als Tageswerte (Tagesschwankungen ±10-20 % normal). Sinkender Trend über 7+ Tage = Sympathikus-Stuck-On → Volumen runter, Recovery-Tools rauf.
+- Subjektive 1-10-Stress-Skala morgens (30 Sekunden, baut Interozeption auf). Trend wichtiger als Einzelwert. Mit Energie-Skala kombinieren: morgens niedrig + abends hoch = Cortisol-Inversion (Indiz für chronischen Stress).
+- Wochen-Review-Frage: "Welche 1-2 Down-Regulation-Momente hatten diese Woche WIRKUNG?" Verstärkt was funktioniert, statt zu generischen Tipps zurückzuspringen. Nach 4 Wochen: Re-Kalibrierung der Akut-Tools (welche behalten, welche tauschen).
+
+EXPLIZIT VERBOTEN — diese Inhalte gehören NICHT in den Stress-Plan, sondern in andere Pläne:
+- Schlaf-Hygiene / Schlafphasen / Schlaf-Tools (NSDR als Akut-Tool ja, aber Schlafarchitektur nein) → Recovery-Plan
+- Konkrete Mahlzeit-Empfehlungen mit Mengen oder Cravings-Strategien → Metabolic-Plan
+- Trainings-Methoden / Zone-Empfehlungen / Volumen-Anpassung → Activity-Plan
+- Konkrete Wochentage oder Trainingseinheiten an spezifischen Tagen → Master-Wochenplan
+- Allgemeine "lebe gesund"-Floskeln oder Score-Interpretation als Selbstzweck → Hauptreport
+- HPA-Achse als Score-Bewertung ("dein Cortisol ist hoch weil dein Stress-Score 78 ist") → Hauptreport. Erlaubt: HPA-Achse als mechanistischer Anker WARUM die Tools wirken.
+
+Wichtig: Tageszeit-Anker (Morgen / Mittag / Abend / Sonntag) sind ausdrücklich erlaubt — Unterschied zum Master-Wochenplan ist NUR: keine Wochentag-Bindung (kein "Montag 18:00 NSDR").`;
 }
 
 // ── EN ───────────────────────────────────────────────────────────────────────
@@ -1654,7 +1702,55 @@ STRESS & LIFESTYLE PLAN — User data:
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (${s.metabolic.metabolic_band})
 - Overall Score: ${s.overall_score_0_100}/100 (${s.overall_band})
 
-Generate a detailed, personalised Stress & Lifestyle plan with concrete down-regulation protocols.`;
+STRESS PLAN STRUCTURE — overrides the 5-block system-prompt default. Produce EXACTLY 7 blocks in this order. Each section must concretely pick up and compute the user's values, not stay generic:
+
+Block 1 — "Where you stand": 3 items.
+- Classify the Stress Score (low/moderate/high/very high) + qualitative level (acute load vs. chronically elevated sympathetic tone); name the stress source if available.
+- Concretely compute the Stress ↔ Sleep ↔ Recovery relationship (e.g. "with Stress 78 and Sleep 52 a sympathetic-stuck-on state is more likely than isolated sleep trouble — the plan targets the sympathetic system, not the sleep symptom").
+- Cross-plan note: sleep tools live in the Recovery plan, meal timing in the Metabolic plan, training volume in the Activity plan, concrete weekdays/clock times in the Master Weekly Plan.
+
+Block 2 — "Stress physiology": 4 items.
+- HPA axis (hypothalamus → pituitary → adrenal cortex): acute cortisol release as a performance activator; dysregulated under chronic activation (flattened cortisol awakening response, elevated evening cortisol).
+- Sympathetic vs. parasympathetic + Polyvagal theory (Porges): ventral vagus = social connection / regeneration mode; dorsal vagus = shutdown mode under overload; recovery happens only in the parasympathetic-ventral state.
+- Allostatic load: stress as a "battery drain" — acute fine (performance boost), chronic toxic (performance loss, insulin resistance, immune suppression).
+- Cortisol awakening response: why high in the morning (30-45 min after waking, +50-75 % over baseline) and low in the evening — and what breaks when this rhythm inverts (sleep onset blocked, deep sleep clipped, energy-poor morning).
+
+Block 3 — "Acute tools": 4 items with concrete technique + duration + mechanism.
+- Physiological Sigh (double inhale through the nose, long exhale through the mouth) — fastest clinically validated acute down-regulation (Balban/Huberman, Cell Reports Med 2023). 1-3 repetitions, effect in 60-90 seconds. Use before meetings, after conflicts, when sleep onset stalls.
+- Box breathing 4-4-4-4 or 4-7-8 — CO2 tolerance↑, vagus activation; 3-5 min, Navy-SEAL and anaesthesia standard. Use pre-performance, stage fright, acute tension.
+- NSDR / Yoga Nidra 10-20 min lying down — dopamine increase ~65 % (Kjaer et al. 2002), evidence-based "half-sleep" for mental reset. Use midday, after intense work blocks, instead of a power nap when falling asleep is hard.
+- Cold exposure 1-3 min @ 10-15°C (shower/tub) — norepinephrine surge 2-3× over 1-2 h, mental clarity + resilience; 3-4×/week. Use in the morning routine; NOT immediately after strength training (blocks hypertrophy signalling).
+
+Block 4 — "Daily rituals": 4 items with time-of-day anchors (NO weekdays — those belong to the Master Weekly Plan).
+- Morning (first 30 min after waking): 10-15 min daylight exposure + 0.5 L water; optional 5-min breathwork; sets circadian rhythm + cortisol awakening cleanly. NO mail/Slack in the first 30 min — locks in sympathetic dominance for the day.
+- Midday transition (1× between tasks/meetings, 12-14:00): 5-min reset (breath, short walk, or power nap < 20 min). Prevents cumulative sympathetic buildup.
+- Evening cutoff (60-90 min before sleep): screen dimming, last-light anchor, 10 min journaling or reading — no mail/Slack. Sleep architecture details belong in the Recovery plan.
+- Sunday reset (15-min block, fixed time): weekly review = name 3 wins, set 1 boundary for the coming week. Acts as a mental "Sunday breath" against Sunday scaries.
+
+Block 5 — "Mental performance": 3 items.
+- Cognitive reframing (Crum et al. 2013 — stress-mindset research): stress as a performance signal rather than threat. Concretely: when tense, "My body is getting me ready" instead of "I'm overwhelmed". Effect: measured performance increase + lower cortisol reactivity.
+- Attention management: single-tasking blocks 25-90 min (Pomodoro or deep work). Phone distance: visible phone = -20 % cognitive performance (Ward et al. 2017). No vague "mindfulness" platitudes — concrete friction setups.
+- Identity-based habits (Clear, Atomic Habits): "I'm someone who breathes deeply after every meeting." Identity > Outcome > Behaviour. Formulate 1 concrete identity statement for this user based on their main goal.
+
+Block 6 — "Stress-source specific": 3-4 items, driven by the DEEP RULES from the deepRulesBlock.
+- IMPORTANT: this block MUST operationalise the stress-source deep rules BY NAME. If stress_source=job: end-of-day transition with a concrete cue ("keys on the hook" / "laptop lid closes work"); if family: 10-min alone anchor after coming home before switching to family mode; if finances: 1×/week 20-min finance check at a fixed time slot instead of diffuse constant worry.
+- With multiple stress sources: rank by likely leverage, operationalise max 2 by name (avoid reader fatigue). Priority: job > family > finances > health > future.
+- Dock onto the existing recovery_ritual rather than replacing it: if recovery_ritual=meditation, "extend your existing meditation" instead of introducing something brand new. If recovery_ritual=nature, "5 min outside between meetings" rather than just a generic breath break.
+
+Block 7 — "Progress tracking": 3 items.
+- HRV (RMSSD in ms) as an objective stress marker — trend over 7-14 days matters more than daily values (daily variation ±10-20 % is normal). Falling trend over 7+ days = sympathetic-stuck-on → reduce volume, push recovery tools up.
+- Subjective 1-10 morning stress scale (30 seconds, builds interoception). Trend over single values. Combine with an energy scale: low in the morning + high in the evening = cortisol inversion (chronic-stress indicator).
+- Weekly review question: "Which 1-2 down-regulation moments actually WORKED this week?" Reinforces what works instead of falling back to generic tips. After 4 weeks: re-calibrate the acute tools (keep which, swap which).
+
+EXPLICITLY FORBIDDEN — these belong in OTHER plans, not the stress plan:
+- Sleep hygiene / sleep phases / sleep tools (NSDR as an acute tool is fine, but sleep architecture is not) → Recovery plan
+- Concrete meal recommendations with amounts or cravings strategies → Metabolic plan
+- Training methods / zone recommendations / volume adjustments → Activity plan
+- Specific weekdays or training sessions on specific days → Master Weekly Plan
+- Generic "live healthy" platitudes or score interpretation as an end in itself → Main report
+- HPA axis as score evaluation ("your cortisol is high because stress score 78") → Main report. Allowed: HPA axis as a mechanistic anchor for WHY the tools work.
+
+Important: time-of-day anchors (morning / midday / evening / Sunday) are explicitly allowed — the only difference from the Master Weekly Plan is: no weekday binding (no "Monday 18:00 NSDR").`;
 }
 
 // ── IT ───────────────────────────────────────────────────────────────────────
@@ -1905,7 +2001,55 @@ PIANO STRESS & LIFESTYLE — Dati utente:
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (${s.metabolic.metabolic_band})
 - Overall Score: ${s.overall_score_0_100}/100 (${s.overall_band})
 
-Genera un piano stress & lifestyle dettagliato e personalizzato con protocolli concreti di down-regulation.`;
+STRUTTURA PIANO STRESS — sovrascrive il default a 5 blocchi del system prompt. Genera ESATTAMENTE 7 blocchi in questo ordine. Ogni sezione deve riprendere e calcolare concretamente i valori dell'utente, non restare generica:
+
+Block 1 — "Dove ti trovi": 3 punti.
+- Classificare lo Stress Score (low/moderate/high/very high) + livello qualitativo (carico acuto vs. tono simpatico cronicamente elevato); nominare la fonte di stress se disponibile.
+- Calcolare concretamente la relazione Stress ↔ Sleep ↔ Recovery (es. "con Stress 78 e Sleep 52 è più probabile uno stato 'simpatico bloccato in alto' che problemi di sonno isolati — il piano agisce sul sistema simpatico, non sul sintomo del sonno").
+- Cross-plan: gli strumenti del sonno vivono nel piano Recovery, il timing dei pasti nel piano Metabolic, il volume di allenamento nel piano Activity, giorni della settimana e orari concreti nel Master Weekly Plan.
+
+Block 2 — "Fisiologia dello stress": 4 punti.
+- Asse HPA (ipotalamo → ipofisi → corticale del surrene): rilascio acuto di cortisolo come attivatore di performance; in caso di attivazione cronica diventa disregolato (risposta del cortisolo al risveglio appiattita, cortisolo serale elevato).
+- Simpatico vs. parasimpatico + teoria polivagale (Porges): vago ventrale = modalità di connessione sociale / rigenerazione; vago dorsale = modalità di shutdown sotto sovraccarico; il recupero avviene solo nello stato parasimpatico-ventrale.
+- Carico allostatico: lo stress come "consumo di batteria" — acuto va bene (boost di performance), cronico è tossico (perdita di performance, insulino-resistenza, immunosoppressione).
+- Risposta del cortisolo al risveglio: perché alta al mattino (30-45 min dopo il risveglio, +50-75 % sulla baseline) e bassa alla sera — e cosa si rompe quando questo ritmo si inverte (addormentamento bloccato, sonno profondo ridotto, mattina povera di energia).
+
+Block 3 — "Strumenti acuti": 4 punti con tecnica + durata + meccanismo concreti.
+- Physiological Sigh (doppia inspirazione dal naso, lunga espirazione dalla bocca) — la down-regulation acuta clinicamente più rapida (Balban/Huberman, Cell Reports Med 2023). 1-3 ripetizioni, effetto in 60-90 secondi. Uso: prima di meeting, dopo conflitti, quando l'addormentamento si blocca.
+- Box breathing 4-4-4-4 oppure 4-7-8 — tolleranza al CO2↑, attivazione del vago; 3-5 min, standard Navy-SEAL e anestesia. Uso: pre-performance, ansia da palco, tensione acuta.
+- NSDR / Yoga Nidra 10-20 min sdraiati — aumento dopamina ~65 % (Kjaer et al. 2002), "mezzo sonno" basato su evidenze per il reset mentale. Uso: a metà giornata, dopo blocchi intensi, al posto di un power nap quando addormentarsi è difficile.
+- Esposizione al freddo 1-3 min @ 10-15°C (doccia/vasca) — surge di noradrenalina 2-3× nelle 1-2 h successive, chiarezza mentale + resilienza; 3-4×/settimana. Uso: routine mattutina; NON subito dopo allenamento di forza (blocca il signaling di ipertrofia).
+
+Block 4 — "Rituali giornalieri": 4 punti con ancore di orario (NIENTE giorni della settimana — appartengono al Master Weekly Plan).
+- Mattina (primi 30 min dopo il risveglio): 10-15 min di esposizione alla luce naturale + 0,5 L di acqua; opzionale 5 min di respirazione; imposta correttamente ritmo circadiano + risposta del cortisolo al risveglio. NIENTE mail/Slack nei primi 30 min — fissa la dominanza simpatica per la giornata.
+- Transizione di metà giornata (1× tra task/meeting, 12-14): reset di 5 min (respirazione, breve camminata o power nap < 20 min). Previene l'accumulo simpatico cumulativo.
+- Cutoff serale (60-90 min prima del sonno): dimming degli schermi, ancora "ultima luce", 10 min di journaling o lettura — niente mail/Slack. I dettagli dell'architettura del sonno appartengono al piano Recovery.
+- Reset della domenica (blocco di 15 min, orario fisso): review settimanale = nominare 3 wins, fissare 1 boundary per la settimana entrante. Funziona come "respiro della domenica" mentale contro le Sunday scaries.
+
+Block 5 — "Performance mentale": 3 punti.
+- Cognitive reframing (Crum et al. 2013 — ricerca sullo stress mindset): stress come segnale di performance invece che minaccia. Concretamente: in tensione "Il mio corpo mi sta preparando" invece di "Sono sopraffatto". Effetto: aumento di performance misurato + minore reattività al cortisolo.
+- Gestione dell'attenzione: blocchi di single-tasking 25-90 min (Pomodoro o deep work). Distanza dal telefono: telefono visibile = -20 % di performance cognitiva (Ward et al. 2017). Niente vaghe formule di "mindfulness" — setup di friction concreti.
+- Identity-based habits (Clear, Atomic Habits): "Sono una persona che respira profondamente dopo ogni meeting." Identità > Risultato > Comportamento. Formulare 1 dichiarazione di identità concreta per l'utente basata sul suo obiettivo principale.
+
+Block 6 — "Specifico per fonte di stress": 3-4 punti, guidati dalle REGOLE PROFONDE del deepRulesBlock.
+- IMPORTANTE: questo blocco DEVE operazionalizzare PER NOME le regole profonde delle fonti di stress. Se stress_source=job: transizione di fine giornata con un cue concreto ("chiavi sul gancio" / "coperchio del notebook che chiude il lavoro"); se family: ancora di 10 min da soli dopo il rientro a casa prima di passare alla modalità famiglia; se finances: 1×/settimana 20 min di finance check in uno slot fisso invece della preoccupazione costante diffusa.
+- Con più fonti di stress: ranking per leva probabile, operazionalizzare per nome al massimo 2 (evitare l'affaticamento da lettura). Priorità: job > family > finances > health > future.
+- Aggancia il recovery_ritual esistente invece di sostituirlo: se recovery_ritual=meditation, "estendi la tua meditazione esistente" invece di introdurne una completamente nuova. Se recovery_ritual=nature, "5 min fuori tra i meeting" invece di una generica pausa respirazione.
+
+Block 7 — "Tracking del progresso": 3 punti.
+- HRV (RMSSD in ms) come marker oggettivo di stress — il trend su 7-14 giorni conta più dei valori giornalieri (variazione giornaliera ±10-20 % è normale). Trend in calo per 7+ giorni = simpatico bloccato in alto → ridurre il volume, alzare gli strumenti di recovery.
+- Scala stress soggettiva 1-10 al mattino (30 secondi, costruisce interocezione). Trend sopra al singolo valore. Combinare con una scala di energia: bassa al mattino + alta alla sera = inversione del cortisolo (indicatore di stress cronico).
+- Domanda di review settimanale: "Quali 1-2 momenti di down-regulation hanno DAVVERO funzionato questa settimana?" Rinforza ciò che funziona invece di tornare a tip generici. Dopo 4 settimane: ricalibrare gli strumenti acuti (quali tenere, quali scambiare).
+
+ESPLICITAMENTE VIETATO — questi contenuti appartengono ad ALTRI piani, non al piano stress:
+- Igiene del sonno / fasi del sonno / strumenti del sonno (NSDR come strumento acuto sì, ma l'architettura del sonno no) → piano Recovery
+- Raccomandazioni concrete sui pasti con quantità o strategie anti-cravings → piano Metabolic
+- Metodi di allenamento / raccomandazioni di zona / aggiustamenti di volume → piano Activity
+- Giorni della settimana specifici o sessioni di allenamento in giorni specifici → Master Weekly Plan
+- Frasi fatte generiche del tipo "vivi sano" o interpretazione dello score come fine in sé → Report principale
+- Asse HPA come valutazione dello score ("il tuo cortisolo è alto perché lo stress score è 78") → Report principale. Consentito: asse HPA come ancora meccanicistica del PERCHÉ gli strumenti funzionano.
+
+Importante: le ancore di orario (mattina / metà giornata / sera / domenica) sono esplicitamente consentite — l'unica differenza dal Master Weekly Plan è: nessun vincolo al giorno della settimana (niente "lunedì 18:00 NSDR").`;
 }
 
 // ── TR ───────────────────────────────────────────────────────────────────────
@@ -2156,7 +2300,55 @@ STRES & YAŞAMBİÇİMİ PLANI — Kullanıcı verisi:
 - Metabolic Score: ${s.metabolic.metabolic_score_0_100}/100 (${s.metabolic.metabolic_band})
 - Overall Score: ${s.overall_score_0_100}/100 (${s.overall_band})
 
-Detaylı, kişiselleştirilmiş bir Stres & Yaşambiçimi planı oluştur, somut down-regülasyon protokolleri ver.`;
+STRES PLANI YAPISI — system prompt'un 5-blok varsayılanını geçersiz kılar. TAM OLARAK 7 blok şu sırada üret. Her bölüm kullanıcının değerlerini somut şekilde alıp hesaplamalı, genel kalmamalı:
+
+Block 1 — "Şu an neredesin": 3 öğe.
+- Stres Score'unu sınıflandır (low/moderate/high/very high) + niteliksel seviye (akut yük vs. kronik yüksek sempatik ton); varsa stres kaynağını ismen anma.
+- Stres ↔ Sleep ↔ Recovery ilişkisini somut hesapla (örn. "Stres 78 ve Sleep 52 ile izole uyku problemlerinden çok 'sempatik yüksekte takılı' durumu daha olası — plan uyku semptomuna değil sempatik sisteme yöneliyor").
+- Cross-plan: uyku araçları Recovery planında, öğün zamanlaması Metabolic planında, antrenman hacmi Activity planında, somut gün/saat Master Weekly Plan'da.
+
+Block 2 — "Stres fizyolojisi": 4 öğe.
+- HPA ekseni (hipotalamus → hipofiz → adrenal korteks): akut kortizol salınımı performans aktivatörü olarak; kronik aktivasyonda disregüle olur (kortizol uyanma yanıtı düzleşir, akşam kortizolü yükselir).
+- Sempatik vs. parasempatik + Polivagal teori (Porges): ventral vagus = sosyal bağlantı / rejenerasyon modu; dorsal vagus = aşırı yükte shutdown modu; recovery yalnızca parasempatik-ventral durumda gerçekleşir.
+- Allostatik yük: stres bir "pil tüketimi" gibi — akut sorun değil (performans boost), kronik toksik (performans kaybı, insülin direnci, immün baskılanma).
+- Kortizol uyanma yanıtı: neden sabah yüksek (uyanmadan 30-45 dk sonra, baseline'ın +%50-75 üzerinde) ve akşam düşük — ve bu ritim ters döndüğünde ne kırılır (uykuya dalış engellenir, derin uyku kesilir, enerji fakiri sabah).
+
+Block 3 — "Akut araçlar": 4 öğe; somut teknik + süre + mekanizma.
+- Physiological Sigh (burundan çift nefes alma, ağızdan uzun nefes verme) — klinik olarak kanıtlanmış en hızlı akut down-regülasyon (Balban/Huberman, Cell Reports Med 2023). 1-3 tekrar, etki 60-90 saniye. Kullanım: meeting öncesi, çatışma sonrası, uykuya dalış zorlaştığında.
+- Box breathing 4-4-4-4 veya 4-7-8 — CO2 toleransı↑, vagus aktivasyonu; 3-5 dk, Navy-SEAL ve anestezi standardı. Kullanım: performans öncesi, sahne kaygısı, akut gerginlik.
+- NSDR / Yoga Nidra 10-20 dk yatar pozisyonda — dopamin artışı ~%65 (Kjaer ve ark. 2002), mental reset için kanıta dayalı "yarı uyku". Kullanım: öğle, yoğun blokların ardından, uyku tutmazken power nap yerine.
+- Soğuk maruziyet 1-3 dk @ 10-15°C (duş/küvet) — norepinefrin surge'u 2-3× sonraki 1-2 saatte, zihinsel netlik + dayanıklılık; 3-4×/hafta. Kullanım: sabah rutini; kuvvet antrenmanından HEMEN SONRA DEĞİL (hipertrofi sinyalini bloke eder).
+
+Block 4 — "Günlük ritüeller": 4 öğe; saat-bazlı ankrajlarla (HAFTA GÜNÜ YOK — onlar Master Weekly Plan'a ait).
+- Sabah (uyandıktan sonraki ilk 30 dk): 10-15 dk gün ışığı + 0,5 L su; opsiyonel 5 dk nefes; sirkadyen ritmi + kortizol uyanma yanıtını temiz kurar. İlk 30 dk içinde mail/Slack YOK — gün boyu sempatik dominansı sabitler.
+- Öğle geçişi (görevler/meeting'ler arası 1×, 12-14 arası): 5 dk reset (nefes, kısa yürüyüş veya power nap < 20 dk). Sempatik birikimi önler.
+- Akşam cutoff (uykudan 60-90 dk önce): ekran dimming, "son ışık" ankrajı, 10 dk journaling veya kitap — mail/Slack yok. Uyku mimarisi detayları Recovery planına ait.
+- Pazar reset (15 dk blok, sabit saat): haftalık review = 3 kazanım yaz, gelecek hafta için 1 boundary belirle. Sunday scaries'e karşı mental bir "Pazar nefesi" gibi çalışır.
+
+Block 5 — "Zihinsel performans": 3 öğe.
+- Cognitive reframing (Crum ve ark. 2013 — stres mindset araştırması): stresi tehdit yerine performans sinyali olarak gör. Somut: gerginken "Bedenim beni hazırlıyor", "Çok zorlanıyorum" değil. Etki: ölçülmüş performans artışı + daha düşük kortizol reaktivitesi.
+- Dikkat yönetimi: 25-90 dk single-tasking blokları (Pomodoro veya deep work). Telefon mesafesi: telefon görünürse = -%20 bilişsel performans (Ward ve ark. 2017). Belirsiz "farkındalık" klişesi yok — somut friction setupları.
+- Identity-based habits (Clear, Atomic Habits): "Her meeting'den sonra derin nefes alan biriyim." Kimlik > Sonuç > Davranış. Kullanıcının ana hedefine dayalı 1 somut kimlik ifadesi formüle et.
+
+Block 6 — "Stres kaynağına özel": 3-4 öğe; deepRulesBlock'tan gelen DERİN KURALLARLA yönlendirilir.
+- ÖNEMLİ: bu blok stres kaynağı derin kurallarını İSİMLERİYLE operasyonelleştirmeli. Eğer stress_source=job: gün sonu geçişi somut bir cue ile ("anahtarlar askıya" / "laptop kapağı işi kapatır"); family ise: eve gelir gelmez aile moduna geçmeden önce 10 dk yalnız ankraj; finances ise: diffüz sürekli endişe yerine 1×/hafta 20 dk sabit slotta finans check.
+- Birden fazla stres kaynağı varsa: muhtemel kaldıraca göre sırala, en fazla 2'yi isimleriyle operasyonelleştir (okuyucu yorgunluğunu önle). Öncelik: job > family > finances > health > future.
+- Mevcut recovery_ritual'a yeni bir şey dayatmak yerine ona kenetlen: recovery_ritual=meditation ise "mevcut meditasyonunu genişlet"; nature ise "meeting'ler arasında 5 dk dışarı" — sadece genel bir nefes molası değil.
+
+Block 7 — "İlerleme takibi": 3 öğe.
+- HRV (RMSSD, ms) objektif stres göstergesi olarak — 7-14 gün trendi günlük değerlerden önemli (günlük ±%10-20 dalgalanma normal). 7+ gün düşen trend = sempatik yüksekte takılı → volüm aşağı, recovery araçları yukarı.
+- Sabah subjektif 1-10 stres skalası (30 saniye, interoseption inşa eder). Tek değer yerine trend. Enerji skalasıyla birleştir: sabah düşük + akşam yüksek = kortizol inversiyonu (kronik stres göstergesi).
+- Haftalık review sorusu: "Bu hafta hangi 1-2 down-regülasyon anı GERÇEKTEN İŞE YARADI?" İşe yarayanı pekiştirir, jenerik tip'lere geri düşmek yerine. 4 hafta sonra: akut araçları yeniden kalibre et (hangileri kalsın, hangileri değişsin).
+
+AÇIKÇA YASAK — bu içerikler stres planına DEĞİL, diğer planlara aittir:
+- Uyku hijyeni / uyku fazları / uyku araçları (NSDR akut araç olarak tamam, ama uyku mimarisi hayır) → Recovery planı
+- Miktarlı somut öğün önerileri veya cravings stratejileri → Metabolic planı
+- Antrenman yöntemleri / zone önerileri / volüm ayarları → Activity planı
+- Belirli hafta günleri veya belirli günlerde antrenman seansları → Master Weekly Plan
+- Genel "sağlıklı yaşa" klişeleri veya kendinde amaç olarak score yorumu → Ana rapor
+- Score değerlendirmesi olarak HPA ekseni ("stres score 78 olduğu için kortizolün yüksek") → Ana rapor. İzin verilen: araçların NEDEN işe yaradığının mekanik ankrajı olarak HPA ekseni.
+
+Önemli: saat-bazlı ankrajlar (sabah / öğle / akşam / pazar) açıkça izinlidir — Master Weekly Plan'dan tek fark: hafta günü bağlaması yok ("Pazartesi 18:00 NSDR" yok).`;
 }
 
 // ============================================================================
