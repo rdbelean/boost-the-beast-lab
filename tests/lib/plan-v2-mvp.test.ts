@@ -100,6 +100,36 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
     expect(explanationMatches.length).toBe(1);
   });
 
+  // ─── Heading-Gate ─────────────────────────────────────────────
+
+  it("heading-gate: does NOT inject glossary into headings", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{
+        heading: "Mobility & Active Recovery",
+        items: ["Test mit Mobility-Übungen für die Hüfte"],
+      }],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    // Heading bleibt komplett unverändert — kein "(Beweglichkeitsübungen...)" injected
+    expect(out.blocks[0].heading).toBe("Mobility & Active Recovery");
+    // Body bekommt Glossar weiterhin
+    expect(out.blocks[0].items[0]).toContain("Mobility (Beweglichkeitsübungen");
+  });
+
+  it("heading-gate: Score-Replace still runs in heading (no glossary, but score-name → -level)", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{
+        heading: "Dein Activity Score liegt bei 92/100",
+        items: ["Body-Item ohne Glossar-Trigger"],
+      }],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    // Score-Replace MUSS in Headings laufen
+    expect(out.blocks[0].heading).toContain("Ausdauer-Niveau");
+    expect(out.blocks[0].heading).not.toContain("Activity Score");
+    expect(out.blocks[0].heading).not.toMatch(/\d+\s*\/\s*100/);
+  });
+
   it("global-uniqueness: jeder Glossar-Begriff im Plan maximal EINMAL erklärt", () => {
     const plan: { blocks: PlanBlock[] } = {
       blocks: [
