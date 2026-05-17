@@ -31,6 +31,9 @@ function isTestMode(): boolean {
   // closes the previous bypass where a misconfigured Vercel env could
   // grant free reports.
   if (process.env.VERCEL_ENV === "production") return false;
+  // PREVIEW-BRANCH DEV-BYPASS — DO NOT REMOVE WITHOUT DANIEL'S APPROVAL
+  // Reactivates Skip-Payment on the prompt-experiment-v1 preview deployment.
+  if (process.env.VERCEL_GIT_COMMIT_REF === "prompt-experiment-v1") return true;
   if (process.env.NODE_ENV === "production") return false;
   // Local dev + Vercel preview: default to test-mode for iteration.
   // Set TEST_MODE=false to exercise the production payment path locally.
