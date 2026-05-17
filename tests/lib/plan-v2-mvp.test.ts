@@ -100,6 +100,23 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
     expect(explanationMatches.length).toBe(1);
   });
 
+  // ─── Pre-Clean: AI-pre-injected Doppel-Kollaps ────────────────
+
+  it("pre-clean: collapses AI-pre-injected duplicate glossary in parens (Zone 2)", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{
+        heading: "Test",
+        items: ["Zone 2 (Zone 2 - Tempo bei dem du noch sprechen kannst, RPE 2-3): 20-40 Min lockeres Gehen"],
+      }],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    const item = out.blocks[0].items[0];
+    // Inner doppel "Zone 2" innerhalb der Klammer ist weg
+    expect(item).not.toMatch(/Zone 2 \(Zone 2/);
+    // Klammer-Inhalt ist erhalten (ohne den duplizierten Term-Prefix)
+    expect(item).toContain("Zone 2 (Tempo bei dem du noch sprechen kannst, RPE 2-3)");
+  });
+
   // ─── Heading-Gate ─────────────────────────────────────────────
 
   it("heading-gate: does NOT inject glossary into headings", () => {
