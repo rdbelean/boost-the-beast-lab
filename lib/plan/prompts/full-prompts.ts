@@ -1367,28 +1367,40 @@ Block 3 — "Circadian-Rhythmus + Adenosin": 3-4 items.
 - Adenosin-System: Adenosin akkumuliert über den Tag, bindet an A1/A2A-Rezeptoren im Hirn → baut Schlaf-Druck auf. Koffein blockiert Adenosin-Rezeptoren (Halbwertszeit 5-6h) — Müdigkeit wird NICHT eliminiert, nur aufgeschoben. Konsequenz: Koffein-Konsum 8-10h vor Schlaf hat Wirkung auf Tiefschlaf-Architektur.
 - Body-Temperature-Drop: Kerntemperatur fällt 1-2°C beim Einschlafen → triggert NREM-Eintritt. Erklärt biologisch warum kühles Schlafzimmer (16-19°C) Tiefschlaf-Qualität steigert.
 
-Block 4 — "HRV als Recovery-Marker": 3 items.
-- Herzfrequenzvariabilität (HRV) als objektiver Erholungs-Marker — Variation der Zeit zwischen Herzschlägen in Millisekunden. Höhere HRV = besserer Parasympathikus-Tonus = bessere Erholung. Im Folgenden nur noch "HRV" ohne Klammer-Erklärung verwenden.
+Block 4 — "HRV als Recovery-Marker": 4 items.
+- HRV ist dein objektiver Recovery-Marker — Variation der Zeit zwischen Herzschlägen in Millisekunden. Höhere HRV = besserer Parasympathikus-Tonus = bessere Erholung.
 - RMSSD vs SDNN: RMSSD (Root Mean Square of Successive Differences) ist parasympathisch-sensitiv → der eigentliche Recovery-Marker. SDNN ist Gesamt-Variabilität (incl. sympathischer Anteile). Wearables wie Oura, Whoop, Polar tracken RMSSD. Altersabhängige Range: typisch 25-50 ms für gesunde Erwachsene, sinkt mit Alter.
 - Coherent Breathing 5-6 BPM (NICHT Akut-Stress-Tool — die liegen im Stress-Plan): 5-6 Atemzüge pro Min synchronisiert Herzschlag mit Atmung (Resonanz-Phänomen) → maximale HRV in Echtzeit. Wirkung: trainiert Baroreflex-Sensitivität, verbessert Recovery-Kapazität über Wochen. Praktisch: 5 Min/Tag oder vor dem Schlafen.
+- Chronischer Familien-/Beziehungs-Stress senkt nächtliche HRV messbar (erhöhter Sympathikus-Tonus über Stunden hinweg). Tracking-Hintergrund, kein Tool: wenn HRV-Trend über mehrere Wochen fällt trotz Schlaf + Recovery-Tools, ist Stressquellen-Bearbeitung im Stress-Plan vermutlich der Hebel.
 
-Block 5 — "Recovery-Tools": 3-4 items. KEINE Akut-Atemtechniken (4-7-8, Box Breathing, Physiological Sigh — gehört in den Stress-Plan).
+Block 5 — "Passive Recovery-Methoden": 5-6 items. KEINE Akut-Atemtechniken (4-7-8, Box Breathing, Physiological Sigh — gehört in den Stress-Plan).
 - NSDR / Yoga Nidra: 10-20 Min in liegender Position mit geführter Aufmerksamkeit. Mechanismus: Theta-Wellen-Dominanz wie in tiefer Meditation, senkt Cortisol nachweislich (Kjaer et al. 2002: Dopamin +65%).
 - Sauna: 15-20 Min bei 80-90°C, 2-3× pro Woche. Mechanismus: Heat-Shock-Proteins (HSP-70) sind cross-protective — schützen nicht nur vor Hitze, sondern gegen oxidativen Stress, Inflammation, virale/bakterielle Infektionen, Neurodegeneration. Erklärt finnische Kohorten-Studien (Laukkanen et al. 2015 KIHD): 4-7×/Woche Sauna senkt All-Cause-Mortality um 40%.
 - Cold Therapy: 1-3 Min bei 10-15°C (Dusche/Wanne). Mechanismus: Norepinephrin-Surge (+200-500%, hält 1-2h), Anti-Inflammation, mentale Klarheit. NICHT direkt nach Krafttraining (blockt Hypertrophie-Signaling über mTOR-Pfad).
-- Optional: Recovery-Komposition — Sauna nach Ausdauer, Cold nach Stress-Spike, NSDR bei HRV-Drop.
+- Contrast Shower: alternierend 30-60s warm / 30-60s kalt, 3-5 Wechsel. Mechanismus: wiederholte Vasodilation/-konstriktion trainiert das autonome Nervensystem auf Parasympathikus-Reaktivierung; mildere Variante von Cold Therapy mit ähnlichem HRV-Effekt.
+- Epsom-Salt-Bad: 20 Min in warmem Wasser mit 300-500g Magnesiumsulfat. Mechanismus: transdermale Magnesium-Aufnahme unterstützt Muskel-Entspannung und GABA-Aktivität; Wärme triggert anschließenden Body-Temperature-Drop → Schlaf-Vorbereitung. 1-2× pro Woche, abends.
+- Bewusstes Kochen als passiver Recovery-Anker: aktiviert das Default Mode Network (Selbst-Bezugs-System des Gehirns) — wirkt wie NSDR ohne Liegen. Kein eigener Plan-Punkt, sondern Anwendung der NSDR-Logik im Alltag.
 
-Block 6 — "Mobility & Active Recovery": 3-4 items.
+Block 6 — "Aktive Recovery-Methoden": 5-6 items.
 - Mobility-Mechanismus: Faszien-Mobilisation + Range of Motion (Sarkomere-Länge, Mechanoreceptor-Stimulation). Beispiele: Hüftöffner, Schulter-Pendel, Wirbelsäulen-Rotation.
 - DOMS (Delayed Onset Muscle Soreness): peakt 24-72h nach ungewohnter Belastung, Mikrotrauma + sekundäre Inflammation durch exzentrische Kontraktionen (Z-Disc-Disruption). Behandlung: leichte Bewegung beschleunigt Heilung, vollständige Ruhe verlängert.
+- Foam Rolling / Self-Myofascial Release: 30-60s pro Muskelgruppe, moderater Druck. Mechanismus: mechanische Druck-Stimulation der Faszien-Mechanorezeptoren reduziert akuten Muskeltonus und subjektives DOMS-Empfinden ohne nachweisbaren Hypertrophie-Block. Nach Training oder an Off-Tagen.
+- Legs-up-the-Wall (Viparita Karani): 10-15 Min Rücken am Boden, Beine senkrecht hochgelegt. Mechanismus: venöser Rückfluss + Aktivierung des Baroreflexes über die Lageänderung → Parasympathikus-Shift, leichte Cortisol-Senkung. Niedrigschwellig, kein Equipment, abends gut nach langen Steh-/Sitz-Tagen.
 - Zone 1 (RPE 2-3, "kannst entspannt reden") als Active Recovery: 20-40 Min lockeres Gehen / Easy Cycling — beschleunigt Glykogen-Resynthese 2-3× vs passive Ruhe (Durchblutung + Laktat-Clearance), kein neuer Recovery-Schuld-Aufbau.
-- Recovery-Ritual organisch integriert (NICHT als separate Sektion): wenn recovery_ritual=nature, "Spaziergang draußen" als Active Recovery framen; wenn meditation, "Meditation als HRV-Booster" einordnen; wenn sport, "leichte Bewegungs-Routine" als Recovery-Mobilität nutzen. KEINE eigene "KOCHEN als Anker"-Sektion oder vergleichbares.
+- Natur-Spaziergang als aktive Recovery-Variante: Park et al. 2010 (Shinrin-yoku): −21% Cortisol nach 20 Min Natur-Exposition vs Stadt-Kontrolle. Kein eigener Plan-Punkt, sondern Anwendung der Zone-1-Logik mit zusätzlichem visuellem/akustischem Stress-Buffer.
 
-Block 7 — "Progress-Tracking": 3-4 items.
+Block 7 — "Progress-Tracking": 4-5 items.
 - HRV tracken: morgens nach dem Aufwachen 2-3 Min ruhig liegen, dann messen (Wearable / Polar / Smartphone-Apps). Trends über 7-14 Tage wichtiger als Tageswerte (Schwankungen ±10-20% normal).
 - Schlaf-Qualität subjektiv (1-10) UND objektiv: Einschlaf-Latenz (<20 Min normal), nächtliches Aufwachen, Energie morgens. Wearable-Schlafphasen-Daten sind grobe Annäherung, kein Goldstandard.
 - Energie-Skala morgens + abends: morgens niedrig + abends hoch → Cortisol-Inversion (Indiz für chronischen Stress, kurzer Verweis auf Stress-Plan).
 - Re-Analyse nach 4 Wochen: HRV-Trend stabil oder steigend → weiter so; HRV-Trend fallend trotz Recovery-Tools → Volumen runter, Schlaf priorisieren, ggf. Cortisol checken lassen.
+- Trennlinie zu anderen Plänen: konkrete Wochentage/Uhrzeiten/Trigger-Mapping (z.B. wann genau Sauna, wann Cold, wann NSDR) → Master-Wochenplan. Mahlzeiten-Timing und Mengen → Metabolic-Plan. Trainings-Volumen und Methoden → Activity-Plan. Akute Stress-Tools (4-7-8, Box Breathing) → Stress-Plan. Recovery-Plan fokussiert auf Mechanismen und Tracking, nicht auf Wochen-Termine.
+
+FORMATIERUNG — ABKÜRZUNGS-DOPPEL VERMEIDEN:
+- Nutze Abkürzungen DIREKT: HRV, NREM, REM, NSDR, Z1, Z2, RPE, DOMS, HSP. Der Glossar-Post-Processor fügt die Erklärung beim ERSTEN Vorkommen automatisch in Klammern an.
+- Schreibe NIEMALS "Vollname (Abkürzung)" wie "Herzfrequenzvariabilität (HRV)". Schreibe NIEMALS "Abkürzung (Vollname — Erklärung)" wie "HRV (Herzfrequenzvariabilität — ...)". Verwende ausschließlich die Abkürzung — der Post-Processor übernimmt die Glossar-Klammer.
+- Beispiel KORREKT: "HRV ist dein objektiver Recovery-Marker." Beispiel FALSCH: "Herzfrequenzvariabilität (HRV) ist dein objektiver Recovery-Marker."
+- Wochentage NIEMALS als Eigennamen benennen — weder als einzelnes Wort noch als Wochentag-Kompositum mit Tageszeit (Tag-Name + "-Morgen", Tag-Name + "-Nachmittag", Tag-Name + "-Abend"). Konkrete Tag-Bindung gehört in den Master-Wochenplan. Erlaubt sind Frequenz-Angaben ("2-3× pro Woche", "1× pro Woche", "täglich", "abends") und Trigger-Kontexte ("nach hartem Training", "bei HRV-Drop") — NIE Eigennamen von Wochentagen.
 
 FORMATIERUNGS-REGEL: Schreibe sauberes Deutsch. IMMER ein Leerzeichen NACH Satzzeichen (Punkt, Komma, Doppelpunkt). IMMER ein Leerzeichen VOR einer öffnenden Klammer. IMMER ein Leerzeichen VOR und NACH Operator-Zeichen wie + → —.
 
@@ -1400,10 +1412,11 @@ EXPLIZIT VERBOTEN — diese Inhalte gehören NICHT in den Recovery-Plan, sondern
 - Sympathikus/Parasympathikus-Basics-Erklärung → Stress-Plan (nur Polyvagal-Tiefer-Ansatz dort)
 - Trainings-Methoden (Norwegian 4×4, Z2-Intervalle, Sätze, Wiederholungen, RPE-Steuerung für Hauptsessions) → Activity-Plan + Master-Wochenplan. Zone 1 als Active Recovery in Block 6 ist OK.
 - Konkrete Mahlzeit-Empfehlungen mit Mengen oder Zutaten → Metabolic-Plan
-- Konkrete Uhrzeiten als Handlungs-Anweisung ("21:00 Uhr Melatonin", "Sauna um 19:00") → Master-Wochenplan. Mechanismus-Erklärung mit Zeit-Bezug ist OK ("30-45 Min nach Aufwachen Cortisol-Peak").
-- Konkrete Wochentage ("Mittwoch + Samstag Sauna", "Sonntag-Reset") → Master-Wochenplan
+- Konkrete Uhrzeiten als Handlungs-Anweisung → Master-Wochenplan. Mechanismus-Erklärung mit Zeit-Bezug ist OK ("30-45 Min nach Aufwachen Cortisol-Peak").
+- Konkrete Wochentage in jeder Form (weder Wort noch Wochentag-Kompositum) → Master-Wochenplan. Frequenz-Angaben wie "2-3× pro Woche", "1× pro Woche", "täglich", "abends" SIND erlaubt; benannte Wochentage NICHT, auch nicht als Klammer-Beispiel.
+- Trigger-Mapping-Listen ("Sauna nach Ausdauer, Cold nach Stress-Spike, NSDR bei HRV-Drop") als geschlossene Komposition → Master-Wochenplan. Einzelne Trigger-Hinweise pro Methode ("nicht direkt nach Krafttraining") bleiben Recovery-Plan.
 - Score-Werte in Klammern hinter Score-Namen (NICHT "Sleep Score (71/100)" oder "Activity Score (58/100)" — die Werte werden im Post-Processing entfernt und hinterlassen leere Klammern). Stattdessen inline: "Sleep Score 71" oder "im mittleren Bereich".
-- Separate Sektionen für einzelne recovery_ritual-Werte (z.B. "KOCHEN ALS REGENERATIONS-ANKER", "MEDITATION-RITUAL", "NATUR-RITUAL") — Rituale werden in Block 6 organisch integriert.
+- Separate Sektionen für einzelne recovery_ritual-Werte (z.B. "KOCHEN ALS REGENERATIONS-ANKER", "MEDITATION-RITUAL", "NATUR-RITUAL", "NATUR-EXPOSURE") — recovery_ritual-Bezüge sind in Block 5/6 als Bullet-Anwendungen integriert (Kochen → NSDR-Anwendung; Natur → Zone-1-Anwendung).
 - Allgemeine "lebe gesund"-Floskeln oder Score-Interpretation als Selbstzweck → Hauptreport.`;
   }
 
@@ -1689,28 +1702,40 @@ Block 3 — "Circadian Rhythm + Adenosine": 3-4 items.
 - Adenosine system: adenosine accumulates over the day, binds to A1/A2A receptors in the brain → builds sleep pressure. Caffeine blocks adenosine receptors (half-life 5-6h) — fatigue is NOT eliminated, just postponed. Consequence: caffeine consumed 8-10h before sleep impacts deep-sleep architecture.
 - Body-temperature drop: core temperature drops 1-2°C at sleep onset → triggers NREM entry. Biologically explains why a cool bedroom (16-19°C) raises deep-sleep quality.
 
-Block 4 — "HRV as Recovery Marker": 3 items.
-- Heart-rate variability (HRV) as an objective recovery marker — variation of time between heartbeats in milliseconds. Higher HRV = better parasympathetic tone = better recovery. From here only "HRV" without parenthetical explanation.
+Block 4 — "HRV as Recovery Marker": 4 items.
+- HRV is your objective recovery marker — variation of time between heartbeats in milliseconds. Higher HRV = better parasympathetic tone = better recovery.
 - RMSSD vs SDNN: RMSSD (Root Mean Square of Successive Differences) is parasympathetic-sensitive → the actual recovery marker. SDNN is total variability (incl. sympathetic). Wearables like Oura, Whoop, Polar track RMSSD. Age-dependent range: typically 25-50 ms for healthy adults, declines with age.
 - Coherent Breathing 5-6 BPM (NOT an acute stress tool — those live in the Stress plan): 5-6 breaths per minute synchronises heartbeat with breathing (resonance phenomenon) → maximises HRV in real time. Effect: trains baroreflex sensitivity, improves recovery capacity over weeks. Practical: 5 min/day or before sleep.
+- Chronic family/relationship stress measurably lowers night-time HRV (elevated sympathetic tone over hours). Tracking context, not a tool: if HRV trends down over several weeks despite sleep + recovery tools, working on the underlying stressor in the Stress plan is likely the lever.
 
-Block 5 — "Recovery Tools": 3-4 items. NO acute breathing techniques (4-7-8, box breathing, Physiological Sigh — those belong in the Stress plan).
+Block 5 — "Passive Recovery Methods": 5-6 items. NO acute breathing techniques (4-7-8, box breathing, Physiological Sigh — those belong in the Stress plan).
 - NSDR / Yoga Nidra: 10-20 min lying down with guided attention. Mechanism: theta-wave dominance as in deep meditation, demonstrably lowers cortisol (Kjaer et al. 2002: dopamine +65%).
 - Sauna: 15-20 min at 80-90°C, 2-3× per week. Mechanism: Heat-Shock Proteins (HSP-70) are cross-protective — they shield not only against heat but against oxidative stress, inflammation, viral/bacterial infections, neurodegeneration. Explains the Finnish cohort findings (Laukkanen et al. 2015 KIHD): 4-7×/week sauna cuts all-cause mortality by 40%.
 - Cold therapy: 1-3 min at 10-15°C (shower/tub). Mechanism: norepinephrine surge (+200-500%, lasts 1-2h), anti-inflammation, mental clarity. NOT directly after strength training (blocks hypertrophy signaling via mTOR pathway).
-- Optional: recovery composition — sauna after endurance, cold after a stress spike, NSDR when HRV drops.
+- Contrast shower: alternating 30-60s warm / 30-60s cold, 3-5 switches. Mechanism: repeated vasodilation/vasoconstriction trains the autonomic nervous system toward parasympathetic reactivation; a milder variant of cold therapy with a similar HRV effect.
+- Epsom-salt bath: 20 min in warm water with 300-500g magnesium sulfate. Mechanism: transdermal magnesium uptake supports muscle relaxation and GABA activity; the heat triggers a subsequent body-temperature drop → sleep priming. 1-2× per week, in the evening.
+- Mindful cooking as a passive recovery anchor: activates the Default Mode Network (the brain's self-referential system) — works like NSDR without lying down. Not a separate plan item, just an everyday application of the NSDR logic.
 
-Block 6 — "Mobility & Active Recovery": 3-4 items.
+Block 6 — "Active Recovery Methods": 5-6 items.
 - Mobility mechanism: fascia mobilisation + range of motion (sarcomere length, mechanoreceptor stimulation). Examples: hip openers, shoulder pendulum, spine rotation.
 - DOMS (Delayed Onset Muscle Soreness): peaks 24-72h after unaccustomed loading, microtrauma + secondary inflammation through eccentric contractions (Z-disc disruption). Treatment: light movement accelerates healing, complete rest prolongs it.
+- Foam rolling / self-myofascial release: 30-60s per muscle group, moderate pressure. Mechanism: mechanical pressure stimulation of fascial mechanoreceptors reduces acute muscle tone and subjective DOMS without a demonstrable hypertrophy block. After training or on off days.
+- Legs-up-the-wall (Viparita Karani): 10-15 min lying on your back with legs vertical against a wall. Mechanism: venous return + baroreflex activation through the position change → parasympathetic shift, mild cortisol drop. Low barrier, no equipment, ideal in the evening after long standing/sitting days.
 - Zone 1 (RPE 2-3, "you can chat comfortably") as active recovery: 20-40 min easy walking / easy cycling — accelerates glycogen resynthesis 2-3× vs passive rest (circulation + lactate clearance), no new recovery-debt buildup.
-- Recovery ritual organically integrated (NOT as a separate section): if recovery_ritual=nature, frame "walk outside" as active recovery; if meditation, frame "meditation as an HRV booster"; if sport, frame "light movement routine" as recovery mobility. NO separate "COOKING AS ANCHOR" section or equivalents.
+- Nature walk as an active-recovery variant: Park et al. 2010 (shinrin-yoku): −21% cortisol after 20 min of nature exposure vs urban control. Not a separate plan item, just an application of the Zone 1 logic with an extra visual/acoustic stress buffer.
 
-Block 7 — "Progress Tracking": 3-4 items.
+Block 7 — "Progress Tracking": 4-5 items.
 - Track HRV: after waking up, lie still 2-3 min, then measure (wearable / Polar / smartphone apps). 7-14 day trends matter more than daily values (±10-20% swings are normal).
 - Sleep quality subjective (1-10) AND objective: sleep latency (<20 min normal), nocturnal waking, morning energy. Wearable sleep-stage data is a rough approximation, not gold standard.
 - Energy scale morning + evening: low morning + high evening → cortisol inversion (chronic-stress indicator, brief pointer to the Stress plan).
 - Re-analyse after 4 weeks: HRV trend stable or rising → keep going; HRV trend falling despite recovery tools → cut volume, prioritise sleep, possibly check cortisol with a GP.
+- Boundary to other plans: concrete weekdays/clock times/trigger mapping (e.g. exactly when sauna, when cold, when NSDR) → Master Weekly Plan. Meal timing and amounts → Metabolic plan. Training volume and methods → Activity plan. Acute stress tools (4-7-8, box breathing) → Stress plan. The Recovery plan focuses on mechanisms and tracking, not on weekly scheduling.
+
+FORMATTING — AVOID ABBREVIATION DOUBLING:
+- Use abbreviations DIRECTLY: HRV, NREM, REM, NSDR, Z1, Z2, RPE, DOMS, HSP. The glossary post-processor adds the explanation in parentheses automatically on the FIRST occurrence.
+- NEVER write "Full name (abbreviation)" like "Heart-rate variability (HRV)". NEVER write "Abbreviation (full name — explanation)" like "HRV (Heart-rate variability — ...)". Use only the abbreviation — the post-processor handles the glossary parenthesis.
+- Example CORRECT: "HRV is your objective recovery marker." Example WRONG: "Heart-rate variability (HRV) is your objective recovery marker."
+- NEVER name a weekday as a proper noun — neither as a single word nor as a weekday compound with a time-of-day (weekday-name + "-morning", weekday-name + "-afternoon", weekday-name + "-evening"). Concrete day binding belongs in the Master Weekly Plan. Allowed are frequency phrasings ("2-3× per week", "1× per week", "daily", "evenings") and trigger contexts ("after hard training", "when HRV drops") — NEVER proper names of weekdays.
 
 FORMATTING RULE: Write clean English. ALWAYS a space AFTER punctuation (period, comma, colon). ALWAYS a space BEFORE an opening parenthesis. ALWAYS a space BEFORE AND AFTER operator characters like + → —.
 
@@ -1722,10 +1747,11 @@ EXPLICITLY FORBIDDEN — these belong in OTHER plans, not the recovery plan:
 - Sympathetic/parasympathetic basics explanation → Stress plan (only the polyvagal depth angle stays there)
 - Training methods (Norwegian 4×4, Z2 intervals, sets, reps, RPE steering for main sessions) → Activity plan + Master Weekly Plan. Zone 1 as active recovery in Block 6 is OK.
 - Concrete meal recommendations with amounts or ingredients → Metabolic plan
-- Concrete clock times as action instruction ("21:00 melatonin", "sauna at 19:00") → Master Weekly Plan. Mechanism explanation with time reference is OK ("30-45 min after waking cortisol peak").
-- Concrete weekdays ("Wednesday + Saturday sauna", "Sunday reset") → Master Weekly Plan
+- Concrete clock times as action instruction → Master Weekly Plan. Mechanism explanation with time reference is OK ("30-45 min after waking cortisol peak").
+- Concrete weekdays in any form (neither word nor weekday compound) → Master Weekly Plan. Frequency phrasings like "2-3× per week", "1× per week", "daily", "evenings" ARE allowed; named weekdays are NOT, not even as parenthetical examples.
+- Trigger-mapping lists ("sauna after endurance, cold after a stress spike, NSDR on HRV drop") as a closed composition → Master Weekly Plan. Single trigger notes per method ("not directly after strength training") remain in the Recovery plan.
 - Score values in parentheses after score names (NOT "Sleep Score (71/100)" or "Activity Score (58/100)" — the values are stripped by post-processing and leave empty parens). Instead inline: "Sleep Score 71" or "in the mid range".
-- Separate sections for individual recovery_ritual values (e.g. "COOKING AS RECOVERY ANCHOR", "MEDITATION RITUAL", "NATURE RITUAL") — rituals are organically integrated in Block 6.
+- Separate sections for individual recovery_ritual values (e.g. "COOKING AS RECOVERY ANCHOR", "MEDITATION RITUAL", "NATURE RITUAL", "NATURE EXPOSURE") — recovery_ritual references are integrated as bullet applications in Block 5/6 (cooking → NSDR application; nature → Zone 1 application).
 - Generic "live healthy" platitudes or score interpretation as an end in itself → Main report.`;
   }
 
@@ -2011,28 +2037,40 @@ Blocco 3 — "Ritmo circadiano + adenosina": 3-4 punti.
 - Sistema adenosina: l'adenosina si accumula durante il giorno, si lega ai recettori A1/A2A nel cervello → costruisce pressione del sonno. La caffeina blocca i recettori dell'adenosina (emivita 5-6h) — la fatica NON viene eliminata, solo rimandata. Conseguenza: caffeina 8-10h prima del sonno impatta l'architettura del sonno profondo.
 - Body-temperature drop: la temperatura corporea cala di 1-2°C all'addormentamento → innesca l'ingresso in NREM. Spiega biologicamente perché una camera fresca (16-19°C) migliora la qualità del sonno profondo.
 
-Blocco 4 — "HRV come marker di recupero": 3 punti.
-- Variabilità della frequenza cardiaca (HRV) come marker oggettivo di recupero — variazione del tempo tra i battiti in millisecondi. HRV più alta = miglior tono parasimpatico = miglior recupero. D'ora in poi solo "HRV" senza parentesi esplicative.
+Blocco 4 — "HRV come marker di recupero": 4 punti.
+- HRV è il tuo marker oggettivo di recupero — variazione del tempo tra i battiti in millisecondi. HRV più alta = miglior tono parasimpatico = miglior recupero.
 - RMSSD vs SDNN: RMSSD (Root Mean Square of Successive Differences) è parasimpatico-sensibile → il vero marker di recupero. SDNN è la variabilità totale (incl. componenti simpatiche). Wearable come Oura, Whoop, Polar tracciano RMSSD. Range età-dipendente: tipicamente 25-50 ms per adulti sani, cala con l'età.
 - Coherent Breathing 5-6 BPM (NON è uno strumento di stress acuto — quelli vivono nel Stress plan): 5-6 respiri al minuto sincronizzano il battito con il respiro (fenomeno di risonanza) → massimizza l'HRV in tempo reale. Effetto: allena la sensibilità del baroriflesso, migliora la capacità di recupero nelle settimane. Pratico: 5 min/giorno o prima di dormire.
+- Lo stress cronico familiare/relazionale abbassa misurabilmente l'HRV notturna (tono simpatico elevato per ore). Contesto di tracking, non strumento: se il trend HRV cala per più settimane nonostante sonno + strumenti di recovery, lavorare sulla fonte di stress nel Stress plan è probabilmente la leva.
 
-Blocco 5 — "Strumenti di recovery": 3-4 punti. NESSUNA tecnica di respirazione acuta (4-7-8, box breathing, Physiological Sigh — appartengono allo Stress plan).
+Blocco 5 — "Metodi di recovery passivi": 5-6 punti. NESSUNA tecnica di respirazione acuta (4-7-8, box breathing, Physiological Sigh — appartengono allo Stress plan).
 - NSDR / Yoga Nidra: 10-20 min sdraiato con attenzione guidata. Meccanismo: dominanza delle onde theta come in meditazione profonda, abbassa il cortisolo in modo dimostrato (Kjaer et al. 2002: dopamina +65%).
 - Sauna: 15-20 min a 80-90°C, 2-3× a settimana. Meccanismo: le Heat-Shock Proteins (HSP-70) sono cross-protective — proteggono non solo dal calore, ma da stress ossidativo, infiammazione, infezioni virali/batteriche, neurodegenerazione. Spiega i risultati delle coorti finlandesi (Laukkanen et al. 2015 KIHD): sauna 4-7×/settimana riduce la mortalità totale del 40%.
 - Cold therapy: 1-3 min a 10-15°C (doccia/vasca). Meccanismo: surge di norepinefrina (+200-500%, dura 1-2h), anti-infiammazione, chiarezza mentale. NON subito dopo allenamento di forza (blocca il signaling di ipertrofia tramite la via mTOR).
-- Opzionale: composizione del recovery — sauna dopo endurance, cold dopo uno stress spike, NSDR quando l'HRV scende.
+- Doccia a contrasto: alternanza 30-60s caldo / 30-60s freddo, 3-5 cicli. Meccanismo: la vasodilatazione/vasocostrizione ripetuta allena il sistema nervoso autonomo verso la riattivazione parasimpatica; variante più mite della cold therapy con effetto simile sull'HRV.
+- Bagno con sali di Epsom: 20 min in acqua calda con 300-500g di solfato di magnesio. Meccanismo: l'assorbimento transdermico di magnesio supporta il rilassamento muscolare e l'attività GABA; il calore innesca poi il body-temperature drop → preparazione al sonno. 1-2× a settimana, di sera.
+- Cucinare con consapevolezza come ancora passiva di recovery: attiva il Default Mode Network (sistema cerebrale di auto-riferimento) — funziona come NSDR senza sdraiarsi. Non è un punto a sé, ma un'applicazione quotidiana della logica NSDR.
 
-Blocco 6 — "Mobility & active recovery": 3-4 punti.
+Blocco 6 — "Metodi di recovery attivi": 5-6 punti.
 - Meccanismo della mobility: mobilizzazione fasciale + range of motion (lunghezza dei sarcomeri, stimolazione dei meccanorecettori). Esempi: apertura delle anche, pendolo delle spalle, rotazione della colonna.
 - DOMS (Delayed Onset Muscle Soreness): picco 24-72h dopo un carico inusuale, microtrauma + infiammazione secondaria da contrazioni eccentriche (disruption del disco Z). Trattamento: movimento leggero accelera la guarigione, riposo completo la prolunga.
+- Foam rolling / auto-rilascio miofasciale: 30-60s per gruppo muscolare, pressione moderata. Meccanismo: la stimolazione pressoria meccanica dei meccanorecettori fasciali riduce il tono muscolare acuto e il DOMS soggettivo senza un blocco dimostrabile dell'ipertrofia. Dopo l'allenamento o nei giorni off.
+- Legs-up-the-wall (Viparita Karani): 10-15 min sdraiato sulla schiena con le gambe verticali contro una parete. Meccanismo: ritorno venoso + attivazione del baroriflesso tramite il cambio di posizione → shift parasimpatico, lieve calo del cortisolo. Bassa soglia di accesso, nessuna attrezzatura, ideale di sera dopo lunghe giornate in piedi/seduti.
 - Zona 1 (RPE 2-3, "puoi parlare tranquillamente") come active recovery: 20-40 min di cammino lento / easy cycling — accelera la risintesi del glicogeno 2-3× rispetto al riposo passivo (circolazione + clearance del lattato), nessun nuovo debito di recupero.
-- Recovery ritual integrato organicamente (NON come sezione separata): se recovery_ritual=nature, inquadra "passeggiata all'aperto" come active recovery; se meditation, "meditazione come HRV booster"; se sport, "routine di movimento leggera" come mobility di recupero. NESSUNA sezione separata "CUCINA COME ANCORA" o equivalenti.
+- Passeggiata nella natura come variante di active recovery: Park et al. 2010 (shinrin-yoku): −21% di cortisolo dopo 20 min di esposizione alla natura vs controllo urbano. Non è un punto a sé, ma un'applicazione della logica Zona 1 con un extra buffer visivo/acustico anti-stress.
 
-Blocco 7 — "Progress Tracking": 3-4 punti.
+Blocco 7 — "Progress Tracking": 4-5 punti.
 - Traccia l'HRV: al mattino dopo il risveglio resta 2-3 min sdraiato tranquillo, poi misura (wearable / Polar / app smartphone). Trend su 7-14 giorni più importanti dei valori giornalieri (oscillazioni ±10-20% normali).
 - Qualità del sonno soggettiva (1-10) E oggettiva: latenza di addormentamento (<20 min normale), risvegli notturni, energia al mattino. I dati di fase dal wearable sono un'approssimazione grossolana, non gold standard.
 - Scala energia al mattino + sera: bassa al mattino + alta la sera → inversione del cortisolo (segno di stress cronico, breve richiamo allo Stress plan).
 - Re-analisi dopo 4 settimane: trend HRV stabile o crescente → continua così; trend in calo nonostante gli strumenti → riduci il volume, priorità al sonno, eventualmente controlla il cortisolo con il medico.
+- Confine con gli altri piani: giorni della settimana/orari/trigger mapping concreti (es. quando esattamente sauna, quando cold, quando NSDR) → Master Weekly Plan. Timing dei pasti e quantità → Metabolic plan. Volume di allenamento e metodi → Activity plan. Strumenti di stress acuto (4-7-8, box breathing) → Stress plan. Il piano Recovery si concentra su meccanismi e tracking, non sulla pianificazione settimanale.
+
+FORMATTAZIONE — EVITARE IL RADDOPPIO DELL'ABBREVIAZIONE:
+- Usa le abbreviazioni DIRETTAMENTE: HRV, NREM, REM, NSDR, Z1, Z2, RPE, DOMS, HSP. Il post-processor del glossario aggiunge automaticamente la spiegazione tra parentesi alla PRIMA occorrenza.
+- Non scrivere MAI "Nome completo (abbreviazione)" come "Variabilità della frequenza cardiaca (HRV)". Non scrivere MAI "Abbreviazione (nome completo — spiegazione)" come "HRV (Variabilità della frequenza cardiaca — ...)". Usa solo l'abbreviazione — il post-processor gestisce la parentesi del glossario.
+- Esempio CORRETTO: "HRV è il tuo marker oggettivo di recupero." Esempio SBAGLIATO: "Variabilità della frequenza cardiaca (HRV) è il tuo marker oggettivo di recupero."
+- Non nominare MAI un giorno della settimana come nome proprio — né come singola parola né come composto con la fascia oraria (nome-del-giorno + "mattina", nome-del-giorno + "pomeriggio", nome-del-giorno + "sera"). Il vincolo concreto al giorno appartiene al Master Weekly Plan. Sono permesse formulazioni di frequenza ("2-3× a settimana", "1× a settimana", "ogni giorno", "di sera") e contesti di trigger ("dopo un allenamento intenso", "quando l'HRV scende") — MAI nomi propri dei giorni della settimana.
 
 REGOLA DI FORMATTAZIONE: Scrivi in italiano pulito. SEMPRE uno spazio DOPO i segni di punteggiatura (punto, virgola, due punti). SEMPRE uno spazio PRIMA di una parentesi aperta. SEMPRE uno spazio PRIMA E DOPO operatori come + → —.
 
@@ -2044,10 +2082,11 @@ ESPLICITAMENTE VIETATO — questi contenuti appartengono ad ALTRI piani, non al 
 - Spiegazione delle basi simpatico/parasimpatico → Stress plan (solo l'angolo polivagale in profondità resta lì)
 - Metodi di allenamento (Norwegian 4×4, intervalli Z2, serie, ripetizioni, gestione RPE per sessioni principali) → Activity plan + Master Weekly Plan. La Zona 1 come active recovery nel Blocco 6 è OK.
 - Raccomandazioni concrete di pasti con quantità o ingredienti → Metabolic plan
-- Orari concreti come istruzione di azione ("21:00 melatonina", "sauna alle 19:00") → Master Weekly Plan. Spiegazione del meccanismo con riferimento temporale è OK ("30-45 min dopo il risveglio picco di cortisolo").
-- Giorni della settimana concreti ("mercoledì + sabato sauna", "reset della domenica") → Master Weekly Plan
+- Orari concreti come istruzione di azione → Master Weekly Plan. Spiegazione del meccanismo con riferimento temporale è OK ("30-45 min dopo il risveglio picco di cortisolo").
+- Giorni della settimana concreti in qualsiasi forma (né parola né composto con il giorno) → Master Weekly Plan. Formulazioni di frequenza come "2-3× a settimana", "1× a settimana", "ogni giorno", "di sera" SONO permesse; i giorni nominati NO, nemmeno come esempio tra parentesi.
+- Liste di trigger-mapping ("sauna dopo endurance, cold dopo uno stress spike, NSDR quando l'HRV scende") come composizione chiusa → Master Weekly Plan. Singoli avvisi di trigger per metodo ("non subito dopo allenamento di forza") restano nel piano Recovery.
 - Valori dello score tra parentesi dopo i nomi dello score (NON "Sleep Score (71/100)" o "Activity Score (58/100)" — i valori vengono rimossi nel post-processing e lasciano parentesi vuote). Usa invece il valore inline: "Sleep Score 71" o "nella fascia media".
-- Sezioni separate per singoli valori di recovery_ritual (es. "CUCINA COME ANCORA DI RECUPERO", "RITUALE DI MEDITAZIONE", "RITUALE NATURA") — i rituali sono integrati organicamente nel Blocco 6.
+- Sezioni separate per singoli valori di recovery_ritual (es. "CUCINA COME ANCORA DI RECUPERO", "RITUALE DI MEDITAZIONE", "RITUALE NATURA", "ESPOSIZIONE ALLA NATURA") — i riferimenti a recovery_ritual sono integrati come bullet di applicazione nei Blocchi 5/6 (cucina → applicazione NSDR; natura → applicazione Zona 1).
 - Frasi fatte generiche del tipo "vivi sano" o interpretazione dello score come fine in sé → Report principale.`;
   }
 
@@ -2333,28 +2372,40 @@ Blok 3 — "Sirkadiyen ritim + adenozin": 3-4 madde.
 - Adenozin sistemi: gün boyunca birikir, beyindeki A1/A2A reseptörlerine bağlanır → uyku basıncı oluşturur. Kafein adenozin reseptörlerini bloke eder (yarı ömür 5-6 saat) — yorgunluk YOK EDİLMEZ, sadece ertelenir. Sonuç: uykudan 8-10 saat önce kafein tüketimi derin uyku mimarisini etkiler.
 - Body-temperature drop: vücut merkez sıcaklığı uykuya dalışta 1-2°C düşer → NREM girişini tetikler. Biyolojik olarak neden serin yatak odasının (16-19°C) derin uyku kalitesini artırdığını açıklar.
 
-Blok 4 — "Recovery göstergesi olarak HRV": 3 madde.
-- Kalp hızı değişkenliği (HRV) objektif iyileşme göstergesi olarak — kalp atımları arasındaki sürenin milisaniye cinsinden değişimi. Daha yüksek HRV = daha iyi parasempatik ton = daha iyi iyileşme. Bundan sonra sadece "HRV" parantez içi açıklama olmadan.
+Blok 4 — "Recovery göstergesi olarak HRV": 4 madde.
+- HRV senin objektif recovery göstergen — kalp atımları arasındaki sürenin milisaniye cinsinden değişimi. Daha yüksek HRV = daha iyi parasempatik ton = daha iyi iyileşme.
 - RMSSD vs SDNN: RMSSD (Root Mean Square of Successive Differences) parasempatik-duyarlı → asıl recovery göstergesi. SDNN toplam değişkenlik (sempatik bileşenler dahil). Oura, Whoop, Polar gibi wearable'lar RMSSD'yi takip eder. Yaşa bağlı aralık: sağlıklı yetişkinler için tipik 25-50 ms, yaşla düşer.
 - Coherent Breathing 5-6 BPM (akut stres aracı DEĞİL — onlar Stres planında): dakikada 5-6 nefes kalp atımını nefesle senkronize eder (rezonans fenomeni) → gerçek zamanlı maksimum HRV. Etki: baroreflex hassasiyetini eğitir, haftalar boyunca recovery kapasitesini artırır. Pratik: günde 5 dk veya uykudan önce.
+- Kronik aile/ilişki stresi gece HRV'sini ölçülebilir şekilde düşürür (saatler boyunca yüksek sempatik ton). Tracking arka planı, araç değil: uyku + recovery araçlarına rağmen HRV trendi haftalarca düşüyorsa, stres kaynağı üzerinde Stres planında çalışmak büyük olasılıkla doğru kaldıraçtır.
 
-Blok 5 — "Recovery araçları": 3-4 madde. Akut nefes teknikleri YOK (4-7-8, box breathing, Physiological Sigh — Stres planına ait).
+Blok 5 — "Pasif recovery yöntemleri": 5-6 madde. Akut nefes teknikleri YOK (4-7-8, box breathing, Physiological Sigh — Stres planına ait).
 - NSDR / Yoga Nidra: 10-20 dk uzanarak yönlendirilmiş dikkatle. Mekanizma: derin meditasyondaki gibi theta dalgası baskınlığı, kortizolü kanıtlanmış şekilde düşürür (Kjaer ve ark. 2002: dopamin +%65).
 - Sauna: 80-90°C'de 15-20 dk, haftada 2-3 kere. Mekanizma: Heat-Shock Protein'ler (HSP-70) cross-protective — sadece sıcağa değil, oksidatif strese, enflamasyona, viral/bakteriyel enfeksiyonlara, nörodejenerasyona karşı da koruyucu. Fin kohort bulgularını açıklar (Laukkanen ve ark. 2015 KIHD): haftada 4-7× sauna tüm-nedenli mortaliteyi %40 düşürür.
 - Cold therapy: 10-15°C'de 1-3 dk (duş/küvet). Mekanizma: norepinefrin yükselişi (+%200-500, 1-2 saat sürer), anti-enflamasyon, zihinsel netlik. Kuvvet antrenmanından hemen SONRA YAPMA (mTOR yolu üzerinden hipertrofi sinyalini bloke eder).
-- Opsiyonel: recovery kompozisyonu — dayanıklılıktan sonra sauna, stres spike'tan sonra cold, HRV düşüşünde NSDR.
+- Kontrast duş: 30-60s sıcak / 30-60s soğuk dönüşümlü, 3-5 geçiş. Mekanizma: tekrarlayan vazodilatasyon/vazokonstriksiyon otonom sinir sistemini parasempatik reaktivasyona doğru eğitir; cold therapy'nin daha hafif varyantı, benzer HRV etkisi.
+- Epsom tuzu banyosu: 300-500g magnezyum sülfatla ılık suda 20 dk. Mekanizma: transdermal magnezyum emilimi kas gevşemesini ve GABA aktivitesini destekler; sıcak ardından body-temperature drop'u tetikler → uyku hazırlığı. Haftada 1-2×, akşamları.
+- Bilinçli yemek pişirme pasif recovery çapası olarak: Default Mode Network'ü (beynin öz-referans sistemi) aktive eder — uzanmadan NSDR gibi çalışır. Ayrı bir plan maddesi değil, NSDR mantığının günlük uygulamasıdır.
 
-Blok 6 — "Mobility & aktif iyileşme": 3-4 madde.
+Blok 6 — "Aktif recovery yöntemleri": 5-6 madde.
 - Mobility mekanizması: fasya mobilizasyonu + range of motion (sarkomer uzunluğu, mekanoreseptör uyarımı). Örnekler: kalça açıcılar, omuz sallaması, omurga rotasyonu.
 - DOMS (Delayed Onset Muscle Soreness): alışılmadık yüklenmeden 24-72 saat sonra pik yapar, eksantrik kasılmalardan mikrotravma + sekonder enflamasyon (Z-disk disruption). Tedavi: hafif hareket iyileşmeyi hızlandırır, tam dinlenme uzatır.
+- Foam rolling / kendi-kendine miyofasyal gevşeme: kas grubu başına 30-60s, orta basınç. Mekanizma: fasyal mekanoreseptörlerin mekanik basınç uyarımı akut kas tonusunu ve öznel DOMS hissini ispatlanmış bir hipertrofi bloğu olmadan azaltır. Antrenman sonrası veya off günlerinde.
+- Legs-up-the-wall (Viparita Karani): sırtüstü, bacaklar dik şekilde duvara dayalı, 10-15 dk. Mekanizma: venöz dönüş + pozisyon değişimi üzerinden baroreflex aktivasyonu → parasempatik kayma, hafif kortizol düşüşü. Düşük eşik, ekipman yok, uzun ayakta/oturarak geçen günlerden sonra akşamları ideal.
 - Zone 1 (RPE 2-3, "rahatça konuşabilirsin") aktif iyileşme olarak: 20-40 dk gevşek yürüyüş / easy cycling — pasif dinlenmeye göre glikojen yeniden sentezini 2-3× hızlandırır (dolaşım + laktat clearance), yeni recovery borcu oluşturmaz.
-- Recovery ritüeli organik entegrasyon (ayrı bir bölüm DEĞİL): recovery_ritual=nature ise "dışarıda yürüyüş"ü aktif recovery olarak çerçevele; meditation ise "HRV booster olarak meditasyon" olarak konumlandır; sport ise "hafif hareket rutini" olarak recovery mobility kullan. AYRI "YEMEK PİŞİRMEK ANKAJ OLARAK" bölümü veya benzeri YOK.
+- Doğa yürüyüşü aktif recovery varyantı olarak: Park ve ark. 2010 (shinrin-yoku): 20 dk doğa maruziyetinden sonra kortizol −%21 (şehir kontrolüne göre). Ayrı bir plan maddesi değil, Zone 1 mantığının görsel/işitsel ek stres tamponuyla uygulamasıdır.
 
-Blok 7 — "Progress Tracking": 3-4 madde.
+Blok 7 — "Progress Tracking": 4-5 madde.
 - HRV takibi: sabah uyandıktan sonra 2-3 dk sakince yat, sonra ölç (wearable / Polar / smartphone uygulamaları). 7-14 günlük trendler günlük değerlerden daha önemli (±%10-20 dalgalanmalar normal).
 - Uyku kalitesi öznel (1-10) VE nesnel: uykuya dalma süresi (<20 dk normal), gece uyanmaları, sabah enerjisi. Wearable uyku evresi verileri kaba bir yaklaşıklıktır, altın standart değil.
 - Enerji ölçeği sabah + akşam: sabah düşük + akşam yüksekse → kortizol inversiyonu (kronik stres göstergesi, Stres planına kısa atıf).
 - 4 hafta sonra yeniden analiz: HRV trendi stabil veya yükseliyorsa → böyle devam; iyileşme araçlarına rağmen HRV trendi düşüyorsa → hacmi azalt, uykuyu önceliklendir, gerekirse doktorla kortizol kontrol ettir.
+- Diğer planlarla sınır çizgisi: somut hafta günleri/saatler/trigger eşlemesi (örn. tam olarak ne zaman sauna, ne zaman cold, ne zaman NSDR) → Master Weekly Plan. Öğün zamanlaması ve miktarları → Metabolic planı. Antrenman hacmi ve metotları → Activity planı. Akut stres araçları (4-7-8, box breathing) → Stres planı. Recovery planı mekanizmalar ve tracking üzerine odaklanır, haftalık takvimleme üzerine değil.
+
+BİÇİMLENDİRME — KISALTMA-İKİLEMESİNDEN KAÇIN:
+- Kısaltmaları DOĞRUDAN kullan: HRV, NREM, REM, NSDR, Z1, Z2, RPE, DOMS, HSP. Glossary post-processor İLK geçişte açıklamayı parantez içinde otomatik ekler.
+- ASLA "Tam ad (kısaltma)" yazma, örneğin "Kalp hızı değişkenliği (HRV)" gibi. ASLA "Kısaltma (tam ad — açıklama)" yazma, örneğin "HRV (Kalp hızı değişkenliği — ...)" gibi. Sadece kısaltmayı kullan — post-processor glossary parantezini halleder.
+- DOĞRU örnek: "HRV senin objektif recovery göstergen." YANLIŞ örnek: "Kalp hızı değişkenliği (HRV) senin objektif recovery göstergen."
+- Hafta günlerini özel ad olarak ASLA kullanma — ne tek kelime olarak ne de gün-adı + günün dilimi bileşiği olarak (gün-adı + "sabahı", gün-adı + "öğleden sonra", gün-adı + "akşamı"). Somut gün bağı Master Weekly Plan'a aittir. İzin verilen ifadeler: frekans ("haftada 2-3×", "haftada 1×", "her gün", "akşamları") ve trigger bağlamları ("sert antrenmandan sonra", "HRV düşünce") — hafta günü özel adı ASLA.
 
 BİÇİMLENDİRME KURALI: Temiz Türkçe yaz. Noktalama işaretlerinden SONRA HER ZAMAN boşluk (nokta, virgül, iki nokta). Açık paranteden ÖNCE HER ZAMAN boşluk. + → — gibi operatör işaretlerinden ÖNCE VE SONRA HER ZAMAN boşluk.
 
@@ -2366,10 +2417,11 @@ AÇIKÇA YASAK — bu içerikler recovery planına DEĞİL, diğer planlara aitt
 - Sempatik/parasempatik temel açıklaması → Stres planı (sadece polivagal derinlik açısı orada kalır)
 - Antrenman metotları (Norwegian 4×4, Z2 intervalleri, setler, tekrarlar, ana seanslar için RPE yönetimi) → Activity plan + Master Weekly Plan. Blok 6'daki Zone 1 aktif recovery olarak İZİNLİ.
 - Miktarlı veya malzemeli somut öğün önerileri → Metabolic planı
-- Eylem talimatı olarak somut saatler ("21:00 melatonin", "sauna 19:00'da") → Master Weekly Plan. Zaman referanslı mekanizma açıklaması İZİNLİ ("uyanıştan 30-45 dk sonra kortizol piki").
-- Somut hafta günleri ("Çarşamba + Cumartesi sauna", "Pazar reset") → Master Weekly Plan
+- Eylem talimatı olarak somut saatler → Master Weekly Plan. Zaman referanslı mekanizma açıklaması İZİNLİ ("uyanıştan 30-45 dk sonra kortizol piki").
+- Somut hafta günleri herhangi bir biçimde (ne kelime ne de gün-bileşik) → Master Weekly Plan. "Haftada 2-3×", "haftada 1×", "her gün", "akşamları" gibi frekans ifadeleri İZİNLİ; isimlendirilmiş hafta günleri İZİNLİ DEĞİL, parantez içi örnek olarak bile.
+- Trigger-eşleme listeleri ("dayanıklılıktan sonra sauna, stres spike'tan sonra cold, HRV düşüşünde NSDR") kapalı bir kompozisyon olarak → Master Weekly Plan. Yönteme özel tek tek trigger notları ("kuvvet antrenmanından hemen sonra değil") Recovery planında kalır.
 - Score adlarından sonra parantez içinde score değerleri (DOĞRU DEĞİL "Sleep Score (71/100)" veya "Activity Score (58/100)" — değerler post-processing'de kaldırılır ve boş parantez bırakır). Bunun yerine inline: "Sleep Score 71" veya "orta seviyede".
-- Tek tek recovery_ritual değerleri için ayrı bölümler (örn. "İYİLEŞME ANKAJI OLARAK YEMEK PİŞİRMEK", "MEDİTASYON RİTÜELİ", "DOĞA RİTÜELİ") — ritüeller Blok 6'da organik olarak entegre edilir.
+- Tek tek recovery_ritual değerleri için ayrı bölümler (örn. "İYİLEŞME ANKAJI OLARAK YEMEK PİŞİRMEK", "MEDİTASYON RİTÜELİ", "DOĞA RİTÜELİ", "DOĞAYA MARUZ KALMA") — recovery_ritual referansları Blok 5/6'da bullet uygulamaları olarak entegre edilir (yemek pişirme → NSDR uygulaması; doğa → Zone 1 uygulaması).
 - Genel "sağlıklı yaşa" klişeleri veya kendinde amaç olarak score yorumu → Ana rapor.`;
   }
 
