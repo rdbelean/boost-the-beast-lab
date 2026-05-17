@@ -198,6 +198,48 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
   });
 });
 
+// ─── 1c. Recovery-Prompt cleanliness (no Stress-Plan-Bleed) ──────────
+
+describe("Recovery prompt — Stress-Plan-Bleed cleanliness", () => {
+  it("does NOT name 'Allostatic Load' (or locale equivalents) in any Recovery-Plan branch", async () => {
+    // The legitimate Stress-Plan-Branch uses these terms (chronic stress
+    // domain) — we test that they do NOT appear in any Recovery-Plan branch
+    // (those bleed into Block 1 / Block 2 of Recovery PDFs and break the
+    // Stress↔Recovery trennlinie). We grep the full-prompts.ts file content
+    // and verify each Recovery-Branch (per locale) is clean.
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const content = fs.readFileSync(
+      path.join(process.cwd(), "lib/plan/prompts/full-prompts.ts"),
+      "utf8",
+    );
+
+    // Extract Recovery-Branches per locale via simple regex: from
+    // `if (type === "recovery") {` until the next `}` at the same level.
+    // Heuristic: we use the RECOVERY-PLAN STRUCTURE marker as anchor and
+    // grab the trailing template-literal until the closing backtick.
+    const branches = content.matchAll(
+      /RECOVERY-PLAN STRUCTURE[\s\S]*?`;/g,
+    );
+
+    const forbidden = [
+      /Allostatic Load/i,
+      /allostatic load/i,
+      /carico allostatico/i,
+      /allostatik yük/i,
+    ];
+
+    let count = 0;
+    for (const m of branches) {
+      count++;
+      for (const term of forbidden) {
+        expect(m[0]).not.toMatch(term);
+      }
+    }
+    expect(count).toBe(4); // 4 locales: DE/EN/IT/TR
+  });
+});
+
 // ─── 2. Score-Reference Auto-Replace ─────────────────────────────────
 
 describe("enforceGlossaryAndExamples — Score-Reference Replace", () => {

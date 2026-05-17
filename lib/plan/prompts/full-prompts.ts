@@ -1393,7 +1393,7 @@ Block 7 — "Progress-Tracking": 3-4 items.
 FORMATIERUNGS-REGEL: Schreibe sauberes Deutsch. IMMER ein Leerzeichen NACH Satzzeichen (Punkt, Komma, Doppelpunkt). IMMER ein Leerzeichen VOR einer öffnenden Klammer. IMMER ein Leerzeichen VOR und NACH Operator-Zeichen wie + → —.
 
 EXPLIZIT VERBOTEN — diese Inhalte gehören NICHT in den Recovery-Plan, sondern in andere Pläne:
-- HPA-Achse-Mechanismus, Allostatic Load, Cortisol-Tagesverlauf-Details → Stress-Plan
+- HPA-Achse-Mechanismus, kumulative Stress-Belastung (Fachbegriff im Stress-Plan), Cortisol-Tagesverlauf-Details → Stress-Plan
 - Akut-Atemtechniken (4-7-8, Box Breathing 4-4-4-4, Physiological Sigh, Mammalian Dive Reflex) → Stress-Plan
 - Cognitive Reframing, Cognitive Defusion (ACT), Identity-based Habits → Stress-Plan
 - Stress-spezifische Tools (Effort-Recovery Detachment, Repair Attempts, Co-Regulation, Strategic Worry Time, Awe Walks, Health Anxiety Window, Information Diet, Premortem Strategy, Latte-Factor-Reversal, Fear-Setting, Mastery-Hobby) → Stress-Plan
@@ -1715,7 +1715,7 @@ Block 7 — "Progress Tracking": 3-4 items.
 FORMATTING RULE: Write clean English. ALWAYS a space AFTER punctuation (period, comma, colon). ALWAYS a space BEFORE an opening parenthesis. ALWAYS a space BEFORE AND AFTER operator characters like + → —.
 
 EXPLICITLY FORBIDDEN — these belong in OTHER plans, not the recovery plan:
-- HPA-axis mechanism, allostatic load, cortisol daily-curve details → Stress plan
+- HPA-axis mechanism, cumulative stress load (technical term lives in the Stress plan), cortisol daily-curve details → Stress plan
 - Acute breathing techniques (4-7-8, box breathing 4-4-4-4, Physiological Sigh, Mammalian Dive Reflex) → Stress plan
 - Cognitive Reframing, Cognitive Defusion (ACT), identity-based habits → Stress plan
 - Stress-specific tools (Effort-Recovery Detachment, Repair Attempts, Co-Regulation, Strategic Worry Time, Awe Walks, Health Anxiety Window, Information Diet, Premortem Strategy, Latte-Factor Reversal, Fear-Setting, Mastery hobby) → Stress plan
@@ -2037,7 +2037,7 @@ Blocco 7 — "Progress Tracking": 3-4 punti.
 REGOLA DI FORMATTAZIONE: Scrivi in italiano pulito. SEMPRE uno spazio DOPO i segni di punteggiatura (punto, virgola, due punti). SEMPRE uno spazio PRIMA di una parentesi aperta. SEMPRE uno spazio PRIMA E DOPO operatori come + → —.
 
 ESPLICITAMENTE VIETATO — questi contenuti appartengono ad ALTRI piani, non al piano recovery:
-- Meccanismo dell'asse HPA, carico allostatico, dettagli della curva giornaliera del cortisolo → Stress plan
+- Meccanismo dell'asse HPA, carico cumulativo di stress (termine tecnico nel Stress plan), dettagli della curva giornaliera del cortisolo → Stress plan
 - Tecniche di respirazione acute (4-7-8, box breathing 4-4-4-4, Physiological Sigh, Mammalian Dive Reflex) → Stress plan
 - Cognitive Reframing, Cognitive Defusion (ACT), identity-based habits → Stress plan
 - Strumenti stress-specifici (Effort-Recovery Detachment, Repair Attempts, Co-Regulation, Strategic Worry Time, Awe Walks, Health Anxiety Window, Information Diet, Premortem Strategy, Latte-Factor Reversal, Fear-Setting, Mastery hobby) → Stress plan
@@ -2359,7 +2359,7 @@ Blok 7 — "Progress Tracking": 3-4 madde.
 BİÇİMLENDİRME KURALI: Temiz Türkçe yaz. Noktalama işaretlerinden SONRA HER ZAMAN boşluk (nokta, virgül, iki nokta). Açık paranteden ÖNCE HER ZAMAN boşluk. + → — gibi operatör işaretlerinden ÖNCE VE SONRA HER ZAMAN boşluk.
 
 AÇIKÇA YASAK — bu içerikler recovery planına DEĞİL, diğer planlara aittir:
-- HPA ekseni mekanizması, allostatik yük, kortizol günlük seyri detayları → Stres planı
+- HPA ekseni mekanizması, kümülatif stres yükü (teknik terim Stres planında), kortizol günlük seyri detayları → Stres planı
 - Akut nefes teknikleri (4-7-8, box breathing 4-4-4-4, Physiological Sigh, Mammalian Dive Reflex) → Stres planı
 - Cognitive Reframing, Cognitive Defusion (ACT), identity-based habits → Stres planı
 - Stres-özgü araçlar (Effort-Recovery Detachment, Repair Attempts, Co-Regulation, Strategic Worry Time, Awe Walks, Health Anxiety Window, Information Diet, Premortem Strategy, Latte-Factor Reversal, Fear-Setting, Mastery hobbisi) → Stres planı
