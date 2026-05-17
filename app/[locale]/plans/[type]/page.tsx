@@ -23,6 +23,34 @@ function showBytesInTab(tab: Window | null, bytes: Uint8Array | ArrayBuffer) {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
+// Maps the URL plan-type segment to a download-friendly filename.
+// Mirrors the master-plan page's downloadFilenameFor pattern so all
+// individual plan downloads get a proper name instead of "Unknown.pdf".
+function downloadFilenameFor(type: string): string {
+  if (type === "activity") return "activity.pdf";
+  if (type === "metabolic") return "metabolic.pdf";
+  if (type === "recovery") return "recovery.pdf";
+  if (type === "stress") return "stress.pdf";
+  return `${type}.pdf`;
+}
+
+// Triggers a download with an explicit filename. Uses the anchor +
+// download-attribute pattern because Blob URLs carry no filename hint —
+// without this, browsers default to "Unknown.pdf" when the user saves
+// the inline-viewed PDF.
+function downloadPdfFromBytes(bytes: Uint8Array | ArrayBuffer, type: string): void {
+  const blob = new Blob([bytes as ArrayBuffer], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = downloadFilenameFor(type);
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
 /* ─── Urgency bucket ─────────────────────────────────────── */
 // Mirrors the helper in /results — locale-agnostic keys + colors. The
 // label string itself comes from results.urgency.* so the two pages
@@ -260,7 +288,8 @@ function PlanPageInner() {
         const byteChars = atob(cachedPdfBase64);
         const bytes = new Uint8Array(byteChars.length);
         for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
-        showBytesInTab(newTab, bytes);
+        if (newTab && !newTab.closed) newTab.close();
+        downloadPdfFromBytes(bytes, type);
         console.log("[Download] Done (base64)");
         return;
       }
@@ -274,7 +303,8 @@ function PlanPageInner() {
       });
       if (!res.ok) throw new Error(`API error ${res.status}`);
       const buf = await res.arrayBuffer();
-      showBytesInTab(newTab, buf);
+      if (newTab && !newTab.closed) newTab.close();
+      downloadPdfFromBytes(buf, type);
       console.log("[Download] Done (on-demand)");
     } catch (err) {
       console.error("[Download] Failed:", err);
