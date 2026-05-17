@@ -523,16 +523,29 @@ function transformPlanText(
 ): string {
   // 1. Score-Replace auf ganzen Text (auch inside parens, falls KI dort welche packt)
   let out = applyScoreReplaces(text, locale);
+  const glossary = PLAN_GLOSSARY[locale];
 
-  // 2. Heading-Gate: Glossar-Klammern gehören NUR in Body-Bullets. Headings
+  // 2. Pre-Clean: Kollabiere AI-pre-injected `<TERM> (<TERM> [-—] <rest>)`
+  // Beispiel: "Zone 2 (Zone 2 - Tempo bei dem...)" → "Zone 2 (Tempo bei dem...)"
+  // Haiku schreibt das Pattern manchmal direkt (mimicked Glossar-Format),
+  // der reguläre Glossar-Loop kann es nicht via Negative-Lookahead bereinigen.
+  // Läuft VOR dem Heading-Gate (Defense in Depth — falls Haiku das mal in
+  // einem Heading produziert, würde es dort auch kollabieren).
+  for (const term of Object.keys(glossary)) {
+    const dupePattern = new RegExp(
+      `\\b${escapeRegex(term)}\\s+\\(${escapeRegex(term)}\\s*[-—–]\\s*([^)]+)\\)`,
+      "g",
+    );
+    out = out.replace(dupePattern, `${term} ($1)`);
+  }
+
+  // 3. Heading-Gate: Glossar-Klammern gehören NUR in Body-Bullets. Headings
   // werden im PDF groß gerendert; Klammer-Erklärungen produzieren dort
   // Zeilen-Overflow und sind redundant (Glossar wird im darunter folgenden
-  // Body-Bullet ohnehin expandiert). Score-Replace bleibt aktiv (Heading
-  // "Activity Score 92" → "Ausdauer-Niveau 92").
+  // Body-Bullet ohnehin expandiert). Score-Replace + Pre-Clean bleiben aktiv.
   if (isHeading) return out;
 
-  // 3. Glossar-Replace: pro Term FIRST outside-parens match expandieren
-  const glossary = PLAN_GLOSSARY[locale];
+  // 4. Glossar-Replace: pro Term FIRST outside-parens match expandieren
   // Sortiere nach Begriff-Länge desc — "Zone 2" (6) wird vor "Z2" (2) geprüft.
   const terms = Object.keys(glossary).sort((a, b) => b.length - a.length);
 
