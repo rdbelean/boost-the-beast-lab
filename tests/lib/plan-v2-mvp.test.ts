@@ -240,6 +240,71 @@ describe("Recovery prompt — Stress-Plan-Bleed cleanliness", () => {
   });
 });
 
+// ─── 1d. Recovery prompt — weekday/format cleanliness ────────────────
+
+describe("Recovery prompt — structural guarantees", () => {
+  const loadBranches = async () => {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const content = fs.readFileSync(
+      path.join(process.cwd(), "lib/plan/prompts/full-prompts.ts"),
+      "utf8",
+    );
+    return [...content.matchAll(/RECOVERY-PLAN STRUCTURE[\s\S]*?`;/g)].map(
+      (m) => m[0],
+    );
+  };
+
+  it("recovery prompt contains no weekday proper-noun literals (4 locales)", async () => {
+    // Unicode-aware boundary: standard \b fails on diacritics (Lunedì,
+    // Çarşamba), so we use Unicode-letter lookarounds. This matches
+    // weekday names even in hyphen-/space-separated compounds like
+    // "Samstag-Morgen", "Saturday-morning", "domenica pomeriggio",
+    // "Cumartesi sabahı" — verified manually before writing this test.
+    const weekdayPatterns = [
+      /(?<![\p{L}])(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)(?![\p{L}])/iu,
+      /(?<![\p{L}])(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(?![\p{L}])/iu,
+      /(?<![\p{L}])(Lunedì|Martedì|Mercoledì|Giovedì|Venerdì|Sabato|Domenica)(?![\p{L}])/iu,
+      /(?<![\p{L}])(Pazartesi|Salı|Çarşamba|Perşembe|Cuma|Cumartesi|Pazar)(?![\p{L}])/iu,
+    ];
+    const branches = await loadBranches();
+    expect(branches.length).toBe(4);
+    for (const branch of branches) {
+      for (const rx of weekdayPatterns) {
+        expect(branch).not.toMatch(rx);
+      }
+    }
+  });
+
+  it("recovery prompt references the Master Weekly Plan as the weekday authority", async () => {
+    const branches = await loadBranches();
+    for (const branch of branches) {
+      expect(branch).toMatch(
+        /Master-Wochenplan|Master Weekly Plan/i,
+      );
+    }
+  });
+
+  it("recovery prompt includes the abbreviation-doubling format constraint", async () => {
+    const branches = await loadBranches();
+    for (const branch of branches) {
+      expect(branch).toMatch(
+        /ABKÜRZUNGS-DOPPEL|AVOID ABBREVIATION DOUBLING|RADDOPPIO DELL'ABBREVIAZIONE|KISALTMA-İKİLEMESİNDEN KAÇIN/i,
+      );
+    }
+  });
+
+  it("recovery prompt ends with explicit cross-plan delimitation referencing all four other plans", async () => {
+    const branches = await loadBranches();
+    for (const branch of branches) {
+      expect(branch).toMatch(/Activity[-\s]?[Pp]lan|Activity planı|Activity plan/i);
+      expect(branch).toMatch(/Metabolic[-\s]?[Pp]lan|Metabolic planı|Metabolic plan/i);
+      expect(branch).toMatch(/Stress[-\s]?[Pp]lan|Stres planı|Stress plan/i);
+      expect(branch).toMatch(/Master[-\s]?Wochenplan|Master Weekly Plan/i);
+    }
+  });
+});
+
 // ─── 2. Score-Reference Auto-Replace ─────────────────────────────────
 
 describe("enforceGlossaryAndExamples — Score-Reference Replace", () => {
