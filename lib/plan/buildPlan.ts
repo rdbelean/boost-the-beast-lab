@@ -552,7 +552,14 @@ function transformPlanText(
   for (const term of terms) {
     if (expandedTerms.has(term)) continue;
     // g-Flag für mehrere exec-Calls (wir scannen bis zum ersten outside-parens Match)
-    const pattern = new RegExp(`\\b${escapeRegex(term)}\\b(?!\\s*\\()`, "g");
+    // Compound-Word-Protection: nutze (?<![\w-]) und (?![\w-]) statt \b,
+    // damit Term nicht in Komposita wie "Cortisol-Awakening-Response"
+    // matched (\b sieht Bindestrich als Wort-Grenze, was hier falsch ist).
+    // Plus existierender (?!\s*\() Schutz gegen direkt folgende Klammer.
+    const pattern = new RegExp(
+      `(?<![\\w-])${escapeRegex(term)}(?![\\w-])(?!\\s*\\()`,
+      "g",
+    );
     let match: RegExpExecArray | null;
     pattern.lastIndex = 0;
     // eslint-disable-next-line no-cond-assign
