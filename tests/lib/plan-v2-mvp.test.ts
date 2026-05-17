@@ -58,7 +58,7 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
 
   // ─── REGRESSION: Doppel-Klammer-Bug ───────────────────────────
 
-  it("doppel-klammer-bug: Z2 ausserhalb + Zone 2 inside existing parens", () => {
+  it("doppel-klammer-bug: Z2 in Kompositum + Zone 2 inside existing parens", () => {
     const plan: { blocks: PlanBlock[] } = {
       blocks: [{
         heading: "Test",
@@ -68,10 +68,15 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
     const out = enforceGlossaryAndExamples(plan, "de");
     const item = out.blocks[0].items[0];
 
+    // Compound-Protection (Commit 3): "Z2" in "Z2-Lauf" wird NICHT expandiert,
+    // damit das Pattern nicht "Cortisol-Awakening-Response" → "Cortisol (...)−Awakening"
+    // mid-compound zerbricht. "Z2" bekommt seine Erklärung erst wenn es standalone
+    // im Text auftaucht (selbe Glossar-Logik gilt für Komposita generell).
     expect(item).not.toMatch(/Zone 2 \(Tempo/);
     expect(item).not.toMatch(/\(\([^)]+\)/);
-    expect(item).toMatch(/Z2 \(Zone 2 — Tempo/);
-    expect(item).toContain("(Zone 2 - Tempo bei dem du noch sprechen kannst)");
+    expect(item).not.toMatch(/Z2 \(Zone 2 — Tempo/); // VORHER expected, jetzt NICHT mehr durch Compound-Protection
+    expect(item).toContain("(Zone 2 - Tempo bei dem du noch sprechen kannst)"); // AI-Klammer bleibt unangetastet
+    expect(item).toContain("Z2-Lauf"); // Kompositum bleibt intakt
   });
 
   it("first-occurrence-only: VO2max in zwei Blocks bekommt nur EINMAL Klammer", () => {
@@ -100,6 +105,31 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
     expect(explanationMatches.length).toBe(1);
   });
 
+  // ─── Compound-Word-Protection ─────────────────────────────────
+
+  it("compound-protection: does NOT inject glossary mid-compound (Cortisol-Awakening-Response)", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{
+        heading: "Test",
+        items: ["Die Cortisol-Awakening-Response ist morgens am höchsten."],
+      }],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    // Kein "(Stresshormon - ...)" mitten im Kompositum
+    expect(out.blocks[0].items[0]).toBe("Die Cortisol-Awakening-Response ist morgens am höchsten.");
+  });
+
+  it("compound-protection: DOES inject glossary on standalone term outside compound", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{
+        heading: "Test",
+        items: ["Cortisol ist das primäre Stresshormon im Körper."],
+      }],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    expect(out.blocks[0].items[0]).toContain("Cortisol (Stresshormon");
+  });
+
   // ─── Pre-Clean: AI-pre-injected Doppel-Kollaps ────────────────
 
   it("pre-clean: collapses AI-pre-injected duplicate glossary in parens (Zone 2)", () => {
@@ -123,13 +153,13 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
     const plan: { blocks: PlanBlock[] } = {
       blocks: [{
         heading: "Mobility & Active Recovery",
-        items: ["Test mit Mobility-Übungen für die Hüfte"],
+        items: ["Mobility verbessert die Beweglichkeit der Hüfte."],
       }],
     };
     const out = enforceGlossaryAndExamples(plan, "de");
     // Heading bleibt komplett unverändert — kein "(Beweglichkeitsübungen...)" injected
     expect(out.blocks[0].heading).toBe("Mobility & Active Recovery");
-    // Body bekommt Glossar weiterhin
+    // Body bekommt Glossar weiterhin (standalone "Mobility", kein Kompositum)
     expect(out.blocks[0].items[0]).toContain("Mobility (Beweglichkeitsübungen");
   });
 
