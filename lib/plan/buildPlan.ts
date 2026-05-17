@@ -519,11 +519,19 @@ function transformPlanText(
   text: string,
   locale: Locale,
   expandedTerms: Set<string>,
+  isHeading = false,
 ): string {
   // 1. Score-Replace auf ganzen Text (auch inside parens, falls KI dort welche packt)
   let out = applyScoreReplaces(text, locale);
 
-  // 2. Glossar-Replace: pro Term FIRST outside-parens match expandieren
+  // 2. Heading-Gate: Glossar-Klammern gehören NUR in Body-Bullets. Headings
+  // werden im PDF groß gerendert; Klammer-Erklärungen produzieren dort
+  // Zeilen-Overflow und sind redundant (Glossar wird im darunter folgenden
+  // Body-Bullet ohnehin expandiert). Score-Replace bleibt aktiv (Heading
+  // "Activity Score 92" → "Ausdauer-Niveau 92").
+  if (isHeading) return out;
+
+  // 3. Glossar-Replace: pro Term FIRST outside-parens match expandieren
   const glossary = PLAN_GLOSSARY[locale];
   // Sortiere nach Begriff-Länge desc — "Zone 2" (6) wird vor "Z2" (2) geprüft.
   const terms = Object.keys(glossary).sort((a, b) => b.length - a.length);
@@ -572,7 +580,7 @@ export function enforceGlossaryAndExamples(
       if (!Array.isArray(b.items)) return b;
       return {
         ...b,
-        heading: transformPlanText(b.heading, locale, expandedTerms),
+        heading: transformPlanText(b.heading, locale, expandedTerms, true),
         items: b.items.map((it) => transformPlanText(it, locale, expandedTerms)),
         rationale: b.rationale ? transformPlanText(b.rationale, locale, expandedTerms) : undefined,
       };
