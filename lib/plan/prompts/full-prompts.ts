@@ -1177,7 +1177,7 @@ function buildUserPromptDE({ type, scores: s, personalization: p, extractedEntit
     const ss: Record<string, string> = {
       job: "Mindestens 2 Tools MÜSSEN job-Stress adressieren: (1) Effort-Recovery Detachment (Meijman/Mulder + Sonnentag) — psychologisches Detachment vom Job ist wichtiger als Zeit-Reduktion; Übergangs-Ritual Job→Privat etablieren (Schwellen-Cue: Schlüssel-Haken, Spaziergang, Outfit-Wechsel). (2) Mastery-Hobby (Recovery Experience Questionnaire) — Skill-Entwicklung außerhalb Job aktiviert dopaminerges System job-unabhängig. (3) Optional: Strategic Underperformance (Cal Newport) — 'Maybe-No-Default', Email-Response 24h statt 2h, reduziert Karriere-Sympathikus ohne Karriere-Schaden.",
       family: "Mindestens 2 Tools MÜSSEN family-Stress adressieren: (1) Repair Attempts (Gottman): nicht Streit-Vermeidung sagt Beziehungs-Erfolg voraus, sondern schnelle Repair-Versuche nach Konflikten — familieneigener Repair-Code etablieren (Geste, Wort, Inside-Joke). (2) Co-Regulation Practice (Polyvagal-Anwendung): 5-Min-Sync-Momente gemeinsam essen ohne Handy, Augenkontakt, parallele Atmung — aktiviert ventralen Vagus. (3) Optional: Bedtime Disclosure (Algoe 2012) — 1 Dankbarkeit + 1 Sorge teilen vor dem Schlaf, erhöht Oxytocin, senkt Cortisol.",
-      finances: "Mindestens 2 Tools MÜSSEN finances-Stress adressieren: (1) Financial Worry Window (CBT-Adaption): fester Block 1× pro Woche für alle Geld-Themen, außerhalb verschieben — reduziert diffuse Finanz-Angst um ~40% nach 4 Wochen. (2) Fear-Setting (Tim Ferriss, Stoa-basiert): Worst-Case + Recovery-Schritte + Kosten der Untätigkeit schriftlich — wandelt diffuse Angst in konkrete Risikobewertung. (3) Optional: Latte-Factor-Reversal (umgekehrt David Bach) — 1 wiederkehrende Ausgabe identifizieren die UNGLÜCKLICH macht und eliminieren; Stress kommt oft nicht von Geld-Mangel sondern von Ausgaben für falsche Dinge.",
+      finances: "Mindestens 2 Tools MÜSSEN finances-Stress adressieren: (1) Financial Worry Window (CBT-Adaption): fester Block 1× pro Woche für alle Geld-Themen, außerhalb verschieben. KEINEN konkreten Wochentag oder Uhrzeit angeben — User wählt selbst, Master-Wochenplan gibt Zeitvorschläge. Reduziert diffuse Finanz-Angst um ~40% nach 4 Wochen. (2) Fear-Setting (Tim Ferriss, Stoa-basiert): Worst-Case + Recovery-Schritte + Kosten der Untätigkeit schriftlich — wandelt diffuse Angst in konkrete Risikobewertung. (3) Optional: Latte-Factor-Reversal (umgekehrt David Bach) — 1 wiederkehrende Ausgabe identifizieren die UNGLÜCKLICH macht und eliminieren; Stress kommt oft nicht von Geld-Mangel sondern von Ausgaben für falsche Dinge.",
       health: "Mindestens 2 Tools MÜSSEN health-Stress adressieren: (1) Health Anxiety Window (analog Financial Window, Te Poel 2016): festes Fenster für Health-Themen, außerhalb nicht googeln — reduziert Cyberchondria um ~60%. (2) Locus-of-Control Shift (Rotter): 2 Spalten beeinflussbar vs nicht beeinflussbar; Energie nur in linke Spalte. (3) Optional: Care-for-Carer (Figley) bei naher kranker Person — 30 Min/Tag explizit nur für sich, nicht produktiv; senkt Compassion-Fatigue-Risiko um ~50%.",
       future: "Mindestens 2 Tools MÜSSEN future-Anxiety adressieren: (1) Strategic Worry Time (Borkovec): 1× täglich 15 Min Worry-Zeit, sonst 'dafür ist Zeit im Window' — alle Sorgen werden dorthin verschoben. (2) Awe Walks (Sturm/Keltner UC Berkeley 2020): Spaziergänge mit Awe-Fokus (Bäume, Himmel, Architektur) — Default Mode Network-Reduktion, reduziert Self-Rumination. (3) Optional: Premortem Strategy (Gary Klein) — Worst-Case bereits als eingetreten visualisieren + Gründe rückwärts ableiten; macht abstrakte Angst konkret und damit lösbar.",
     };
@@ -1445,8 +1445,10 @@ Block 6 — "Stressor-spezifische Tools": 3-5 items, getrieben von TIEFEN-REGELN
 Block 7 — "Progress-Tracking": 3-4 items.
 - HRV (RMSSD in ms) als objektiver Stress-Marker — KURZ. Trend über 7-14 Tage wichtiger als Tageswerte. Sinkender Trend = Sympathikus-Stuck-On → Volumen runter, Recovery-Tools rauf. Detail-Tracking-Methodik liegt im Recovery-Plan.
 - Subjektive 1-10-Stress-Skala morgens (30 Sekunden, baut Interozeption auf). Trend wichtiger als Einzelwert.
-- Wochen-Review-Frage: "Welche 1-2 Down-Regulation-Momente hatten diese Woche WIRKUNG?" — verstärkt was funktioniert.
+- Wochen-Review-Frage (wöchentlich, KEIN konkreter Wochentag oder Uhrzeit): "Welche 1-2 Down-Regulation-Momente hatten diese Woche WIRKUNG?" — verstärkt was funktioniert.
 - Re-Analyse nach 4 Wochen: welche Akut-Tools behalten, welche tauschen.
+
+FORMATIERUNGS-REGEL: Schreibe sauberes Deutsch. IMMER ein Leerzeichen NACH Satzzeichen (Punkt, Komma, Doppelpunkt) — "Tageswerte. Sinkender" nicht "Tageswerte.Sinkender". IMMER ein Leerzeichen VOR einer öffnenden Klammer — "Trainingszeit (nicht ..." nicht "Trainingszeit(nicht ...". IMMER ein Leerzeichen VOR und NACH Operator-Zeichen wie + → — "CO2-Toleranz + Vagus-Aktivierung" nicht "CO2-Toleranz+ Vagus-Aktivierung".
 
 EXPLIZIT VERBOTEN — diese Inhalte gehören NICHT in den Stress-Plan, sondern in andere Pläne:
 - NSDR / Yoga Nidra mit Theta-Wellen-Mechanismus → Recovery-Plan
@@ -1457,8 +1459,9 @@ EXPLIZIT VERBOTEN — diese Inhalte gehören NICHT in den Stress-Plan, sondern i
 - Schlaf-Architektur / Schlafphasen / Circadian-Rhythm → Recovery-Plan
 - Konkrete Mahlzeit-Empfehlungen mit Mengen oder Zutaten → Metabolic-Plan
 - Trainings-Methoden / Zone-Empfehlungen / Volumen-Anpassung → Activity-Plan
-- Konkrete Uhrzeiten ("17:30 Uhr", "21:30 Uhr", "12-14 Uhr") → Master-Wochenplan
-- Konkrete Wochentage ("Mittwoch", "Sonntag-Reset") → Master-Wochenplan
+- Konkrete Uhrzeiten in jeder Form ("17:30 Uhr", "21:30 Uhr", "12-14 Uhr", "14:00-15:00", "(Sonntag 14:00)") → Master-Wochenplan
+- Konkrete Wochentage in jeder Form ("Sonntag", "Mittwoch", "Sonntag-Reset", "(Sonntag, 5 Min)") → Master-Wochenplan. Frequenz-Angaben wie "1× pro Woche", "täglich", "wöchentlich", "morgens" SIND erlaubt — konkreter Wochentag/Uhrzeit NICHT, auch nicht als Klammer-Beispiel.
+- Score-Werte in Klammern hinter Score-Namen (NICHT "Activity Score (58/100)" oder "Metabolic Score (60/100)" — die Werte werden im Post-Processing entfernt und hinterlassen leere Klammern). Stattdessen Score-Wert inline: "Activity Score 58" oder "dein Activity-Score liegt im mittleren Bereich".
 - Tag-für-Tag-Mahlzeiten → Master-Wochenplan
 - Allgemeine "lebe gesund"-Floskeln oder Score-Interpretation als Selbstzweck → Hauptreport`;
 }
@@ -1485,7 +1488,7 @@ function buildUserPromptEN({ type, scores: s, personalization: p, extractedEntit
     const ss: Record<string, string> = {
       job: "At least 2 tools MUST address job-stress: (1) Effort-Recovery Detachment (Meijman/Mulder + Sonnentag) — psychological detachment from the job matters more than time-reduction; establish a transition ritual job→private (threshold cue: key-hook, walk, outfit change). (2) Mastery hobby (Recovery Experience Questionnaire) — skill development outside the job activates the dopaminergic system independently of work. (3) Optional: Strategic Underperformance (Cal Newport) — 'Maybe-No-Default', email response within 24h instead of 2h; reduces career-sympathetic load without damaging the career.",
       family: "At least 2 tools MUST address family-stress: (1) Repair Attempts (Gottman): relationship success is predicted by fast repair attempts after conflicts, not by conflict avoidance — establish a family-specific repair code (gesture, word, inside joke). (2) Co-regulation practice (polyvagal application): 5-min sync moments eating together without phones, eye contact, parallel breathing — activates the ventral vagus. (3) Optional: Bedtime Disclosure (Algoe 2012) — share 1 gratitude + 1 worry before sleep; raises oxytocin, lowers cortisol.",
-      finances: "At least 2 tools MUST address finance-stress: (1) Financial Worry Window (CBT adaptation): a fixed 1× per week block for all money topics, postpone outside — reduces diffuse finance anxiety by ~40% after 4 weeks. (2) Fear-Setting (Tim Ferriss, Stoic-based): write down worst case + recovery steps + cost of inaction; converts diffuse anxiety into a concrete risk assessment. (3) Optional: Latte-Factor Reversal (reverse of David Bach) — identify 1 recurring expense that makes you UNHAPPY and eliminate it; stress often comes from spending on the wrong things, not from money shortage.",
+      finances: "At least 2 tools MUST address finance-stress: (1) Financial Worry Window (CBT adaptation): a fixed 1× per week block for all money topics, postpone outside. Do NOT name a concrete weekday or clock time — the user picks themselves, the Master Weekly Plan supplies time suggestions. Reduces diffuse finance anxiety by ~40% after 4 weeks. (2) Fear-Setting (Tim Ferriss, Stoic-based): write down worst case + recovery steps + cost of inaction; converts diffuse anxiety into a concrete risk assessment. (3) Optional: Latte-Factor Reversal (reverse of David Bach) — identify 1 recurring expense that makes you UNHAPPY and eliminate it; stress often comes from spending on the wrong things, not from money shortage.",
       health: "At least 2 tools MUST address health-stress: (1) Health Anxiety Window (analogous to Financial Window, Te Poel 2016): fixed slot for health topics, no googling outside — reduces cyberchondria by ~60%. (2) Locus-of-Control Shift (Rotter): 2 columns controllable vs not controllable; energy only into the left column. (3) Optional: Care-for-Carer (Figley) when a close person is ill — 30 min/day explicitly for yourself, non-productive; lowers compassion-fatigue risk by ~50%.",
       future: "At least 2 tools MUST address future-anxiety: (1) Strategic Worry Time (Borkovec): 1× daily 15-min worry-window, otherwise 'that goes into the window' — all worries get postponed there. (2) Awe Walks (Sturm/Keltner UC Berkeley 2020): walks with an awe focus (trees, sky, architecture) — Default Mode Network reduction, reduces self-rumination. (3) Optional: Premortem Strategy (Gary Klein) — visualise the worst case as already happened + derive reasons backwards; turns abstract anxiety into something concrete and solvable.",
     };
@@ -1753,8 +1756,10 @@ Block 6 — "Stressor-specific tools": 3-5 items, driven by the DEEP RULES from 
 Block 7 — "Progress tracking": 3-4 items.
 - HRV (RMSSD in ms) as an objective stress marker — SHORT. Trend over 7-14 days matters more than daily values. Falling trend = sympathetic-stuck-on → reduce volume, push recovery tools. Detail tracking methodology lives in the Recovery plan.
 - Subjective 1-10 morning stress scale (30 seconds, builds interoception). Trend over single values.
-- Weekly review question: "Which 1-2 down-regulation moments actually WORKED this week?" — reinforces what works.
+- Weekly review question (weekly cadence, NO concrete weekday or clock time): "Which 1-2 down-regulation moments actually WORKED this week?" — reinforces what works.
 - Re-analysis after 4 weeks: which acute tools to keep, which to swap.
+
+FORMATTING RULE: Write clean English. ALWAYS a space AFTER punctuation (period, comma, colon) — "daily values. Falling" not "daily values.Falling". ALWAYS a space BEFORE an opening parenthesis — "training time (not ..." not "training time(not ...". ALWAYS a space BEFORE AND AFTER operator characters like + → — "CO2 tolerance + vagus activation" not "CO2 tolerance+ vagus activation".
 
 EXPLICITLY FORBIDDEN — these belong in OTHER plans, not the stress plan:
 - NSDR / Yoga Nidra with the theta-wave mechanism → Recovery plan
@@ -1765,8 +1770,9 @@ EXPLICITLY FORBIDDEN — these belong in OTHER plans, not the stress plan:
 - Sleep architecture / sleep phases / circadian rhythm → Recovery plan
 - Concrete meal recommendations with amounts or ingredients → Metabolic plan
 - Training methods / zone recommendations / volume adjustments → Activity plan
-- Concrete clock times ("17:30", "21:30", "12-14:00") → Master Weekly Plan
-- Concrete weekdays ("Wednesday", "Sunday reset") → Master Weekly Plan
+- Concrete clock times in any form ("17:30", "21:30", "12-14:00", "14:00-15:00", "(Sunday 14:00)") → Master Weekly Plan
+- Concrete weekdays in any form ("Sunday", "Wednesday", "Sunday reset", "(Sunday, 5 min)") → Master Weekly Plan. Frequency expressions like "1× per week", "daily", "weekly", "in the morning" ARE allowed — concrete weekday/clock time is NOT, not even as a parenthetical example.
+- Score values in parentheses after score names (NOT "Activity Score (58/100)" or "Metabolic Score (60/100)" — the values are stripped by post-processing and leave empty parens). Instead use the score value inline: "Activity Score 58" or "your Activity Score sits in the mid range".
 - Day-by-day meals → Master Weekly Plan
 - Generic "live healthy" platitudes or score interpretation as an end in itself → Main report`;
 }
@@ -1793,7 +1799,7 @@ function buildUserPromptIT({ type, scores: s, personalization: p, extractedEntit
     const ss: Record<string, string> = {
       job: "Almeno 2 strumenti DEVONO affrontare lo stress lavorativo: (1) Effort-Recovery Detachment (Meijman/Mulder + Sonnentag) — il distacco psicologico dal lavoro conta più della riduzione del tempo; stabilire un rituale di transizione lavoro→privato (cue di soglia: chiavi sul gancio, passeggiata, cambio di outfit). (2) Mastery hobby (Recovery Experience Questionnaire) — sviluppo di skill fuori dal lavoro attiva il sistema dopaminergico in modo indipendente dal lavoro. (3) Opzionale: Strategic Underperformance (Cal Newport) — 'Maybe-No-Default', risposta alle email entro 24h invece di 2h; riduce il sympathetic da carriera senza danneggiare la carriera.",
       family: "Almeno 2 strumenti DEVONO affrontare lo stress familiare: (1) Repair Attempts (Gottman): il successo della relazione è predetto dalla rapidità dei tentativi di riparazione dopo i conflitti, non dall'evitamento — stabilire un codice di riparazione familiare (gesto, parola, inside joke). (2) Co-regolazione (applicazione polivagale): 5 min di sync — mangiare insieme senza telefoni, contatto visivo, respirazione parallela — attiva il vago ventrale. (3) Opzionale: Bedtime Disclosure (Algoe 2012) — condividere 1 gratitudine + 1 preoccupazione prima di dormire; alza l'ossitocina, abbassa il cortisolo.",
-      finances: "Almeno 2 strumenti DEVONO affrontare lo stress finanziario: (1) Financial Worry Window (adattamento CBT): un blocco fisso 1× a settimana per tutti i temi di soldi, fuori si rimanda — riduce l'ansia finanziaria diffusa di ~40% dopo 4 settimane. (2) Fear-Setting (Tim Ferriss, base stoica): scrivere worst case + step di recupero + costo dell'inazione; trasforma l'ansia diffusa in una valutazione concreta del rischio. (3) Opzionale: Latte-Factor Reversal (rovescio di David Bach) — identificare 1 spesa ricorrente che rende INFELICE ed eliminarla; lo stress arriva spesso non dalla mancanza di soldi ma dalle spese sulle cose sbagliate.",
+      finances: "Almeno 2 strumenti DEVONO affrontare lo stress finanziario: (1) Financial Worry Window (adattamento CBT): un blocco fisso 1× a settimana per tutti i temi di soldi, fuori si rimanda. NON nominare un giorno della settimana o un orario concreti — l'utente sceglie da solo, il Master Weekly Plan dà i suggerimenti di orario. Riduce l'ansia finanziaria diffusa di ~40% dopo 4 settimane. (2) Fear-Setting (Tim Ferriss, base stoica): scrivere worst case + step di recupero + costo dell'inazione; trasforma l'ansia diffusa in una valutazione concreta del rischio. (3) Opzionale: Latte-Factor Reversal (rovescio di David Bach) — identificare 1 spesa ricorrente che rende INFELICE ed eliminarla; lo stress arriva spesso non dalla mancanza di soldi ma dalle spese sulle cose sbagliate.",
       health: "Almeno 2 strumenti DEVONO affrontare lo stress legato alla salute: (1) Health Anxiety Window (analogo al Financial Window, Te Poel 2016): finestra fissa per i temi di salute, fuori niente Google — riduce la cibercondria di ~60%. (2) Locus-of-Control Shift (Rotter): 2 colonne controllabile vs non controllabile; energia solo nella colonna sinistra. (3) Opzionale: Care-for-Carer (Figley) con una persona vicina malata — 30 min/giorno esclusivamente per sé, non produttivi; abbassa il rischio di compassion-fatigue di ~50%.",
       future: "Almeno 2 strumenti DEVONO affrontare l'ansia per il futuro: (1) Strategic Worry Time (Borkovec): 1× al giorno 15 min worry-window, altrimenti 'va nella finestra' — tutte le preoccupazioni vengono rimandate lì. (2) Awe Walks (Sturm/Keltner UC Berkeley 2020): camminate con focus sull'awe (alberi, cielo, architettura) — riduzione del Default Mode Network, abbassa l'auto-ruminazione. (3) Opzionale: Premortem Strategy (Gary Klein) — visualizzare il worst case come già accaduto + derivare le cause a ritroso; trasforma l'ansia astratta in qualcosa di concreto e risolvibile.",
     };
@@ -2061,8 +2067,10 @@ Blocco 6 — "Strumenti specifici per stressore": 3-5 punti, guidati dalle REGOL
 Blocco 7 — "Tracking del progresso": 3-4 punti.
 - HRV (RMSSD in ms) come marker oggettivo di stress — BREVE. Il trend su 7-14 giorni conta più dei valori giornalieri. Trend in calo = simpatico bloccato in alto → ridurre il volume, alzare gli strumenti di recovery. La metodologia di tracking dettagliata vive nel piano Recovery.
 - Scala stress soggettiva 1-10 al mattino (30 secondi, costruisce interocezione). Trend sopra al singolo valore.
-- Domanda di review settimanale: "Quali 1-2 momenti di down-regulation hanno DAVVERO funzionato questa settimana?" — rinforza ciò che funziona.
+- Domanda di review settimanale (cadenza settimanale, NESSUN giorno o orario concreti): "Quali 1-2 momenti di down-regulation hanno DAVVERO funzionato questa settimana?" — rinforza ciò che funziona.
 - Re-analisi dopo 4 settimane: quali strumenti acuti tenere, quali scambiare.
+
+REGOLA DI FORMATTAZIONE: Scrivi in italiano pulito. SEMPRE uno spazio DOPO i segni di punteggiatura (punto, virgola, due punti) — "valori giornalieri. In calo" NON "valori giornalieri.In calo". SEMPRE uno spazio PRIMA di una parentesi aperta — "tempo di allenamento (non ..." NON "tempo di allenamento(non ...". SEMPRE uno spazio PRIMA E DOPO operatori come + → — "tolleranza CO2 + attivazione vago" NON "tolleranza CO2+ attivazione vago".
 
 ESPLICITAMENTE VIETATO — questi contenuti appartengono ad ALTRI piani, non al piano stress:
 - NSDR / Yoga Nidra con il meccanismo delle onde theta → piano Recovery
@@ -2073,8 +2081,9 @@ ESPLICITAMENTE VIETATO — questi contenuti appartengono ad ALTRI piani, non al 
 - Architettura del sonno / fasi del sonno / ritmo circadiano → piano Recovery
 - Raccomandazioni concrete sui pasti con quantità o ingredienti → piano Metabolic
 - Metodi di allenamento / raccomandazioni di zona / aggiustamenti di volume → piano Activity
-- Orari concreti ("17:30", "21:30", "12-14") → Master Weekly Plan
-- Giorni della settimana concreti ("mercoledì", "reset della domenica") → Master Weekly Plan
+- Orari concreti in qualsiasi forma ("17:30", "21:30", "12-14", "14:00-15:00", "(domenica 14:00)") → Master Weekly Plan
+- Giorni della settimana concreti in qualsiasi forma ("domenica", "mercoledì", "reset della domenica", "(domenica, 5 min)") → Master Weekly Plan. Espressioni di frequenza come "1× a settimana", "giornaliero", "settimanale", "al mattino" SONO consentite — il giorno/orario concreto NO, neanche come esempio tra parentesi.
+- Valori dello score tra parentesi dopo i nomi dello score (NON "Activity Score (58/100)" o "Metabolic Score (60/100)" — i valori vengono rimossi nel post-processing e lasciano parentesi vuote). Usa invece il valore inline: "Activity Score 58" o "il tuo Activity Score è nella fascia media".
 - Pasti giorno-per-giorno → Master Weekly Plan
 - Frasi fatte generiche del tipo "vivi sano" o interpretazione dello score come fine in sé → Report principale`;
 }
@@ -2101,7 +2110,7 @@ function buildUserPromptTR({ type, scores: s, personalization: p, extractedEntit
     const ss: Record<string, string> = {
       job: "En az 2 araç iş stresini ele ALMALIDIR: (1) Effort-Recovery Detachment (Meijman/Mulder + Sonnentag) — işten psikolojik kopuş, süre azaltmasından önemlidir; iş→özel geçiş ritüeli kur (eşik cue: anahtarlık, yürüyüş, kıyafet değişimi). (2) Mastery hobbisi (Recovery Experience Questionnaire) — iş dışında skill gelişimi, işten bağımsız olarak dopaminerjik sistemi aktive eder. (3) Opsiyonel: Strategic Underperformance (Cal Newport) — 'Maybe-No-Default', email cevabı 2 saat yerine 24 saat; kariyer-sympathetic yükünü azaltır, kariyere zarar vermez.",
       family: "En az 2 araç aile stresini ele ALMALIDIR: (1) Repair Attempts (Gottman): ilişki başarısını çatışmadan kaçınmak değil, çatışma sonrası hızlı onarım girişimleri öngörür — aile-özgü onarım kodu kur (jest, kelime, inside joke). (2) Co-regulation practice (polivagal uygulama): 5 dk sync momentleri — telefonsuz birlikte yemek, göz teması, paralel nefes — ventral vagusu aktive eder. (3) Opsiyonel: Bedtime Disclosure (Algoe 2012) — uykudan önce 1 minnettarlık + 1 endişe paylaş; oksitosini yükseltir, kortizolü düşürür.",
-      finances: "En az 2 araç finans stresini ele ALMALIDIR: (1) Financial Worry Window (BDT uyarlaması): haftada 1× sabit blok tüm para konuları için, dışarıda erteleme — 4 hafta sonra yaygın finans kaygısını ~%40 azaltır. (2) Fear-Setting (Tim Ferriss, Stoacı temelli): worst case + iyileşme adımları + eylemsizliğin maliyeti yazılı — yaygın kaygıyı somut risk değerlendirmesine çevirir. (3) Opsiyonel: Latte-Factor-Reversal (David Bach'ın tersi) — MUTSUZ eden 1 tekrarlayan harcamayı tanımla ve ortadan kaldır; stres genellikle para eksikliğinden değil, yanlış şeylere harcamadan gelir.",
+      finances: "En az 2 araç finans stresini ele ALMALIDIR: (1) Financial Worry Window (BDT uyarlaması): haftada 1× sabit blok tüm para konuları için, dışarıda erteleme. Somut hafta günü veya saat BELİRTME — kullanıcı kendisi seçer, Master Weekly Plan zaman önerisi verir. 4 hafta sonra yaygın finans kaygısını ~%40 azaltır. (2) Fear-Setting (Tim Ferriss, Stoacı temelli): worst case + iyileşme adımları + eylemsizliğin maliyeti yazılı — yaygın kaygıyı somut risk değerlendirmesine çevirir. (3) Opsiyonel: Latte-Factor-Reversal (David Bach'ın tersi) — MUTSUZ eden 1 tekrarlayan harcamayı tanımla ve ortadan kaldır; stres genellikle para eksikliğinden değil, yanlış şeylere harcamadan gelir.",
       health: "En az 2 araç sağlık stresini ele ALMALIDIR: (1) Health Anxiety Window (Financial Window'a analog, Te Poel 2016): sağlık konuları için sabit pencere, dışarıda googling yok — siberkondria'yı ~%60 azaltır. (2) Locus-of-Control Shift (Rotter): 2 sütun kontrol edilebilir vs kontrol edilemez; enerjiyi sadece sol sütuna. (3) Opsiyonel: Care-for-Carer (Figley) yakın hasta kişide — 30 dk/gün sadece kendine, üretken değil; compassion-fatigue riskini ~%50 düşürür.",
       future: "En az 2 araç gelecek kaygısını ele ALMALIDIR: (1) Strategic Worry Time (Borkovec): günde 1× 15 dk worry-window, yoksa 'bunun zamanı window'da' — tüm endişeler oraya ertelenir. (2) Awe Walks (Sturm/Keltner UC Berkeley 2020): awe odaklı yürüyüşler (ağaçlar, gökyüzü, mimari) — Default Mode Network azalması, self-rumination düşer. (3) Opsiyonel: Premortem Strategy (Gary Klein) — worst case'i zaten gerçekleşmiş olarak görselleştir + nedenleri geriye doğru türet; soyut kaygıyı somut ve çözülebilir hale getirir.",
     };
@@ -2369,8 +2378,10 @@ Blok 6 — "Stressor-özgü araçlar": 3-5 öğe; deepRulesBlock'tan gelen DERİ
 Blok 7 — "İlerleme takibi": 3-4 öğe.
 - HRV (RMSSD, ms) objektif stres göstergesi olarak — KISA. 7-14 gün trendi günlük değerlerden önemli. Düşen trend = sempatik yüksekte takılı → volüm aşağı, recovery araçları yukarı. Detay tracking metodolojisi Recovery planında.
 - Sabah subjektif 1-10 stres skalası (30 saniye, interoseption inşa eder). Tek değer yerine trend.
-- Haftalık review sorusu: "Bu hafta hangi 1-2 down-regülasyon anı GERÇEKTEN İŞE YARADI?" — işe yarayanı pekiştirir.
+- Haftalık review sorusu (haftalık kadans, somut hafta günü veya saat YOK): "Bu hafta hangi 1-2 down-regülasyon anı GERÇEKTEN İŞE YARADI?" — işe yarayanı pekiştirir.
 - 4 hafta sonra yeniden analiz: hangi akut araçlar kalsın, hangileri değişsin.
+
+BİÇİMLENDİRME KURALI: Temiz Türkçe yaz. Noktalama işaretlerinden SONRA HER ZAMAN boşluk (nokta, virgül, iki nokta) — "günlük değerler. Düşen" / "günlük değerler.Düşen" DEĞİL. Açık paranteden ÖNCE HER ZAMAN boşluk — "antrenman zamanı (değil ..." / "antrenman zamanı(değil ..." DEĞİL. + → gibi operatör işaretlerinden ÖNCE VE SONRA HER ZAMAN boşluk — "CO2 toleransı + vagus aktivasyonu" / "CO2 toleransı+ vagus aktivasyonu" DEĞİL.
 
 AÇIKÇA YASAK — bu içerikler stres planına DEĞİL, diğer planlara aittir:
 - Theta dalgası mekanizmalı NSDR / Yoga Nidra → Recovery planı
@@ -2381,8 +2392,9 @@ AÇIKÇA YASAK — bu içerikler stres planına DEĞİL, diğer planlara aittir:
 - Uyku mimarisi / uyku fazları / sirkadyen ritim → Recovery planı
 - Miktarlı veya malzemeli somut öğün önerileri → Metabolic planı
 - Antrenman yöntemleri / zone önerileri / volüm ayarları → Activity planı
-- Somut saatler ("17:30", "21:30", "12-14") → Master Weekly Plan
-- Somut hafta günleri ("Çarşamba", "Pazar reset") → Master Weekly Plan
+- Her formdaki somut saatler ("17:30", "21:30", "12-14", "14:00-15:00", "(Pazar 14:00)") → Master Weekly Plan
+- Her formdaki somut hafta günleri ("Pazar", "Çarşamba", "Pazar reset", "(Pazar, 5 dk)") → Master Weekly Plan. "Haftada 1×", "günlük", "haftalık", "sabahları" gibi frekans ifadeleri İZİNLİ — somut hafta günü/saat parantez örneği olarak bile DEĞİL.
+- Score adlarından sonra parantez içindeki score değerleri (DOĞRU DEĞİL "Activity Score (58/100)" veya "Metabolic Score (60/100)" — değerler post-processing'de kaldırılır ve boş parantez bırakır). Bunun yerine inline kullan: "Activity Score 58" veya "Activity Score'un orta seviyede".
 - Gün-bazlı öğünler → Master Weekly Plan
 - Genel "sağlıklı yaşa" klişeleri veya kendinde amaç olarak score yorumu → Ana rapor`;
 }
