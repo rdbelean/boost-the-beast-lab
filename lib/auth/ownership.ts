@@ -53,7 +53,7 @@ export async function assertAssessmentOwnership(
   // type drift.
   const { data: assessment, error: aErr } = await service
     .from("assessments")
-    .select("id, user_id")
+    .select("id, user_id, assessment_type")
     .eq("id", assessmentId)
     .maybeSingle();
 
@@ -63,6 +63,21 @@ export async function assertAssessmentOwnership(
   }
   if (!assessment || !assessment.user_id) {
     return { ok: false, reason: "assessment_missing", status: 403 };
+  }
+
+  // PREVIEW-BRANCH DEV-BYPASS — DO NOT REMOVE WITHOUT RARES/DANIEL APPROVAL
+  // Drei Schutzschichten gegen Production-Bleed-Through:
+  //   1. VERCEL_ENV !== "production" — Production-Domain durchläuft das nie
+  //   2. Branch-Pin "prompt-experiment-v1" — andere Preview-Branches durchlaufen das nie
+  //   3. assessment_type === "test" — Production-Reports sind "full", werden nie matched
+  // Selbst wenn Preview die Production-DB nutzt: Production-User-Reports
+  // sind nicht test-markiert und bleiben hinter requireOwnership geschützt.
+  if (
+    process.env.VERCEL_ENV !== "production" &&
+    process.env.VERCEL_GIT_COMMIT_REF === "prompt-experiment-v1" &&
+    assessment.assessment_type === "test"
+  ) {
+    return { ok: true, via: "auth_user" };
   }
 
   const { data: ownerRow } = await service
