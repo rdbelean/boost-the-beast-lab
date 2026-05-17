@@ -1301,7 +1301,7 @@ Block 1 — "Deine Ausgangslage": 3 items.
 Block 2 — "Metabolische Wissenschaft": 4 items.
 - Was der Metabolic Score misst (BMI + Aktivitäts-/Schlaf-Buffer); warum mittlere Werte "Optimierungspotential" sind, nicht "schlecht".
 - BMI-Limits bei hoher Muskelmasse (Body-Fat-Percentage präziser für Sportler).
-- Metabolische Flexibilität als Performance-Marker: Wechsel zwischen Fett- und Glucose-Oxidation (Mitochondrien-Effizienz, Substrat-Switching).
+- Metabolische Flexibilität als Performance-Marker: Wechsel zwischen Fett- und Glucose-Oxidation (Mitochondrien-Effizienz, Substrat-Switching). Verbesserbar durch konsistente aerobe Belastung — KEINE konkreten Trainings-Methodik-Begriffe (Z2, Zone 2, Norwegian 4×4, 5×5, RPE) erwähnen, das ist Activity-Plan-Inhalt.
 - Insulinsensitivität + BMR vs TDEE kompakt (Grundumsatz + Aktivität, individueller Bedarf).
 
 Block 3 — "Protein-Prinzipien": 3 items.
@@ -1325,9 +1325,12 @@ Block 6 — "Progress-Tracking": 4 items.
 - Plateau-Handling: nach 2-3 Wochen Stillstand → 1 Refeed-Tag/Woche (Carbs hoch), Kalorien um 100-200 anpassen, Schlaf + Stress prüfen (Cortisol-Mediated-Plateau).
 - Re-Analyse nach 4 Wochen — Stress + Sleep + Aktivitäts-Marker beeinflussen Metabolic Score, nicht nur Ernährung.
 
+FORMATIERUNGS-REGEL: Schreibe sauberes Deutsch. IMMER ein Leerzeichen NACH einem Doppelpunkt ("Frühstücks-Template: 3 Eier" — nicht "Frühstücks-Template:3 Eier"). IMMER ein Leerzeichen VOR einer öffnenden Klammer ("Refeed-Tag/Woche (Carbs hoch)" — nicht "Refeed-Tag/Woche(Carbs hoch)").
+
 EXPLIZIT VERBOTEN — diese Inhalte gehören NICHT in den Metabolic-Plan, sondern in andere Pläne:
 - Mahlzeiten mit Wochentag oder Uhrzeit ("Mo 7:30 Eier", "Snack 15 Uhr") → Master-Wochenplan
 - Trainings-Empfehlungen (Übungen, Sätze, RPE, Wochentage) → Activity-Plan + Master-Wochenplan
+- Trainings-Methoden-Begriffe (Z2, Zone 2, Norwegian 4×4, Sweet-Spot, 5×5, RPE) — auch nicht als Erklärungs-Kontext erwähnen → Activity-Plan + Master-Wochenplan
 - Schlaf-Hygiene (Bettzeit, Schlafzimmer-Setup, Bildschirm-Pause) → Recovery-Plan
 - Stress-Anker, Atemübungen, Meditation → Stress-Plan + Master-Wochenplan
 
@@ -1600,7 +1603,7 @@ Block 1 — "Your Starting Point": 3 items.
 Block 2 — "Metabolic Science": 4 items.
 - What the Metabolic Score actually measures (BMI + activity/sleep buffers); why mid-range values mean "optimisation potential", not "bad".
 - BMI limits at high muscle mass (body-fat percentage more precise for athletes).
-- Metabolic flexibility as a performance marker: switching between fat and glucose oxidation (mitochondrial efficiency, substrate switching).
+- Metabolic flexibility as a performance marker: switching between fat and glucose oxidation (mitochondrial efficiency, substrate switching). Improvable through consistent aerobic loading — DO NOT mention concrete training-methodology terms (Z2, Zone 2, Norwegian 4×4, 5×5, RPE), that's Activity Plan content.
 - Insulin sensitivity + BMR vs TDEE compact (basal + activity, individual need).
 
 Block 3 — "Protein Principles": 3 items.
@@ -1624,9 +1627,12 @@ Block 6 — "Progress Tracking": 4 items.
 - Plateau handling: after 2-3 weeks of stall → 1 refeed day/week (carbs high), adjust calories by 100-200, check sleep + stress (cortisol-mediated plateau).
 - Re-analysis after 4 weeks — stress + sleep + activity markers influence Metabolic Score, not nutrition alone.
 
+FORMATTING RULE: Write clean English. ALWAYS a space AFTER a colon ("Breakfast template: 3 eggs" — NOT "Breakfast template:3 eggs"). ALWAYS a space BEFORE an opening parenthesis ("Refeed day/week (carbs high)" — NOT "Refeed day/week(carbs high)").
+
 EXPLICITLY FORBIDDEN — these belong in other plans, NOT here:
 - Meals with weekday or clock time ("Mon 7:30 eggs", "snack 3pm") → Master Weekly Plan
 - Training recommendations (exercises, sets, RPE, weekdays) → Activity Plan + Master Weekly Plan
+- Training-methodology terms (Z2, Zone 2, Norwegian 4×4, sweet-spot, 5×5, RPE) — do not mention even as explanatory context → Activity Plan + Master Weekly Plan
 - Sleep hygiene (bedtime, bedroom setup, screen pause) → Recovery Plan
 - Stress anchors, breathing exercises, meditation → Stress Plan + Master Weekly Plan
 
@@ -1899,7 +1905,7 @@ Blocco 1 — "La tua situazione attuale": 3 items.
 Blocco 2 — "Scienza del metabolismo": 4 items.
 - Cosa misura davvero il Metabolic Score (BMI + buffer di attività/sonno); perché valori medi significano "potenziale di ottimizzazione", non "scarso".
 - Limiti del BMI ad alta massa muscolare (body-fat % più preciso per gli sportivi).
-- Flessibilità metabolica come marker di performance: passaggio tra ossidazione grassi e glucosio (efficienza mitocondriale, substrate switching).
+- Flessibilità metabolica come marker di performance: passaggio tra ossidazione grassi e glucosio (efficienza mitocondriale, substrate switching). Migliorabile attraverso un carico aerobico costante — NON menzionare termini concreti di metodologia di allenamento (Z2, Zone 2, Norwegian 4×4, 5×5, RPE), è contenuto dell'Activity Plan.
 - Sensibilità insulinica + BMR vs TDEE compatto (basale + attività, fabbisogno individuale).
 
 Blocco 3 — "Principi proteici": 3 items.
@@ -1923,9 +1929,12 @@ Blocco 6 — "Progress Tracking": 4 items.
 - Gestione del plateau: dopo 2-3 settimane di stallo → 1 refeed day/settimana (carbs alti), aggiusta le calorie di 100-200, controlla sonno + stress (plateau cortisolo-mediato).
 - Re-analisi dopo 4 settimane — stress + sonno + marker attività influenzano il Metabolic Score, non solo l'alimentazione.
 
+REGOLA DI FORMATTAZIONE: Scrivi in italiano pulito. SEMPRE uno spazio DOPO i due punti ("Template colazione: 3 uova" — NON "Template colazione:3 uova"). SEMPRE uno spazio PRIMA di una parentesi aperta ("Refeed-day/settimana (carbs alti)" — NON "Refeed-day/settimana(carbs alti)").
+
 ESPLICITAMENTE VIETATO — questi contenuti NON vanno qui, vanno in altri piani:
 - Pasti con giorno della settimana o orario ("Lun 7:30 uova", "snack 15:00") → Master Weekly Plan
 - Raccomandazioni di allenamento (esercizi, serie, RPE, giorni della settimana) → Activity Plan + Master Weekly Plan
+- Termini di metodologia di allenamento (Z2, Zone 2, Norwegian 4×4, sweet-spot, 5×5, RPE) — non menzionare nemmeno come contesto esplicativo → Activity Plan + Master Weekly Plan
 - Igiene del sonno (orario di andata a letto, setup camera, pausa schermi) → Recovery Plan
 - Buffer di stress, esercizi di respirazione, meditazione → Stress Plan + Master Weekly Plan
 
@@ -2198,7 +2207,7 @@ Blok 1 — "Mevcut durumun": 3 madde.
 Blok 2 — "Metabolizma Bilimi": 4 madde.
 - Metabolic Score'un gerçekte ne ölçtüğü (BMI + aktivite/uyku tamponları); orta değerlerin neden "kötü" değil "optimizasyon potansiyeli" anlamına geldiği.
 - Yüksek kas kütlesinde BMI sınırları (sporcular için vücut yağ % daha hassas).
-- Performans göstergesi olarak metabolik esneklik: yağ ve glukoz oksidasyonu arasında geçiş (mitokondri verimliliği, substrate switching).
+- Performans göstergesi olarak metabolik esneklik: yağ ve glukoz oksidasyonu arasında geçiş (mitokondri verimliliği, substrate switching). Tutarlı aerobik yüklenmeyle geliştirilebilir — somut antrenman-metodoloji terimleri (Z2, Zone 2, Norwegian 4×4, 5×5, RPE) MENTION ETME, bu Activity Plan içeriğidir.
 - İnsülin duyarlılığı + BMR vs TDEE kompakt (bazal + aktivite, bireysel ihtiyaç).
 
 Blok 3 — "Protein Prensipleri": 3 madde.
@@ -2222,9 +2231,12 @@ Blok 6 — "Progress Tracking": 4 madde.
 - Plato yönetimi: 2-3 hafta durağanlıktan sonra → haftada 1 refeed günü (karbonhidrat yüksek), kalorileri 100-200 ayarla, uyku + stresi kontrol et (kortizol-aracılı plato).
 - 4 hafta sonra yeniden analiz — stres + uyku + aktivite işaretleri Metabolic Score'u etkiler, sadece beslenme değil.
 
+BİÇİMLENDİRME KURALI: Temiz Türkçe yaz. İki noktadan SONRA HER ZAMAN boşluk ("Kahvaltı şablonu: 3 yumurta" — "Kahvaltı şablonu:3 yumurta" DEĞİL). Açık paranteden ÖNCE HER ZAMAN boşluk ("Refeed-gün/hafta (karbonhidrat yüksek)" — "Refeed-gün/hafta(karbonhidrat yüksek)" DEĞİL).
+
 AÇIKÇA YASAK — bunlar burada değil, diğer planlarda olmalı:
 - Haftanın günü veya saati olan öğünler ("Pzt 7:30 yumurta", "snack 15:00") → Master Weekly Plan
 - Antrenman önerileri (egzersizler, setler, RPE, haftanın günleri) → Activity Plan + Master Weekly Plan
+- Antrenman-metodoloji terimleri (Z2, Zone 2, Norwegian 4×4, sweet-spot, 5×5, RPE) — açıklayıcı bağlam olarak bile bahsetme → Activity Plan + Master Weekly Plan
 - Uyku hijyeni (yatma saati, oda düzeni, ekran molası) → Recovery Plan
 - Stres tamponları, nefes egzersizleri, meditasyon → Stress Plan + Master Weekly Plan
 
