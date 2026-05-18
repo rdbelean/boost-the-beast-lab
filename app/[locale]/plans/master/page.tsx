@@ -4,6 +4,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { MasterPlan } from "@/lib/master-plan/schema";
+import { masterPlanFilename } from "@/lib/master-plan/filename";
 import styles from "./master.module.css";
 
 interface CachedMasterPlan {
@@ -24,13 +25,6 @@ function tryReadSessionPlan(): CachedMasterPlan | null {
   }
 }
 
-function downloadFilenameFor(locale: string): string {
-  if (locale === "en") return "MasterPlan.pdf";
-  if (locale === "it") return "Piano-Master.pdf";
-  if (locale === "tr") return "Master-Plan.pdf";
-  return "Masterplan.pdf"; // de + default
-}
-
 // Downloads the PDF with a proper, locale-aware filename. Uses the anchor +
 // download-attribute pattern because Blob URLs carry no filename hint —
 // window.open(blobUrl) would surface as "Unknown.pdf" in Chrome.
@@ -42,7 +36,7 @@ function downloadPdfFromBase64(b64: string, locale: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = downloadFilenameFor(locale);
+  a.download = masterPlanFilename(locale);
   a.rel = "noopener";
   document.body.appendChild(a);
   a.click();

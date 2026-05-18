@@ -47,6 +47,7 @@ const PLAN_TYPE_MAP: Record<PlanPdfType, string> = {
   plan_metabolic: "metabolic",
   plan_recovery: "recovery",
   plan_stress: "stress",
+  plan_master: "master",
 };
 
 export async function uploadPlanPdf(

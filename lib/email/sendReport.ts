@@ -1,13 +1,15 @@
 // Email delivery via Resend.
 //
-// Sends the personalized performance report email with the main report PDF
-// and all 4 plan PDFs (activity, metabolic, recovery, stress) attached.
-// Plans that haven't finished generating fall back to a long-lived link
-// rendered as a card in the body so the email is never blocked by partial
-// PDF availability.
+// Sends the personalized performance report email with the main report PDF,
+// the Master Weekly Plan PDF, and all 4 detail plan PDFs (activity,
+// metabolic, recovery, stress) attached. Plans without a buffer render as
+// a "wird in Kürze in deinem Dashboard verfügbar" placeholder card — never
+// as a hyperlink. The email body contains zero outbound URLs (except the
+// brand mailto in the footer).
 
 import { Resend } from "resend";
 import type { Locale } from "@/lib/supabase/types";
+import { masterPlanFilename } from "@/lib/master-plan/filename";
 
 let client: Resend | null = null;
 function getResend(): Resend {
@@ -33,14 +35,13 @@ export interface ScoreSummary {
   stress: number;
 }
 
-export type PlanType = "activity" | "metabolic" | "recovery" | "stress";
+export type PlanType = "master" | "activity" | "metabolic" | "recovery" | "stress";
 
 export interface PlanAttachment {
   type: PlanType;
-  /** PDF bytes when the plan is ready in Storage. Null = render fallback link. */
+  /** PDF bytes when the plan is ready in Storage. Null = render a
+   *  link-free "in Kürze im Dashboard verfügbar" placeholder. */
   buffer: Buffer | null;
-  /** 7-day signed URL — used as fallback when buffer is null. */
-  fallbackUrl: string | null;
 }
 
 export interface ReportEmailInput {
@@ -71,8 +72,8 @@ interface EmailCopy {
   plans_section_title: string;
   plan_label: Record<PlanType, string>;
   plan_attached_label: string;
+  /** Link-free placeholder when a plan PDF didn't land in time. */
   plan_pending_note: string;
-  plan_pending_link_label: string;
   attachments_note: string;
   disclaimer_1: string;
   disclaimer_strong: string;
@@ -83,7 +84,7 @@ interface EmailCopy {
 const COPY: Record<Locale, EmailCopy> = {
   de: {
     subject: "{name}, dein Performance Report ist bereit — BOOST THE BEAST LAB",
-    preheader: "{name}, dein Overall Performance Index, alle Subscores und 4 individuelle Pläne — als PDFs im Anhang.",
+    preheader: "{name}, dein Master-Wochenplan, alle Subscores und 4 individuelle Pläne — als PDFs im Anhang.",
     greeting: "Hallo {name},",
     title_line_1: "DEIN REPORT",
     title_line_2: "IST BEREIT.",
@@ -94,16 +95,16 @@ const COPY: Record<Locale, EmailCopy> = {
     row_metabolic: "Metabolic",
     row_stress: "Stress",
     cta: "REPORT ÖFFNEN →",
-    plans_section_title: "DEINE INDIVIDUELLEN PLÄNE",
+    plans_section_title: "DEIN MASTER-WOCHENPLAN + INDIVIDUELLE PLÄNE",
     plan_label: {
+      master: "Master-Wochenplan",
       activity: "Activity Plan",
       metabolic: "Metabolic Plan",
       recovery: "Recovery Plan",
       stress: "Stress Plan",
     },
     plan_attached_label: "Anhang",
-    plan_pending_note: "wird noch erstellt",
-    plan_pending_link_label: "Status prüfen →",
+    plan_pending_note: "in Kürze in deinem Dashboard verfügbar",
     attachments_note: "Alle PDFs sind als Anhang in dieser Mail — du kannst sie jederzeit öffnen, auch offline.",
     disclaimer_1: "Dieser Report enthält ausschließlich modellbasierte Performance-Insights auf Basis deiner selbstberichteten Daten. ",
     disclaimer_strong: "Keine medizinische Diagnose.",
@@ -112,7 +113,7 @@ const COPY: Record<Locale, EmailCopy> = {
   },
   en: {
     subject: "{name}, your performance report is ready — BOOST THE BEAST LAB",
-    preheader: "{name}, your Overall Performance Index, every subscore, and 4 individual plans — attached as PDFs.",
+    preheader: "{name}, your Master Weekly Plan, every subscore, and 4 individual plans — attached as PDFs.",
     greeting: "Hi {name},",
     title_line_1: "YOUR REPORT",
     title_line_2: "IS READY.",
@@ -123,16 +124,16 @@ const COPY: Record<Locale, EmailCopy> = {
     row_metabolic: "Metabolic",
     row_stress: "Stress",
     cta: "OPEN REPORT →",
-    plans_section_title: "YOUR INDIVIDUAL PLANS",
+    plans_section_title: "YOUR MASTER WEEKLY PLAN + INDIVIDUAL PLANS",
     plan_label: {
+      master: "Master Weekly Plan",
       activity: "Activity Plan",
       metabolic: "Metabolic Plan",
       recovery: "Recovery Plan",
       stress: "Stress Plan",
     },
     plan_attached_label: "Attached",
-    plan_pending_note: "still being prepared",
-    plan_pending_link_label: "Check status →",
+    plan_pending_note: "available shortly in your dashboard",
     attachments_note: "All PDFs are attached to this email — open them anytime, even offline.",
     disclaimer_1: "This report contains model-based performance insights derived from your self-reported data. ",
     disclaimer_strong: "Not a medical diagnosis.",
@@ -141,7 +142,7 @@ const COPY: Record<Locale, EmailCopy> = {
   },
   it: {
     subject: "{name}, il tuo performance report è pronto — BOOST THE BEAST LAB",
-    preheader: "{name}, il tuo Overall Performance Index, ogni subscore e 4 piani individuali — allegati come PDF.",
+    preheader: "{name}, il tuo Piano Master Settimanale, ogni subscore e 4 piani individuali — allegati come PDF.",
     greeting: "Ciao {name},",
     title_line_1: "IL TUO REPORT",
     title_line_2: "È PRONTO.",
@@ -152,16 +153,16 @@ const COPY: Record<Locale, EmailCopy> = {
     row_metabolic: "Metabolic",
     row_stress: "Stress",
     cta: "APRI IL REPORT →",
-    plans_section_title: "I TUOI PIANI INDIVIDUALI",
+    plans_section_title: "IL TUO PIANO MASTER SETTIMANALE + PIANI INDIVIDUALI",
     plan_label: {
+      master: "Piano Master Settimanale",
       activity: "Piano Activity",
       metabolic: "Piano Metabolic",
       recovery: "Piano Recovery",
       stress: "Piano Stress",
     },
     plan_attached_label: "Allegato",
-    plan_pending_note: "ancora in preparazione",
-    plan_pending_link_label: "Controlla stato →",
+    plan_pending_note: "presto disponibile nella tua dashboard",
     attachments_note: "Tutti i PDF sono allegati a questa email — aprili in qualsiasi momento, anche offline.",
     disclaimer_1: "Questo report contiene insight di performance basati su modelli derivati dai tuoi dati auto-riportati. ",
     disclaimer_strong: "Non è una diagnosi medica.",
@@ -170,7 +171,7 @@ const COPY: Record<Locale, EmailCopy> = {
   },
   tr: {
     subject: "{name}, performance raporun hazır — BOOST THE BEAST LAB",
-    preheader: "{name}, Overall Performance Index'in, tüm subscore'ların ve 4 bireysel plan — PDF olarak ekte.",
+    preheader: "{name}, Master Haftalık Planın, tüm subscore'ların ve 4 bireysel plan — PDF olarak ekte.",
     greeting: "Merhaba {name},",
     title_line_1: "RAPORUN",
     title_line_2: "HAZIR.",
@@ -181,16 +182,16 @@ const COPY: Record<Locale, EmailCopy> = {
     row_metabolic: "Metabolic",
     row_stress: "Stress",
     cta: "RAPORU AÇ →",
-    plans_section_title: "BİREYSEL PLANLARIN",
+    plans_section_title: "MASTER HAFTALIK PLANIN + BİREYSEL PLANLAR",
     plan_label: {
+      master: "Master Haftalık Plan",
       activity: "Activity Planı",
       metabolic: "Metabolic Planı",
       recovery: "Recovery Planı",
       stress: "Stress Planı",
     },
     plan_attached_label: "Ek",
-    plan_pending_note: "hâlâ hazırlanıyor",
-    plan_pending_link_label: "Durumu kontrol et →",
+    plan_pending_note: "kısa süre içinde panonda kullanılabilir",
     attachments_note: "Tüm PDF'ler bu e-postaya eklenmiştir — istediğin zaman, çevrimdışı bile açabilirsin.",
     disclaimer_1: "Bu rapor, kendin tarafından bildirilen verilerden elde edilen model tabanlı performans içgörüleri içerir. ",
     disclaimer_strong: "Tıbbi teşhis değildir.",
@@ -233,7 +234,9 @@ const TEXT_PRIMARY = "#FFFFFF";
 const TEXT_MUTED = "#8A8A92";
 const TEXT_DIM = "#6B6B72";
 
-const PLAN_TYPES_ORDER: PlanType[] = ["activity", "metabolic", "recovery", "stress"];
+// Master sits first — it's the headline deliverable that ties the 4 detail
+// plans into one weekly schedule.
+const PLAN_TYPES_ORDER: PlanType[] = ["master", "activity", "metabolic", "recovery", "stress"];
 
 function renderPlanCard(
   attachment: PlanAttachment,
@@ -242,21 +245,33 @@ function renderPlanCard(
   const label = copy.plan_label[attachment.type];
   const ready = !!attachment.buffer;
   const dotColor = ready ? RED : "#3A3A40";
+  // No hyperlinks — when the buffer is missing we show a calm placeholder
+  // pointing the user to their dashboard. The body of the email contains
+  // ZERO outbound URLs by design.
   const status = ready
     ? `<span style="color:${TEXT_DIM};font-size:11px;letter-spacing:0.06em;font-family:Helvetica,Arial,sans-serif;">PDF · ${copy.plan_attached_label}</span>`
-    : attachment.fallbackUrl
-      ? `<span style="color:${TEXT_MUTED};font-size:11px;font-family:Helvetica,Arial,sans-serif;">${copy.plan_pending_note}</span> &nbsp;<a href="${attachment.fallbackUrl}" style="color:${RED};font-size:11px;text-decoration:none;font-family:Helvetica,Arial,sans-serif;">${copy.plan_pending_link_label}</a>`
-      : `<span style="color:${TEXT_MUTED};font-size:11px;font-family:Helvetica,Arial,sans-serif;">${copy.plan_pending_note}</span>`;
+    : `<span style="color:${TEXT_MUTED};font-size:11px;font-family:Helvetica,Arial,sans-serif;">${copy.plan_pending_note}</span>`;
+
+  // Master plan gets a slight visual emphasis: a thicker top accent bar +
+  // a tiny "MASTER" eyebrow tag so the user immediately spots it. Detail
+  // plans render in their original neutral card style.
+  const isMaster = attachment.type === "master";
+  const cardPadding = isMaster ? "18px 18px" : "14px 18px";
+  const labelSize = isMaster ? "16px" : "15px";
+  const accentBar = isMaster
+    ? `<tr><td bgcolor="${BG_PLAN_ROW}" colspan="3" style="background-color:${BG_PLAN_ROW};padding:0 0 8px 0;font-size:0;line-height:0;"><div style="height:2px;background-color:${RED};width:36px;"></div></td></tr>`
+    : "";
 
   return `
     <tr>
-      <td bgcolor="${BG_PLAN_ROW}" style="background-color:${BG_PLAN_ROW};padding:14px 18px;border-bottom:1px solid ${BORDER_SUBTLE};font-family:Helvetica,Arial,sans-serif;color:${TEXT_PRIMARY};">
+      <td bgcolor="${BG_PLAN_ROW}" style="background-color:${BG_PLAN_ROW};padding:${cardPadding};border-bottom:1px solid ${BORDER_SUBTLE};font-family:Helvetica,Arial,sans-serif;color:${TEXT_PRIMARY};">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:${BG_PLAN_ROW};">
+          ${accentBar}
           <tr>
             <td bgcolor="${BG_PLAN_ROW}" width="20" style="background-color:${BG_PLAN_ROW};padding-right:12px;vertical-align:middle;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td bgcolor="${dotColor}" width="10" height="10" style="background-color:${dotColor};border-radius:2px;font-size:0;line-height:0;">&nbsp;</td></tr></table>
             </td>
-            <td bgcolor="${BG_PLAN_ROW}" style="background-color:${BG_PLAN_ROW};color:${TEXT_PRIMARY};font-size:15px;font-weight:600;font-family:Helvetica,Arial,sans-serif;vertical-align:middle;">${label}</td>
+            <td bgcolor="${BG_PLAN_ROW}" style="background-color:${BG_PLAN_ROW};color:${TEXT_PRIMARY};font-size:${labelSize};font-weight:${isMaster ? "700" : "600"};font-family:Helvetica,Arial,sans-serif;vertical-align:middle;">${label}</td>
             <td bgcolor="${BG_PLAN_ROW}" align="right" style="background-color:${BG_PLAN_ROW};vertical-align:middle;text-align:right;">${status}</td>
           </tr>
         </table>
@@ -273,12 +288,11 @@ function buildHtml(
 
   // Make sure plan cards always render in the same order so the email
   // looks the same regardless of how the caller constructed the array.
-  const orderedPlans = PLAN_TYPES_ORDER.map(
+  const orderedPlans: PlanAttachment[] = PLAN_TYPES_ORDER.map(
     (type) =>
       planAttachments.find((p) => p.type === type) ?? {
         type,
         buffer: null,
-        fallbackUrl: null,
       },
   );
 
@@ -397,12 +411,19 @@ function buildHtml(
 // Plan filenames: ASCII-only labels keep attachment headers safe across
 // every email client + filesystem. The on-screen card label can stay
 // localised (e.g. "Piano Activity") because that comes from COPY.
-const PLAN_FILENAME_LABEL: Record<PlanType, string> = {
+// The master plan uses a locale-aware filename via masterPlanFilename(),
+// matching what the user sees on the in-app download button.
+const PLAN_FILENAME_LABEL: Record<Exclude<PlanType, "master">, string> = {
   activity: "Activity-Plan",
   metabolic: "Metabolic-Plan",
   recovery: "Recovery-Plan",
   stress: "Stress-Plan",
 };
+
+function attachmentFilename(type: PlanType, locale: Locale): string {
+  if (type === "master") return masterPlanFilename(locale);
+  return `${PLAN_FILENAME_LABEL[type]}.pdf`;
+}
 
 // Builds the main report filename. If we have a clean firstName we
 // prefix it ("Daniel-Performance-Report.pdf") so the user instantly
@@ -431,7 +452,7 @@ export async function sendReportEmail(input: ReportEmailInput): Promise<void> {
     ...input.planAttachments
       .filter((p): p is PlanAttachment & { buffer: Buffer } => p.buffer !== null)
       .map((p) => ({
-        filename: `${PLAN_FILENAME_LABEL[p.type]}.pdf`,
+        filename: attachmentFilename(p.type, input.locale),
         content: p.buffer,
       })),
   ];

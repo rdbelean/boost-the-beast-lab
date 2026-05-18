@@ -15,7 +15,6 @@ import { after } from "next/server";
 import {
   uploadPlanPdf,
   processMainReport,
-  getEmailSignedUrl,
   type PlanPdfType,
 } from "@/lib/pdf/background-generator";
 import { getStatus, type PdfType } from "@/lib/pdf/status";
@@ -36,7 +35,19 @@ export const runtime = "nodejs";
 // a buffer for cold-start and slow networks. Vercel Pro allows up to 300s.
 export const maxDuration = 120;
 
-const PLAN_TYPES: PlanPdfType[] = [
+// Detail plans the frontend uploads as base64 alongside the assessment
+// submission. Master plan is NOT in this list — it's generated server-side
+// by /api/master-plan/generate and uploaded to Storage from there.
+const FRONTEND_UPLOADED_PLAN_TYPES: PlanPdfType[] = [
+  "plan_activity",
+  "plan_metabolic",
+  "plan_recovery",
+  "plan_stress",
+];
+
+// All plan PDFs attached to the report email (in dispatch order).
+const EMAIL_PLAN_TYPES: PlanPdfType[] = [
+  "plan_master",
   "plan_activity",
   "plan_metabolic",
   "plan_recovery",
@@ -44,11 +55,19 @@ const PLAN_TYPES: PlanPdfType[] = [
 ];
 
 const PLAN_TYPE_TO_EMAIL_TYPE: Record<PlanPdfType, PlanType> = {
+  plan_master: "master",
   plan_activity: "activity",
   plan_metabolic: "metabolic",
   plan_recovery: "recovery",
   plan_stress: "stress",
 };
+
+// How long the dispatcher waits for in-flight PDFs (mainly plan_master,
+// which Sonnet generates in 10-30s) before sending the email with whatever
+// is ready. Beyond this the user gets the email with pending placeholders
+// for any missing PDFs and can grab them from the dashboard.
+const EMAIL_PDF_WAIT_MS = 60_000;
+const EMAIL_PDF_POLL_INTERVAL_MS = 2_000;
 
 function resendConfigured(): boolean {
   const key = process.env.RESEND_API_KEY;
@@ -185,48 +204,54 @@ async function dispatchReportEmail(
     }
     console.log(`[email-dispatch] main_report buffer: ${mainBuffer.length} bytes`);
 
-    const planAttachments: PlanAttachment[] = await Promise.all(
-      PLAN_TYPES.map(async (pdfType) => {
-        const emailType = PLAN_TYPE_TO_EMAIL_TYPE[pdfType];
+    // Wait for ALL plan PDFs (Master + 4 detail plans) to land in Storage
+    // before sending. Master plan is generated server-side via Sonnet and
+    // can take 10-30s, so we poll up to EMAIL_PDF_WAIT_MS. Any PDF still
+    // missing after the timeout is shipped as a link-free "in Kürze im
+    // Dashboard verfügbar" placeholder — never as an outbound URL.
+    const waitDeadline = Date.now() + EMAIL_PDF_WAIT_MS;
+    const planBuffers: Record<PlanPdfType, Buffer | null> = {
+      plan_master: null,
+      plan_activity: null,
+      plan_metabolic: null,
+      plan_recovery: null,
+      plan_stress: null,
+    };
+
+    while (Date.now() < waitDeadline) {
+      const missing: PlanPdfType[] = [];
+      for (const pdfType of EMAIL_PLAN_TYPES) {
+        if (planBuffers[pdfType]) continue;
         try {
           const row = await getStatus(assessmentId, pdfType, locale);
           if (row?.status === "ready" && row.storage_path) {
             const buf = await downloadStoragePdf("report-pdfs", row.storage_path);
             if (buf) {
-              console.log(
-                `[email-dispatch] ${pdfType}: attached ${buf.length} bytes`,
-              );
-              return { type: emailType, buffer: buf, fallbackUrl: null };
+              planBuffers[pdfType] = buf;
+              console.log(`[email-dispatch] ${pdfType}: ready ${buf.length} bytes`);
+              continue;
             }
           }
-          // Plan not ready (or buffer missing) — emit a fallback link the
-          // user can click later. Best-effort signed URL; if signing
-          // fails we still send the email with that card showing
-          // "still being prepared" without a link.
-          let fallbackUrl: string | null = null;
-          if (row?.status === "ready" && row.storage_path) {
-            try {
-              fallbackUrl = await getEmailSignedUrl(pdfType, row.storage_path);
-            } catch (err) {
-              console.error(
-                `[email-dispatch] signed url failed for ${pdfType}:`,
-                err,
-              );
-            }
-          }
-          console.log(
-            `[email-dispatch] ${pdfType}: no buffer, status=${row?.status ?? "missing"}, fallbackUrl=${fallbackUrl ? "set" : "null"}`,
-          );
-          return { type: emailType, buffer: null, fallbackUrl };
+          missing.push(pdfType);
         } catch (err) {
-          console.error(
-            `[email-dispatch] plan attachment ${pdfType} failed:`,
-            err,
-          );
-          return { type: emailType, buffer: null, fallbackUrl: null };
+          console.error(`[email-dispatch] poll ${pdfType} failed:`, err);
+          missing.push(pdfType);
         }
-      }),
-    );
+      }
+      if (missing.length === 0) break;
+      await new Promise((r) => setTimeout(r, EMAIL_PDF_POLL_INTERVAL_MS));
+    }
+
+    const planAttachments: PlanAttachment[] = EMAIL_PLAN_TYPES.map((pdfType) => {
+      const emailType = PLAN_TYPE_TO_EMAIL_TYPE[pdfType];
+      const buf = planBuffers[pdfType];
+      if (!buf) {
+        console.warn(
+          `[email-dispatch] ${pdfType}: still missing after ${EMAIL_PDF_WAIT_MS}ms — shipping placeholder`,
+        );
+      }
+      return { type: emailType, buffer: buf };
+    });
 
     const result = ctx.context.scoring.result as {
       overall_score_0_100?: number;
@@ -313,7 +338,10 @@ export async function POST(req: NextRequest) {
       // the AI call failed during /analyse), we skip the upload entirely
       // and leave Storage empty for that plan. The plan page falls back to
       // on-demand rendering via /api/plan/pdf when Storage is empty.
-      for (const pdfType of PLAN_TYPES) {
+      // Master plan is NOT uploaded here — it's persisted server-side by
+      // /api/master-plan/generate which runs in parallel from the results
+      // page. The email-wait loop in dispatchReportEmail() polls for it.
+      for (const pdfType of FRONTEND_UPLOADED_PLAN_TYPES) {
         const base64 = plan_pdfs[pdfType];
         if (!base64) {
           console.warn(

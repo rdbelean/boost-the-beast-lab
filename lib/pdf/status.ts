@@ -5,7 +5,8 @@ export type PdfType =
   | "plan_activity"
   | "plan_metabolic"
   | "plan_recovery"
-  | "plan_stress";
+  | "plan_stress"
+  | "plan_master";
 
 export type PdfGenStatus = "pending" | "generating" | "ready" | "failed";
 

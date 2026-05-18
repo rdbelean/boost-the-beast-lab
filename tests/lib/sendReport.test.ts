@@ -59,10 +59,11 @@ function baseInput(overrides: Partial<ReportEmailInput> = {}): ReportEmailInput 
       stress: 60,
     },
     planAttachments: [
-      { type: "activity", buffer: planBuffer("a"), fallbackUrl: null },
-      { type: "metabolic", buffer: planBuffer("m"), fallbackUrl: null },
-      { type: "recovery", buffer: planBuffer("r"), fallbackUrl: null },
-      { type: "stress", buffer: planBuffer("s"), fallbackUrl: null },
+      { type: "master", buffer: planBuffer("master") },
+      { type: "activity", buffer: planBuffer("a") },
+      { type: "metabolic", buffer: planBuffer("m") },
+      { type: "recovery", buffer: planBuffer("r") },
+      { type: "stress", buffer: planBuffer("s") },
     ] as PlanAttachment[],
     ...overrides,
   };
@@ -98,14 +99,15 @@ describe("sendReportEmail", () => {
     vi.restoreAllMocks();
   });
 
-  it("attaches the main report and all 4 ready plans (5 total) with clean filenames", async () => {
+  it("attaches the main report + master plan + all 4 detail plans (6 total) with clean filenames", async () => {
     await sendReportEmail(baseInput());
     expect(fake.calls).toHaveLength(1);
     const call = fake.calls[0];
     expect(call?.attachments).toBeDefined();
-    expect(call?.attachments).toHaveLength(5);
+    expect(call?.attachments).toHaveLength(6);
     const filenames = (call?.attachments ?? []).map((a) => a.filename);
     expect(filenames).toContain("Daniel-Performance-Report.pdf");
+    expect(filenames).toContain("Masterplan.pdf"); // de locale
     expect(filenames).toContain("Activity-Plan.pdf");
     expect(filenames).toContain("Metabolic-Plan.pdf");
     expect(filenames).toContain("Recovery-Plan.pdf");
@@ -116,13 +118,30 @@ describe("sendReportEmail", () => {
     }
   });
 
+  it("uses locale-aware master-plan filename for each locale", async () => {
+    const expected: Record<string, string> = {
+      de: "Masterplan.pdf",
+      en: "MasterPlan.pdf",
+      it: "Piano-Master.pdf",
+      tr: "Master-Plan.pdf",
+    };
+    for (const locale of ["de", "en", "it", "tr"] as const) {
+      fake = makeFakeResend();
+      __setResendClient(fake.client);
+      await sendReportEmail(baseInput({ locale }));
+      const filenames = (fake.calls[0]?.attachments ?? []).map((a) => a.filename);
+      expect(filenames).toContain(expected[locale]);
+    }
+  });
+
   it("only attaches the main when all plans have buffer=null", async () => {
     const input = baseInput({
       planAttachments: [
-        { type: "activity", buffer: null, fallbackUrl: "https://example.com/a" },
-        { type: "metabolic", buffer: null, fallbackUrl: null },
-        { type: "recovery", buffer: null, fallbackUrl: null },
-        { type: "stress", buffer: null, fallbackUrl: null },
+        { type: "master", buffer: null },
+        { type: "activity", buffer: null },
+        { type: "metabolic", buffer: null },
+        { type: "recovery", buffer: null },
+        { type: "stress", buffer: null },
       ],
     });
     await sendReportEmail(input);
@@ -137,21 +156,39 @@ describe("sendReportEmail", () => {
     expect(call?.attachments?.[0]?.filename).toBe("Performance-Report.pdf");
   });
 
-  it("renders the fallback link in HTML when a plan buffer is null but URL is set", async () => {
+  it("contains ZERO outbound href links in the body — even when some plans are missing", async () => {
     const input = baseInput({
       planAttachments: [
-        { type: "activity", buffer: planBuffer("a"), fallbackUrl: null },
-        { type: "metabolic", buffer: null, fallbackUrl: "https://signed.example.com/metabolic.pdf" },
-        { type: "recovery", buffer: planBuffer("r"), fallbackUrl: null },
-        { type: "stress", buffer: planBuffer("s"), fallbackUrl: null },
+        { type: "master", buffer: null },
+        { type: "activity", buffer: planBuffer("a") },
+        { type: "metabolic", buffer: null },
+        { type: "recovery", buffer: planBuffer("r") },
+        { type: "stress", buffer: planBuffer("s") },
       ],
     });
     await sendReportEmail(input);
-    const call = fake.calls[0];
-    expect(call?.html).toContain("https://signed.example.com/metabolic.pdf");
-    expect(call?.html).toContain("wird noch erstellt");
-    // 4 attachments = main + 3 ready plans
-    expect(call?.attachments).toHaveLength(4);
+    const html = fake.calls[0]?.html ?? "";
+    // No <a href> anywhere in the body. We never want to surface signed
+    // URLs or any other outbound link to the user — clean attachments only.
+    expect(html).not.toMatch(/<a\s+[^>]*href=/i);
+    expect(html).not.toMatch(/https?:\/\//);
+    // 4 attachments = main + 3 ready plans (master + metabolic pending)
+    expect(fake.calls[0]?.attachments).toHaveLength(4);
+  });
+
+  it("shows a link-free placeholder note when a plan buffer is null", async () => {
+    const input = baseInput({
+      planAttachments: [
+        { type: "master", buffer: null },
+        { type: "activity", buffer: planBuffer("a") },
+        { type: "metabolic", buffer: planBuffer("m") },
+        { type: "recovery", buffer: planBuffer("r") },
+        { type: "stress", buffer: planBuffer("s") },
+      ],
+    });
+    await sendReportEmail(input);
+    const html = fake.calls[0]?.html ?? "";
+    expect(html).toContain("in Kürze in deinem Dashboard verfügbar");
   });
 
   it("personalizes greeting + subject per locale", async () => {
@@ -168,6 +205,21 @@ describe("sendReportEmail", () => {
         tr: "Merhaba Daniel,",
       };
       expect(call?.html).toContain(greetings[locale]);
+    }
+  });
+
+  it("renders the locale-specific master-plan label in the body", async () => {
+    const expected: Record<string, string> = {
+      de: "Master-Wochenplan",
+      en: "Master Weekly Plan",
+      it: "Piano Master Settimanale",
+      tr: "Master Haftalık Plan",
+    };
+    for (const locale of ["de", "en", "it", "tr"] as const) {
+      fake = makeFakeResend();
+      __setResendClient(fake.client);
+      await sendReportEmail(baseInput({ locale }));
+      expect(fake.calls[0]?.html).toContain(expected[locale]);
     }
   });
 
