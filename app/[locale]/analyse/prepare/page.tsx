@@ -154,21 +154,9 @@ function PrepareContent() {
   }, []);
 
   // ── Payment gate ────────────────────────────────────────────────────────
-  const previewSkipParam = params.get("preview_skip") === "true";
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      // Preview-Skip: greift NUR wenn beide Marker stimmen — Query-Param
-      // UND *.vercel.app-Hostname. Auf Production schlägt der Hostname-
-      // Check fehl und wir fallen auf den existierenden Stripe-Verify-
-      // Pfad zurück (identisches Verhalten wie vorher).
-      const onPreviewHost =
-        typeof window !== "undefined" &&
-        window.location.hostname.endsWith(".vercel.app");
-      if (previewSkipParam && onPreviewHost) {
-        if (!cancelled) setPaymentChecked(true);
-        return;
-      }
       if (!sessionId) {
         if (!cancelled) router.replace("/kaufen");
         return;
@@ -186,7 +174,7 @@ function PrepareContent() {
       if (!cancelled) router.replace("/kaufen");
     })();
     return () => { cancelled = true; };
-  }, [sessionId, previewSkipParam, router]);
+  }, [sessionId, router]);
 
   // ── Navigation ──────────────────────────────────────────────────────────
   function goToAnalyse(extra?: string) {
