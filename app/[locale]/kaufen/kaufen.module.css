@@ -117,6 +117,10 @@
   line-height: 1.4;
 }
 
+.featureItemHighlight {
+  font-weight: 700;
+}
+
 .priceRow {
   display: flex;
   align-items: baseline;

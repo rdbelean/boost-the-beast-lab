@@ -738,6 +738,9 @@
   font-size: 14px;
   color: var(--text-secondary);
 }
+.featureItemHighlight {
+  font-weight: 700;
+}
 .cardRight {
   width: 220px;
   flex-shrink: 0;

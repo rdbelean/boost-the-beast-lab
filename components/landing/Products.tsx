@@ -73,7 +73,10 @@ export default function Products() {
               <p className={styles.cardQuestion}>{t("card_question")}</p>
               <div className={styles.featuresGrid}>
                 {FEATURE_KEYS.map((key) => (
-                  <div key={key} className={styles.featureItem}>
+                  <div
+                    key={key}
+                    className={`${styles.featureItem}${key === "master_weekly_plan" ? ` ${styles.featureItemHighlight}` : ""}`}
+                  >
                     <CheckIcon color="#E63222" />
                     {t(`features.${key}`)}
                   </div>

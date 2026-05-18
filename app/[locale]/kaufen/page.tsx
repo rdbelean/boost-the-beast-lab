@@ -91,7 +91,12 @@ export default function KaufenPage() {
           </p>
           <ul className={styles.features}>
             {FEATURE_KEYS.map((key) => (
-              <li key={key} className={styles.featureItem}><CheckIcon />{tProducts(`features.${key}`)}</li>
+              <li
+                key={key}
+                className={`${styles.featureItem}${key === "master_weekly_plan" ? ` ${styles.featureItemHighlight}` : ""}`}
+              >
+                <CheckIcon />{tProducts(`features.${key}`)}
+              </li>
             ))}
           </ul>
           <div className={styles.priceRow}>
