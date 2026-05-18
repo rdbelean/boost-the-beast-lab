@@ -14,6 +14,7 @@ const CheckIcon = () => (
 // Feature keys are shared with the landing page's products namespace so we
 // only translate the list once. Keep in sync with messages/*.json.
 const FEATURE_KEYS = [
+  "master_weekly_plan",
   "overall",
   "metabolic",
   "recovery",
