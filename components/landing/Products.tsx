@@ -12,6 +12,7 @@ const CheckIcon = ({ color = "#22C55E" }: { color?: string }) => (
 );
 
 const FEATURE_KEYS = [
+  "master_weekly_plan",
   "overall",
   "metabolic",
   "recovery",
