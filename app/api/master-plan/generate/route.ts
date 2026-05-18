@@ -15,6 +15,7 @@ import { buildSystemPrompt, buildUserPrompt, buildRetryDirective, type Locale } 
 import { buildMasterPlanInputs } from "@/lib/master-plan/buildMasterPlanFromContext";
 import { validateMasterPlan } from "@/lib/master-plan/validate";
 import { generateMasterPlanPDF } from "@/lib/pdf/generateMasterPlan";
+import { uploadPlanPdf } from "@/lib/pdf/background-generator";
 
 export const runtime = "nodejs";
 // Sonnet 4.6 with 6k max_tokens typically returns in 15-40s. With up to 3 retries,
@@ -279,6 +280,23 @@ export async function POST(req: NextRequest) {
     }
 
     const pdfBase64 = Buffer.from(pdfBytes).toString("base64");
+
+    // Persist to Supabase Storage so the report email can attach it.
+    // sessionStorage on the results page stays the primary instant-render
+    // path; this upload is the dauerhafte source-of-truth used by the
+    // /api/reports/prepare-pdfs dispatch flow.
+    try {
+      await uploadPlanPdf(assessmentId, "plan_master", localeTyped, pdfBase64);
+    } catch (uploadErr) {
+      // Don't fail the user-facing response when Storage hiccups —
+      // the plan + PDF are still returned and the UI works. Email may
+      // miss the attachment in that case (acceptable degradation).
+      console.error("[MasterPlan/BE/generate] Storage upload failed", {
+        assessmentId,
+        locale: localeTyped,
+        error: uploadErr instanceof Error ? uploadErr.message : String(uploadErr),
+      });
+    }
 
     return NextResponse.json({
       plan: parsed,
