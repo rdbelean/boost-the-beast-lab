@@ -119,6 +119,8 @@
 
 .featureItemHighlight {
   font-weight: 700;
+  color: var(--text-primary);
+  font-size: 14px;
 }
 
 .priceRow {

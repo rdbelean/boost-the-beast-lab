@@ -740,6 +740,8 @@
 }
 .featureItemHighlight {
   font-weight: 700;
+  color: var(--text-primary);
+  font-size: 16px;
 }
 .cardRight {
   width: 220px;
@@ -1508,6 +1510,7 @@
   .cardName { font-size: 18px; }
   .price { font-size: 36px; }
   .featureItem { font-size: 13px; }
+  .featureItemHighlight { font-size: 15px; }
 
   /* Trust */
   .trustSection { padding: 48px 0; }
