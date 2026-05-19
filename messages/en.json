@@ -1033,5 +1033,14 @@
       "protocol_evening": "EVENING",
       "protocol_nutrition_micro": "NUTRITION"
     }
+  },
+  "consent_modal": {
+    "version_label": "v1.0",
+    "heading": "Consent to the analysis of your health data",
+    "body": "I expressly consent to my uploaded fitness and health data (e.g. heart rate, heart rate variability, sleep data, physical activity) being analysed to create my performance report and individual plans. The AI analysis is performed by the provider Anthropic in the USA; storage is handled by Supabase and Vercel. The data will not be shared with any other third parties. The data is stored for up to 12 months. In my profile under „Past Reports\" I can delete each upload individually at any time with a single click. Further information can be found in the <privacy_link>Privacy Policy</privacy_link>.",
+    "hint": "Without consent, your report is based on the questionnaire only and is less precise.",
+    "button_yes": "Yes, I consent",
+    "button_no": "No, skip",
+    "error_save_failed": "Saving failed, please try again."
   }
 }

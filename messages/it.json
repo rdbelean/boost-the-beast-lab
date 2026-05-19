@@ -1028,5 +1028,14 @@
       "protocol_evening": "SERA",
       "protocol_nutrition_micro": "ALIMENTAZIONE"
     }
+  },
+  "consent_modal": {
+    "version_label": "v1.0",
+    "heading": "Consenso al trattamento dei tuoi dati sulla salute",
+    "body": "Acconsento espressamente al trattamento dei miei dati su fitness e salute caricati (ad es. frequenza cardiaca, variabilità della frequenza cardiaca, dati sul sonno, attività fisica) ai fini della creazione del mio report sulle prestazioni e dei piani individuali. L'analisi tramite intelligenza artificiale viene effettuata tramite il fornitore Anthropic negli Stati Uniti; l'archiviazione avviene tramite Supabase e Vercel. I dati non saranno condivisi con altre terze parti. I dati vengono conservati per un massimo di 12 mesi. Nel mio profilo, alla voce „Report precedenti\", posso eliminare ogni caricamento singolarmente in qualsiasi momento con un solo clic. Ulteriori informazioni si trovano nell'<privacy_link>Informativa sulla privacy</privacy_link>.",
+    "hint": "Senza consenso, il tuo report si basa unicamente sul questionario ed è meno preciso.",
+    "button_yes": "Sì, acconsento",
+    "button_no": "No, salta",
+    "error_save_failed": "Salvataggio non riuscito, riprova."
   }
 }
