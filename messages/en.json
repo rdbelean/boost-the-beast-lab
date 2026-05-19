@@ -27,18 +27,33 @@
     }
   },
   "hero": {
-    "eyebrow": "PERFORMANCE INTELLIGENCE — HONEST.",
+    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
     "headline_1": "What pro athletes know,",
-    "headline_2": "finally available to you.",
+    "headline_2": "finally available",
+    "headline_3": "to you.",
     "subtitle": "Pros have teams that translate their data into plans. You've only had numbers so far. We turn your values, your daily life, and your goals into a plan, just like the pros, only for you.",
-    "cta_primary": "Start your honest analysis — €39.90",
-    "cta_sub": "No upfront signup. No subscription. No generic tips.",
+    "cta_primary": "GET MY PLAN NOW",
+    "cta_sub": "No upfront signup. No subscription. Instant PDF download.",
+    "trust_bar": {
+      "press": "As featured in: N-TV · RTL · Men's Health · Bild"
+    },
+    "marco_card": {
+      "name": "Marco Colella",
+      "role": "Bundesliga coach · FH Potsdam",
+      "credential": "Certified Sports & Health Trainer"
+    },
     "stats": {
-      "datapoints_label": "Data points",
-      "duration_label": "Min analysis",
-      "modules_label": "Performance modules"
+      "questions": "QUESTIONS",
+      "scores": "SCORES",
+      "deep_analysis": "DEEP ANALYSIS",
+      "evidence_database": "EVIDENCE-BASED DATABASE"
     },
     "scroll": "SCROLL"
+  },
+  "trust_bar": {
+    "eyebrow": "BUNDESLIGA METHOD. NOW AS SOFTWARE.",
+    "body": "Coach stops from Marco's career: Bundesliga · Bundesliga national-team players · pro clubs · 15+ years of 1:1 coaching",
+    "sub": "5.0 ★ · 80 verified Google reviews"
   },
   "founder": {
     "eyebrow": "BEHIND THE LAB",
@@ -79,49 +94,23 @@
   },
   "pain_points": {
     "eyebrow": "SOUND FAMILIAR?",
-    "headline": "You're not alone. Thousands of men have the same problem.",
-    "subtitle": "If you nod at one (or several) of these, you're in the right place.",
+    "headline": "YOU'RE NOT LAZY. YOU'RE FLYING BLIND.",
+    "subtitle": "Most people don't fail at discipline — they fail at measurement. Without precise data every plan is a guess, and every app hands you the same template.",
     "cards": {
       "1": {
-        "title": "You've trained for months — but see no real changes.",
-        "body": "Without a baseline, without recovery tracking, without stress context, more volume alone does nothing. You can't tell if you're getting stronger or sabotaging yourself."
+        "title": "You train — but nothing changes.",
+        "body": "Without a baseline, without recovery tracking, without stress context: more volume alone does nothing. You can't tell if you're getting stronger or sabotaging yourself."
       },
       "2": {
-        "title": "Your BMI says \"overweight\" — but you feel strong and fit.",
-        "body": "A formula from the 1830s doesn't know what muscle is. We correct it with your real body type and a realistic composition estimate."
+        "title": "You eat clean — but still feel drained.",
+        "body": "Protein, water, meal timing, sleep quality, stress level — if you don't know which lever is stuck, you just spin in circles. Tracking apps give you numbers, not answers."
       },
       "3": {
-        "title": "You sleep 8 hours — and you're still constantly tired.",
-        "body": "Sleep duration isn't sleep quality. Stress, HRV, recovery status, and metabolism matter more than the hours on the clock."
-      },
-      "4": {
-        "title": "You've tried 5 apps — and none of them really gets you.",
-        "body": "Trackers give you numbers. We give you answers. With 26 precise questions, not a 3-question generic plan."
-      },
-      "5": {
-        "title": "You want clarity — but €500 for a coach is out of reach.",
-        "body": "Marco's method normally costs €150/hour 1:1. Here you get the same diagnostics as software — for €39.90 one-time."
+        "title": "You want to fix things — but don't know where to start.",
+        "body": "Fitness apps give you data. Your doctor gives you cutoff values. Nobody tells you: THIS is your 30-day plan — built around your actual life."
       }
-    }
-  },
-  "solution": {
-    "eyebrow": "THE SOLUTION",
-    "headline": "Here's the difference.",
-    "body": "While other apps deliver generic tips, we analyze your body on 5 levels: activity, metabolism, sleep, stress, and your real body composition. You answer 26 precise questions — we deliver a full performance report PLUS 4 individual plans PLUS a Master Weekly Plan. Scientific. Personalized. No BS.",
-    "cols": {
-      "science": {
-        "title": "Scientific depth",
-        "body": "Based on 10,000+ data points from international studies. Validated scoring models. Nothing is guessed."
-      },
-      "personal": {
-        "title": "Truly personalized",
-        "body": "We account for your body type, your training level, your life circumstances. No cookie-cutter answers."
-      },
-      "fast": {
-        "title": "15 minutes to your plan",
-        "body": "Fill out the questionnaire, get the report, get going. No 2-week coach waitlist."
-      }
-    }
+    },
+    "transition": "If you recognize yourself in any of these — Marco has solved exactly this problem for over 1,000 athletes. Here's his method."
   },
   "trust": {
     "evidence": {
@@ -143,29 +132,25 @@
   },
   "how": {
     "section_label": "THE PROCESS",
-    "section_title": "HOW IT WORKS",
+    "section_title": "3 STEPS TO YOUR ANALYSIS",
     "steps": {
-      "package": {
-        "tag": "CHOOSE PACKAGE",
-        "title": "YOUR PERFORMANCE PACKAGE",
-        "text": "Pick your full performance report with personalized optimization and training plans — one-time, no subscription."
+      "questionnaire": {
+        "tag": "QUESTIONNAIRE",
+        "title": "Answer 26 questions (10 minutes)",
+        "text": "On sleep, training, nutrition, stress, body data. Calibrated to WHO & ACSM guidelines."
       },
-      "signup": {
-        "tag": "SIGN UP",
-        "title": "CREATE YOUR ACCOUNT",
-        "text": "Create a secure account with email and password — so your report stays saved and available anytime."
-      },
-      "protocol": {
-        "tag": "ANALYSIS PROTOCOL",
-        "title": "26 SCIENTIFIC QUESTIONS",
-        "text": "Answer precise questions on sleep, training, nutrition, stress, and body data — calibrated to WHO & ACSM guidelines."
+      "analysis": {
+        "tag": "ANALYSIS",
+        "title": "Our AI processes your data (2 minutes)",
+        "text": "Benchmarked against 10,000+ scientific data points. Each of the 5 performance dimensions scored separately."
       },
       "report": {
         "tag": "REPORT",
-        "title": "YOUR PERSONALIZED REPORT",
-        "text": "Your performance report with fitness score, individual analyses, and custom optimization plans — instantly available as a premium PDF."
+        "title": "Your personalized report + 4 plans (3 minutes)",
+        "text": "Premium PDF in your language. Activity, Nutrition, Recovery, Stress — every 12-week plan tailored to you."
       }
-    }
+    },
+    "cta_primary": "GET MY PLAN NOW — €39.90"
   },
   "products": {
     "section_label": "YOUR PACKAGE",

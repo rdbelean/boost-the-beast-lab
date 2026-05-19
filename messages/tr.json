@@ -27,18 +27,33 @@
     }
   },
   "hero": {
-    "eyebrow": "PERFORMANCE INTELLIGENCE — DÜRÜST.",
+    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
     "headline_1": "Profesyonel sporcuların bildiği şey,",
-    "headline_2": "artık senin için de erişilebilir.",
-    "subtitle": "Profesyonellerin verilerini planlara dönüştüren ekipleri var. Sen şimdiye kadar sadece sayılara sahiptin. Senin değerlerini, günlük yaşamını ve hedeflerini bir plana dönüştürüyoruz, tıpkı profesyonellerinki gibi, sadece sana özel.",
-    "cta_primary": "Dürüst analizini başlat — 39,90 €",
-    "cta_sub": "Önceden kayıt yok. Abonelik yok. Genel tavsiye yok.",
+    "headline_2": "artık senin için de",
+    "headline_3": "erişilebilir.",
+    "subtitle": "Profesyonellerin verilerini planlara dönüştüren ekipleri var. Sen şimdiye kadar sadece sayılara sahiptin. Senin değerlerini, günlük yaşamını ve hedeflerini bir plana dönüştürüyoruz — tıpkı profesyonellerinki gibi, sadece sana özel.",
+    "cta_primary": "PLANIMI ŞİMDİ AL",
+    "cta_sub": "Önceden kayıt yok. Abonelik yok. Anında PDF indir.",
+    "trust_bar": {
+      "press": "Basında: N-TV · RTL · Men's Health · Bild"
+    },
+    "marco_card": {
+      "name": "Marco Colella",
+      "role": "Bundesliga koçu · FH Potsdam",
+      "credential": "Diplomalı Spor ve Sağlık Eğitmeni"
+    },
     "stats": {
-      "datapoints_label": "Veri noktası",
-      "duration_label": "Dk analiz",
-      "modules_label": "Performans modülü"
+      "questions": "SORU",
+      "scores": "SKOR",
+      "deep_analysis": "DERİNLEMESİNE ANALİZ",
+      "evidence_database": "KANITA DAYALI VERİ TABANI"
     },
     "scroll": "KAYDIR"
+  },
+  "trust_bar": {
+    "eyebrow": "BUNDESLIGA YÖNTEMİ. ARTIK YAZILIM OLARAK.",
+    "body": "Marco'nun kariyerindeki koçluk durakları: Bundesliga · Bundesliga milli takım oyuncuları · profesyonel kulüpler · 15+ yıl 1:1 koçluk",
+    "sub": "5,0 ★ · 80 doğrulanmış Google değerlendirmesi"
   },
   "founder": {
     "eyebrow": "LAB'IN ARKASINDA",
@@ -79,49 +94,23 @@
   },
   "pain_points": {
     "eyebrow": "TANIDIK GELİYOR MU?",
-    "headline": "Yalnız değilsin. Binlerce erkek aynı sorunu yaşıyor.",
-    "subtitle": "Bunlardan birinde (veya birkaçında) başını sallıyorsan, doğru yerdesin.",
+    "headline": "TEMBEL DEĞİLSİN. YOL HARİTAN YOK.",
+    "subtitle": "Çoğu insan disiplin değil, ölçümsüzlük yüzünden başarısız olur. Kesin veri olmadan her plan tahmindir — ve her uygulama sana aynı şablonu verir.",
     "cards": {
       "1": {
-        "title": "Aylardır çalışıyorsun — ama gerçek bir değişiklik görmüyorsun.",
-        "body": "Baseline olmadan, recovery ölçümü olmadan, stres bağlamı olmadan, sadece daha fazla hacim işe yaramaz. Güçlendiğini mi yoksa kendine sabotaj mı yaptığını bilmiyorsun."
+        "title": "Çalışıyorsun — ama hiçbir şey değişmiyor.",
+        "body": "Baseline olmadan, recovery ölçümü olmadan, stres bağlamı olmadan: sadece daha fazla hacim işe yaramaz. Güçlendiğini mi yoksa kendine sabotaj mı yaptığını bilmiyorsun."
       },
       "2": {
-        "title": "BMI'n \"fazla kilolu\" diyor — ama sen güçlü ve formda hissediyorsun.",
-        "body": "1830'lardan bir formül kasın ne olduğunu bilmez. Bunu gerçek vücut tipin ve gerçekçi kompozisyon tahmini ile düzeltiyoruz."
+        "title": "Temiz yiyorsun — ama hâlâ yorgunsun.",
+        "body": "Protein, su, öğün zamanlaması, uyku kalitesi, stres seviyesi — hangi kaldıracın takıldığını bilmiyorsan daireler çiziyorsun. Takip uygulamaları sana rakam verir, yanıt değil."
       },
       "3": {
-        "title": "8 saat uyuyorsun — ve yine de sürekli yorgunsun.",
-        "body": "Uyku süresi, uyku kalitesi değildir. Stres, HRV, recovery durumu ve metabolizma saatten daha önemlidir."
-      },
-      "4": {
-        "title": "5 uygulama denedin — ve hiçbiri seni gerçekten anlamıyor.",
-        "body": "Tracker'lar sana rakam verir. Biz sana yanıt veriyoruz. 3 sorudan oluşan genel bir plan yerine 26 hassas soru ile."
-      },
-      "5": {
-        "title": "Netlik istiyorsun — ama bir koç için 500 € karşılayamıyorsun.",
-        "body": "Marco'nun yöntemi normalde 1:1 için 150 €/saat. Burada aynı diyagnostiği yazılım olarak alıyorsun — 39,90 € tek seferlik."
+        "title": "Kendine bakmak istiyorsun — ama nereden başlayacağını bilmiyorsun.",
+        "body": "Fitness uygulamaları sana veri verir. Doktorun sana eşik değerleri verir. Kimse sana şunu söylemez: İŞTE 30 günlük planın — gerçek hayatına göre hazırlanmış."
       }
-    }
-  },
-  "solution": {
-    "eyebrow": "ÇÖZÜM",
-    "headline": "İşte fark burada.",
-    "body": "Diğer uygulamalar genel tavsiyeler verirken, biz vücudunu 5 düzeyde analiz ediyoruz: aktivite, metabolizma, uyku, stres ve gerçek vücut kompozisyonun. 26 hassas soruyu yanıtlıyorsun — sana tam bir performans raporu ARTI 4 bireysel plan ARTI bir Master Haftalık Plan veriyoruz. Bilimsel. Kişiselleştirilmiş. Süslemesiz.",
-    "cols": {
-      "science": {
-        "title": "Bilimsel derinlik",
-        "body": "Temel: uluslararası çalışmalardan 10.000+ veri noktası. Doğrulanmış puanlama modelleri. Hiçbir şey tahmin değil."
-      },
-      "personal": {
-        "title": "Gerçekten kişiselleştirilmiş",
-        "body": "Vücut tipini, antrenman seviyeni, yaşam koşullarını hesaba katıyoruz. Standart yanıtlar yok."
-      },
-      "fast": {
-        "title": "Planına 15 dakika",
-        "body": "Anketi doldur, raporu al, başla. 2 haftalık koç bekleme süresi yok."
-      }
-    }
+    },
+    "transition": "Bu noktalardan birinde kendini bulduysan — Marco bu sorunu 1.000'den fazla sporcu için çözdü. İşte onun yöntemi."
   },
   "trust": {
     "evidence": {
@@ -143,29 +132,25 @@
   },
   "how": {
     "section_label": "SÜREÇ",
-    "section_title": "NASIL ÇALIŞIR",
+    "section_title": "ANALİZİNE 3 ADIM",
     "steps": {
-      "package": {
-        "tag": "PAKET SEÇ",
-        "title": "PERFORMANS PAKETİN",
-        "text": "Kişiselleştirilmiş optimizasyon ve antrenman planları dahil tam performans raporunu seç — tek seferlik, abonelik yok."
+      "questionnaire": {
+        "tag": "ANKET",
+        "title": "26 soruyu yanıtla (10 dakika)",
+        "text": "Uyku, antrenman, beslenme, stres ve vücut verilerine dair. WHO ve ACSM kılavuzlarına kalibre edilmiş."
       },
-      "signup": {
-        "tag": "KAYIT OL",
-        "title": "HESABINI OLUŞTUR",
-        "text": "E-posta ve şifreyle güvenli hesabını oluştur — raporun kayıtlı kalsın, her zaman erişilebilir olsun."
-      },
-      "protocol": {
-        "tag": "ANALİZ PROTOKOLÜ",
-        "title": "26 BİLİMSEL SORU",
-        "text": "Uyku, antrenman, beslenme, stres ve vücut verilerine dair net sorulara cevap ver — WHO ve ACSM kılavuzlarına kalibre edilmiş."
+      "analysis": {
+        "tag": "ANALİZ",
+        "title": "Yapay zekamız verilerini işliyor (2 dakika)",
+        "text": "10.000+ bilimsel veri noktasıyla karşılaştırma. 5 performans boyutu ayrı ayrı değerlendirilir."
       },
       "report": {
         "tag": "RAPOR",
-        "title": "KİŞİSEL RAPORUN",
-        "text": "Fitness skoru, bireysel analizler ve kişiye özel optimizasyon planları ile performans raporun — anında premium PDF olarak."
+        "title": "Kişisel raporun + 4 plan (3 dakika)",
+        "text": "Kendi dilinde premium PDF. Activity, Nutrition, Recovery, Stress — her 12 haftalık plan sana özel."
       }
-    }
+    },
+    "cta_primary": "PLANIMI ŞİMDİ AL — 39,90 €"
   },
   "products": {
     "section_label": "PAKETİN",

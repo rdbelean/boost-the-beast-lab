@@ -27,18 +27,33 @@
     }
   },
   "hero": {
-    "eyebrow": "PERFORMANCE INTELLIGENCE — ONESTA.",
-    "headline_1": "Quello che sanno gli atleti professionisti,",
-    "headline_2": "finalmente disponibile anche per te.",
+    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
+    "headline_1": "Quello che sanno i pro,",
+    "headline_2": "finalmente disponibile",
+    "headline_3": "anche per te.",
     "subtitle": "I professionisti hanno team che traducono i loro dati in piani. Tu finora hai avuto solo numeri. Noi trasformiamo i tuoi valori, la tua quotidianità e i tuoi obiettivi in un piano, come per i pro, solo per te.",
-    "cta_primary": "Inizia la tua analisi onesta — 39,90 €",
-    "cta_sub": "Niente registrazione anticipata. Niente abbonamento. Niente consigli generici.",
+    "cta_primary": "RICEVI ORA IL MIO PIANO",
+    "cta_sub": "Nessuna registrazione anticipata. Nessun abbonamento. Download PDF immediato.",
+    "trust_bar": {
+      "press": "Come visto su: N-TV · RTL · Men's Health · Bild"
+    },
+    "marco_card": {
+      "name": "Marco Colella",
+      "role": "Coach di Bundesliga · FH Potsdam",
+      "credential": "Trainer Sportivo & della Salute certificato"
+    },
     "stats": {
-      "datapoints_label": "Punti dati",
-      "duration_label": "Min di analisi",
-      "modules_label": "Moduli di performance"
+      "questions": "DOMANDE",
+      "scores": "SCORE",
+      "deep_analysis": "ANALISI APPROFONDITA",
+      "evidence_database": "DATABASE BASATO SU EVIDENZA"
     },
     "scroll": "SCROLL"
+  },
+  "trust_bar": {
+    "eyebrow": "METODO BUNDESLIGA. ORA COME SOFTWARE.",
+    "body": "Tappe da coach nella carriera di Marco: Bundesliga · Nazionali da Bundesliga · Squadre professionistiche · 15+ anni di coaching 1:1",
+    "sub": "5,0 ★ · 80 recensioni Google verificate"
   },
   "founder": {
     "eyebrow": "DIETRO IL LAB",
@@ -79,49 +94,23 @@
   },
   "pain_points": {
     "eyebrow": "TI SUONA FAMILIARE?",
-    "headline": "Non sei solo. Migliaia di uomini hanno lo stesso problema.",
-    "subtitle": "Se annuisci a uno (o più) di questi punti, sei nel posto giusto.",
+    "headline": "NON SEI PIGRO. NON HAI UNA ROADMAP.",
+    "subtitle": "La maggior parte non fallisce per disciplina, ma per misurazione. Senza dati precisi, ogni piano è una scommessa — e ogni app ti dà lo stesso template.",
     "cards": {
       "1": {
-        "title": "Ti alleni da mesi — ma non vedi vere differenze.",
-        "body": "Senza baseline, senza tracciamento del recupero, senza contesto di stress, più volume da solo non serve a nulla. Non sai se stai diventando più forte o se ti stai sabotando."
+        "title": "Ti alleni — ma non vedi cambiamenti.",
+        "body": "Senza baseline, senza tracciamento del recupero, senza contesto di stress: più volume da solo non serve a nulla. Non sai se stai diventando più forte o se ti stai sabotando."
       },
       "2": {
-        "title": "Il tuo BMI dice \"sovrappeso\" — ma ti senti forte e in forma.",
-        "body": "Una formula del 1830 non sa cosa siano i muscoli. La correggiamo con il tuo vero tipo corporeo e una stima realistica della composizione."
+        "title": "Mangi sano — ma ti senti sempre stanco.",
+        "body": "Proteine, acqua, timing dei pasti, qualità del sonno, livello di stress — se non sai quale leva è bloccata, giri a vuoto. Le app di tracking danno numeri, non risposte."
       },
       "3": {
-        "title": "Dormi 8 ore — eppure sei sempre stanco.",
-        "body": "Durata del sonno non è qualità del sonno. Stress, HRV, recupero e metabolismo contano più delle ore sull'orologio."
-      },
-      "4": {
-        "title": "Hai provato 5 app — e nessuna ti capisce davvero.",
-        "body": "I tracker ti danno numeri. Noi ti diamo risposte. Con 26 domande precise, non un piano generico da 3 domande."
-      },
-      "5": {
-        "title": "Vuoi chiarezza — ma 500 € per un coach sono troppi.",
-        "body": "Il metodo di Marco costa normalmente 150 €/ora 1:1. Qui hai la stessa diagnostica come software — per 39,90 € una tantum."
+        "title": "Vuoi prenderti cura di te — ma non sai da dove iniziare.",
+        "body": "Le fitness app ti danno dati. Il medico ti dà valori di soglia. Nessuno ti dice: QUESTO è il tuo piano di 30 giorni — tagliato sulla tua realtà."
       }
-    }
-  },
-  "solution": {
-    "eyebrow": "LA SOLUZIONE",
-    "headline": "Ecco la differenza.",
-    "body": "Mentre altre app forniscono consigli generici, analizziamo il tuo corpo su 5 livelli: attività, metabolismo, sonno, stress e la tua reale composizione corporea. Rispondi a 26 domande precise — ti consegniamo un report di performance completo PIÙ 4 piani individuali PIÙ un Piano Master Settimanale. Scientifico. Personalizzato. Senza fronzoli.",
-    "cols": {
-      "science": {
-        "title": "Profondità scientifica",
-        "body": "Base: 10.000+ punti dati da studi internazionali. Modelli di scoring validati. Niente è tirato a indovinare."
-      },
-      "personal": {
-        "title": "Davvero personalizzato",
-        "body": "Consideriamo il tuo tipo corporeo, il tuo livello di allenamento, le tue circostanze di vita. Niente risposte standard."
-      },
-      "fast": {
-        "title": "15 minuti al tuo piano",
-        "body": "Compila il questionario, ricevi il report, parti. Niente attesa di 2 settimane per un coach."
-      }
-    }
+    },
+    "transition": "Se ti riconosci in uno di questi punti — Marco ha risolto esattamente questo problema per oltre 1.000 atleti. Ecco il suo metodo."
   },
   "trust": {
     "evidence": {
@@ -143,29 +132,25 @@
   },
   "how": {
     "section_label": "IL PROCESSO",
-    "section_title": "ECCO COME FUNZIONA",
+    "section_title": "3 PASSI ALLA TUA ANALISI",
     "steps": {
-      "package": {
-        "tag": "SCEGLI IL PACCHETTO",
-        "title": "IL TUO PACCHETTO PERFORMANCE",
-        "text": "Scegli il tuo report completo sulla performance con piani personalizzati di ottimizzazione e allenamento — pagamento unico, nessun abbonamento."
+      "questionnaire": {
+        "tag": "QUESTIONARIO",
+        "title": "Rispondi a 26 domande (10 minuti)",
+        "text": "Su sonno, allenamento, alimentazione, stress, dati corporei. Calibrato sulle linee guida WHO e ACSM."
       },
-      "signup": {
-        "tag": "REGISTRATI",
-        "title": "CREA IL TUO ACCOUNT",
-        "text": "Crea il tuo account sicuro con email e password — così il tuo report resta salvato e accessibile in qualsiasi momento."
-      },
-      "protocol": {
-        "tag": "PROTOCOLLO DI ANALISI",
-        "title": "26 DOMANDE SCIENTIFICHE",
-        "text": "Rispondi a domande precise su sonno, allenamento, alimentazione, stress e dati corporei — calibrate secondo le linee guida WHO e ACSM."
+      "analysis": {
+        "tag": "ANALISI",
+        "title": "La nostra AI elabora i tuoi dati (2 minuti)",
+        "text": "Confronto con oltre 10.000 punti dati scientifici. 5 dimensioni di performance valutate singolarmente."
       },
       "report": {
         "tag": "REPORT",
-        "title": "IL TUO REPORT PERSONALIZZATO",
-        "text": "Il tuo report sulla performance con punteggio fitness, analisi individuali e piani di ottimizzazione su misura — disponibile subito come PDF premium."
+        "title": "Il tuo report personalizzato + 4 piani (3 minuti)",
+        "text": "PDF premium nella tua lingua. Activity, Nutrition, Recovery, Stress — ogni piano da 12 settimane su misura per te."
       }
-    }
+    },
+    "cta_primary": "RICEVI ORA IL MIO PIANO — 39,90 €"
   },
   "products": {
     "section_label": "IL TUO PACCHETTO",
