@@ -1,10 +1,12 @@
 "use client";
-import { Link } from "@/i18n/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 import { isVercelPreviewClient } from "@/lib/utils/is-vercel-preview";
 
+// Hormozi-style hero: a single hook headline, a single primary CTA pointing
+// the user toward the value-stack section, and three animated stats that
+// signal scientific depth without being a list of features.
 export default function Hero() {
   const t = useTranslations("hero");
   const locale = useLocale();
@@ -21,10 +23,6 @@ export default function Hero() {
   function handleSkip() {
     document.cookie = "btb_paid=true; path=/; max-age=86400; SameSite=Lax";
     sessionStorage.setItem("btb_paid", "true");
-    // Direkt zum Wearable-Upload — überspringt /kaufen (wo der Production-
-    // Redirect den Tester aus der Preview-Domain rauswirft). Der
-    // Payment-Gate auf /analyse/prepare erkennt preview_skip=true +
-    // *.vercel.app-Hostname und lässt durch.
     window.location.href = `/${locale}/analyse/prepare?product=complete-analysis&paid=true&preview_skip=true`;
   }
 
@@ -44,7 +42,11 @@ export default function Hero() {
             const step = (now: number) => {
               const progress = Math.min((now - start) / 1500, 1);
               const eased = 1 - Math.pow(1 - progress, 3);
-              el.textContent = prefix + Math.round(eased * target) + suffix;
+              const value = Math.round(eased * target);
+              // For the 10,000+ stat we format with German thousands separator
+              // (dot) so the locale-correct number lands as the animation ends.
+              const formatted = target >= 1000 ? value.toLocaleString(locale === "en" ? "en-US" : "de-DE") : String(value);
+              el.textContent = prefix + formatted + suffix;
               if (progress < 1) requestAnimationFrame(step);
             };
             requestAnimationFrame(step);
@@ -56,13 +58,12 @@ export default function Hero() {
     );
     obs.observe(container);
     return () => obs.disconnect();
-  }, []);
+  }, [locale]);
 
   const stats = [
-    { target: 26, label: t("stats.questions") },
-    { target: 5, label: t("stats.scores") },
-    { target: 0, label: t("stats.deep_analysis"), static: true as const },
-    { target: 0, label: t("stats.evidence_database"), static: true as const },
+    { target: 10000, suffix: "+", label: t("stats.datapoints_label") },
+    { target: 15, suffix: "", label: t("stats.duration_label") },
+    { target: 5, suffix: "", label: t("stats.modules_label") },
   ];
 
   return (
@@ -77,17 +78,16 @@ export default function Hero() {
           <span className={styles.eyebrowText}>{t("eyebrow")}</span>
         </div>
 
-        {/* Headline */}
+        {/* Headline — 2 lines, second line is the accent payoff */}
         <h1 className={styles.headline}>
           <span className={styles.headlineLine}>{t("headline_1")}</span>
-          <span className={styles.headlineLine}>{t("headline_2")}</span>
-          <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>{t("headline_3")}</span>
+          <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>{t("headline_2")}</span>
         </h1>
 
         {/* Subtitle */}
         <p className={styles.subtitle}>{t("subtitle")}</p>
 
-        {/* CTAs */}
+        {/* Primary CTA — single button, no decision paralysis */}
         <div className={styles.ctaRow}>
           <button
             className={styles.btnPrimary}
@@ -104,13 +104,10 @@ export default function Hero() {
               <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
-          <a href="#how-it-works" className={styles.btnSecondary}>
-            {t("cta_secondary")}
-          </a>
-          <Link href="/beispielreport" className={styles.btnSecondary} style={{ borderColor: "#555", color: "#bbb" }}>
-            {t("cta_sample")}
-          </Link>
         </div>
+
+        {/* CTA sub-line — risk-free framing under the button */}
+        <p className={styles.ctaSub}>{t("cta_sub")}</p>
 
         {showSkip && (
           <div style={{ marginTop: "16px" }}>
@@ -136,26 +133,18 @@ export default function Hero() {
           </div>
         )}
 
-        {/* Stats */}
+        {/* Stats — three animated trust signals */}
         <div className={styles.statsBar} ref={statsRef}>
-          {stats.map(({ target, label, static: isStatic }) => (
+          {stats.map(({ target, suffix, label }) => (
             <div key={label} className={styles.statItem}>
-              {isStatic ? (
-                <span className={styles.statValue} style={{ color: "var(--accent, #E63222)", fontSize: "20px" }}>
-                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden style={{ display: "block" }}>
-                    <path d="M3 11l5.5 5.5L19 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
-              ) : (
-                <span
-                  className={styles.statValue}
-                  data-count={target}
-                  data-suffix=""
-                  data-prefix=""
-                >
-                  0
-                </span>
-              )}
+              <span
+                className={styles.statValue}
+                data-count={target}
+                data-suffix={suffix}
+                data-prefix=""
+              >
+                0{suffix}
+              </span>
               <span className={styles.statLabel}>{label}</span>
             </div>
           ))}

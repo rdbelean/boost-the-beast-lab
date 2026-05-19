@@ -27,19 +27,16 @@
     }
   },
   "hero": {
-    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
-    "headline_1": "IL TUO CORPO.",
-    "headline_2": "I TUOI DATI.",
-    "headline_3": "IL TUO LIVELLO.",
-    "subtitle": "Diagnostica della performance da un coach che allena aspiranti atleti professionisti. Niente laboratorio. Nessun abbonamento. Personalizzato per te in meno di 10 minuti.",
-    "cta_primary": "INIZIA ANALISI",
-    "cta_secondary": "COME FUNZIONA",
-    "cta_sample": "VEDI REPORT ESEMPIO",
+    "eyebrow": "PERFORMANCE INTELLIGENCE — ONESTA.",
+    "headline_1": "Il tuo BMI ti sta mentendo.",
+    "headline_2": "Ti diciamo la verità in 15 minuti.",
+    "subtitle": "L'unica analisi di performance che vede il tuo corpo per quello che è davvero — non come lo calcola una formula del 1830. In 15 minuti saprai cosa fare. Al prezzo di una pizza.",
+    "cta_primary": "Inizia la tua analisi onesta — 39,90 €",
+    "cta_sub": "Niente registrazione anticipata. Niente abbonamento. Niente consigli generici.",
     "stats": {
-      "questions": "DOMANDE",
-      "scores": "SCORE",
-      "deep_analysis": "ANALISI APPROFONDITA",
-      "evidence_database": "DATABASE BASATO SU EVIDENZA"
+      "datapoints_label": "Punti dati",
+      "duration_label": "Min di analisi",
+      "modules_label": "Moduli di performance"
     },
     "scroll": "SCROLL"
   },
@@ -82,20 +79,47 @@
   },
   "pain_points": {
     "eyebrow": "TI SUONA FAMILIARE?",
-    "headline": "NON SEI PIGRO. NON HAI UNA ROADMAP.",
-    "subtitle": "La maggior parte non fallisce per disciplina, ma per misurazione. Senza dati precisi, ogni piano è una scommessa — e ogni app ti dà lo stesso template.",
+    "headline": "Non sei solo. Migliaia di uomini hanno lo stesso problema.",
+    "subtitle": "Se annuisci a uno (o più) di questi punti, sei nel posto giusto.",
     "cards": {
       "1": {
-        "title": "Ti alleni — ma non vedi cambiamenti.",
-        "body": "Senza baseline, senza tracciamento del recupero, senza contesto di stress: più volume da solo non serve a nulla. Non sai se stai diventando più forte o se ti stai sabotando."
+        "title": "Ti alleni da mesi — ma non vedi vere differenze.",
+        "body": "Senza baseline, senza tracciamento del recupero, senza contesto di stress, più volume da solo non serve a nulla. Non sai se stai diventando più forte o se ti stai sabotando."
       },
       "2": {
-        "title": "Mangi sano — ma ti senti sempre stanco.",
-        "body": "Proteine, acqua, timing dei pasti, qualità del sonno, livello di stress — se non sai quale leva è bloccata, giri a vuoto. Le app di tracking danno numeri, non risposte."
+        "title": "Il tuo BMI dice \"sovrappeso\" — ma ti senti forte e in forma.",
+        "body": "Una formula del 1830 non sa cosa siano i muscoli. La correggiamo con il tuo vero tipo corporeo e una stima realistica della composizione."
       },
       "3": {
-        "title": "Vuoi prenderti cura di te — ma non sai da dove iniziare.",
-        "body": "Le fitness app ti danno dati. Il medico ti dà valori di soglia. Nessuno ti dice: QUESTO è il tuo piano di 30 giorni — tagliato sulla tua realtà."
+        "title": "Dormi 8 ore — eppure sei sempre stanco.",
+        "body": "Durata del sonno non è qualità del sonno. Stress, HRV, recupero e metabolismo contano più delle ore sull'orologio."
+      },
+      "4": {
+        "title": "Hai provato 5 app — e nessuna ti capisce davvero.",
+        "body": "I tracker ti danno numeri. Noi ti diamo risposte. Con 26 domande precise, non un piano generico da 3 domande."
+      },
+      "5": {
+        "title": "Vuoi chiarezza — ma 500 € per un coach sono troppi.",
+        "body": "Il metodo di Marco costa normalmente 150 €/ora 1:1. Qui hai la stessa diagnostica come software — per 39,90 € una tantum."
+      }
+    }
+  },
+  "solution": {
+    "eyebrow": "LA SOLUZIONE",
+    "headline": "Ecco la differenza.",
+    "body": "Mentre altre app forniscono consigli generici, analizziamo il tuo corpo su 5 livelli: attività, metabolismo, sonno, stress e la tua reale composizione corporea. Rispondi a 26 domande precise — ti consegniamo un report di performance completo PIÙ 4 piani individuali PIÙ un Piano Master Settimanale. Scientifico. Personalizzato. Senza fronzoli.",
+    "cols": {
+      "science": {
+        "title": "Profondità scientifica",
+        "body": "Base: 10.000+ punti dati da studi internazionali. Modelli di scoring validati. Niente è tirato a indovinare."
+      },
+      "personal": {
+        "title": "Davvero personalizzato",
+        "body": "Consideriamo il tuo tipo corporeo, il tuo livello di allenamento, le tue circostanze di vita. Niente risposte standard."
+      },
+      "fast": {
+        "title": "15 minuti al tuo piano",
+        "body": "Compila il questionario, ricevi il report, parti. Niente attesa di 2 settimane per un coach."
       }
     }
   },

@@ -27,19 +27,16 @@
     }
   },
   "hero": {
-    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
-    "headline_1": "YOUR BODY.",
-    "headline_2": "YOUR DATA.",
-    "headline_3": "YOUR LEVEL.",
-    "subtitle": "Performance diagnostics from a coach who trains aspiring pro athletes. No lab. No subscription. Personalized for you in under 10 minutes.",
-    "cta_primary": "START ANALYSIS",
-    "cta_secondary": "HOW IT WORKS",
-    "cta_sample": "VIEW SAMPLE REPORT",
+    "eyebrow": "PERFORMANCE INTELLIGENCE — HONEST.",
+    "headline_1": "Your BMI is lying to you.",
+    "headline_2": "We'll tell you the truth in 15 minutes.",
+    "subtitle": "The only performance analysis that sees your body for what it really is — not what a formula from the 1830s calculates. In 15 minutes you'll know what to do. For the price of a pizza.",
+    "cta_primary": "Start your honest analysis — €39.90",
+    "cta_sub": "No upfront signup. No subscription. No generic tips.",
     "stats": {
-      "questions": "QUESTIONS",
-      "scores": "SCORES",
-      "deep_analysis": "DEEP ANALYSIS",
-      "evidence_database": "EVIDENCE-BASED DATABASE"
+      "datapoints_label": "Data points",
+      "duration_label": "Min analysis",
+      "modules_label": "Performance modules"
     },
     "scroll": "SCROLL"
   },
@@ -82,20 +79,47 @@
   },
   "pain_points": {
     "eyebrow": "SOUND FAMILIAR?",
-    "headline": "YOU'RE NOT LAZY. YOU'RE FLYING BLIND.",
-    "subtitle": "Most people don't fail at discipline — they fail at measurement. Without precise data every plan is a guess, and every app hands you the same template.",
+    "headline": "You're not alone. Thousands of men have the same problem.",
+    "subtitle": "If you nod at one (or several) of these, you're in the right place.",
     "cards": {
       "1": {
-        "title": "You train — but nothing changes.",
-        "body": "Without a baseline, without recovery tracking, without stress context: more volume alone does nothing. You can't tell if you're getting stronger or sabotaging yourself."
+        "title": "You've trained for months — but see no real changes.",
+        "body": "Without a baseline, without recovery tracking, without stress context, more volume alone does nothing. You can't tell if you're getting stronger or sabotaging yourself."
       },
       "2": {
-        "title": "You eat clean — but still feel drained.",
-        "body": "Protein, water, meal timing, sleep quality, stress level — if you don't know which lever is stuck, you just spin in circles. Tracking apps give you numbers, not answers."
+        "title": "Your BMI says \"overweight\" — but you feel strong and fit.",
+        "body": "A formula from the 1830s doesn't know what muscle is. We correct it with your real body type and a realistic composition estimate."
       },
       "3": {
-        "title": "You want to fix things — but don't know where to start.",
-        "body": "Fitness apps give you data. Your doctor gives you cutoff values. Nobody tells you: THIS is your 30-day plan — built around your actual life."
+        "title": "You sleep 8 hours — and you're still constantly tired.",
+        "body": "Sleep duration isn't sleep quality. Stress, HRV, recovery status, and metabolism matter more than the hours on the clock."
+      },
+      "4": {
+        "title": "You've tried 5 apps — and none of them really gets you.",
+        "body": "Trackers give you numbers. We give you answers. With 26 precise questions, not a 3-question generic plan."
+      },
+      "5": {
+        "title": "You want clarity — but €500 for a coach is out of reach.",
+        "body": "Marco's method normally costs €150/hour 1:1. Here you get the same diagnostics as software — for €39.90 one-time."
+      }
+    }
+  },
+  "solution": {
+    "eyebrow": "THE SOLUTION",
+    "headline": "Here's the difference.",
+    "body": "While other apps deliver generic tips, we analyze your body on 5 levels: activity, metabolism, sleep, stress, and your real body composition. You answer 26 precise questions — we deliver a full performance report PLUS 4 individual plans PLUS a Master Weekly Plan. Scientific. Personalized. No BS.",
+    "cols": {
+      "science": {
+        "title": "Scientific depth",
+        "body": "Based on 10,000+ data points from international studies. Validated scoring models. Nothing is guessed."
+      },
+      "personal": {
+        "title": "Truly personalized",
+        "body": "We account for your body type, your training level, your life circumstances. No cookie-cutter answers."
+      },
+      "fast": {
+        "title": "15 minutes to your plan",
+        "body": "Fill out the questionnaire, get the report, get going. No 2-week coach waitlist."
       }
     }
   },

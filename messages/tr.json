@@ -27,19 +27,16 @@
     }
   },
   "hero": {
-    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
-    "headline_1": "VÜCUDUN.",
-    "headline_2": "VERİN.",
-    "headline_3": "SEVİYEN.",
-    "subtitle": "Aday profesyonel sporcuları çalıştıran bir koçtan performans diyagnostiği. Laboratuvar yok. Abonelik yok. Senin için 10 dakikadan kısa sürede kişiselleştirilir.",
-    "cta_primary": "ANALİZİ BAŞLAT",
-    "cta_secondary": "NASIL ÇALIŞIR",
-    "cta_sample": "ÖRNEK RAPORA BAK",
+    "eyebrow": "PERFORMANCE INTELLIGENCE — DÜRÜST.",
+    "headline_1": "BMI'n sana yalan söylüyor.",
+    "headline_2": "Sana gerçeği 15 dakikada anlatıyoruz.",
+    "subtitle": "Vücudunu gerçekten olduğu gibi gören tek performans analizi — 1830'lardan bir formülün hesapladığı gibi değil. 15 dakikada ne yapman gerektiğini bileceksin. Bir pizza fiyatına.",
+    "cta_primary": "Dürüst analizini başlat — 39,90 €",
+    "cta_sub": "Önceden kayıt yok. Abonelik yok. Genel tavsiye yok.",
     "stats": {
-      "questions": "SORU",
-      "scores": "SKOR",
-      "deep_analysis": "DERİNLEMESİNE ANALİZ",
-      "evidence_database": "KANITA DAYALI VERİ TABANI"
+      "datapoints_label": "Veri noktası",
+      "duration_label": "Dk analiz",
+      "modules_label": "Performans modülü"
     },
     "scroll": "KAYDIR"
   },
@@ -82,20 +79,47 @@
   },
   "pain_points": {
     "eyebrow": "TANIDIK GELİYOR MU?",
-    "headline": "TEMBEL DEĞİLSİN. YOL HARİTAN YOK.",
-    "subtitle": "Çoğu insan disiplin değil, ölçümsüzlük yüzünden başarısız olur. Kesin veri olmadan her plan tahmindir — ve her uygulama sana aynı şablonu verir.",
+    "headline": "Yalnız değilsin. Binlerce erkek aynı sorunu yaşıyor.",
+    "subtitle": "Bunlardan birinde (veya birkaçında) başını sallıyorsan, doğru yerdesin.",
     "cards": {
       "1": {
-        "title": "Çalışıyorsun — ama hiçbir şey değişmiyor.",
-        "body": "Baseline olmadan, recovery ölçümü olmadan, stres bağlamı olmadan: sadece daha fazla hacim işe yaramaz. Güçlendiğini mi yoksa kendine sabotaj mı yaptığını bilmiyorsun."
+        "title": "Aylardır çalışıyorsun — ama gerçek bir değişiklik görmüyorsun.",
+        "body": "Baseline olmadan, recovery ölçümü olmadan, stres bağlamı olmadan, sadece daha fazla hacim işe yaramaz. Güçlendiğini mi yoksa kendine sabotaj mı yaptığını bilmiyorsun."
       },
       "2": {
-        "title": "Temiz yiyorsun — ama hâlâ yorgunsun.",
-        "body": "Protein, su, öğün zamanlaması, uyku kalitesi, stres seviyesi — hangi kaldıracın takıldığını bilmiyorsan daireler çiziyorsun. Takip uygulamaları sana rakam verir, yanıt değil."
+        "title": "BMI'n \"fazla kilolu\" diyor — ama sen güçlü ve formda hissediyorsun.",
+        "body": "1830'lardan bir formül kasın ne olduğunu bilmez. Bunu gerçek vücut tipin ve gerçekçi kompozisyon tahmini ile düzeltiyoruz."
       },
       "3": {
-        "title": "Kendine bakmak istiyorsun — ama nereden başlayacağını bilmiyorsun.",
-        "body": "Fitness uygulamaları sana veri verir. Doktorun sana eşik değerleri verir. Kimse sana şunu söylemez: İŞTE 30 günlük planın — gerçek hayatına göre hazırlanmış."
+        "title": "8 saat uyuyorsun — ve yine de sürekli yorgunsun.",
+        "body": "Uyku süresi, uyku kalitesi değildir. Stres, HRV, recovery durumu ve metabolizma saatten daha önemlidir."
+      },
+      "4": {
+        "title": "5 uygulama denedin — ve hiçbiri seni gerçekten anlamıyor.",
+        "body": "Tracker'lar sana rakam verir. Biz sana yanıt veriyoruz. 3 sorudan oluşan genel bir plan yerine 26 hassas soru ile."
+      },
+      "5": {
+        "title": "Netlik istiyorsun — ama bir koç için 500 € karşılayamıyorsun.",
+        "body": "Marco'nun yöntemi normalde 1:1 için 150 €/saat. Burada aynı diyagnostiği yazılım olarak alıyorsun — 39,90 € tek seferlik."
+      }
+    }
+  },
+  "solution": {
+    "eyebrow": "ÇÖZÜM",
+    "headline": "İşte fark burada.",
+    "body": "Diğer uygulamalar genel tavsiyeler verirken, biz vücudunu 5 düzeyde analiz ediyoruz: aktivite, metabolizma, uyku, stres ve gerçek vücut kompozisyonun. 26 hassas soruyu yanıtlıyorsun — sana tam bir performans raporu ARTI 4 bireysel plan ARTI bir Master Haftalık Plan veriyoruz. Bilimsel. Kişiselleştirilmiş. Süslemesiz.",
+    "cols": {
+      "science": {
+        "title": "Bilimsel derinlik",
+        "body": "Temel: uluslararası çalışmalardan 10.000+ veri noktası. Doğrulanmış puanlama modelleri. Hiçbir şey tahmin değil."
+      },
+      "personal": {
+        "title": "Gerçekten kişiselleştirilmiş",
+        "body": "Vücut tipini, antrenman seviyeni, yaşam koşullarını hesaba katıyoruz. Standart yanıtlar yok."
+      },
+      "fast": {
+        "title": "Planına 15 dakika",
+        "body": "Anketi doldur, raporu al, başla. 2 haftalık koç bekleme süresi yok."
       }
     }
   },

@@ -27,19 +27,16 @@
     }
   },
   "hero": {
-    "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
-    "headline_1": "DEIN KÖRPER.",
-    "headline_2": "DEINE DATEN.",
-    "headline_3": "DEIN LEVEL.",
-    "subtitle": "Performance-Diagnostik von einem Coach, der angehende Profisportler betreut. Ohne Labor. Ohne Abo. Für dich personalisiert in unter 10 Minuten.",
-    "cta_primary": "ANALYSE STARTEN",
-    "cta_secondary": "WIE ES FUNKTIONIERT",
-    "cta_sample": "BEISPIELREPORT ANSEHEN",
+    "eyebrow": "PERFORMANCE INTELLIGENCE — EHRLICH.",
+    "headline_1": "Dein BMI lügt dich an.",
+    "headline_2": "Wir sagen dir die Wahrheit in 15 Minuten.",
+    "subtitle": "Die einzige Performance-Analyse, die deinen Körper sieht, wie er wirklich ist — nicht wie eine Formel aus den 1830ern ihn berechnet. In 15 Minuten weißt du, was du tun musst. Für den Preis einer Pizza.",
+    "cta_primary": "Starte deine ehrliche Analyse — 39,90 €",
+    "cta_sub": "Keine Anmeldung im Voraus. Kein Abo. Keine generischen Tipps.",
     "stats": {
-      "questions": "FRAGEN",
-      "scores": "SCORES",
-      "deep_analysis": "TIEFGEHENDE AUSWERTUNG",
-      "evidence_database": "EVIDENZBASIERTE DATENBANK"
+      "datapoints_label": "Datenpunkte",
+      "duration_label": "Min Analyse",
+      "modules_label": "Performance-Module"
     },
     "scroll": "SCROLL"
   },
@@ -82,20 +79,47 @@
   },
   "pain_points": {
     "eyebrow": "KENNST DU DAS?",
-    "headline": "DU BIST NICHT FAUL. DU HAST KEINE ROADMAP.",
-    "subtitle": "Die meisten scheitern nicht an Disziplin, sondern am Blindflug. Ohne präzise Messung bleibt alles Rätselraten — und jede App gibt dir denselben Plan.",
+    "headline": "Du bist nicht allein. Tausende Männer haben das gleiche Problem.",
+    "subtitle": "Wenn du in einem (oder mehreren) Punkten nickst, bist du genau richtig hier.",
     "cards": {
       "1": {
-        "title": "Du trainierst — aber siehst keine Veränderung.",
-        "body": "Ohne Baseline, ohne Recovery-Messung, ohne Stress-Kontext bringt Volumen allein gar nichts. Du weißt nicht, ob du gerade stärker wirst oder dich selbst sabotierst."
+        "title": "Du trainierst seit Monaten — aber siehst keine echten Veränderungen.",
+        "body": "Ohne Baseline, ohne Recovery-Messung, ohne Stress-Kontext bringt Volumen allein gar nichts. Du weißt nicht, ob du stärker wirst oder dich selbst sabotierst."
       },
       "2": {
-        "title": "Du isst sauber — aber fühlst dich müde.",
-        "body": "Protein, Wasser, Mahlzeiten-Timing, Schlafqualität, Stresslevel — wenn du nicht weißt welcher Hebel klemmt, drehst du im Kreis. Und Trackingapps zeigen dir Zahlen, keine Antworten."
+        "title": "Dein BMI sagt \"übergewichtig\" — aber du fühlst dich stark und fit.",
+        "body": "Eine Formel aus den 1830ern weiß nicht, was Muskulatur ist. Wir korrigieren das mit deinem echten Körpertyp und realistischer Komposition."
       },
       "3": {
-        "title": "Du willst dich kümmern — aber weißt nicht wo anfangen.",
-        "body": "Fitness-Apps geben dir Daten. Dein Arzt gibt dir Grenzwerte. Niemand sagt dir: DAS ist jetzt dein 30-Tage-Plan — genau auf deine Realität zugeschnitten."
+        "title": "Du schläfst 8 Stunden — und bist trotzdem ständig müde.",
+        "body": "Schlafdauer ist nicht Schlafqualität. Stress, HRV, Recovery-Status und Stoffwechsel haben mehr Einfluss als die Stunden auf der Uhr."
+      },
+      "4": {
+        "title": "Du hast 5 Apps probiert — und keine versteht dich wirklich.",
+        "body": "Tracker geben dir Zahlen. Wir geben dir Antworten. Mit 26 präzisen Fragen, statt einem 3-Fragen-Generic-Plan."
+      },
+      "5": {
+        "title": "Du willst Klarheit — aber 500 € für einen Coach sind nicht drin.",
+        "body": "Marcos Methode kostet 1:1 normalerweise 150 €/Stunde. Hier bekommst du dieselbe Diagnostik als Software — für 39,90 € einmalig."
+      }
+    }
+  },
+  "solution": {
+    "eyebrow": "DIE LÖSUNG",
+    "headline": "Hier ist der Unterschied.",
+    "body": "Während andere Apps generische Tipps liefern, analysieren wir deinen Körper auf 5 Ebenen: Aktivität, Stoffwechsel, Schlaf, Stress und deine echte Körperkomposition. Du beantwortest 26 präzise Fragen — wir liefern dir einen vollständigen Performance-Report PLUS 4 individuelle Pläne PLUS einen Master-Wochenplan. Wissenschaftlich. Personalisiert. Ohne BS.",
+    "cols": {
+      "science": {
+        "title": "Wissenschaftliche Tiefe",
+        "body": "Basis: 10.000+ Datenpunkte aus internationalen Studien. Validierte Scoring-Modelle. Nichts ist geraten."
+      },
+      "personal": {
+        "title": "Echt personalisiert",
+        "body": "Wir berücksichtigen deinen Körpertyp, dein Trainingslevel, deine Lebensumstände. Keine Standard-Antworten."
+      },
+      "fast": {
+        "title": "15 Minuten zum Plan",
+        "body": "Fragebogen ausfüllen, Report bekommen, loslegen. Kein 2-Wochen-Coach-Warten."
       }
     }
   },

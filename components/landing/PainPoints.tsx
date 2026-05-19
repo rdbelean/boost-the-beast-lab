@@ -3,10 +3,11 @@ import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 
-// Three pain-cards sit right after the Hero. Copy is provocative-but-specific
-// so the reader nods before the Trust-Section hits them with credentials.
+// Five pain-cards in a 3+2 grid (desktop) / 2+2+1 (tablet) / 1-col (mobile).
+// Copy is provocative-but-specific so the reader nods at least once before
+// the Solution-Reveal section starts addressing each pain in turn.
 // Intersection-observer for a staggered reveal matches the rest of the page.
-const CARDS = ["1", "2", "3"] as const;
+const CARDS = ["1", "2", "3", "4", "5"] as const;
 
 export default function PainPoints() {
   const t = useTranslations("pain_points");
