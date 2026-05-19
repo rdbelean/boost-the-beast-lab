@@ -61,8 +61,7 @@ export default function Hero() {
         {/* Headline */}
         <h1 className={styles.headline}>
           <span className={styles.headlineLine}>{t("headline_1")}</span>
-          <span className={styles.headlineLine}>{t("headline_2")}</span>
-          <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>{t("headline_3")}</span>
+          <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>{t("headline_2")}</span>
         </h1>
 
         {/* Subtitle */}
