@@ -51,9 +51,15 @@
     "scroll": "SCROLL"
   },
   "trust_bar": {
-    "eyebrow": "METODO BUNDESLIGA. ORA COME SOFTWARE.",
-    "body": "Tappe da coach nella carriera di Marco: Bundesliga · Nazionali da Bundesliga · Squadre professionistiche · 15+ anni di coaching 1:1",
-    "sub": "5,0 ★ · 80 recensioni Google verificate"
+    "eyebrow": "METODO BUNDESLIGA · ORA COME SOFTWARE",
+    "items": {
+      "bundesliga": "BUNDESLIGA",
+      "national_team": "NAZIONALI",
+      "pro_clubs": "SQUADRE PRO",
+      "experience": "15+ ANNI 1:1 COACHING"
+    },
+    "rating_value": "5,0",
+    "rating_meta": "80 recensioni Google verificate"
   },
   "founder": {
     "eyebrow": "DIETRO IL LAB",

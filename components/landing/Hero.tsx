@@ -71,95 +71,90 @@ export default function Hero() {
       <div className={styles.heroGhost} aria-hidden>BEAST</div>
 
       <div className={`${styles.container} ${styles.heroInner}`}>
-        {/* Desktop layout: text-block left, marco-mini-card right.
-            Mobile: marco-card collapses below the CTA. */}
-        <div className={styles.heroLayout}>
-          <div className={styles.heroTextBlock}>
-            {/* Eyebrow */}
-            <div className={styles.eyebrow}>
-              <span className={styles.eyebrowDot} aria-hidden />
-              <span className={styles.eyebrowText}>{t("eyebrow")}</span>
-            </div>
-
-            {/* Headline — 3 lines, third line is the accent payoff */}
-            <h1 className={styles.headline}>
-              <span className={styles.headlineLine}>{t("headline_1")}</span>
-              <span className={styles.headlineLine}>{t("headline_2")}</span>
-              <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>{t("headline_3")}</span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className={styles.subtitle}>{t("subtitle")}</p>
-
-            {/* Primary CTA — single button, no decision paralysis */}
-            <div className={styles.ctaRow}>
-              <button
-                className={styles.btnPrimary}
-                onClick={() => {
-                  const target = document.getElementById("products");
-                  if (target) {
-                    const top = window.scrollY + target.getBoundingClientRect().top;
-                    window.scrollTo({ top, behavior: "auto" });
-                  }
-                }}
-              >
-                {t("cta_primary")}
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
-
-            {/* Trust-Mini-Bar: press logos as text under the CTA */}
-            <p className={styles.trustMiniBar}>{t("trust_bar.press")}</p>
-
-            {/* CTA sub-line — risk-free framing */}
-            <p className={styles.ctaSub}>{t("cta_sub")}</p>
-
-            {showSkip && (
-              <div style={{ marginTop: "16px" }}>
-                <button
-                  type="button"
-                  onClick={handleSkip}
-                  style={{
-                    padding: "12px 24px",
-                    background: "#FACC15",
-                    color: "#0A0A0A",
-                    border: "none",
-                    borderRadius: "4px",
-                    fontWeight: 700,
-                    fontSize: "13px",
-                    letterSpacing: "0.04em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    fontFamily: "var(--font-jetbrains-mono), monospace",
-                  }}
-                >
-                  🧪 Skip Payment (Preview only) → Questionnaire
-                </button>
-              </div>
-            )}
+        {/* Founder strip — sits at the very top of the hero, centred, so the
+            credibility signal lands before the user reads the headline. */}
+        <aside className={styles.heroFounderStrip} aria-label={t("marco_card.name")}>
+          <div className={styles.heroMarcoAvatar}>
+            <Image
+              src="/marco-portrait.jpg"
+              alt={t("marco_card.name")}
+              width={56}
+              height={56}
+              sizes="56px"
+              style={{ objectFit: "cover", width: "100%", height: "100%" }}
+            />
           </div>
+          <div className={styles.heroMarcoText}>
+            <p className={styles.heroMarcoName}>{t("marco_card.name")}</p>
+            <p className={styles.heroMarcoRole}>{t("marco_card.role")}</p>
+            <p className={styles.heroMarcoCredential}>{t("marco_card.credential")}</p>
+          </div>
+        </aside>
 
-          {/* Marco mini-card — credibility chip visible in the first 7 seconds */}
-          <aside className={styles.heroMarcoCard} aria-label={t("marco_card.name")}>
-            <div className={styles.heroMarcoAvatar}>
-              <Image
-                src="/marco-portrait.jpg"
-                alt={t("marco_card.name")}
-                width={72}
-                height={72}
-                sizes="72px"
-                style={{ objectFit: "cover", width: "100%", height: "100%" }}
-              />
-            </div>
-            <div className={styles.heroMarcoText}>
-              <p className={styles.heroMarcoName}>{t("marco_card.name")}</p>
-              <p className={styles.heroMarcoRole}>{t("marco_card.role")}</p>
-              <p className={styles.heroMarcoCredential}>{t("marco_card.credential")}</p>
-            </div>
-          </aside>
+        {/* Eyebrow */}
+        <div className={styles.eyebrow}>
+          <span className={styles.eyebrowDot} aria-hidden />
+          <span className={styles.eyebrowText}>{t("eyebrow")}</span>
         </div>
+
+        {/* Headline — 3 lines, third line is the accent payoff */}
+        <h1 className={styles.headline}>
+          <span className={styles.headlineLine}>{t("headline_1")}</span>
+          <span className={styles.headlineLine}>{t("headline_2")}</span>
+          <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>{t("headline_3")}</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className={styles.subtitle}>{t("subtitle")}</p>
+
+        {/* Primary CTA — single button, no decision paralysis */}
+        <div className={styles.ctaRow}>
+          <button
+            className={styles.btnPrimary}
+            onClick={() => {
+              const target = document.getElementById("products");
+              if (target) {
+                const top = window.scrollY + target.getBoundingClientRect().top;
+                window.scrollTo({ top, behavior: "auto" });
+              }
+            }}
+          >
+            {t("cta_primary")}
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Trust-Mini-Bar: press logos as text under the CTA */}
+        <p className={styles.trustMiniBar}>{t("trust_bar.press")}</p>
+
+        {/* CTA sub-line — risk-free framing */}
+        <p className={styles.ctaSub}>{t("cta_sub")}</p>
+
+        {showSkip && (
+          <div style={{ marginTop: "16px" }}>
+            <button
+              type="button"
+              onClick={handleSkip}
+              style={{
+                padding: "12px 24px",
+                background: "#FACC15",
+                color: "#0A0A0A",
+                border: "none",
+                borderRadius: "4px",
+                fontWeight: 700,
+                fontSize: "13px",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                fontFamily: "var(--font-jetbrains-mono), monospace",
+              }}
+            >
+              🧪 Skip Payment (Preview only) → Questionnaire
+            </button>
+          </div>
+        )}
 
         {/* Stats — 4 trust signals: 2 animated numbers + 2 check-icon labels */}
         <div className={styles.statsBar} ref={statsRef}>

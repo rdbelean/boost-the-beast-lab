@@ -51,9 +51,15 @@
     "scroll": "SCROLL"
   },
   "trust_bar": {
-    "eyebrow": "BUNDESLIGA-METHODE. JETZT ALS SOFTWARE.",
-    "body": "Coach-Stationen aus Marcos Karriere: Bundesliga · Bundesliga-Nationalspieler · Profi-Mannschaften · 15+ Jahre 1:1 Coaching",
-    "sub": "5,0 ★ · 80 verifizierte Google-Bewertungen"
+    "eyebrow": "BUNDESLIGA-METHODE · JETZT ALS SOFTWARE",
+    "items": {
+      "bundesliga": "BUNDESLIGA",
+      "national_team": "NATIONAL-TEAM",
+      "pro_clubs": "PROFI-MANNSCHAFTEN",
+      "experience": "15+ JAHRE 1:1 COACHING"
+    },
+    "rating_value": "5,0",
+    "rating_meta": "80 verifizierte Google-Bewertungen"
   },
   "founder": {
     "eyebrow": "HINTER DEM LAB",

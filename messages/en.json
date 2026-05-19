@@ -51,9 +51,15 @@
     "scroll": "SCROLL"
   },
   "trust_bar": {
-    "eyebrow": "BUNDESLIGA METHOD. NOW AS SOFTWARE.",
-    "body": "Coach stops from Marco's career: Bundesliga · Bundesliga national-team players · pro clubs · 15+ years of 1:1 coaching",
-    "sub": "5.0 ★ · 80 verified Google reviews"
+    "eyebrow": "BUNDESLIGA METHOD · NOW AS SOFTWARE",
+    "items": {
+      "bundesliga": "BUNDESLIGA",
+      "national_team": "NATIONAL TEAM",
+      "pro_clubs": "PRO CLUBS",
+      "experience": "15+ YEARS 1:1 COACHING"
+    },
+    "rating_value": "5.0",
+    "rating_meta": "80 verified Google reviews"
   },
   "founder": {
     "eyebrow": "BEHIND THE LAB",

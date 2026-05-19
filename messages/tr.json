@@ -51,9 +51,15 @@
     "scroll": "KAYDIR"
   },
   "trust_bar": {
-    "eyebrow": "BUNDESLIGA YÖNTEMİ. ARTIK YAZILIM OLARAK.",
-    "body": "Marco'nun kariyerindeki koçluk durakları: Bundesliga · Bundesliga milli takım oyuncuları · profesyonel kulüpler · 15+ yıl 1:1 koçluk",
-    "sub": "5,0 ★ · 80 doğrulanmış Google değerlendirmesi"
+    "eyebrow": "BUNDESLIGA YÖNTEMİ · ARTIK YAZILIM OLARAK",
+    "items": {
+      "bundesliga": "BUNDESLIGA",
+      "national_team": "MİLLİ TAKIM",
+      "pro_clubs": "PROFESYONEL KULÜPLER",
+      "experience": "15+ YIL 1:1 KOÇLUK"
+    },
+    "rating_value": "5,0",
+    "rating_meta": "80 doğrulanmış Google değerlendirmesi"
   },
   "founder": {
     "eyebrow": "LAB'IN ARKASINDA",
