@@ -158,6 +158,65 @@
     },
     "cta_primary": "RICEVI ORA IL MIO PIANO — 39,90 €"
   },
+  "marco_explanation": {
+    "eyebrow": "PERCHÉ 39,90 €?",
+    "sub": "Diretto e onesto, da Marco.",
+    "body": {
+      "p1": "Risposta onesta:",
+      "p2": "Una sessione 1:1 con me costa 150 €. Una persona, un'ora, un piano.",
+      "p3": "Il mio problema era: non posso aiutare 1.000 persone contemporaneamente. Ma 1.000 persone hanno bisogno della stessa diagnostica, della stessa metodologia, della stessa struttura.",
+      "p4": "Così abbiamo tradotto il mio metodo in un sistema. Ciò che faccio in 60 minuti, il sistema lo fa in 15 — più preciso, perché lavora con i tuoi dati e oltre 10.000 studi.",
+      "p5": "Il prezzo è 39,90 € perché sono i costi una tantum del software. Niente ore. Niente sala d'attesa. Niente vincoli.",
+      "close_a": "Se il risultato non ti basta: soldi indietro.",
+      "close_b": "Se ti porta avanti: lo tieni a vita."
+    },
+    "signature": "— Marco Colella",
+    "anchor": {
+      "pt": "60 min 1:1 con Marco: 150 €",
+      "sw": "Il suo metodo come software: 39,90 € una tantum"
+    },
+    "cta": "RICEVI ORA IL MIO PIANO"
+  },
+  "substance": {
+    "bridge": "Ma la fiducia da sola non basta. Ecco la sostanza dietro il sistema di Marco.",
+    "eyebrow": "LA SOSTANZA",
+    "headline": "Cosa c'è davvero dentro l'analisi?",
+    "sub": "Fatti, non promesse.",
+    "basis": {
+      "header": "LA BASE:",
+      "items": {
+        "1": "10.000+ punti dati scientifici",
+        "2": "WHO Health Guidelines (2024)",
+        "3": "ACSM Exercise Prescription Standards",
+        "4": "AASM Sleep Architecture studies",
+        "5": "IPAQ Activity Scoring (validato internazionalmente)",
+        "6": "Cooper Institute VO2max standards",
+        "7": "26 punti dati personalizzati dalla tua vita"
+      }
+    },
+    "output": {
+      "header": "COSA OTTIENI:",
+      "items": {
+        "1": "Il tuo Performance Score individuale (5 dimensioni)",
+        "2": "Inquadramento scientifico (niente \"buono/cattivo\")",
+        "3": "Piano Activity 12 settimane (sul tuo livello)",
+        "4": "Piano Recovery 12 settimane (sui tuoi dati)",
+        "5": "Piano Nutrition 12 settimane (sul tuo metabolismo)",
+        "6": "Piano Stress 12 settimane (sulla tua quotidianità)",
+        "7": "Piano Master Settimanale (giorno per giorno, collegato)",
+        "8": "PDF premium (da tenere, non scade)"
+      }
+    },
+    "closer": "Il metodo di Marco da 15+ anni di coaching, distillato in un sistema che puoi usare quando vuoi."
+  },
+  "guarantee": {
+    "headline": "GARANZIA 24 ORE — SOLDI INDIETRO",
+    "body": "Se il tuo report non ti spinge a almeno una azione concreta nella tua vita nelle prime 24 ore — scrivici una breve email. Ti restituiamo i 39,90 €. Niente domande, niente drammi.",
+    "subtext": "Possiamo permetterci di offrirlo perché sappiamo cosa fornisce il metodo di Marco. Se non funziona per te, non deve nemmeno tenersi i tuoi soldi.",
+    "trust_line": "100% soldi indietro · Niente domande · Entro 24h",
+    "conditions": "Condizioni: richiesta via email a info@boostthebeast.com entro 24 ore dal download del PDF. Il rimborso viene elaborato entro 5-7 giorni lavorativi tramite il metodo di pagamento originale."
+
+  },
   "products": {
     "section_label": "IL TUO PACCHETTO",
     "section_title": "COMPLETE PERFORMANCE ANALYSIS",
@@ -193,8 +252,8 @@
   "wearable": {
     "optional_badge": "OPZIONALE · NON OBBLIGATORIO",
     "section_label": "I TUOI DATI. OGNI FILE.",
-    "section_title_1": "PUNTEGGI PIÙ PRECISI.",
-    "section_title_2": "CON I TUOI DATI.",
+    "section_title_1": "SE HAI DEI DATI, LI RENDIAMO PIÙ PRECISI.",
+    "section_title_2": "SE NON LI HAI, FUNZIONA COMUNQUE.",
     "subtitle_before": "L'analisi completa funziona anche ",
     "subtitle_strong": "senza wearable o scan",
     "subtitle_after": ". Se hai qualcosa — WHOOP, Apple Health, scan InBody, report DEXA, CSV Garmin, screenshot, PDF della palestra — caricalo e la nostra IA lo legge. I punteggi vengono affinati automaticamente.",

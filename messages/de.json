@@ -158,6 +158,64 @@
     },
     "cta_primary": "JETZT MEINEN PLAN HOLEN — 39,90 €"
   },
+  "marco_explanation": {
+    "eyebrow": "WARUM 39,90 €?",
+    "sub": "Direkt und ehrlich von Marco.",
+    "body": {
+      "p1": "Ehrliche Antwort:",
+      "p2": "Eine Session 1:1 mit mir kostet 150 €. Eine Person, eine Stunde, ein Plan.",
+      "p3": "Mein Problem war: Ich kann nicht 1000 Leuten gleichzeitig helfen. Aber 1000 Leute brauchen die gleiche Diagnostik, die gleiche Methodik, die gleiche Struktur.",
+      "p4": "Also haben wir meine Methode in ein System übersetzt. Was ich in 60 Minuten mache, macht das System in 15 Minuten — präziser, weil es mit deinen Daten und 10.000+ Studien arbeitet.",
+      "p5": "Der Preis ist 39,90 € weil es die einmaligen Software-Kosten sind. Keine Stunden. Kein Wartezimmer. Keine Bindung.",
+      "close_a": "Wenn dir das Ergebnis nicht reicht: Geld zurück.",
+      "close_b": "Wenn es dich weiterbringt: Du behältst es lebenslang."
+    },
+    "signature": "— Marco Colella",
+    "anchor": {
+      "pt": "60 Min 1:1 mit Marco: 150 €",
+      "sw": "Seine Methode als Software: 39,90 € einmalig"
+    },
+    "cta": "JETZT MEINEN PLAN HOLEN"
+  },
+  "substance": {
+    "bridge": "Aber Vertrauen alleine reicht nicht. Hier ist die Substanz hinter Marcos System.",
+    "eyebrow": "DIE SUBSTANZ",
+    "headline": "Was ist eigentlich in der Analyse drin?",
+    "sub": "Fakten statt Versprechen.",
+    "basis": {
+      "header": "DIE BASIS:",
+      "items": {
+        "1": "10.000+ wissenschaftliche Datenpunkte",
+        "2": "WHO Health Guidelines (2024)",
+        "3": "ACSM Exercise Prescription Standards",
+        "4": "AASM Sleep Architecture Studien",
+        "5": "IPAQ Activity Scoring (international validiert)",
+        "6": "Cooper Institute VO2max Standards",
+        "7": "26 personalisierte Datenpunkte aus deinem Leben"
+      }
+    },
+    "output": {
+      "header": "DARAUS ENTSTEHT:",
+      "items": {
+        "1": "Dein individueller Performance Score (5 Dimensionen)",
+        "2": "Wissenschaftliche Einordnung (kein \"gut/schlecht\")",
+        "3": "12-Wochen Activity Plan (auf dein Level)",
+        "4": "12-Wochen Recovery Plan (auf deine Daten)",
+        "5": "12-Wochen Nutrition Plan (auf deinen Stoffwechsel)",
+        "6": "12-Wochen Stress Plan (auf deinen Alltag)",
+        "7": "Master-Wochenplan (Tag-für-Tag verknüpft)",
+        "8": "Premium PDF (zum Behalten, kein Verfall)"
+      }
+    },
+    "closer": "Marcos Methode aus 15+ Jahren Coaching, übersetzt in ein System, das du jederzeit nutzen kannst."
+  },
+  "guarantee": {
+    "headline": "24-STUNDEN GELD-ZURÜCK-GARANTIE",
+    "body": "Wenn dein Report dich nicht in den ersten 24 Stunden zu mindestens einer konkreten Aktion in deinem Leben inspiriert — schreib uns eine kurze Email. Du bekommst die 39,90 € zurück. Keine Fragen, kein Drama.",
+    "subtext": "Wir können das anbieten, weil wir wissen, was Marcos Methode liefert. Wenn sie nicht für dich funktioniert, soll sie auch nicht dein Geld behalten.",
+    "trust_line": "100 % Geld zurück · Keine Fragen · Innerhalb 24h",
+    "conditions": "Bedingungen: Anfrage per Email an info@boostthebeast.com innerhalb 24 Stunden nach PDF-Download. Erstattung erfolgt innerhalb von 5-7 Werktagen über die ursprüngliche Zahlungsmethode."
+  },
   "products": {
     "section_label": "DEIN PAKET",
     "section_title": "COMPLETE PERFORMANCE ANALYSIS",
@@ -193,8 +251,8 @@
   "wearable": {
     "optional_badge": "OPTIONAL · KEIN MUSS",
     "section_label": "DEINE DATEN. JEDE DATEI.",
-    "section_title_1": "PRÄZISERE SCORES.",
-    "section_title_2": "MIT DEINEN DATEN.",
+    "section_title_1": "WENN DU DATEN HAST, MACHEN WIR SIE PRÄZISER.",
+    "section_title_2": "WENN NICHT, FUNKTIONIERT ES AUCH SO.",
     "subtitle_before": "Die komplette Analyse funktioniert auch ",
     "subtitle_strong": "ohne Wearable oder Scan",
     "subtitle_after": ". Wer was hat — WHOOP, Apple Health, InBody-Scan, DEXA-Report, Garmin-CSV, Screenshot, Gym-PDF — lädt es hoch und unsere KI liest es aus. Scores werden automatisch geschärft.",

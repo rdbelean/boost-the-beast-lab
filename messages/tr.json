@@ -158,6 +158,64 @@
     },
     "cta_primary": "PLANIMI ŞİMDİ AL — 39,90 €"
   },
+  "marco_explanation": {
+    "eyebrow": "NEDEN 39,90 €?",
+    "sub": "Marco'dan direkt ve dürüst.",
+    "body": {
+      "p1": "Dürüst cevap:",
+      "p2": "Benimle 1:1 bir seans 150 €. Bir kişi, bir saat, bir plan.",
+      "p3": "Sorunum şuydu: 1.000 kişiye aynı anda yardım edemem. Ama 1.000 kişinin aynı diyagnostiğe, aynı metodolojiye, aynı yapıya ihtiyacı var.",
+      "p4": "Bu yüzden yöntemimi bir sisteme çevirdik. 60 dakikada yaptığımı sistem 15 dakikada yapıyor — daha hassas, çünkü senin verilerin ve 10.000+ çalışma ile çalışıyor.",
+      "p5": "Fiyat 39,90 € çünkü bu, tek seferlik yazılım maliyetleri. Saat yok. Bekleme odası yok. Bağlılık yok.",
+      "close_a": "Eğer sonuç sana yetmezse: paran geri.",
+      "close_b": "Eğer seni ileri taşırsa: ömür boyu sende kalır."
+    },
+    "signature": "— Marco Colella",
+    "anchor": {
+      "pt": "Marco ile 60 dk 1:1: 150 €",
+      "sw": "Yöntemi yazılım olarak: 39,90 € tek seferlik"
+    },
+    "cta": "PLANIMI ŞİMDİ AL"
+  },
+  "substance": {
+    "bridge": "Ama yalnızca güven yetmez. İşte Marco'nun sisteminin arkasındaki içerik.",
+    "eyebrow": "İÇERİK",
+    "headline": "Analizin içinde aslında ne var?",
+    "sub": "Vaatler değil, gerçekler.",
+    "basis": {
+      "header": "TEMEL:",
+      "items": {
+        "1": "10.000+ bilimsel veri noktası",
+        "2": "WHO Health Guidelines (2024)",
+        "3": "ACSM Exercise Prescription Standards",
+        "4": "AASM Sleep Architecture çalışmaları",
+        "5": "IPAQ Activity Scoring (uluslararası onaylı)",
+        "6": "Cooper Institute VO2max standartları",
+        "7": "Hayatından 26 kişisel veri noktası"
+      }
+    },
+    "output": {
+      "header": "BUNDAN ÇIKAN:",
+      "items": {
+        "1": "Kişisel performans skorun (5 boyut)",
+        "2": "Bilimsel sınıflandırma (\"iyi/kötü\" yok)",
+        "3": "12 haftalık Activity planı (seviyene göre)",
+        "4": "12 haftalık Recovery planı (verilerine göre)",
+        "5": "12 haftalık Nutrition planı (metabolizmana göre)",
+        "6": "12 haftalık Stress planı (günlük hayatına göre)",
+        "7": "Master Haftalık Plan (gün gün bağlantılı)",
+        "8": "Premium PDF (sende kalır, süresi dolmaz)"
+      }
+    },
+    "closer": "Marco'nun 15+ yıllık koçluğundan damıtılan yöntem — her zaman kullanabileceğin bir sisteme dönüştürüldü."
+  },
+  "guarantee": {
+    "headline": "24 SAAT PARA İADE GARANTİSİ",
+    "body": "Eğer raporun ilk 24 saatte hayatında en az bir somut adıma ilham vermezse — bize kısa bir email gönder. 39,90 €'yu geri alırsın. Soru yok, dram yok.",
+    "subtext": "Bunu sunabiliyoruz çünkü Marco'nun yönteminin ne verdiğini biliyoruz. Sana işe yaramazsa, paranı da tutmamalı.",
+    "trust_line": "%100 para iade · Soru yok · 24 saat içinde",
+    "conditions": "Koşullar: PDF indirildikten sonra 24 saat içinde info@boostthebeast.com adresine email ile talep. İade, orijinal ödeme yöntemi üzerinden 5-7 iş günü içinde işlenir."
+  },
   "products": {
     "section_label": "PAKETİN",
     "section_title": "COMPLETE PERFORMANCE ANALYSIS",
@@ -193,8 +251,8 @@
   "wearable": {
     "optional_badge": "OPSİYONEL · ZORUNLU DEĞİL",
     "section_label": "VERİN. HER DOSYA.",
-    "section_title_1": "DAHA NET SKORLAR.",
-    "section_title_2": "SENİN VERİLERİNLE.",
+    "section_title_1": "VERİN VARSA, ONLARI DAHA HASSAS YAPARIZ.",
+    "section_title_2": "YOKSA DA YİNE ÇALIŞIR.",
     "subtitle_before": "Eksiksiz analiz, ",
     "subtitle_strong": "wearable veya tarama olmadan da",
     "subtitle_after": " mükemmel çalışır. Elinde ne varsa — WHOOP, Apple Health, InBody taraması, DEXA raporu, Garmin CSV, ekran görüntüsü, spor salonu PDF'i — yükle, yapay zekâmız okusun. Skorlar otomatik olarak keskinleşir.",

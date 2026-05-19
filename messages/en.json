@@ -158,6 +158,64 @@
     },
     "cta_primary": "GET MY PLAN NOW — €39.90"
   },
+  "marco_explanation": {
+    "eyebrow": "WHY €39.90?",
+    "sub": "Straight and honest from Marco.",
+    "body": {
+      "p1": "Honest answer:",
+      "p2": "A 1:1 session with me costs €150. One person, one hour, one plan.",
+      "p3": "My problem was: I can't help 1,000 people at the same time. But 1,000 people need the same diagnostics, the same methodology, the same structure.",
+      "p4": "So we translated my method into a system. What I do in 60 minutes, the system does in 15 — more precisely, because it works with your data and 10,000+ studies.",
+      "p5": "The price is €39.90 because those are the one-time software costs. No hours. No waiting room. No commitment.",
+      "close_a": "If the result isn't enough for you: money back.",
+      "close_b": "If it moves you forward: you keep it for life."
+    },
+    "signature": "— Marco Colella",
+    "anchor": {
+      "pt": "60 min 1:1 with Marco: €150",
+      "sw": "His method as software: €39.90 one-time"
+    },
+    "cta": "GET MY PLAN NOW"
+  },
+  "substance": {
+    "bridge": "But trust alone isn't enough. Here's the substance behind Marco's system.",
+    "eyebrow": "THE SUBSTANCE",
+    "headline": "What's actually in the analysis?",
+    "sub": "Facts, not promises.",
+    "basis": {
+      "header": "THE BASIS:",
+      "items": {
+        "1": "10,000+ scientific data points",
+        "2": "WHO Health Guidelines (2024)",
+        "3": "ACSM Exercise Prescription Standards",
+        "4": "AASM Sleep Architecture studies",
+        "5": "IPAQ Activity Scoring (internationally validated)",
+        "6": "Cooper Institute VO2max standards",
+        "7": "26 personalized data points from your life"
+      }
+    },
+    "output": {
+      "header": "WHAT YOU GET:",
+      "items": {
+        "1": "Your individual performance score (5 dimensions)",
+        "2": "Scientific classification (no \"good/bad\")",
+        "3": "12-week Activity plan (matched to your level)",
+        "4": "12-week Recovery plan (built on your data)",
+        "5": "12-week Nutrition plan (tuned to your metabolism)",
+        "6": "12-week Stress plan (built around your day)",
+        "7": "Master Weekly Plan (day-by-day, connected)",
+        "8": "Premium PDF (yours to keep, never expires)"
+      }
+    },
+    "closer": "Marco's method, distilled from 15+ years of coaching into a system you can use anytime."
+  },
+  "guarantee": {
+    "headline": "24-HOUR MONEY-BACK GUARANTEE",
+    "body": "If your report doesn't inspire at least one concrete action in your life within the first 24 hours — send us a short email. You'll get the €39.90 back. No questions, no drama.",
+    "subtext": "We can offer this because we know what Marco's method delivers. If it doesn't work for you, it shouldn't keep your money either.",
+    "trust_line": "100% money back · No questions · Within 24h",
+    "conditions": "Conditions: request by email to info@boostthebeast.com within 24 hours after the PDF download. Refund is processed within 5-7 business days via the original payment method."
+  },
   "products": {
     "section_label": "YOUR PACKAGE",
     "section_title": "COMPLETE PERFORMANCE ANALYSIS",
@@ -193,8 +251,8 @@
   "wearable": {
     "optional_badge": "OPTIONAL · NOT REQUIRED",
     "section_label": "YOUR DATA. ANY FILE.",
-    "section_title_1": "SHARPER SCORES.",
-    "section_title_2": "FROM YOUR DATA.",
+    "section_title_1": "IF YOU HAVE DATA, WE'LL MAKE IT SHARPER.",
+    "section_title_2": "IF NOT, IT STILL WORKS.",
     "subtitle_before": "The complete analysis works perfectly ",
     "subtitle_strong": "without a wearable or scan",
     "subtitle_after": ". If you have anything — WHOOP, Apple Health, InBody scan, DEXA report, Garmin CSV, screenshot, gym PDF — upload it and our AI reads it out. Scores get sharpened automatically.",
