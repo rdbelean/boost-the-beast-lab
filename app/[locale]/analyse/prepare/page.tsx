@@ -25,6 +25,7 @@ import { detectFolderIntent, type FolderIntentResult } from "@/lib/wearable/dete
 import { assessDataQuality } from "@/lib/wearable/assessment/data-quality";
 import DataQualityBadge from "@/components/analyse/wearable/DataQualityBadge";
 import FolderIntentWarning from "@/components/analyse/wearable/FolderIntentWarning";
+import ConsentModal from "@/components/analyse/ConsentModal";
 import type { WearableParseResult, WearableSource } from "@/lib/wearable/types";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -125,6 +126,12 @@ function PrepareContent() {
   const product = params.get("product") ?? "complete-analysis";
 
   const [paymentChecked, setPaymentChecked] = useState(false);
+  // GDPR consent gate — runs AFTER paymentChecked=true.
+  // null = not yet checked; "granted" = upload UI; "declined" = redirect to /analyse;
+  // "needs_modal" = no prior log, show modal now.
+  const [consentState, setConsentState] = useState<
+    "checking" | "needs_modal" | "granted" | "declined"
+  >("checking");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [overallProgress, setOverallProgress] = useState(0);
@@ -187,6 +194,42 @@ function PrepareContent() {
     })();
     return () => { cancelled = true; };
   }, [sessionId, previewSkipParam, router]);
+
+  // ── GDPR consent gate ────────────────────────────────────────────────────
+  // Runs AFTER paymentChecked === true. Queries /api/consent for the user's
+  // most recent decision: granted → unlock upload UI; declined → redirect to
+  // /analyse (questionnaire); null → show modal.
+  useEffect(() => {
+    if (!paymentChecked) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/consent");
+        if (!res.ok) {
+          // 401 (no session) shouldn't happen post-payment; fail safe by
+          // showing the modal anyway.
+          if (!cancelled) setConsentState("needs_modal");
+          return;
+        }
+        const data = (await res.json()) as { decision: "granted" | "declined" | null };
+        if (cancelled) return;
+        if (data.decision === "granted") {
+          setConsentState("granted");
+        } else if (data.decision === "declined") {
+          setConsentState("declined");
+          const qs = new URLSearchParams();
+          if (sessionId) qs.set("session_id", sessionId);
+          qs.set("product", product);
+          router.push(`/analyse?${qs.toString()}`);
+        } else {
+          setConsentState("needs_modal");
+        }
+      } catch {
+        if (!cancelled) setConsentState("needs_modal");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [paymentChecked, sessionId, product, router]);
 
   // ── Navigation ──────────────────────────────────────────────────────────
   function goToAnalyse(extra?: string) {
@@ -533,6 +576,21 @@ function PrepareContent() {
   }
 
   if (!paymentChecked) return null;
+  if (consentState === "checking" || consentState === "declined") return null;
+  if (consentState === "needs_modal") {
+    return (
+      <ConsentModal
+        onGranted={() => setConsentState("granted")}
+        onDeclined={() => {
+          setConsentState("declined");
+          const qs = new URLSearchParams();
+          if (sessionId) qs.set("session_id", sessionId);
+          qs.set("product", product);
+          router.push(`/analyse?${qs.toString()}`);
+        }}
+      />
+    );
+  }
 
   const hasFiles     = files.length > 0;
   const totalFiles   = files.length;

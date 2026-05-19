@@ -1058,5 +1058,14 @@
       "protocol_evening": "AKŞAM",
       "protocol_nutrition_micro": "BESLENME"
     }
+  },
+  "consent_modal": {
+    "version_label": "v1.0",
+    "heading": "Sağlık verilerinin değerlendirilmesine ilişkin onay",
+    "body": "Yüklediğim fitness ve sağlık verilerinin (örn. kalp atış hızı, kalp atış hızı değişkenliği, uyku verileri, fiziksel aktivite) performans raporumun ve bireysel planlarımın oluşturulması amacıyla değerlendirilmesine açıkça onay veriyorum. Yapay zeka değerlendirmesi ABD merkezli Anthropic sağlayıcısı üzerinden gerçekleştirilir; depolama ise Supabase ve Vercel üzerinden yapılır. Veriler başka üçüncü taraflarla paylaşılmaz. Veriler en fazla 12 ay saklanır. Profilimde „Geçmiş Raporlar\" altında her yüklemeyi istediğim zaman tek tıkla ayrı ayrı silebilirim. Daha fazla bilgi <privacy_link>Gizlilik Politikası</privacy_link>'nda bulunabilir.",
+    "hint": "Onay vermezsen raporun yalnızca anket temelinde oluşturulur ve daha az hassastır.",
+    "button_yes": "Evet, onaylıyorum",
+    "button_no": "Hayır, atla",
+    "error_save_failed": "Kaydetme başarısız oldu, lütfen tekrar dene."
   }
 }
