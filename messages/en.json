@@ -216,6 +216,50 @@
     "trust_line": "100% money back · No questions · Within 24h",
     "conditions": "Conditions: request by email to info@boostthebeast.com within 24 hours after the PDF download. Refund is processed within 5-7 business days via the original payment method."
   },
+  "faq": {
+    "eyebrow": "FAQ",
+    "headline": "Frequently asked questions",
+    "items": {
+      "1": {
+        "q": "Is this really personalised or just a template?",
+        "a": "Every report is generated live for you based on your 26 answers. There are no templates. In Marco's coaching every athlete was treated differently — here it's the same."
+      },
+      "2": {
+        "q": "What if I don't have any wearables?",
+        "a": "No problem. The analysis works completely without wearables. If you have WHOOP, Apple Health, InBody scan etc., we sharpen the scores further. Optional, not required."
+      },
+      "3": {
+        "q": "Why €39.90 if the method comes from 1:1 coaching?",
+        "a": "Because we turned 1:1 coaching into a software system. Marco can't coach 1,000 athletes at the same time — but his system can. Scaling instead of selling hours."
+      },
+      "4": {
+        "q": "How are you different from apps like WHOOP or Oura?",
+        "a": "WHOOP and Oura measure. We interpret and give you a concrete plan. Wearables deliver data without strategy. We deliver strategy — with or without your wearable data."
+      },
+      "5": {
+        "q": "How different can the report really be per person?",
+        "a": "Completely. We analyse 5 dimensions with over 10,000 possible combinations. A 30-year-old marathon runner with stress gets a different plan than a 40-year-old lifter with sleep problems."
+      },
+      "6": {
+        "q": "Do I get updates?",
+        "a": "Yes. Whoever buys now gets our V2 with direct wearable integration for free."
+      },
+      "7": {
+        "q": "Which languages is this available in?",
+        "a": "German, English, Italian, Turkish. Every report is written in the language you chose."
+      },
+      "8": {
+        "q": "What if I'm not happy?",
+        "a": "24-hour money-back guarantee. No questions, no discussion. We can offer this because we know what we deliver."
+      }
+    }
+  },
+  "final_cta": {
+    "headline": "Stop guessing. Start knowing.",
+    "body": "€39.90. Money-back guarantee. Instant access.",
+    "cta": "GET MY PLAN NOW",
+    "micro": "Made for Athletes. Not for Average."
+  },
   "products": {
     "section_label": "YOUR PACKAGE",
     "section_title": "COMPLETE PERFORMANCE ANALYSIS",

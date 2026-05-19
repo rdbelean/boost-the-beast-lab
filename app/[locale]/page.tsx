@@ -12,7 +12,8 @@ import Substance from "@/components/landing/Substance";
 import WearableSync from "@/components/landing/WearableSync";
 import Products from "@/components/landing/Products";
 import GuaranteeCard from "@/components/landing/GuaranteeCard";
-import TrustSection from "@/components/landing/TrustSection";
+import FAQ from "@/components/landing/FAQ";
+import FinalCTA from "@/components/landing/FinalCTA";
 
 // Landing section-order — Trust-First v2 (deutscher Markt, Premium):
 //   Hero               — hook + founder strip + press line
@@ -21,12 +22,17 @@ import TrustSection from "@/components/landing/TrustSection";
 //   HowItWorks         — 3-step mechanism + CTA
 //   FounderMarco       — deep authority (the bio)
 //   SocialProof        — Castrop/Aydin case studies
-//   MarcoExplanation   — personal letter ("Why €39.90?")  ← tranche 2B
-//   Substance          — "What's actually in it" facts     ← tranche 2B
+//   MarcoExplanation   — personal letter ("Why €39.90?")
+//   Substance          — "What's actually in it" facts
 //   WearableSync       — data depth argument
 //   Products           — the offer + anchor pricing
-//   GuaranteeCard      — 24h money-back risk-reversal      ← tranche 2B
-//   TrustSection       — science/credibility closers (removed in 2C)
+//   GuaranteeCard      — 24h money-back risk-reversal
+//   FAQ                — 8 objection-busting questions      ← tranche 2C
+//   FinalCTA           — closing big-CTA section             ← tranche 2C
+//
+// TrustSection.tsx is no longer rendered on Landing — FinalCTA is the new
+// closer. The component itself is kept in the repo for now (not deleted)
+// in case future pages need it.
 export default function HomePage() {
   return (
     <>
@@ -44,7 +50,8 @@ export default function HomePage() {
         <WearableSync />
         <Products />
         <GuaranteeCard />
-        <TrustSection />
+        <FAQ />
+        <FinalCTA />
       </main>
       <Footer />
     </>

@@ -216,6 +216,50 @@
     "trust_line": "100 % Geld zurück · Keine Fragen · Innerhalb 24h",
     "conditions": "Bedingungen: Anfrage per Email an info@boostthebeast.com innerhalb 24 Stunden nach PDF-Download. Erstattung erfolgt innerhalb von 5-7 Werktagen über die ursprüngliche Zahlungsmethode."
   },
+  "faq": {
+    "eyebrow": "FAQ",
+    "headline": "Häufig gestellte Fragen",
+    "items": {
+      "1": {
+        "q": "Ist das wirklich personalisiert oder nur ein Template?",
+        "a": "Jeder Report wird live für dich generiert basierend auf deinen 26 Antworten. Es gibt keine Templates. Bei Marcos Coaching war jeder Athlet anders behandelt — hier ist es genauso."
+      },
+      "2": {
+        "q": "Was wenn ich keine Wearables habe?",
+        "a": "Kein Problem. Die Analyse funktioniert vollständig ohne Wearables. Wenn du WHOOP, Apple Health, InBody-Scan etc. hast, schärfen wir die Scores noch. Optional, kein Muss."
+      },
+      "3": {
+        "q": "Warum 39,90 € wenn die Methode aus 1:1 Coaching kommt?",
+        "a": "Weil wir aus 1:1 Coaching ein Software-System gemacht haben. Marco kann nicht 1000 Athleten gleichzeitig coachen — aber sein System schon. Skalierung statt Stunden-Verkauf."
+      },
+      "4": {
+        "q": "Was unterscheidet euch von Apps wie WHOOP oder Oura?",
+        "a": "WHOOP und Oura messen. Wir interpretieren und geben dir einen konkreten Plan. Wearables liefern Daten ohne Strategie. Wir liefern Strategie — mit oder ohne deinen Wearable-Daten."
+      },
+      "5": {
+        "q": "Wie unterschiedlich kann der Report wirklich pro Person sein?",
+        "a": "Komplett. Wir analysieren 5 Dimensionen mit über 10.000 möglichen Kombinationen. Ein 30-jähriger Marathonläufer mit Stress bekommt einen anderen Plan als ein 40-jähriger Kraftsportler mit Schlafproblemen."
+      },
+      "6": {
+        "q": "Bekomme ich Updates?",
+        "a": "Ja. Wer jetzt kauft, bekommt unsere V2 mit direkter Wearable-Integration kostenlos."
+      },
+      "7": {
+        "q": "In welchen Sprachen ist das verfügbar?",
+        "a": "Deutsch, Englisch, Italienisch, Türkisch. Alle Reports werden in deiner gewählten Sprache geschrieben."
+      },
+      "8": {
+        "q": "Was wenn ich nicht zufrieden bin?",
+        "a": "24-Stunden Geld-zurück-Garantie. Keine Fragen, keine Diskussion. Wir können das anbieten, weil wir wissen, was wir liefern."
+      }
+    }
+  },
+  "final_cta": {
+    "headline": "Hör auf zu raten. Fang an zu wissen.",
+    "body": "39,90 €. Geld-zurück-Garantie. Sofortiger Zugang.",
+    "cta": "JETZT MEINEN PLAN HOLEN",
+    "micro": "Made for Athletes. Not for Average."
+  },
   "products": {
     "section_label": "DEIN PAKET",
     "section_title": "COMPLETE PERFORMANCE ANALYSIS",

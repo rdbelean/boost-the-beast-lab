@@ -216,6 +216,50 @@
     "trust_line": "%100 para iade · Soru yok · 24 saat içinde",
     "conditions": "Koşullar: PDF indirildikten sonra 24 saat içinde info@boostthebeast.com adresine email ile talep. İade, orijinal ödeme yöntemi üzerinden 5-7 iş günü içinde işlenir."
   },
+  "faq": {
+    "eyebrow": "SSS",
+    "headline": "Sıkça sorulan sorular",
+    "items": {
+      "1": {
+        "q": "Bu gerçekten kişiselleştirilmiş mi yoksa sadece bir şablon mu?",
+        "a": "Her rapor, 26 yanıtın temelinde senin için canlı olarak oluşturulur. Şablon yok. Marco'nun koçluğunda her sporcu farklı ele alındı — burada da öyle."
+      },
+      "2": {
+        "q": "Wearable'ım yoksa ne olur?",
+        "a": "Sorun değil. Analiz wearable olmadan da tamamen çalışır. WHOOP, Apple Health, InBody scan vb. varsa skorları daha da netleştiriyoruz. İsteğe bağlı, zorunlu değil."
+      },
+      "3": {
+        "q": "1:1 koçluk yönteminden geliyorsa neden 39,90 €?",
+        "a": "Çünkü 1:1 koçluğu bir yazılım sistemine dönüştürdük. Marco aynı anda 1.000 sporcuyu çalıştıramaz — ama sistemi yapabilir. Saat satmak yerine ölçeklendirme."
+      },
+      "4": {
+        "q": "WHOOP veya Oura gibi uygulamalardan farkınız ne?",
+        "a": "WHOOP ve Oura ölçer. Biz yorumlarız ve sana somut bir plan veririz. Wearable'lar strateji olmadan veri sağlar. Biz strateji sağlarız — wearable verilerin olsun veya olmasın."
+      },
+      "5": {
+        "q": "Rapor kişiden kişiye gerçekten ne kadar farklı olabilir?",
+        "a": "Tamamen. 5 boyutu 10.000'den fazla olası kombinasyonla analiz ediyoruz. Stresli 30 yaşında bir maratoncu, uyku sorunu olan 40 yaşında bir kuvvet sporcusundan farklı bir plan alır."
+      },
+      "6": {
+        "q": "Güncelleme alıyor muyum?",
+        "a": "Evet. Şimdi satın alan, doğrudan wearable entegrasyonlu V2'mizi ücretsiz alır."
+      },
+      "7": {
+        "q": "Hangi dillerde mevcut?",
+        "a": "Almanca, İngilizce, İtalyanca, Türkçe. Her rapor seçtiğin dilde yazılır."
+      },
+      "8": {
+        "q": "Memnun kalmazsam ne olur?",
+        "a": "24 saat para iade garantisi. Soru yok, tartışma yok. Bunu sunabiliyoruz çünkü ne sunduğumuzu biliyoruz."
+      }
+    }
+  },
+  "final_cta": {
+    "headline": "Tahmin etmeyi bırak. Bilmeye başla.",
+    "body": "39,90 €. Para iade garantisi. Anında erişim.",
+    "cta": "PLANIMI ŞİMDİ AL",
+    "micro": "Made for Athletes. Not for Average."
+  },
   "products": {
     "section_label": "PAKETİN",
     "section_title": "COMPLETE PERFORMANCE ANALYSIS",
