@@ -1,14 +1,20 @@
 // GDPR consent logging for health-data analysis.
 //
-// GET  → returns the user's most recent (non-revoked) consent decision
-//        for consent_type='health_data_analysis', or null if none.
-//        Used by /analyse/prepare to decide: show modal (null) vs.
-//        skip-modal-show-upload (granted) vs. redirect-to-quiz (declined).
+// Consent is scoped per Stripe Checkout Session (= one report transaction)
+// rather than once per user-lifetime: a new purchase triggers a fresh
+// consent prompt, but a reload within the same session does not. The
+// Stripe Session ID flows from Stripe's success_url through
+// /analyse/prepare's URL params and is required for both GET and POST.
 //
-// POST → logs a new decision. Body: { decision, text_locale }.
-//        Looks up the active consent_text_versions row for the locale and
-//        stores its id as text_version_id (DSGVO Nachweispflicht).
-//        ip_address is intentionally NOT populated in this iteration.
+// GET ?report_session_id=<id>
+//   → returns the user's decision for THIS session, or null if not yet
+//     recorded. Lifetime-consent rows (report_session_id IS NULL) are
+//     explicitly excluded — they never match a concrete session id.
+//
+// POST { decision, text_locale, report_session_id }
+//   → logs a decision row, ties it to the active consent_text_versions
+//     row (DSGVO Art. 7 Abs. 1 Nachweispflicht) and to the session id.
+//     ip_address is intentionally NOT populated in this iteration.
 //
 // Auth: requires an authenticated Supabase session.
 
@@ -21,19 +27,30 @@ const CONSENT_TYPE = "health_data_analysis";
 const VALID_LOCALES = new Set(["de", "en", "it", "tr"]);
 const VALID_DECISIONS = new Set(["granted", "declined"]);
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const ssr = await getSupabaseServerClient();
   const { data: { user } } = await ssr.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Most recent non-revoked decision for this consent_type.
+  const reportSessionId = req.nextUrl.searchParams.get("report_session_id");
+  if (!reportSessionId) {
+    return NextResponse.json(
+      { error: "Missing report_session_id" },
+      { status: 400 },
+    );
+  }
+
+  // Most recent non-revoked decision for THIS report session.
+  // Lifetime-consent rows (report_session_id IS NULL) are excluded by the
+  // .eq() equality semantics — they never match a concrete session id.
   const { data, error } = await ssr
     .from("consent_log")
     .select("decision, granted_at, text_locale")
     .eq("user_id", user.id)
     .eq("consent_type", CONSENT_TYPE)
+    .eq("report_session_id", reportSessionId)
     .is("revoked_at", null)
     .order("granted_at", { ascending: false })
     .limit(1)
@@ -54,7 +71,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { decision?: string; text_locale?: string };
+  let body: { decision?: string; text_locale?: string; report_session_id?: string };
   try {
     body = await req.json();
   } catch {
@@ -63,11 +80,15 @@ export async function POST(req: NextRequest) {
 
   const decision = body.decision;
   const textLocale = body.text_locale;
+  const reportSessionId = body.report_session_id;
   if (!decision || !VALID_DECISIONS.has(decision)) {
     return NextResponse.json({ error: "Invalid decision" }, { status: 400 });
   }
   if (!textLocale || !VALID_LOCALES.has(textLocale)) {
     return NextResponse.json({ error: "Invalid text_locale" }, { status: 400 });
+  }
+  if (typeof reportSessionId !== "string" || reportSessionId.trim().length === 0) {
+    return NextResponse.json({ error: "Invalid report_session_id" }, { status: 400 });
   }
 
   // Service client to look up active text version (table is RLS-protected
@@ -100,6 +121,7 @@ export async function POST(req: NextRequest) {
       decision,
       text_version_id: version.id,
       text_locale: textLocale,
+      report_session_id: reportSessionId,
       user_agent: userAgent,
       // ip_address intentionally not set in this iteration.
     })

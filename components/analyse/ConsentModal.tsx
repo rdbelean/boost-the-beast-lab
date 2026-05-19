@@ -17,13 +17,17 @@ import { Link } from "@/i18n/navigation";
 import styles from "./ConsentModal.module.css";
 
 interface Props {
+  /** Stripe Checkout Session ID — required so the consent log row can be
+   *  tied to the specific report transaction (DSGVO Art. 9 Abs. 2 lit. a:
+   *  consent is scoped per processing purpose, not user-lifetime). */
+  reportSessionId: string;
   onGranted: () => void;
   onDeclined: () => void;
 }
 
 type Decision = "granted" | "declined";
 
-export default function ConsentModal({ onGranted, onDeclined }: Props) {
+export default function ConsentModal({ reportSessionId, onGranted, onDeclined }: Props) {
   const t = useTranslations("consent_modal");
   const locale = useLocale();
   const [loading, setLoading] = useState<Decision | null>(null);
@@ -36,7 +40,11 @@ export default function ConsentModal({ onGranted, onDeclined }: Props) {
       const res = await fetch("/api/consent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decision, text_locale: locale }),
+        body: JSON.stringify({
+          decision,
+          text_locale: locale,
+          report_session_id: reportSessionId,
+        }),
       });
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);

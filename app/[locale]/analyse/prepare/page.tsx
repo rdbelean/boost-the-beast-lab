@@ -184,15 +184,26 @@ function PrepareContent() {
   }, [sessionId, router]);
 
   // ── GDPR consent gate ────────────────────────────────────────────────────
-  // Runs AFTER paymentChecked === true. Queries /api/consent for the user's
-  // most recent decision: granted → unlock upload UI; declined → redirect to
-  // /analyse (questionnaire); null → show modal.
+  // Runs AFTER paymentChecked === true. Queries /api/consent for THIS
+  // report session (Stripe Checkout Session ID): granted → upload UI;
+  // declined → redirect to /analyse; null → show modal. A new Stripe
+  // purchase produces a new session id, which never matches an existing
+  // row, so the modal re-appears for every new report transaction.
   useEffect(() => {
     if (!paymentChecked) return;
+    // Without a session id we can't scope the consent — the payment-gate
+    // useEffect would have redirected to /kaufen already, so this guard
+    // is a defensive belt-and-braces. Treat as "needs modal" to fail safe.
+    if (!sessionId) {
+      setConsentState("needs_modal");
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/consent");
+        const res = await fetch(
+          `/api/consent?report_session_id=${encodeURIComponent(sessionId)}`,
+        );
         if (!res.ok) {
           // 401 (no session) shouldn't happen post-payment; fail safe by
           // showing the modal anyway.
@@ -206,7 +217,7 @@ function PrepareContent() {
         } else if (data.decision === "declined") {
           setConsentState("declined");
           const qs = new URLSearchParams();
-          if (sessionId) qs.set("session_id", sessionId);
+          qs.set("session_id", sessionId);
           qs.set("product", product);
           router.push(`/analyse?${qs.toString()}`);
         } else {
@@ -566,13 +577,20 @@ function PrepareContent() {
   if (!paymentChecked) return null;
   if (consentState === "checking" || consentState === "declined") return null;
   if (consentState === "needs_modal") {
+    // sessionId presence already enforced in the consent-check useEffect
+    // (no sessionId → setConsentState("needs_modal") was a defensive
+    // path, but we cannot render the modal without an id to log against).
+    // If we get here without a sessionId the modal will POST and the API
+    // will 400, error-banner stays visible — fail safe.
+    if (!sessionId) return null;
     return (
       <ConsentModal
+        reportSessionId={sessionId}
         onGranted={() => setConsentState("granted")}
         onDeclined={() => {
           setConsentState("declined");
           const qs = new URLSearchParams();
-          if (sessionId) qs.set("session_id", sessionId);
+          qs.set("session_id", sessionId);
           qs.set("product", product);
           router.push(`/analyse?${qs.toString()}`);
         }}
