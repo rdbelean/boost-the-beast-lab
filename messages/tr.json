@@ -29,11 +29,19 @@
   "hero": {
     "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
     "headline_1": "Profesyonel sporcuların bildiği şey,",
-    "headline_2": "artık senin için de erişilebilir.",
-    "subtitle": "Profesyonellerin verilerini planlara dönüştüren ekipleri var. Sen şimdiye kadar sadece sayılara sahiptin. Senin değerlerini, günlük yaşamını ve hedeflerini bir plana dönüştürüyoruz, tıpkı profesyonellerinki gibi, sadece sana özel.",
-    "cta_primary": "ANALİZİ BAŞLAT",
-    "cta_secondary": "NASIL ÇALIŞIR",
-    "cta_sample": "ÖRNEK RAPORA BAK",
+    "headline_2": "artık senin için de",
+    "headline_3": "erişilebilir.",
+    "subtitle": "Profesyonellerin verilerini planlara dönüştüren ekipleri var. Sen şimdiye kadar sadece sayılara sahiptin. Senin değerlerini, günlük yaşamını ve hedeflerini bir plana dönüştürüyoruz — tıpkı profesyonellerinki gibi, sadece sana özel.",
+    "cta_primary": "PLANIMI ŞİMDİ AL",
+    "cta_sub": "Önceden kayıt yok. Abonelik yok. Anında PDF indir.",
+    "trust_bar": {
+      "press": "Basında: N-TV · RTL · Men's Health · Bild"
+    },
+    "marco_card": {
+      "name": "Marco Colella",
+      "role": "Bundesliga koçu · FH Potsdam",
+      "credential": "Diplomalı Spor ve Sağlık Eğitmeni"
+    },
     "stats": {
       "questions": "SORU",
       "scores": "SKOR",
@@ -41,6 +49,17 @@
       "evidence_database": "KANITA DAYALI VERİ TABANI"
     },
     "scroll": "KAYDIR"
+  },
+  "trust_bar": {
+    "eyebrow": "BUNDESLIGA YÖNTEMİ · ARTIK YAZILIM OLARAK",
+    "items": {
+      "bundesliga": "BUNDESLIGA",
+      "national_team": "MİLLİ TAKIM",
+      "pro_clubs": "PROFESYONEL KULÜPLER",
+      "experience": "15+ YIL 1:1 KOÇLUK"
+    },
+    "rating_value": "5,0",
+    "rating_meta": "80 doğrulanmış Google değerlendirmesi"
   },
   "founder": {
     "eyebrow": "LAB'IN ARKASINDA",
@@ -96,7 +115,8 @@
         "title": "Kendine bakmak istiyorsun — ama nereden başlayacağını bilmiyorsun.",
         "body": "Fitness uygulamaları sana veri verir. Doktorun sana eşik değerleri verir. Kimse sana şunu söylemez: İŞTE 30 günlük planın — gerçek hayatına göre hazırlanmış."
       }
-    }
+    },
+    "transition": "Bu noktalardan birinde kendini bulduysan — Marco bu sorunu 1.000'den fazla sporcu için çözdü. İşte onun yöntemi."
   },
   "trust": {
     "evidence": {
@@ -118,29 +138,115 @@
   },
   "how": {
     "section_label": "SÜREÇ",
-    "section_title": "NASIL ÇALIŞIR",
+    "section_title": "ANALİZİNE 3 ADIM",
     "steps": {
-      "package": {
-        "tag": "PAKET SEÇ",
-        "title": "PERFORMANS PAKETİN",
-        "text": "Kişiselleştirilmiş optimizasyon ve antrenman planları dahil tam performans raporunu seç — tek seferlik, abonelik yok."
+      "questionnaire": {
+        "tag": "ANKET",
+        "title": "26 soruyu yanıtla (10 dakika)",
+        "text": "Uyku, antrenman, beslenme, stres ve vücut verilerine dair. WHO ve ACSM kılavuzlarına kalibre edilmiş."
       },
-      "signup": {
-        "tag": "KAYIT OL",
-        "title": "HESABINI OLUŞTUR",
-        "text": "E-posta ve şifreyle güvenli hesabını oluştur — raporun kayıtlı kalsın, her zaman erişilebilir olsun."
-      },
-      "protocol": {
-        "tag": "ANALİZ PROTOKOLÜ",
-        "title": "26 BİLİMSEL SORU",
-        "text": "Uyku, antrenman, beslenme, stres ve vücut verilerine dair net sorulara cevap ver — WHO ve ACSM kılavuzlarına kalibre edilmiş."
+      "analysis": {
+        "tag": "ANALİZ",
+        "title": "Yapay zekamız verilerini işliyor (2 dakika)",
+        "text": "10.000+ bilimsel veri noktasıyla karşılaştırma. 5 performans boyutu ayrı ayrı değerlendirilir."
       },
       "report": {
         "tag": "RAPOR",
-        "title": "KİŞİSEL RAPORUN",
-        "text": "Fitness skoru, bireysel analizler ve kişiye özel optimizasyon planları ile performans raporun — anında premium PDF olarak."
+        "title": "Kişisel raporun + 4 plan (3 dakika)",
+        "text": "Kendi dilinde premium PDF. Activity, Nutrition, Recovery, Stress — her 12 haftalık plan sana özel."
+      }
+    },
+    "cta_primary": "PLANIMI ŞİMDİ AL — 39,90 €"
+  },
+  "marco_explanation": {
+    "eyebrow": "NEDEN 39,90 €?",
+    "sub": "Marco'dan direkt ve dürüst.",
+    "body": {
+      "p1": "Dürüst cevap:",
+      "p2": "Benimle 1:1 bir seans 150 €. Bir kişi, bir saat, bir plan.",
+      "p3": "Sorunum şuydu: 1.000 kişiye aynı anda yardım edemem. Ama 1.000 kişinin aynı diyagnostiğe, aynı metodolojiye, aynı yapıya ihtiyacı var.",
+      "p4": "Bu yüzden yöntemimi bir sisteme çevirdik. 60 dakikada yaptığımı sistem 15 dakikada yapıyor — daha hassas, çünkü senin verilerin ve 10.000+ çalışma ile çalışıyor.",
+      "p5": "Fiyat 39,90 € çünkü bu, tek seferlik yazılım maliyetleri. Saat yok. Bekleme odası yok. Bağlılık yok.",
+      "close_b": "Eğer seni ileri taşırsa: ömür boyu sende kalır."
+    },
+    "signature": "— Marco Colella",
+    "anchor": {
+      "pt": "Marco ile 60 dk 1:1: 150 €",
+      "sw": "Yöntemi yazılım olarak: 39,90 € tek seferlik"
+    },
+    "cta": "PLANIMI ŞİMDİ AL"
+  },
+  "substance": {
+    "bridge": "Ama yalnızca güven yetmez. İşte Marco'nun sisteminin arkasındaki içerik.",
+    "eyebrow": "İÇERİK",
+    "headline": "Analizin içinde aslında ne var?",
+    "sub": "Vaatler değil, gerçekler.",
+    "basis": {
+      "header": "TEMEL:",
+      "items": {
+        "1": "10.000+ bilimsel veri noktası",
+        "2": "WHO Health Guidelines (2024)",
+        "3": "ACSM Exercise Prescription Standards",
+        "4": "AASM Sleep Architecture çalışmaları",
+        "5": "IPAQ Activity Scoring (uluslararası onaylı)",
+        "6": "Cooper Institute VO2max standartları",
+        "7": "Hayatından 26 kişisel veri noktası"
+      }
+    },
+    "output": {
+      "header": "BUNDAN ÇIKAN:",
+      "items": {
+        "1": "Kişisel performans skorun (5 boyut)",
+        "2": "Bilimsel sınıflandırma (\"iyi/kötü\" yok)",
+        "3": "12 haftalık Activity planı (seviyene göre)",
+        "4": "12 haftalık Recovery planı (verilerine göre)",
+        "5": "12 haftalık Nutrition planı (metabolizmana göre)",
+        "6": "12 haftalık Stress planı (günlük hayatına göre)",
+        "7": "Master Haftalık Plan (gün gün bağlantılı)",
+        "8": "Premium PDF (sende kalır, süresi dolmaz)"
+      }
+    },
+    "closer": "Marco'nun 15+ yıllık koçluğundan damıtılan yöntem — her zaman kullanabileceğin bir sisteme dönüştürüldü."
+  },
+  "faq": {
+    "eyebrow": "SSS",
+    "headline": "Sıkça sorulan sorular",
+    "items": {
+      "1": {
+        "q": "Bu gerçekten kişiselleştirilmiş mi yoksa sadece bir şablon mu?",
+        "a": "Her rapor, 26 yanıtın temelinde senin için canlı olarak oluşturulur. Şablon yok. Marco'nun koçluğunda her sporcu farklı ele alındı — burada da öyle."
+      },
+      "2": {
+        "q": "Wearable'ım yoksa ne olur?",
+        "a": "Sorun değil. Analiz wearable olmadan da tamamen çalışır. WHOOP, Apple Health, InBody scan vb. varsa skorları daha da netleştiriyoruz. İsteğe bağlı, zorunlu değil."
+      },
+      "3": {
+        "q": "1:1 koçluk yönteminden geliyorsa neden 39,90 €?",
+        "a": "Çünkü 1:1 koçluğu bir yazılım sistemine dönüştürdük. Marco aynı anda 1.000 sporcuyu çalıştıramaz — ama sistemi yapabilir. Saat satmak yerine ölçeklendirme."
+      },
+      "4": {
+        "q": "WHOOP veya Oura gibi uygulamalardan farkınız ne?",
+        "a": "WHOOP ve Oura ölçer. Biz yorumlarız ve sana somut bir plan veririz. Wearable'lar strateji olmadan veri sağlar. Biz strateji sağlarız — wearable verilerin olsun veya olmasın."
+      },
+      "5": {
+        "q": "Rapor kişiden kişiye gerçekten ne kadar farklı olabilir?",
+        "a": "Tamamen. 5 boyutu 10.000'den fazla olası kombinasyonla analiz ediyoruz. Stresli 30 yaşında bir maratoncu, uyku sorunu olan 40 yaşında bir kuvvet sporcusundan farklı bir plan alır."
+      },
+      "6": {
+        "q": "Güncelleme alıyor muyum?",
+        "a": "Evet. Şimdi satın alan, doğrudan wearable entegrasyonlu V2'mizi ücretsiz alır."
+      },
+      "7": {
+        "q": "Hangi dillerde mevcut?",
+        "a": "Almanca, İngilizce, İtalyanca, Türkçe. Her rapor seçtiğin dilde yazılır."
       }
     }
+  },
+  "final_cta": {
+    "headline": "Tahmin etmeyi bırak. Bilmeye başla.",
+    "body": "39,90 €. Tek seferlik, abonelik yok. Anında erişim.",
+    "cta": "PLANIMI ŞİMDİ AL",
+    "micro": "Made for Athletes. Not for Average."
   },
   "products": {
     "section_label": "PAKETİN",
@@ -177,8 +283,8 @@
   "wearable": {
     "optional_badge": "OPSİYONEL · ZORUNLU DEĞİL",
     "section_label": "VERİN. HER DOSYA.",
-    "section_title_1": "DAHA NET SKORLAR.",
-    "section_title_2": "SENİN VERİLERİNLE.",
+    "section_title_1": "VERİN VARSA, ONLARI DAHA HASSAS YAPARIZ.",
+    "section_title_2": "YOKSA DA YİNE ÇALIŞIR.",
     "subtitle_before": "Eksiksiz analiz, ",
     "subtitle_strong": "wearable veya tarama olmadan da",
     "subtitle_after": " mükemmel çalışır. Elinde ne varsa — WHOOP, Apple Health, InBody taraması, DEXA raporu, Garmin CSV, ekran görüntüsü, spor salonu PDF'i — yükle, yapay zekâmız okusun. Skorlar otomatik olarak keskinleşir.",

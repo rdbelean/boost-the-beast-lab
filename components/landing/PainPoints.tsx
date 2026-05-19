@@ -3,15 +3,17 @@ import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 
-// Three pain-cards sit right after the Hero. Copy is provocative-but-specific
-// so the reader nods before the Trust-Section hits them with credentials.
-// Intersection-observer for a staggered reveal matches the rest of the page.
+// Three pain-cards sit right after the trust bar. Copy is provocative-but-
+// specific so the reader nods before the HowItWorks-Section walks them
+// through the mechanism. Intersection-observer for a staggered reveal
+// matches the rest of the page.
 const CARDS = ["1", "2", "3"] as const;
 
 export default function PainPoints() {
   const t = useTranslations("pain_points");
   const headerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<HTMLDivElement[]>([]);
+  const transitionRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     const el = headerRef.current;
@@ -35,6 +37,14 @@ export default function PainPoints() {
       );
       obs.observe(node);
     });
+    const t = transitionRef.current;
+    if (t) {
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) { t.classList.add(styles.visible); obs.disconnect(); } },
+        { threshold: 0.2 },
+      );
+      obs.observe(t);
+    }
   }, []);
 
   return (
@@ -59,6 +69,11 @@ export default function PainPoints() {
             </div>
           ))}
         </div>
+
+        {/* Bridge to FounderMarco/HowItWorks — explicit handoff to authority */}
+        <p ref={transitionRef} className={`${styles.painTransition} ${styles.reveal}`}>
+          {t("transition")}
+        </p>
       </div>
     </section>
   );

@@ -33,11 +33,11 @@ const CASE_STUDIES = [
 // URL is the same across languages.
 const GOOGLE_REVIEWS_URL = "https://g.page/boostthebeast";
 
-const STAR = (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-    <path d="M9 1.5l2.36 4.78 5.27.77-3.82 3.72.9 5.25L9 13.55l-4.71 2.47.9-5.25L1.37 7.05l5.27-.77L9 1.5z" fill="#F5A623" />
-  </svg>
-);
+// Note: the 5-star + reviews-count trust badge has been moved to the
+// global TrustBar section directly under the Hero. Duplicating it here
+// felt redundant and the off-centre badge above a left-aligned headline
+// looked visually disconnected. SocialProof now opens straight into the
+// pro-athlete case studies — Castrop + Aydin are the stronger signal.
 
 export default function SocialProof() {
   const t = useTranslations("social_proof");
@@ -72,19 +72,6 @@ export default function SocialProof() {
     <section className={styles.socialProofSection}>
       <div className={styles.container}>
         <div ref={headerRef} className={`${styles.socialProofHeader} ${styles.reveal}`}>
-          {/* Big trust badge: 5,0★ + 80 reviews + verification source. */}
-          <div className={styles.socialProofBadge}>
-            <div className={styles.socialProofStars} aria-label={t("badge_rating")}>
-              {STAR}{STAR}{STAR}{STAR}{STAR}
-            </div>
-            <div className={styles.socialProofBadgeText}>
-              <span className={styles.socialProofRating}>{t("badge_rating")}</span>
-              <span className={styles.socialProofDot}>·</span>
-              <span className={styles.socialProofReviews}>{t("badge_reviews_count")}</span>
-            </div>
-            <span className={styles.socialProofSource}>{t("badge_source")}</span>
-          </div>
-
           <p className={styles.sectionLabel}>{t("eyebrow")}</p>
           <h2 className={styles.sectionTitle}>{t("headline")}</h2>
           <p className={styles.socialProofDisclaimer}>{t("context_disclaimer")}</p>

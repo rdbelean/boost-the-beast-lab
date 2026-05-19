@@ -29,11 +29,19 @@
   "hero": {
     "eyebrow": "PERFORMANCE INTELLIGENCE SYSTEM",
     "headline_1": "Was Profi-Athleten wissen,",
-    "headline_2": "endlich auch für dich verfügbar.",
-    "subtitle": "Profis haben Teams die ihre Daten in Pläne übersetzen. Du hast bisher nur Zahlen. Wir machen aus deinen Werten, deinem Alltag und deinen Zielen einen Plan, wie bei den Profis, nur für dich.",
-    "cta_primary": "ANALYSE STARTEN",
-    "cta_secondary": "WIE ES FUNKTIONIERT",
-    "cta_sample": "BEISPIELREPORT ANSEHEN",
+    "headline_2": "endlich auch",
+    "headline_3": "für dich verfügbar.",
+    "subtitle": "Profis haben Teams, die ihre Daten in Pläne übersetzen. Du hast bisher nur Zahlen. Wir machen aus deinen Werten, deinem Alltag und deinen Zielen einen Plan, wie bei den Profis, nur für dich.",
+    "cta_primary": "JETZT MEINEN PLAN HOLEN",
+    "cta_sub": "Keine Anmeldung im Voraus. Kein Abo. Sofortiger PDF-Download.",
+    "trust_bar": {
+      "press": "Bekannt aus: N-TV · RTL · Men's Health · Bild"
+    },
+    "marco_card": {
+      "name": "Marco Colella",
+      "role": "Bundesliga-Coach · FH Potsdam",
+      "credential": "Dipl. Sport- & Gesundheitstrainer"
+    },
     "stats": {
       "questions": "FRAGEN",
       "scores": "SCORES",
@@ -41,6 +49,17 @@
       "evidence_database": "EVIDENZBASIERTE DATENBANK"
     },
     "scroll": "SCROLL"
+  },
+  "trust_bar": {
+    "eyebrow": "BUNDESLIGA-METHODE · JETZT ALS SOFTWARE",
+    "items": {
+      "bundesliga": "BUNDESLIGA",
+      "national_team": "NATIONAL-TEAM",
+      "pro_clubs": "PROFI-MANNSCHAFTEN",
+      "experience": "15+ JAHRE 1:1 COACHING"
+    },
+    "rating_value": "5,0",
+    "rating_meta": "80 verifizierte Google-Bewertungen"
   },
   "founder": {
     "eyebrow": "HINTER DEM LAB",
@@ -96,7 +115,8 @@
         "title": "Du willst dich kümmern — aber weißt nicht wo anfangen.",
         "body": "Fitness-Apps geben dir Daten. Dein Arzt gibt dir Grenzwerte. Niemand sagt dir: DAS ist jetzt dein 30-Tage-Plan — genau auf deine Realität zugeschnitten."
       }
-    }
+    },
+    "transition": "Wenn du dich in einem dieser Punkte wiederfindest — Marco hat genau dieses Problem für über 1000 Athleten gelöst. Hier ist seine Methode."
   },
   "trust": {
     "evidence": {
@@ -118,29 +138,115 @@
   },
   "how": {
     "section_label": "DER PROZESS",
-    "section_title": "SO FUNKTIONIERT'S",
+    "section_title": "IN 3 SCHRITTEN ZUR ANALYSE",
     "steps": {
-      "package": {
-        "tag": "PAKET WÄHLEN",
-        "title": "DEIN PERFORMANCE-PAKET",
-        "text": "Wähle deinen vollständigen Performance Report inkl. individueller Optimierungs- & Trainingspläne — einmalig, kein Abo."
+      "questionnaire": {
+        "tag": "FRAGEBOGEN",
+        "title": "26 Fragen beantworten (10 Minuten)",
+        "text": "Zu Schlaf, Training, Ernährung, Stress, Körperdaten. Kalibriert nach WHO & ACSM Richtlinien."
       },
-      "signup": {
-        "tag": "ANMELDEN",
-        "title": "ACCOUNT ERSTELLEN",
-        "text": "Erstelle deinen sicheren Account mit E-Mail & Passwort — damit dein Report dauerhaft gespeichert und jederzeit abrufbar ist."
-      },
-      "protocol": {
-        "tag": "ANALYSE-PROTOKOLL",
-        "title": "26 WISSENSCHAFTLICHE FRAGEN",
-        "text": "Beantworte präzise Fragen zu Schlaf, Training, Ernährung, Stress und Körperdaten — kalibriert nach WHO & ACSM Richtlinien."
+      "analysis": {
+        "tag": "ANALYSE",
+        "title": "Unsere KI analysiert deine Daten (2 Minuten)",
+        "text": "Abgeglichen mit 10.000+ wissenschaftlichen Datenpunkten. 5 Performance-Dimensionen einzeln bewertet."
       },
       "report": {
         "tag": "REPORT",
-        "title": "DEIN PERSONALISIERTER REPORT",
-        "text": "Dein Performance Report mit Fitnessscore, Einzelanalysen und individuellen Optimierungsplänen — sofort als Premium PDF verfügbar."
+        "title": "Dein personalisierter Report + 4 Pläne (3 Minuten)",
+        "text": "Premium PDF in deiner Sprache. Activity, Nutrition, Recovery, Stress — alle 12-Wochen-Pläne auf dich zugeschnitten."
+      }
+    },
+    "cta_primary": "JETZT MEINEN PLAN HOLEN — 39,90 €"
+  },
+  "marco_explanation": {
+    "eyebrow": "WARUM 39,90 €?",
+    "sub": "Direkt und ehrlich von Marco.",
+    "body": {
+      "p1": "Ehrliche Antwort:",
+      "p2": "Eine Session 1:1 mit mir kostet 150 €. Eine Person, eine Stunde, ein Plan.",
+      "p3": "Mein Problem war: Ich kann nicht 1000 Leuten gleichzeitig helfen. Aber 1000 Leute brauchen die gleiche Diagnostik, die gleiche Methodik, die gleiche Struktur.",
+      "p4": "Also haben wir meine Methode in ein System übersetzt. Was ich in 60 Minuten mache, macht das System in 15 Minuten — präziser, weil es mit deinen Daten und 10.000+ Studien arbeitet.",
+      "p5": "Der Preis ist 39,90 € weil es die einmaligen Software-Kosten sind. Keine Stunden. Kein Wartezimmer. Keine Bindung.",
+      "close_b": "Wenn es dich weiterbringt: Du behältst es lebenslang."
+    },
+    "signature": "— Marco Colella",
+    "anchor": {
+      "pt": "60 Min 1:1 mit Marco: 150 €",
+      "sw": "Seine Methode als Software: 39,90 € einmalig"
+    },
+    "cta": "JETZT MEINEN PLAN HOLEN"
+  },
+  "substance": {
+    "bridge": "Aber Vertrauen alleine reicht nicht. Hier ist die Substanz hinter Marcos System.",
+    "eyebrow": "DIE SUBSTANZ",
+    "headline": "Was ist eigentlich in der Analyse drin?",
+    "sub": "Fakten statt Versprechen.",
+    "basis": {
+      "header": "DIE BASIS:",
+      "items": {
+        "1": "10.000+ wissenschaftliche Datenpunkte",
+        "2": "WHO Health Guidelines (2024)",
+        "3": "ACSM Exercise Prescription Standards",
+        "4": "AASM Sleep Architecture Studien",
+        "5": "IPAQ Activity Scoring (international validiert)",
+        "6": "Cooper Institute VO2max Standards",
+        "7": "26 personalisierte Datenpunkte aus deinem Leben"
+      }
+    },
+    "output": {
+      "header": "DARAUS ENTSTEHT:",
+      "items": {
+        "1": "Dein individueller Performance Score (5 Dimensionen)",
+        "2": "Wissenschaftliche Einordnung (kein \"gut/schlecht\")",
+        "3": "12-Wochen Activity Plan (auf dein Level)",
+        "4": "12-Wochen Recovery Plan (auf deine Daten)",
+        "5": "12-Wochen Nutrition Plan (auf deinen Stoffwechsel)",
+        "6": "12-Wochen Stress Plan (auf deinen Alltag)",
+        "7": "Master-Wochenplan (Tag-für-Tag verknüpft)",
+        "8": "Premium PDF (zum Behalten, kein Verfall)"
+      }
+    },
+    "closer": "Marcos Methode aus 15+ Jahren Coaching, übersetzt in ein System, das du jederzeit nutzen kannst."
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "headline": "Häufig gestellte Fragen",
+    "items": {
+      "1": {
+        "q": "Ist das wirklich personalisiert oder nur ein Template?",
+        "a": "Jeder Report wird live für dich generiert basierend auf deinen 26 Antworten. Es gibt keine Templates. Bei Marcos Coaching war jeder Athlet anders behandelt — hier ist es genauso."
+      },
+      "2": {
+        "q": "Was wenn ich keine Wearables habe?",
+        "a": "Kein Problem. Die Analyse funktioniert vollständig ohne Wearables. Wenn du WHOOP, Apple Health, InBody-Scan etc. hast, schärfen wir die Scores noch. Optional, kein Muss."
+      },
+      "3": {
+        "q": "Warum 39,90 € wenn die Methode aus 1:1 Coaching kommt?",
+        "a": "Weil wir aus 1:1 Coaching ein Software-System gemacht haben. Marco kann nicht 1000 Athleten gleichzeitig coachen — aber sein System schon. Skalierung statt Stunden-Verkauf."
+      },
+      "4": {
+        "q": "Was unterscheidet euch von Apps wie WHOOP oder Oura?",
+        "a": "WHOOP und Oura messen. Wir interpretieren und geben dir einen konkreten Plan. Wearables liefern Daten ohne Strategie. Wir liefern Strategie — mit oder ohne deinen Wearable-Daten."
+      },
+      "5": {
+        "q": "Wie unterschiedlich kann der Report wirklich pro Person sein?",
+        "a": "Komplett. Wir analysieren 5 Dimensionen mit über 10.000 möglichen Kombinationen. Ein 30-jähriger Marathonläufer mit Stress bekommt einen anderen Plan als ein 40-jähriger Kraftsportler mit Schlafproblemen."
+      },
+      "6": {
+        "q": "Bekomme ich Updates?",
+        "a": "Ja. Wer jetzt kauft, bekommt unsere V2 mit direkter Wearable-Integration kostenlos."
+      },
+      "7": {
+        "q": "In welchen Sprachen ist das verfügbar?",
+        "a": "Deutsch, Englisch, Italienisch, Türkisch. Alle Reports werden in deiner gewählten Sprache geschrieben."
       }
     }
+  },
+  "final_cta": {
+    "headline": "Hör auf zu raten. Fang an zu wissen.",
+    "body": "39,90 €. Einmalig, kein Abo. Sofortiger Zugang.",
+    "cta": "JETZT MEINEN PLAN HOLEN",
+    "micro": "Made for Athletes. Not for Average."
   },
   "products": {
     "section_label": "DEIN PAKET",
@@ -177,8 +283,8 @@
   "wearable": {
     "optional_badge": "OPTIONAL · KEIN MUSS",
     "section_label": "DEINE DATEN. JEDE DATEI.",
-    "section_title_1": "PRÄZISERE SCORES.",
-    "section_title_2": "MIT DEINEN DATEN.",
+    "section_title_1": "WENN DU DATEN HAST, MACHEN WIR SIE PRÄZISER.",
+    "section_title_2": "WENN NICHT, FUNKTIONIERT ES AUCH SO.",
     "subtitle_before": "Die komplette Analyse funktioniert auch ",
     "subtitle_strong": "ohne Wearable oder Scan",
     "subtitle_after": ". Wer was hat — WHOOP, Apple Health, InBody-Scan, DEXA-Report, Garmin-CSV, Screenshot, Gym-PDF — lädt es hoch und unsere KI liest es aus. Scores werden automatisch geschärft.",

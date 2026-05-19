@@ -1,9 +1,16 @@
 "use client";
-import { Link } from "@/i18n/navigation";
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 
+// Trust-first hero (v2): old 3-line headline restored, single primary CTA,
+// Marco-mini-card to the right on desktop / below on mobile, press-line
+// directly under the CTA, then 4-stat trust bar (2 animated numbers + 2
+// check-icon labels).
+// Note: skip-payment dev button is intentionally omitted on main — it
+// only lives on the prompt-experiment-v1 preview branch alongside the
+// lib/utils/is-vercel-preview helper.
 export default function Hero() {
   const t = useTranslations("hero");
   const statsRef = useRef<HTMLDivElement>(null);
@@ -52,22 +59,43 @@ export default function Hero() {
       <div className={styles.heroGhost} aria-hidden>BEAST</div>
 
       <div className={`${styles.container} ${styles.heroInner}`}>
+        {/* Founder strip — sits at the very top of the hero, centred, so the
+            credibility signal lands before the user reads the headline. */}
+        <aside className={styles.heroFounderStrip} aria-label={t("marco_card.name")}>
+          <div className={styles.heroMarcoAvatar}>
+            <Image
+              src="/marco-portrait.jpg"
+              alt={t("marco_card.name")}
+              width={56}
+              height={56}
+              sizes="56px"
+              style={{ objectFit: "cover", width: "100%", height: "100%" }}
+            />
+          </div>
+          <div className={styles.heroMarcoText}>
+            <p className={styles.heroMarcoName}>{t("marco_card.name")}</p>
+            <p className={styles.heroMarcoRole}>{t("marco_card.role")}</p>
+            <p className={styles.heroMarcoCredential}>{t("marco_card.credential")}</p>
+          </div>
+        </aside>
+
         {/* Eyebrow */}
         <div className={styles.eyebrow}>
           <span className={styles.eyebrowDot} aria-hidden />
           <span className={styles.eyebrowText}>{t("eyebrow")}</span>
         </div>
 
-        {/* Headline */}
+        {/* Headline — 3 lines, third line is the accent payoff */}
         <h1 className={styles.headline}>
           <span className={styles.headlineLine}>{t("headline_1")}</span>
-          <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>{t("headline_2")}</span>
+          <span className={styles.headlineLine}>{t("headline_2")}</span>
+          <span className={`${styles.headlineLine} ${styles.headlineAccent}`}>{t("headline_3")}</span>
         </h1>
 
         {/* Subtitle */}
         <p className={styles.subtitle}>{t("subtitle")}</p>
 
-        {/* CTAs */}
+        {/* Primary CTA — single button, no decision paralysis */}
         <div className={styles.ctaRow}>
           <button
             className={styles.btnPrimary}
@@ -84,15 +112,15 @@ export default function Hero() {
               <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
-          <a href="#how-it-works" className={styles.btnSecondary}>
-            {t("cta_secondary")}
-          </a>
-          <Link href="/beispielreport" className={styles.btnSecondary} style={{ borderColor: "#555", color: "#bbb" }}>
-            {t("cta_sample")}
-          </Link>
         </div>
 
-        {/* Stats */}
+        {/* Trust-Mini-Bar: press logos as text under the CTA */}
+        <p className={styles.trustMiniBar}>{t("trust_bar.press")}</p>
+
+        {/* CTA sub-line — risk-free framing */}
+        <p className={styles.ctaSub}>{t("cta_sub")}</p>
+
+        {/* Stats — 4 trust signals: 2 animated numbers + 2 check-icon labels */}
         <div className={styles.statsBar} ref={statsRef}>
           {stats.map(({ target, label, static: isStatic }) => (
             <div key={label} className={styles.statItem}>

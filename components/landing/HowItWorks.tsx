@@ -3,13 +3,17 @@ import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 
-const STEP_KEYS = ["package", "signup", "protocol", "report"] as const;
+// Three steps (questionnaire → analysis → report). Account-creation is now
+// folded into the questionnaire step — it happens implicitly during the
+// flow and doesn't deserve its own step.
+const STEP_KEYS = ["questionnaire", "analysis", "report"] as const;
 
 export default function HowItWorks() {
   const t = useTranslations("how");
   const wrapRef = useRef<HTMLDivElement>(null);
   const numsRef = useRef<HTMLSpanElement[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     numsRef.current.forEach((el) => {
@@ -31,6 +35,24 @@ export default function HowItWorks() {
     );
     obs.observe(el);
   }, []);
+
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { el.classList.add(styles.visible); obs.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+  }, []);
+
+  function scrollToProducts() {
+    const target = document.getElementById("products");
+    if (target) {
+      const top = window.scrollY + target.getBoundingClientRect().top;
+      window.scrollTo({ top, behavior: "auto" });
+    }
+  }
 
   return (
     <section id="how-it-works" className={styles.howSection}>
@@ -56,6 +78,17 @@ export default function HowItWorks() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* CTA after the 3 steps — drives intent right after the mechanism
+            has been explained. Same scroll-to-products as the hero CTA. */}
+        <div ref={ctaRef} className={`${styles.howCtaRow} ${styles.reveal}`}>
+          <button className={styles.btnPrimary} onClick={scrollToProducts}>
+            {t("cta_primary")}
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         </div>
       </div>
     </section>
