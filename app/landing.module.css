@@ -2207,3 +2207,206 @@
   .finalCtaButton { width: 100%; justify-content: center; padding: 16px 24px; }
 }
 
+/* ─── SAMPLE SHOWCASE (free-download section) ───────────────── */
+.sampleShowcaseSection {
+  padding: 120px 0;
+  background: var(--bg-base);
+  border-top: 1px solid var(--border);
+}
+.sampleShowcaseHeader { margin-bottom: 56px; max-width: 820px; }
+.sampleShowcaseSub {
+  margin-top: 14px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: clamp(14px, 1.5vw, 16px);
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-width: 720px;
+}
+.sampleShowcaseGrid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) 1.1fr;
+  gap: 56px;
+  align-items: center;
+  margin-bottom: 32px;
+}
+@media (max-width: 960px) {
+  .sampleShowcaseGrid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* ── 3D PDF-stack mockup ── */
+.sampleStackMockup {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-width: 380px;
+  margin: 0 auto;
+}
+.sampleStackCard {
+  position: absolute;
+  inset: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sampleStackCardStress    { transform: rotate(-12deg) translate(-44px, 26px); }
+.sampleStackCardRecovery  { transform: rotate(-7deg)  translate(-28px, 14px); }
+.sampleStackCardMetabolic { transform: rotate(-3deg)  translate(-14px, 6px); }
+.sampleStackCardActivity  { transform: rotate(3deg)   translate(14px, 4px); }
+.sampleStackCardMaster    { transform: rotate(8deg)   translate(30px, 18px); }
+.sampleStackCardMain {
+  transform: rotate(0deg) translate(0, -12px);
+  border: 1px solid rgba(230, 50, 34, 0.45);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(230, 50, 34, 0.08);
+  z-index: 6;
+}
+.sampleStackMockup:hover .sampleStackCardStress    { transform: rotate(-15deg) translate(-58px, 32px); }
+.sampleStackMockup:hover .sampleStackCardRecovery  { transform: rotate(-9deg)  translate(-38px, 18px); }
+.sampleStackMockup:hover .sampleStackCardMetabolic { transform: rotate(-4deg)  translate(-20px, 8px); }
+.sampleStackMockup:hover .sampleStackCardActivity  { transform: rotate(4deg)   translate(20px, 6px); }
+.sampleStackMockup:hover .sampleStackCardMaster    { transform: rotate(10deg)  translate(38px, 22px); }
+
+.sampleStackCardInner {
+  padding: 24px 22px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sampleStackCardBar {
+  width: 56px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+}
+.sampleStackCardBarAccent { background: var(--accent); width: 38px; height: 3px; }
+.sampleStackCardLines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+.sampleStackCardLines span {
+  display: block;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+.sampleStackCardLines span:nth-child(1) { width: 78%; }
+.sampleStackCardLines span:nth-child(2) { width: 60%; }
+.sampleStackCardLines span:nth-child(3) { width: 70%; }
+.sampleStackCardLines span:nth-child(4) { width: 45%; }
+
+.sampleStackCoverEyebrow {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.sampleStackCoverTitle {
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1.2;
+  margin-top: 2px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 540px) {
+  .sampleStackMockup { aspect-ratio: 5 / 5; max-width: 320px; }
+  .sampleStackCardStress    { transform: rotate(-9deg)  translate(-30px, 18px); }
+  .sampleStackCardRecovery  { transform: rotate(-5deg)  translate(-18px, 10px); }
+  .sampleStackCardMetabolic { transform: rotate(-2deg)  translate(-8px, 4px); }
+  .sampleStackCardActivity  { transform: rotate(2deg)   translate(8px, 2px); }
+  .sampleStackCardMaster    { transform: rotate(5deg)   translate(20px, 12px); }
+  .sampleStackCardMain      { transform: rotate(0deg)   translate(0, -8px); }
+}
+
+/* ── Download tile grid ── */
+.sampleDownloadGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (max-width: 540px) {
+  .sampleDownloadGrid { grid-template-columns: 1fr; }
+}
+.sampleDownloadTile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+.sampleDownloadTile:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  background: rgba(230, 50, 34, 0.04);
+}
+.sampleDownloadTileMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sampleDownloadTileTitle {
+  font-family: var(--font-oswald), sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1.25;
+}
+.sampleDownloadTileSub {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.sampleDownloadTileIcon {
+  flex-shrink: 0;
+  color: var(--accent);
+  transition: transform 0.2s ease;
+}
+.sampleDownloadTile:hover .sampleDownloadTileIcon {
+  transform: translateY(2px);
+}
+
+/* ── Secondary text link ── */
+.sampleViewOnlineCta {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.sampleViewOnlineCta:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .sampleShowcaseSection { padding: 72px 0; }
+  .sampleShowcaseHeader { margin-bottom: 36px; }
+}
+

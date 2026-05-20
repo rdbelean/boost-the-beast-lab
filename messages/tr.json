@@ -1102,6 +1102,25 @@
     "policy_link": "Çerez politikası",
     "dismiss": "Anladım"
   },
+  "sample_showcase": {
+    "eyebrow": "ÖRNEK RAPOR — ANINDA İNDİR",
+    "headline": "Tam olarak ne aldığını gör.",
+    "sub": "İndirilebilir tam PDF'ler — ana rapor, Master Haftalık Plan ve 4 bireysel plan. Gerçek içerik, gerçek özsuyu. Anında erişilebilir, kayıt yok.",
+    "items": {
+      "main":      { "title": "Ana Rapor",            "sub": "Performans analizi · 5 boyut" },
+      "master":    { "title": "Master Haftalık Plan", "sub": "7 günlük yapı · gün gün" },
+      "activity":  { "title": "Activity Planı",       "sub": "12 haftalık program" },
+      "metabolic": { "title": "Metabolic Planı",      "sub": "Metabolizma + beslenme" },
+      "recovery":  { "title": "Recovery Planı",       "sub": "Uyku + toparlanma" },
+      "stress":    { "title": "Stress Planı",         "sub": "Yaşam tarzı + mental performans" }
+    },
+    "button_action": "PDF indir",
+    "view_online_cta": "Tam örnek raporu çevrimiçi görüntüle →",
+    "mockup": {
+      "main_report_title": "PERFORMANCE REPORT",
+      "main_report_sub": "ÖRNEK"
+    }
+  },
   "sample": {
     "unlock_to_see": "Tam versiyonda",
     "unlock_hint": "Tam versiyonda mevcut",

@@ -1097,6 +1097,25 @@
     "policy_link": "Cookie Policy",
     "dismiss": "Capito"
   },
+  "sample_showcase": {
+    "eyebrow": "REPORT DI ESEMPIO — SCARICA SUBITO",
+    "headline": "Guarda esattamente cosa ricevi.",
+    "sub": "PDF completi da scaricare — report principale, piano master settimanale e 4 piani individuali. Contenuti reali, sostanza reale. Disponibili subito, senza registrazione.",
+    "items": {
+      "main":      { "title": "Report Principale",      "sub": "Analisi della performance · 5 dimensioni" },
+      "master":    { "title": "Piano Master Settimanale", "sub": "Struttura 7 giorni · giorno per giorno" },
+      "activity":  { "title": "Piano Activity",         "sub": "Programma di 12 settimane" },
+      "metabolic": { "title": "Piano Metabolic",        "sub": "Metabolismo + alimentazione" },
+      "recovery":  { "title": "Piano Recovery",         "sub": "Sonno + rigenerazione" },
+      "stress":    { "title": "Piano Stress",           "sub": "Lifestyle + performance mentale" }
+    },
+    "button_action": "Scarica PDF",
+    "view_online_cta": "Vedi il report di esempio completo online →",
+    "mockup": {
+      "main_report_title": "PERFORMANCE REPORT",
+      "main_report_sub": "ESEMPIO"
+    }
+  },
   "sample": {
     "unlock_to_see": "Nella versione completa",
     "unlock_hint": "Disponibile nella versione completa",

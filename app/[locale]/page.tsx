@@ -9,6 +9,7 @@ import FounderMarco from "@/components/landing/FounderMarco";
 import SocialProof from "@/components/landing/SocialProof";
 import MarcoExplanation from "@/components/landing/MarcoExplanation";
 import Substance from "@/components/landing/Substance";
+import SampleShowcase from "@/components/landing/SampleShowcase";
 import WearableSync from "@/components/landing/WearableSync";
 import Products from "@/components/landing/Products";
 import FAQ from "@/components/landing/FAQ";
@@ -23,6 +24,7 @@ import FinalCTA from "@/components/landing/FinalCTA";
 //   SocialProof        — Castrop/Aydin case studies
 //   MarcoExplanation   — personal letter ("Why €39.90?")
 //   Substance          — "What's actually in it" facts
+//   SampleShowcase     — free sample-report downloads (6 PDFs)
 //   WearableSync       — data depth argument
 //   Products           — the offer + anchor pricing
 //   FAQ                — 7 objection-busting questions
@@ -51,6 +53,7 @@ export default function HomePage() {
         <SocialProof />
         <MarcoExplanation />
         <Substance />
+        <SampleShowcase />
         <WearableSync />
         <Products />
         <FAQ />

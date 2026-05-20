@@ -1102,6 +1102,25 @@
     "policy_link": "Cookie Policy",
     "dismiss": "Got it"
   },
+  "sample_showcase": {
+    "eyebrow": "SAMPLE REPORT — DOWNLOAD INSTANTLY",
+    "headline": "See exactly what you get.",
+    "sub": "Full PDFs to download — main report, master weekly plan, and 4 individual plans. Real content, real substance. Available instantly, no signup.",
+    "items": {
+      "main":      { "title": "Main Report",        "sub": "Performance analysis · 5 dimensions" },
+      "master":    { "title": "Master Weekly Plan", "sub": "7-day structure · day-by-day" },
+      "activity":  { "title": "Activity Plan",      "sub": "12-week programme" },
+      "metabolic": { "title": "Metabolic Plan",     "sub": "Metabolism + nutrition" },
+      "recovery":  { "title": "Recovery Plan",      "sub": "Sleep + regeneration" },
+      "stress":    { "title": "Stress Plan",        "sub": "Lifestyle + mental performance" }
+    },
+    "button_action": "Download PDF",
+    "view_online_cta": "View the full sample report online →",
+    "mockup": {
+      "main_report_title": "PERFORMANCE REPORT",
+      "main_report_sub": "SAMPLE"
+    }
+  },
   "sample": {
     "unlock_to_see": "In full version",
     "unlock_hint": "Available in full version",

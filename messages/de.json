@@ -1102,6 +1102,25 @@
     "policy_link": "Cookie-Richtlinie",
     "dismiss": "Verstanden"
   },
+  "sample_showcase": {
+    "eyebrow": "BEISPIELREPORT — SOFORT ZUM RUNTERLADEN",
+    "headline": "Schau dir an, was du bekommst.",
+    "sub": "Vollständige PDFs zum Download — Hauptreport, Master-Wochenplan und 4 individuelle Pläne. Echte Inhalte, echte Substanz. Direkt verfügbar, ohne Anmeldung.",
+    "items": {
+      "main":      { "title": "Hauptreport",       "sub": "Performance-Analyse · 5 Dimensionen" },
+      "master":    { "title": "Master-Wochenplan", "sub": "7-Tage-Struktur · Tag-für-Tag" },
+      "activity":  { "title": "Activity-Plan",     "sub": "12-Wochen-Programm" },
+      "metabolic": { "title": "Metabolic-Plan",    "sub": "Stoffwechsel + Ernährung" },
+      "recovery":  { "title": "Recovery-Plan",     "sub": "Schlaf + Regeneration" },
+      "stress":    { "title": "Stress-Plan",       "sub": "Lifestyle + Mental Performance" }
+    },
+    "button_action": "PDF herunterladen",
+    "view_online_cta": "Beispielreport komplett online ansehen →",
+    "mockup": {
+      "main_report_title": "PERFORMANCE REPORT",
+      "main_report_sub": "BEISPIEL"
+    }
+  },
   "sample": {
     "unlock_to_see": "In der Vollversion",
     "unlock_hint": "In der Vollversion verfügbar",

@@ -1,7 +1,7 @@
 // Master-plan PDF generator. Hard 2-page limit: cover + intro/table on page 2.
 // Overflow detection returns a marker so the caller's retry loop can re-prompt.
 
-import { PDFDocument, rgb, type PDFPage, type PDFFont, type Color } from "pdf-lib";
+import { PDFDocument, rgb, degrees, type PDFPage, type PDFFont, type Color } from "pdf-lib";
 import { embedLocaleFonts } from "./fonts";
 import { LOGO_WHITE_PNG_BASE64 } from "./logo";
 import type { MasterPlan } from "@/lib/master-plan/schema";
@@ -9,6 +9,9 @@ import type { MasterPlan } from "@/lib/master-plan/schema";
 export interface MasterPlanPdfInput {
   plan: MasterPlan;
   locale?: string;
+  /** Adds diagonal "BEISPIEL"/"SAMPLE" watermark on every page. Used by
+   *  the sample-report download API; production users never get this. */
+  isSample?: boolean;
 }
 
 export interface MasterPlanPdfResult {
@@ -394,6 +397,13 @@ function drawContentPage(
   return false;
 }
 
+const SAMPLE_WATERMARK: Record<string, string> = {
+  de: "BEISPIEL",
+  en: "SAMPLE",
+  it: "ESEMPIO",
+  tr: "ÖRNEK",
+};
+
 export async function generateMasterPlanPDF(input: MasterPlanPdfInput): Promise<MasterPlanPdfResult> {
   const locale = input.locale ?? "de";
   const accent = hexToRgb(input.plan.color || ACCENT_HEX);
@@ -408,6 +418,27 @@ export async function generateMasterPlanPDF(input: MasterPlanPdfInput): Promise<
   // Page 2: Intro + table (HARD: no page 3 ever)
   const contentPage = doc.addPage([PW, PH]);
   const overflowed = drawContentPage(contentPage, input.plan, f, accent, locale);
+
+  // Sample watermark — diagonal "BEISPIEL" on every page, very low
+  // opacity so it doesn't interfere with the actual content. Mirrors the
+  // pattern from generatePlan.ts and generateReport.ts.
+  if (input.isSample) {
+    const text = SAMPLE_WATERMARK[locale] ?? "BEISPIEL";
+    const size = 96;
+    const tw = f.bold.widthOfTextAtSize(text, size);
+    for (const page of doc.getPages()) {
+      const { width, height } = page.getSize();
+      page.drawText(text, {
+        x: width / 2 - tw / 2,
+        y: height / 2 - size / 2,
+        size,
+        font: f.bold,
+        color: rgb(1, 1, 1),
+        opacity: 0.07,
+        rotate: degrees(45),
+      });
+    }
+  }
 
   const bytes = await doc.save();
   return { bytes, overflowed };
