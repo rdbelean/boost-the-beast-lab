@@ -198,6 +198,80 @@ describe("enforceGlossaryAndExamples — Glossar-Inject", () => {
   });
 });
 
+// ─── 1b. Phase-2a Bug-Klassen Regression ─────────────────────────────
+
+describe("Phase-2a glossary bug fixes", () => {
+  // Klasse 3 — Zone 4 fehlte im Glossar → "Zone 3/4" bekam Zone-3-Erklärung
+  // doppelt/falsch. Standalone "Zone 4" / "Z4" muss jetzt eine EIGENE,
+  // korrekte Erklärung bekommen.
+  it("klasse-3: standalone Zone 4 and Z4 get their own correct explanation (de)", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [
+        { heading: "Test", items: ["Vermeide Zone 4 im Grundlagentraining."] },
+        { heading: "Intervalle", items: ["Halte Z4 kurz und kontrolliert."] },
+      ],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    expect(out.blocks[0].items[0]).toContain("Zone 4 (hartes Tempo");
+    expect(out.blocks[1].items[0]).toContain("Z4 (Zone 4 — hartes Tempo");
+  });
+
+  it("klasse-3: Zone 4 entry exists in all 4 locales", async () => {
+    const { PLAN_GLOSSARY } = await import("@/lib/plan/glossary");
+    for (const loc of ["de", "en", "it", "tr"] as const) {
+      expect(PLAN_GLOSSARY[loc]["Zone 4"]).toBeTruthy();
+      expect(PLAN_GLOSSARY[loc]["Z4"]).toBeTruthy();
+    }
+  });
+
+  // Klasse 2 — Score-Regex schluckte ein öffnendes "(" → verwaistes ")".
+  // "Stress-Score (30/100, hoch)" darf KEINE verwaiste ")" hinterlassen.
+  it("klasse-2: score-replace leaves no orphan closing paren", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{ heading: "Status", items: ["Dein Stress-Score (30/100, hoch) ist limitierend."] }],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    const item = out.blocks[0].items[0];
+    expect(item).toContain("Stress-Niveau");
+    expect(item).not.toMatch(/\d+\s*\/\s*100/);
+    // No orphan ")" — every ")" must have a matching "("
+    let depth = 0;
+    for (const ch of item) {
+      if (ch === "(") depth++;
+      else if (ch === ")") depth--;
+      expect(depth).toBeGreaterThanOrEqual(0);
+    }
+    expect(depth).toBe(0);
+  });
+
+  // Klasse 4 — wenn die KI bereits "TERM (...)" schreibt, darf ein späteres
+  // nacktes Vorkommen NICHT erneut injiziert werden (Dedup-Lücke).
+  it("klasse-4: AI-pre-explained term is not re-injected on a later naked occurrence", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [
+        { heading: "Block 1", items: ["NEAT (Alltagsbewegung außerhalb vom Training — Treppen, Laufen, Stehen) ist zentral."] },
+        { heading: "Block 2", items: ["NEAT verbessert deinen Gesamtumsatz."] },
+      ],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    const allText = out.blocks.flatMap((b) => b.items).join(" ");
+    const matches = allText.match(/NEAT \(Alltagsbewegung/g) || [];
+    expect(matches.length).toBe(1);
+  });
+
+  // Klasse 1 — dash-lose AI-Dubletten "TERM (TERM ...)" und Doppel-Klammern
+  // müssen kollabieren; finaler Output balanciert.
+  it("klasse-1: collapses dash-less AI-pre-injected duplicate (Zone 2)", () => {
+    const plan: { blocks: PlanBlock[] } = {
+      blocks: [{ heading: "Test", items: ["Trainiere Zone 2 (Zone 2 Tempo bei dem du noch sprechen kannst)."] }],
+    };
+    const out = enforceGlossaryAndExamples(plan, "de");
+    const item = out.blocks[0].items[0];
+    expect(item).not.toMatch(/Zone 2 \(Zone 2/);
+    expect(item).toContain("Zone 2 (Tempo bei dem du noch sprechen kannst)");
+  });
+});
+
 // ─── 1c. Recovery-Prompt cleanliness (no Stress-Plan-Bleed) ──────────
 
 describe("Recovery prompt — Stress-Plan-Bleed cleanliness", () => {

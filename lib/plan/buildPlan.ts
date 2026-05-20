@@ -437,8 +437,17 @@ function escapeRegex(s: string): string {
 
 // Score-Reference-Phrasen (alle 4 Locales). Matchen Score-Namen
 // gefolgt von Verben/Wörtern und einer Score-Zahl wie "58/100".
+//
+// PARENS-Variante zuerst: fängt einen KLAMMER-eingebetteten Score
+// ("Stress-Score (30/100, hoch)") inklusive der schließenden Klammer, sonst
+// schluckt die Bare-Variante nur das öffnende "(" und hinterlässt ein
+// verwaistes ")". Die Gaps nutzen [^()] statt [\s\S], damit ein Match nie
+// über eine Klammer-Grenze hinweg greift.
+const SCORE_REFERENCE_PARENS =
+  /\b(Activity|Metabolic|Metabolik|Metabolico|Recovery|Stress)\b[^()]{0,30}?\b(Score|Punkt|skor)\b\s*\([^)]*\b\d+\s*\/\s*100\b[^)]*\)/gi;
+
 const SCORE_REFERENCE_PATTERN =
-  /\b(Activity|Metabolic|Metabolik|Metabolico|Recovery|Stress)\b[\s\S]{0,30}?\b(Score|Punkt|skor)\b[\s\S]{0,30}?\b\d+\s*\/\s*100\b/gi;
+  /\b(Activity|Metabolic|Metabolik|Metabolico|Recovery|Stress)\b[^()]{0,30}?\b(Score|Punkt|skor)\b[^()]{0,30}?\b\d+\s*\/\s*100\b/gi;
 
 const SCORE_NAME_ONLY = /\b(Activity|Metabolic|Recovery|Stress)\s+Score\b/gi;
 
@@ -473,14 +482,17 @@ const SCORE_REPLACEMENT_BY_LOCALE: Record<Locale, Record<string, string>> = {
 /** Score-Reference-Replace läuft auf WHOLE text (auch inside parens). */
 function applyScoreReplaces(text: string, locale: Locale): string {
   let out = text;
-  out = out.replace(SCORE_REFERENCE_PATTERN, (m) => {
+  const replaceByDim = (m: string): string => {
     for (const dim of ["Activity", "Metabolic", "Recovery", "Stress"] as const) {
       if (new RegExp(`\\b${dim}\\b`, "i").test(m)) {
         return SCORE_REPLACEMENT_BY_LOCALE[locale][dim];
       }
     }
     return m;
-  });
+  };
+  // Parens-Variante zuerst (verschluckt die ganze Klammer), dann Bare.
+  out = out.replace(SCORE_REFERENCE_PARENS, replaceByDim);
+  out = out.replace(SCORE_REFERENCE_PATTERN, replaceByDim);
   out = out.replace(SCORE_NAME_ONLY, (_m, p1: string) => {
     const dim = p1.charAt(0).toUpperCase() + p1.slice(1).toLowerCase();
     return SCORE_REPLACEMENT_BY_LOCALE[locale][dim] ?? p1;
@@ -532,8 +544,12 @@ function transformPlanText(
   // Läuft VOR dem Heading-Gate (Defense in Depth — falls Haiku das mal in
   // einem Heading produziert, würde es dort auch kollabieren).
   for (const term of Object.keys(glossary)) {
+    // Klasse-1-Fix: Separator zwischen dem duplizierten Term und der Erklärung
+    // ist OPTIONAL (Haiku schreibt mal "Zone 2 (Zone 2 — …)", mal ohne Dash
+    // "Zone 2 (Zone 2 …)" oder mit Doppelpunkt). `(?![\w])` verhindert, dass
+    // der innere Term ein längeres Token anschneidet ("Zone 2014").
     const dupePattern = new RegExp(
-      `\\b${escapeRegex(term)}\\s+\\(${escapeRegex(term)}\\s*[-—–]\\s*([^)]+)\\)`,
+      `\\b${escapeRegex(term)}\\s+\\(${escapeRegex(term)}(?![\\w])\\s*[-—–:]?\\s*([^)]+)\\)`,
       "g",
     );
     out = out.replace(dupePattern, `${term} ($1)`);
@@ -548,6 +564,19 @@ function transformPlanText(
   // 4. Glossar-Replace: pro Term FIRST outside-parens match expandieren
   // Sortiere nach Begriff-Länge desc — "Zone 2" (6) wird vor "Z2" (2) geprüft.
   const terms = Object.keys(glossary).sort((a, b) => b.length - a.length);
+
+  // Klasse-4-Fix (Dedup-Lücke): Begriffe, die die KI bereits selbst mit einer
+  // Klammer erklärt hat ("NEAT (…)"), als erledigt markieren. Sonst überspringt
+  // der Lookahead `(?!\s*\()` zwar das beklammerte Vorkommen, registriert den
+  // Term aber nicht — und ein späteres NACKTES Vorkommen (auch in einem anderen
+  // Block, da `expandedTerms` plan-weit geteilt wird) würde erneut injiziert.
+  for (const term of terms) {
+    if (expandedTerms.has(term)) continue;
+    const alreadyExplained = new RegExp(
+      `(?<![\\w-])${escapeRegex(term)}(?![\\w-])\\s*\\(`,
+    );
+    if (alreadyExplained.test(out)) expandedTerms.add(term);
+  }
 
   for (const term of terms) {
     if (expandedTerms.has(term)) continue;
