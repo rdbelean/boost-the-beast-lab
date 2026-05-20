@@ -1,0 +1,793 @@
+{
+  "locale": "de",
+  "assessmentId": "2f6c804f-9cba-4979-bfd3-cf44cfe54a4b",
+  "generatedAt": "2026-05-20T14:57:30.936Z",
+  "results": {
+    "assessmentId": "2f6c804f-9cba-4979-bfd3-cf44cfe54a4b",
+    "locale": "de",
+    "scores": {
+      "activity": {
+        "walking_met": 413,
+        "moderate_met": 400,
+        "vigorous_met": 0,
+        "total_met_minutes_week": 813,
+        "activity_category": "MODERATE",
+        "activity_score_0_100": 43,
+        "activity_band": "moderate",
+        "sitting_risk_flag": "critical",
+        "activity_source": "whoop"
+      },
+      "sleep": {
+        "sleep_duration_score": 55,
+        "sleep_quality_score": 80,
+        "wakeup_score": 38,
+        "recovery_score": 50,
+        "sleep_score_0_100": 60,
+        "sleep_band": "moderate",
+        "sleep_duration_band": "kurz",
+        "sleep_consistency_flag": false,
+        "sleep_duration_source": "whoop",
+        "sleep_efficiency_source": "whoop"
+      },
+      "stress": {
+        "stress_score_0_100": 30,
+        "stress_band": "high",
+        "chronic_stress_risk": false,
+        "hpa_axis_risk": false,
+        "sleep_buffer": 0,
+        "recovery_buffer": 0
+      },
+      "recovery": {
+        "base_recovery_0_100": 54,
+        "sleep_multiplier": 0.82,
+        "stress_multiplier": 0.87,
+        "recovery_score_0_100": 38,
+        "recovery_band": "low",
+        "overtraining_risk": false,
+        "sleep_impact": "moderate",
+        "stress_impact": "moderate",
+        "recovery_source": "whoop"
+      },
+      "metabolic": {
+        "bmi": 26.3,
+        "bmi_category": "overweight",
+        "metabolic_score_0_100": 57,
+        "metabolic_band": "moderate",
+        "bmi_disclaimer_needed": true,
+        "sitting_hours": 9,
+        "body_type_self_assessment": "male_2",
+        "body_composition_flag": "bmi_reflects_overweight",
+        "body_composition_note": "BMI and self-assessment align — overweight",
+        "bmi_penalty_modifier_applied": 0,
+        "metabolic_score_bonus_applied": 0
+      },
+      "vo2max": {
+        "bmi": 26.3,
+        "vo2max_estimated": 36.1,
+        "vo2max_band": "Fair",
+        "fitness_level_band": "Fair",
+        "fitness_score_0_100": 50,
+        "vo2max_source": "self_report"
+      },
+      "overall_score_0_100": 50,
+      "overall_band": "moderate",
+      "top_priority_module": "stress",
+      "systemic_warnings": {
+        "overtraining_risk": false,
+        "chronic_stress_risk": false,
+        "hpa_axis_risk": false,
+        "sleep_consistency_flag": false,
+        "sitting_critical": true,
+        "sitting_elevated": false,
+        "bmi_disclaimer_needed": true
+      },
+      "interpretation": {
+        "sleep": {
+          "finding": "Dein Schlaf liegt im unteren Normalbereich — ausreichend, um den Tag zu bewältigen, aber nicht ausreichend, um vollständige Regeneration und metabolische Stabilität zu gewährleisten. Mindestens ein Teilbereich (Dauer, Qualität oder Kontinuität) zieht den Gesamtscore.",
+          "metabolic_link": "Grenzwertige Schlafdauer (6–7h) ist in Meta-Analysen mit erhöhter Insulinresistenz und Übergewichts-Risiko assoziiert. Die metabolische Reserve ist schmaler als sie sich anfühlt.",
+          "recovery_link": "Du erreichst N3 zwar, aber fragmentiert. Das reduziert die kumulative Wachstumshormon-Ausschüttung und damit die verfügbare Regeneration zwischen Trainingsreizen.",
+          "recommendation": "Identifiziere den schwächsten Einzelfaktor (Dauer vs. Qualität vs. Durchschlafen) und arbeite dort gezielt — meist Schlafhygiene-Basics: feste Zeiten, dunkler kühler Raum, kein Blaulicht 60 Min vor dem Einschlafen.",
+          "study_basis": [
+            "NSF/AASM Consensus — Watson et al. (2015)",
+            "Frontiers Medicine Umbrella Review (2021) — 85 Meta-Analysen",
+            "Kalkanis et al. Sleep Medicine Reviews (2025) — Schlafregelmäßigkeit"
+          ]
+        },
+        "recovery": {
+          "finding": "Deine Erholung hinkt der Trainingslast hinterher. Du trainierst oberhalb deiner aktuellen Regenerationskapazität — Adaptation findet noch statt, aber mit abnehmender Effizienz.",
+          "overtraining_context": "Das ist funktionales Overreaching, noch reversibel. Ohne Entlastung in den kommenden 1–2 Wochen kippt es jedoch in einen Zustand, in dem Leistung stagniert oder zurückgeht.",
+          "sleep_stress_dependency": "Sleep- und Stress-Multiplier ziehen den Recovery-Score sichtbar. Das bedeutet: Dein Training ist möglicherweise nicht zu viel — deine Erholungs-Umgebung ist zu dünn.",
+          "recommendation": "Eine Deload-Woche (Volumen −40%, Intensität stabil) einlegen. Parallel den schwächeren Governor (Schlaf oder Stress) gezielt adressieren — der eine Hebel wirkt auf beides.",
+          "study_basis": [
+            "PMC OTS Review (2025)",
+            "HRV Narrative Review MDPI (2024)",
+            "PRS Scale IJSPP (2022) — Perceived Recovery Status"
+          ]
+        },
+        "activity": {
+          "finding": "Du erreichst die WHO-Mindestempfehlung. Dein Aktivitätsprofil liefert substanzielle gesundheitliche Vorteile — aber du liegst im unteren bis mittleren Bereich der Kurve, in der zusätzliche Aktivität noch spürbare zusätzliche Effekte bringt.",
+          "mortality_context": "Im Bereich 150–300 Min/Woche moderate Aktivität zeigt die AHA-Evidenz eine Mortalitätsreduktion um 20–21%. Die AMA-Longevity-Analyse (2024) ergänzt: 150–299 Min/Woche intensiv = 21–23% Reduktion Gesamtmortalität und 27–33% Reduktion CVD-Mortalität. Zwei- bis viermal mehr Aktivität bringt nochmal zusätzliche Risikoreduktion.",
+          "recommendation": "Strukturiere Intensität statt nur Volumen: 1–2× pro Woche gezielt intensive Einheiten (z.B. 4×4 Min Intervalle) ergänzen — das verschiebt dich in die Zone mit dem steilsten zusätzlichen Gesundheitsgewinn.",
+          "study_basis": [
+            "WHO Physical Activity Guidelines (2020, 2024)",
+            "AHA Circulation Study (2022)",
+            "AMA Longevity Study (2024)",
+            "IPAQ Meta-Analysis (Cambridge Core)"
+          ]
+        },
+        "metabolic": {
+          "finding": "Dein metabolisches Profil ist mittelgut — keine akuten Risikomarker, aber auch keine Reserve. Einzelne Faktoren (typischerweise Sitzzeit oder Hydration) ziehen den Score, während andere bereits solide sind.",
+          "bmi_disclaimer": "BMI ist ein populationsbasierter Schätzer, kein individueller Gesundheitsmarker. Bei überdurchschnittlicher Muskelmasse überschätzt der BMI das metabolische Risiko — ein Leistungssportler kann mit BMI 28 vollkommen metabolisch gesund sein.",
+          "sitting_note": "Sitzzeit ist laut AHA Science Advisory ein unabhängiger CVD-Risikofaktor, der sich NICHT vollständig durch Sport kompensieren lässt. Frontiers (2022) verknüpft >6h Sitzen/Tag mit erhöhtem Risiko für 12 chronische Erkrankungen.",
+          "recommendation": "Identifiziere den schwächsten Einzelfaktor aus BMI, Sitzzeit, Wasser, Mahlzeiten-Rhythmus oder Obst/Gemüse. Meist bringt ein fokussierter Angriff auf diesen einen Faktor über 4 Wochen den größten Sprung.",
+          "study_basis": [
+            "JAMA Network Open Meal Timing Meta-Analysis (2024)",
+            "PMC Eating Frequency Meta-Analysis (2023)",
+            "Frontiers Sedentary & CVD (2022)"
+          ]
+        },
+        "stress": {
+          "finding": "Dein Stress-Level liegt hoch. Subjektive Belastung und unzureichender Erholungs-Puffer erzeugen allostatische Last — dein Körper zahlt laufend die 'Kosten der Anpassung' (Allostatic Load Modell).",
+          "systemic_impact": "In diesem Bereich beginnen die sekundären Effekte sichtbar zu werden: Schlafqualität leidet, Recovery wird gedeckelt, Testosteron-Regeneration ist gebremst, viszerale Fetteinlagerung wird begünstigt. Das Burnout-Risiko steigt, wenn der Zustand länger als 4–6 Wochen anhält.",
+          "recommendation": "Zwei evidenzbasierte Hebel parallel: (1) strukturierte Downregulation (10 Min Box-Breathing 4-4-4-4 oder Meditation zweimal täglich), (2) Schlaf-Priorität (feste Zeiten, 7,5+ h Ziel). Entspannungsverfahren und Mindfulness zeigen in Meta-Analysen praktisch identische Cortisol-senkende Wirkung.",
+          "study_basis": [
+            "Frontiers Allostatic Load (2025)",
+            "PMC Immunology of Stress JCM (2024)",
+            "Psychoneuroendocrinology Meta-Analysis (2024)",
+            "Regensburg Burnout Project"
+          ]
+        },
+        "vo2max": {
+          "finding": "Deine geschätzte VO2max liegt im durchschnittlichen Bereich für dein Alter und Geschlecht. Solide Basis, aber noch Spielraum nach oben — besonders wenn du jünger bist.",
+          "fitness_context": "In diesem Band sind die gesundheitlichen Grundvorteile gegeben, der weitere Gewinn an Lebenserwartung pro zusätzlichem Punkt ist aber noch spürbar — oberhalb dieses Bereichs flacht die Kurve langsam ab.",
+          "activity_link": "Aktivitätsvolumen ist wahrscheinlich im moderaten Bereich. Der nächste Hebel liegt in der Intensitäts-Progression, nicht nur im Volumen.",
+          "recommendation": "Gezielte VO2max-Intervalle 1× pro Woche: Norwegian 4×4 (4 Min bei 90–95% HFmax, 3 Min aktive Pause) — eines der am besten untersuchten Protokolle für VO2max-Steigerung.",
+          "study_basis": [
+            "Cooper Institute VO2max Norms",
+            "ACSM Guidelines"
+          ]
+        },
+        "bmi_context": "BMI 25–29,9 — laut WHO übergewichtig. Wichtig: Bei überdurchschnittlicher Muskelmasse (Kraftsport, Kampfsport) überschätzt der BMI hier das Risiko systematisch. Tailoring via Körperfett-Messung ist aussagekräftiger als BMI allein.",
+        "sitting_flag": {
+          "flag": "critical",
+          "text": "Deine Sitzzeit liegt über 8 Stunden pro Tag. Frontiers (2022) dokumentiert bei dieser Schwelle ein erhöhtes Risiko für 12 chronische Erkrankungen. Die AHA Science Advisory klassifiziert Sitzzeit als unabhängigen CVD-Risikofaktor — dein Training puffert das nur teilweise ab. Praktischer Hebel: Sitz-Blöcke nach spätestens 45 Minuten aktiv unterbrechen (2–3 Minuten gehen, nicht nur aufstehen)."
+        },
+        "vo2max_disclaimer": "Dieser VO2max-Wert ist eine algorithmische Schätzung auf Basis einer validierten Non-Exercise-Formel (Alter, BMI, Aktivitätskategorie, Geschlecht). Er ist KEIN gemessener Laborwert und ersetzt keine Spiroergometrie oder einen klinischen Belastungstest. Die Schätzung liefert eine robuste Einordnung für Performance-Insights — nicht mehr, nicht weniger.",
+        "consistency_note": null,
+        "warnings": [
+          {
+            "code": "sitting_critical",
+            "text": "Deine Sitzzeit liegt über 8 Stunden pro Tag. Frontiers (2022) dokumentiert bei dieser Schwelle ein erhöhtes Risiko für 12 chronische Erkrankungen. Die AHA Science Advisory klassifiziert Sitzzeit als unabhängigen CVD-Risikofaktor — dein Training puffert das nur teilweise ab. Praktischer Hebel: Sitz-Blöcke nach spätestens 45 Minuten aktiv unterbrechen (2–3 Minuten gehen, nicht nur aufstehen)."
+          },
+          {
+            "code": "bmi_disclaimer",
+            "text": "Hinweis zum BMI: BMI ist ein populationsbasierter Schätzer, kein individueller Gesundheitsmarker. Muskulöse Körperzusammensetzung verschiebt den Wert systematisch nach oben — das ist kein Risiko."
+          }
+        ],
+        "priority_order": [
+          "recovery",
+          "stress",
+          "sleep",
+          "activity",
+          "metabolic",
+          "vo2max"
+        ]
+      },
+      "provenance": {
+        "sleep_duration": "whoop",
+        "sleep_efficiency": "whoop",
+        "recovery": "whoop",
+        "activity": "whoop",
+        "vo2max": "self_report"
+      },
+      "wearable_meta": {
+        "source": "whoop",
+        "days_covered": 7
+      }
+    },
+    "downloadUrl": "/api/report/download/2f6c804f-9cba-4979-bfd3-cf44cfe54a4b",
+    "plans": {
+      "activity": {
+        "ready": false
+      },
+      "metabolic": {
+        "ready": false
+      },
+      "recovery": {
+        "ready": false
+      },
+      "stress": {
+        "ready": false
+      }
+    }
+  },
+  "report": {
+    "success": true,
+    "downloadUrl": "http://localhost:3000/api/report/download/2f6c804f-9cba-4979-bfd3-cf44cfe54a4b",
+    "report": {
+      "headline": "Recovery-Score 38/100 bei gleichzeitig 9h Sitzzeit täglich — dein System ist unter Dauerlast, obwohl du kaum formell trainierst.",
+      "executive_summary": "Dein Overall Performance Index von 50/100 ist das Resultat eines Systems, das an mehreren Stellen gleichzeitig unter Druck steht — nicht durch Übertraining, sondern durch strukturelle Alltagsbelastung. Der stärkste Hebel ist dein Stress-Score von 30/100: ein Stresslevel von 7/10, kombiniert mit Job- und Familienbelastung, deckelт aktiv sowohl deine Schlafqualität als auch deine Recovery-Kapazität. Dein über 7 Tage gemessener Recovery-Score von 38/100 ist dabei kein Trainingsschaden — du trainierst aktuell 0 Einheiten pro Woche — sondern ein Signal, dass dein Erholungs-Fundament ohne zusätzliche Trainingsreize bereits an seiner Kapazitätsgrenze operiert. Deine gemessene Schlafdauer von 6.5h ist kurz für vollständige Regeneration: die fragmentierte Schlafstruktur (häufiges Aufwachen) begrenzt die kumulative Wachstumshormon-Ausschüttung, was direkt in den Recovery-Score einfließt. Gleichzeitig sitzt du 9 Stunden täglich — eine Schwelle, ab der die Forschung unabhängige kardiometabolische Risiken dokumentiert, die kein Trainingspensum vollständig kompensiert. Dein Metabolic Score von 57/100 und dein BMI von 26.3 passen zu deiner Selbsteinschätzung als männlicher Typ 2 und zeigen: das Ziel Körperkomposition verbessern ist realistisch, aber es beginnt nicht im Gym — es beginnt bei Schlaf, Stress und Sitzzeit. Ohne diese Basis wird jedes Trainingsprogramm gegen einen Recovery-Score von 38 anlaufen und kaum Adaption produzieren.",
+      "critical_flag": "Sitzzeit von 9h/Tag liegt im kritischen Bereich — unabhängiger CVD-Risikofaktor laut AHA Science Advisory, nicht kompensierbar durch die aktuell 0 Trainingseinheiten/Woche. Sofortige Unterbrechungsroutine erforderlich.",
+      "modules": {
+        "sleep": {
+          "score_context": "Dein Sleep Score von 60/100 bedeutet: du schläfst gerade genug, um funktionsfähig zu bleiben — aber nicht genug, um metabolische Stabilität und vollständige neuronale Regeneration zu gewährleisten. Du gibst an, dich morgens mit 5 von 10 erholt zu fühlen, und deine über 7 Tage gemessenen WHOOP-Daten bestätigen das: 6.5h Schlafdauer bei häufigem nächtlichem Aufwachen ist eine Kombination, die den Tiefschlafanteil (N3) zwar erreicht, aber fragmentiert. Der Alltag läuft — aber dein Körper zahlt einen laufenden Erholungskredit.",
+          "key_finding": "Grenzwertige Schlafdauer zwischen 6 und 7 Stunden ist in Meta-Analysen mit erhöhter Insulinresistenz und erhöhtem Übergewichtsrisiko assoziiert — unabhängig von der Ernährung. Kaczmarek et al. (2025) zeigen direkt, dass Schlafmangel Cortisol erhöht, Testosteron senkt und Wachstumshormon-Ausschüttung limitiert — alles drei sind Parameter, die du für dein Ziel Körperkomposition verbessern brauchst. Dein Sleep Multiplier von ×0.82 zieht deinen Recovery-Score messbar nach unten: ohne diesen Abzug wäre deine Basis-Recovery 54/100 — mit ihm landest du bei 38/100.",
+          "systemic_connection": "Schlechter Schlaf ist kein isoliertes Problem — er ist der Multiplikator, der alle anderen Scores begrenzt. Dein Stress-Score von 30/100 verschlechtert die Schlafqualität durch erhöhte abendliche Kortisol-Spiegel, und dein Schlaf liefert im Gegenzug keine ausreichende Cortisol-Suppression — ein sich selbst verstärkender Kreislauf. Concreet: Covassin et al. (2022) zeigen in einem RCT, dass Schlafmangel zu mehr viszeralem Bauchfett führt — unabhängig von der Ernährung — was direkt gegen dein Kompositions-Ziel arbeitet.",
+          "limitation": "Das schwächste Glied in deinem Schlaf ist nicht die Einschlafzeit, sondern die Durchschlaf-Kontinuität: häufiges nächtliches Aufwachen verhindert ausreichend lange N3- und REM-Phasen, auch wenn die Gesamtdauer knapp ausreicht. Solange dieser Faktor nicht adressiert wird, bleibt der Sleep Multiplier bei ~0.82 und deckelst damit systematisch deinen Recovery-Score — unabhängig davon, wie diszipliniert dein Training ist.",
+          "recommendation": "Priorisiere zuerst die Schlaf-Kontinuität, dann die Dauer. Konkret: Bildschirm-Cutoff 60 Minuten vor dem Einschlafen (Blaulicht erhöht Cortisol-Spiegel abends messbar), Schlafzimmer-Temperatur auf 16–19°C (thermoregulatorisches Signal für tiefere Schlafphasen), und eine feste Aufwachzeit 7 Tage die Woche — auch am Wochenende. Das Ziel sind 7.5h mit weniger Unterbrechungen; wenn du das 4 Wochen konsequent hältst, wird dein Sleep Multiplier von ×0.82 in Richtung ×0.90+ wandern, was deinen Recovery-Score messbar hebt — ohne eine einzige Trainingsminute mehr."
+        },
+        "recovery": {
+          "score_context": "Dein über 7 Tage gemessener Recovery-Score von 38/100 ist in einem Kontext zu lesen, den viele Menschen übersehen: du trainierst aktuell 0 Einheiten pro Woche — und trotzdem liegt deine Erholung im Low-Band. Das bedeutet, dein Alltagsleben allein — 9h Sitzen, 7/10 Stresslevel, 6.5h fragmentierter Schlaf — produziert bereits eine Erholungsschuld, die dein System täglich abarbeiten muss. Du hast noch keine Trainingsreize hinzugefügt, und dein System ist bereits knapp.",
+          "key_finding": "Die beiden Multiplikatoren, die deinen Recovery-Score von der Basis 54/100 auf 38/100 ziehen, sind Sleep (×0.82) und Stress (×0.87). Das ist kein Zufall — beide wirken über denselben Mechanismus: chronisch erhöhtes Cortisol durch Schlafmangel und psychosoziale Belastung hemmt die anabole Achse (Testosteron, Wachstumshormon), die für Gewebereparatur und Muskelregeneration verantwortlich ist. PMC Chronic Stress & Cognition (2024) dokumentiert zusätzlich, dass anhaltende Glucocorticoid-Ausschüttung präfrontale Funktionen beeinträchtigt — was erklärt, warum du dich bei 5/10 Erholungsgefühl nicht nur körperlich, sondern auch mental nicht frisch fühlst.",
+          "systemic_connection": "Ein Recovery-Score von 38/100 ist die direkte Obergrenze für Trainingsadaption: wenn du jetzt 3× pro Woche strukturiertes Training einführst, ohne Schlaf und Stress zu adressieren, wird dein Körper auf diese Reize kaum adaptieren — die Regenerationskapazität ist nicht vorhanden. PMC OTS Review (2025) und ScienceDirect OTS Molecular (2025) zeigen, dass unzureichende Recovery Kraftverluste bis zu 14% und erhöhte Verletzungsanfälligkeit produziert — selbst ohne Overtraining im klassischen Sinn.",
+          "overtraining_signal": "Kein Overtraining-Signal aktiv — du trainierst 0 Einheiten pro Woche. Der niedrige Recovery-Score ist rein alltagsinduziert (Stress + Schlaf). Das ist relevant: es bedeutet, dass du Spielraum hast, moderates Training einzuführen, ohne das System weiter zu belasten — aber nur, wenn du gleichzeitig die Recovery-Basis verstärkst.",
+          "limitation": "Deine Erholungs-Umgebung ist die Limitierung — nicht dein Training. Solange dein Stress-Multiplier bei ×0.87 und dein Sleep-Multiplier bei ×0.82 bleiben, ist der Recovery-Score strukturell gedeckelt bei etwa 38–45/100. Kein Trainingsprogramm, keine Supplementation und keine Diät durchbricht diese Decke nachhaltig.",
+          "recommendation": "Beginne mit einem Einheiten pro Woche Einstieg (eine moderate 30-minütige Einheit, kein HIIT, kein Maximalkraft) — aber parallelisiere das mit einer Schlaf-Routine-Intervention und einer täglichen Stress-Downregulation von 10 Minuten. Nach 4 Wochen: wenn dein Erholungsgefühl morgens auf 6–7/10 steigt, kannst du auf 2 Einheiten pro Woche erhöhen. Der Recovery-Score ist dein primäres grünes Licht für Trainingsvolumen-Erhöhung — nicht der Kalender."
+        },
+        "activity": {
+          "score_context": "Dein Activity Score von 43/100 im moderaten Band spiegelt wider, dass du dich bewegst — aber in einer Zusammensetzung, die für dein Ziel Körperkomposition und VO2max-Steigerung suboptimal ist. Deine 813 MET-Minuten pro Woche teilen sich auf in 413 MET-Minuten Walking und 400 MET-Minuten moderate Aktivität — ohne eine einzige Minute intensive Aktivität (Vigorous MET: 0). Du erreichst die WHO-Mindestempfehlung von 150 Minuten moderate Aktivität, aber du bewege dich im unteren Bereich der Kurve, wo weitere Intensität noch den stärksten marginalen Gesundheitsgewinn bringt.",
+          "key_finding": "Die AHA Circulation-Studie (2022, über 100.000 Teilnehmer, 30 Jahre Beobachtungszeitraum) zeigt: 150–300 Minuten moderate Aktivität pro Woche entsprechen ~20–21% niedrigerem Mortalitätsrisiko. Du bist in dieser Zone. Die AMA Longevity-Analyse (2024) ergänzt: 150–299 Minuten intensive Aktivität pro Woche wären mit 21–23% Reduktion Gesamtmortalität und 27–33% Reduktion CVD-Mortalität verbunden. Der Schritt von 0 auf auch nur 1 intensive Einheit pro Woche wäre der effektivste Einzelhebel für deine Langzeitgesundheit — und würde gleichzeitig deinen geschätzten VO2max von 36.1 ml/kg/min steigern.",
+          "met_context": "Deine 813 MET-Minuten pro Woche liegen im IPAQ-Moderate-Bereich. Zum Vergleich: die IPAQ-Kategorie 'High' beginnt bei 3.000 MET-Minuten/Woche — du bist bei etwa 27% davon. Für dein Ziel Körperkomposition ist nicht nur das Volumen relevant, sondern die Intensitätsverteilung: 0 Minuten Vigorous-Aktivität bedeutet kaum Nachverbrennungseffekt (EPOC) und begrenzte Muskelstimulation.",
+          "systemic_connection": "Deine Aktivität beeinflusst direkt deinen Metabolic Score (57/100) und deine geschätzte VO2max (36.1 ml/kg/min). Mehr Intensität — nicht mehr Volumen — wäre der kürzeste Weg zu beiden. Gleichzeitig ist deine Sitzzeit von 9h/Tag ein eigenständiges Problem: Frontiers (2022) dokumentiert bei >6h Sitzen erhöhtes Risiko für 12 chronische Erkrankungen, und die AHA Science Advisory zeigt, dass Sitzzeit das Metabolisches-Syndrom-Odds um Faktor 1.73 erhöht — auch nach Adjustierung für Bewegungszeit. Du trainierst also (moderat), sitzt aber trotzdem 9 Stunden täglich, was einen unabhängigen Risikopfad offen lässt.",
+          "sitting_flag": "Deine Sitzzeit von 9 Stunden täglich ist eine aktive systemische Warnung. Die AHA Science Advisory klassifiziert Sitzzeit als unabhängigen CVD-Risikofaktor — das bedeutet: selbst wenn du 3× pro Woche trainierst, bleibt das Sitzzeit-Risiko bestehen, wenn du den Rest des Tages 9 Stunden sitzt. Frontiers (2022) verknüpft diese Schwelle mit erhöhtem Risiko für 12 chronische Erkrankungen einschließlich Typ-2-Diabetes, CVD und metabolischem Syndrom. Der einzige Hebel: Sitz-Blöcke spätestens alle 45–60 Minuten durch 2–3 Minuten aktive Bewegung unterbrechen — nicht 'aufstehen', sondern tatsächlich gehen.",
+          "limitation": "Du hast aktuell 0 strukturierte Trainingseinheiten pro Woche und 3 Stunden täglich auf den Beinen — das reicht nicht, um Muskelmasse aufzubauen oder die Körperkomposition relevant zu verschieben, selbst bei guter Ernährung. Die Kombination aus 0 Widerstandstraining und 9h Sitzen produziert aktiv Muskelmasse-Verlust über Zeit (sarkopenes Potenzial).",
+          "recommendation": "Starte mit einer Trainingseinheit pro Woche in den ersten 4 Wochen — fokussiert auf Ganzkörper-Widerstandstraining (30–40 Minuten, 3–4 Übungen Compound-Muster: Kniebeugen, Rudern, Drücken, Hüftstreckung). Woche 5–8: auf 2 Einheiten erhöhen. Ab Woche 9, wenn Recovery-Score auf >50 gestiegen ist: eine dritte Einheit als moderate Intensitäts-Session ergänzen. Parallel dazu: Sitz-Pausen alle 45 Minuten als nicht-verhandelbare Alltagsroutine — das ist der Hebel, der unabhängig vom Training wirkt."
+        },
+        "metabolic": {
+          "score_context": "Dein Metabolic Score von 57/100 zeigt ein System ohne akute Risikomarker, aber mit mehreren Faktoren, die den Score strukturell unter 70 halten. Du gibst an, 3 Mahlzeiten täglich zu essen, 1.75 Liter Wasser zu trinken und Obst und Gemüse nur eher selten zu konsumieren (3–7 Mal pro Woche) — das sind alles adjustierbare Variablen, keine fixen Limits. Das Potenzial für einen höheren Score liegt klar vor dir.",
+          "key_finding": "Zwei Faktoren ziehen deinen Metabolic Score am stärksten: deine Sitzzeit von 9h/Tag und dein BMI von 26.3 kg/m². Deine Selbsteinschätzung als männlicher Typ 2 (schlanker Körperbau) und dein BMI von 26.3 stimmen überein — der BMI reflektiert hier tatsächlich einen erhöhten Körperfettanteil, nicht Muskelmasse. Das ist kein Urteil, sondern dein aktueller Ausgangspunkt für das Ziel Körperkomposition verbessern. Die JAMA Network Open Meta-Analyse (2024, 29 RCTs) zeigt, dass zeitlich eingeschränktes Essen und frühe Kalorienverteilung zu signifikant größerem Gewichtsverlust führen — ein Hebel, der ohne zusätzliche Zeit auskommt.",
+          "bmi_context": "Dein BMI von 26.3 kg/m² liegt laut WHO im Übergewichts-Bereich. Deine Selbsteinschätzung als männlicher Körpertyp 2 bestätigt, dass dieser Wert den aktuellen Körperfettanteil widerspiegelt und nicht durch überdurchschnittliche Muskelmasse erklärt wird. Das ist der Ausgangspunkt für dein Ziel — keine Grundlage für Beschämung, sondern eine messbare Variable, die du über Ernährungskomposition, Schlaf und moderates Widerstandstraining direkt beeinflussen kannst. BMI ist als Populations-Schätzer einzuordnen; eine Körperfett-Messung (z.B. DEXA oder Caliper) würde dir präzisere Daten liefern.",
+          "systemic_connection": "Dein Metabolic Score ist direkt an Schlaf und Stress gekoppelt — nicht nur durch Ernährung. Covassin et al. (2022) zeigen: Schlafmangel erhöht viszerales Bauchfett unabhängig von der Kalorienzufuhr. Sondrup et al. (2022) dokumentieren, dass Schlafmangel Insulinresistenz signifikant erhöht. Das bedeutet konkret: Wenn du deinen Schlaf von 6.5h auf 7.5h verbesserst, verbesserst du damit direkt deinen Metabolic Score — ohne Diät, ohne Training.",
+          "limitation": "Dein Obst- und Gemüsekonsum von 3–7 Mahlzeiten pro Woche und dein Wasserkonsum von 1.75 Litern täglich sind die zwei einfachsten und zeiteffizientesten Hebel im Metabolic-Modul. Beides ist kein strukturelles Problem — du gibst an, keine Zeit zu haben (no_time) — sondern eine Frage von Systemgestaltung, nicht Willenskraft.",
+          "recommendation": "Drei Mahlzeiten täglich ist eine gute Basis — optimiere das Timing: frühstücke innerhalb von 60 Minuten nach dem Aufwachen (stabilisiert die morgendliche Cortisol-Kurve), verlagere mehr Kalorien auf die erste Tageshälfte (JAMA-Evidenz: frühe Kalorienverteilung begünstigt Fettabbau), und beende die letzte Mahlzeit 2–3 Stunden vor dem Schlafen. Erhöhe den Proteinanteil pro Mahlzeit auf mindestens 25–30g — das reduziert abendliche Cravings messbar (Sättigungshormon-Mechanismus). Wasser: 2.5 Liter täglich als Ziel; ein Glas Wasser beim Aufstehen und eines vor jeder Mahlzeit kostet null Minuten und deckt den Gap."
+        },
+        "stress": {
+          "score_context": "Dein Stress Score von 30/100 ist das schwächste Modul in deinem Profil und hat die meisten Verbindungen zu anderen Scores. Du gibst einen Stresslevel von 7 von 10 an, mit Job und Familie als Hauptquellen. Das ist kein Soft-Faktor — das ist ein physiologisches Signal: bei chronisch erhöhtem Cortisol durch Allostatic Load läuft dein Hormonprofil täglich gegen Regeneration, Körperkomposition und kognitive Performance.",
+          "key_finding": "Das Allostatic Load Modell beschreibt genau deinen Zustand: dein Körper zahlt laufend die metabolischen und hormonellen Kosten der Anpassung an anhaltenden Stress. Bei einem Stresslevel von 7/10 über Wochen beginnen die sekundären Effekte messbar zu werden — Schlafqualität leidet (dein Stress-Multiplier liegt bei ×0.87), Testosteron-Regeneration wird gebremst, und viszerale Fetteinlagerung wird begünstigt. Die Psychoneuroendocrinology Meta-Analyse (2024) zeigt, dass Mindfulness (Effektgröße g=0.345) und strukturierte Entspannungsverfahren (g=0.347) die am besten belegten Maßnahmen zur Cortisol-Senkung sind — mit einem Effekt, der nach 4–8 Wochen messbar wird.",
+          "hpa_context": "Kein formales HPA-Achsen-Risiko aktiv laut Input. Dein Stresslevel von 7/10 ist jedoch ein Signal, das ernst zu nehmen ist: Die PMC Chronic Stress & Cognition-Studie (2024) zeigt, dass anhaltend erhöhte Glucocorticoid-Ausschüttung — auch unterhalb der klinischen Schwelle — präfrontale Kortex- und Hippocampus-Funktionen beeinträchtigt. Das erklärt, warum du bei diesem Stressprofil vermutlich nicht auf dem kognitiven Niveau operierst, das dir möglich wäre.",
+          "systemic_connection": "Dein Stresslevel von 7/10 ist der Faktor, der simultán Schlaf (×0.87 Multiplier), Recovery (Testosteron- und Wachstumshormon-Suppression) und Metabolic (viszerale Fetteinlagerung, Insulinresistenz) nach unten zieht. Er ist auch die einzige Variable, bei der eine Verbesserung direkt und sofort auf drei andere Module wirkt. Die Empfehlung der Top-Priorität basiert genau darauf.",
+          "limitation": "Dein Recovery-Ritual ist Sport — aber du trainierst aktuell 0 Einheiten pro Woche. Das bedeutet, der primäre Stress-Puffer, den du selbst als effektiv kennst, ist gerade nicht aktiv. Dieser Gap zwischen bevorzugter Erholungsstrategie und tatsächlichem Verhalten erklärt einen Teil der Stressakkumulation.",
+          "recommendation": "Zwei Hebel parallel aktivieren, die in der Psychoneuroendocrinology Meta-Analyse (2024) die stärkste Cortisol-senkende Wirkung zeigen: (1) Tägliche 10-minütige Box-Breathing-Routine (4 Sekunden ein, 4 Sekunden halten, 4 Sekunden aus, 4 Sekunden halten — 2× täglich, am effektivsten direkt nach dem letzten Arbeitstermin des Tages), (2) das Recovery-Ritual Sport in minimaler Form reaktivieren: eine 30-minütige moderate Trainingseinheit pro Woche reicht als erster Reset. Beide Maßnahmen kosten zusammen unter 30 Minuten täglich — und haben laut Meta-Analyse nach 4 Wochen messbare hormonelle Effekte."
+        },
+        "vo2max": {
+          "score_context": "Dein VO2max Score von 50/100 entspricht einer geschätzten VO2max von 36.1 ml/kg/min — das ist das Fair-Band für einen 35-jährigen Mann. Du bist nicht auf dem Niveau eines Ausdauer-Athleten, aber auch nicht in einem Risikobereich. Es ist ein Startpunkt mit klarem Verbesserungspotenzial, besonders weil du aktuell 0 Vigorous-Aktivitäts-Minuten pro Woche hast.",
+          "key_finding": "VO2max ist der stärkste einzelne Prädiktor für kardiovaskuläre Langzeitgesundheit und metabolische Effizienz. Bei 36.1 ml/kg/min bist du in einem Bereich, in dem jeder zusätzliche Punkt VO2max noch einen spürbaren Gewinn an Gesundheitsmargin bringt — oberhalb von ~45 ml/kg/min flacht diese Kurve ab. Gleichzeitig ist deine Schätzung direkt an dein Aktivitätslevel geknüpft: 0 intensive Trainingsminuten pro Woche erklären, warum du nicht im Good- oder Excellent-Band bist. Das ist die gute Nachricht: dieser Score ist stark veränderbar.",
+          "fitness_context": "Im Fair-Band für 35-jährige Männer sind die Grundvorteile für kardiovaskuläre Gesundheit gegeben — du hast kein unmittelbares Risikoprofil. Der Abstand zum Good-Band (~42–46 ml/kg/min) ist realistisch schließbar: 8–12 Wochen progressive Intensitäts-Exposition würden diese Lücke signifikant verkleinern. Das würde sich auch direkt auf dein Energielevel im Alltag auswirken — höhere VO2max bedeutet, dass Alltagsbelastungen einen kleineren Anteil deiner Kapazität beanspruchen.",
+          "estimation_note": "Diese VO2max von 36.1 ml/kg/min ist eine algorithmische Schätzung auf Basis der validierten Non-Exercise-Formel (Alter, BMI, Aktivitätskategorie, Geschlecht) — kein Laborwert und kein Ergebnis einer Spiroergometrie. Die Schätzung liefert eine robuste Einordnung für Performance-Insights und Trainingsplanung, aber für präzise Diagnose oder sportmedizinische Entscheidungen ist eine Labordiagnostik erforderlich.",
+          "systemic_connection": "Deine geschätzte VO2max von 36.1 ml/kg/min ist das direkte Ergebnis deines Aktivitätsprofils — 0 intensive Einheiten, 813 MET-Minuten moderat. VO2max verbessert sich nicht durch Volumen allein, sondern durch Intensität: der Übergang von 0 auf 1 intensive Einheit pro Woche hätte den größten marginalen Effekt auf deinen geschätzten VO2max aller möglichen Maßnahmen. Gleichzeitig würde eine höhere VO2max deinen Recovery-Score positiv beeinflussen — kardiorespiratorische Fitness verbessert die Herzratenvariabilität, die im WHOOP-System direkt in den Recovery-Score einfließt.",
+          "recommendation": "Beginne nach 4 Wochen Einstiegsphase (1× Kraft/Woche) mit dem Norwegian 4×4 Protokoll: 4 Minuten bei 90–95% der maximalen Herzfrequenz, 3 Minuten aktive Pause, 4 Wiederholungen — 1× pro Woche. Dieses Protokoll gehört zu den am besten untersuchten Interventionen für VO2max-Steigerung. Nach 8 Wochen konsistenter Durchführung ist eine Schätzungs-Verbesserung von 3–5 ml/kg/min realistisch — was dich in Richtung Good-Band bringen würde."
+        }
+      },
+      "top_priority": "Dein Stress-Score von 30/100 bei einem Stresslevel von 7/10 ist der Hebel mit dem größten systemischen Einfluss — er drückt gleichzeitig deinen Schlaf (Sleep Multiplier ×0.87), deine Recovery (Score 38/100) und deine Körperkomposition (viszerale Fetteinlagerung, Insulinresistenz) nach unten. Kein anderes Modul hat diese drei simultanen Verbindungen. Die Maßnahme mit dem höchsten ROI für die nächsten 30 Tage: implementiere täglich 10 Minuten Box-Breathing (4-4-4-4) als festes Protokoll, platziert direkt nach dem letzten Arbeitstermin des Tages — der Zeitpunkt ist entscheidend, weil er den Übergang zwischen Job-Stressor und Familien-Zeit physisch markiert und Cortisol absenkt, bevor es sich in den Abend zieht. Parallel dazu: eine 30-minütige moderate Trainingseinheit pro Woche reaktivieren — Sport ist dein eigenes bevorzugtes Erholungsritual, und du nutzt es gerade nicht. Dieser Doppelhebel (Downregulation + minimale Sport-Reaktivierung) adressiert in 30 Tagen drei Module gleichzeitig: Stress, Recovery und Sleep. Der 30-Tage-Plan: Woche 1–2 nur die Atemroutine und eine Sport-Einheit einführen, keine anderen Änderungen; Woche 3–4 Schlaf-Cutoff-Zeit fixieren und Sitzpausen alle 45 Minuten einbauen. Vier Variablen, sequenziell eingeführt — das ist realistisch und adhärenzfähig.",
+      "systemic_connections_overview": "Die wichtigste Verbindung in deinem Profil: dein Stresslevel von 7/10 sabotiert deinen Schlaf über den Stress-Multiplier (×0.87), und dein fragmentierter Schlaf von 6.5h mit häufigem Aufwachen verhindert vollständige Cortisol-Suppression in der Nacht — was deinen Stresslevel am nächsten Tag wieder erhöht. Das ist ein geschlossener Kreislauf, der deinen Recovery-Score strukturell bei 38/100 hält, obwohl du gar nicht trainierst. Die zweite kritische Verbindung: deine 9h Sitzzeit täglich ist ein unabhängiger kardiometabolischer Risikofaktor, der durch dein aktuelles Aktivitätsprofil (813 MET-Minuten moderat, 0 intensiv) nicht kompensiert wird — das Sitzzeit-Risiko existiert parallel zu deinem Bewegungspensum, nicht anstatt davon. Die dritte Verbindung: dein Kompositions-Ziel hängt direkt an Schlaf und Stress, nicht nur an Training und Ernährung — Covassin et al. (2022) zeigen, dass Schlafmangel viszerales Bauchfett unabhängig von der Ernährung erhöht, und erhöhtes Cortisol durch Stress begünstigt Fetteinlagerung direkt. Das bedeutet: du wirst Körperkomposition nicht verändern, solange Stress und Schlaf auf ihrem aktuellen Niveau bleiben — unabhängig davon, wie oft du trainierst oder was du isst.",
+      "prognose_30_days": "Wenn du in den nächsten 30 Tagen konsequent täglich 10 Minuten Box-Breathing nach dem letzten Arbeitstermin durchführst, eine Trainingseinheit pro Woche reaktivierst und eine feste Aufwachzeit 7 Tage die Woche einhältst, ist eine messbare Verbesserung deines Erholungsgefühls von 5/10 auf 6–7/10 morgens realistisch. Dein über 7 Tage gemessener WHOOP Recovery-Score hat das Potenzial, von 38/100 auf 48–55/100 zu steigen — nicht durch Training, sondern durch die Reduktion der zwei aktiven Multiplikatoren (Stress und Schlaf). Die Körperkompositions-Veränderung in 30 Tagen wird noch minimal sein — das ist ein 90-Tage-Ziel; aber die hormonelle Basis (Cortisol sinkt, Testosteron erholt sich) für spätere Kompositionsveränderungen wird in diesem Monat gelegt.",
+      "daily_life_protocol": {
+        "morning": [
+          {
+            "habit": "Direkt nach dem Aufstehen: ein großes Glas Wasser (400–500 ml) trinken",
+            "why_specific_to_user": "Du gibst an, nur 1.75 L Wasser täglich zu trinken — das Ziel sind 2.5 L. Dieser eine Trigger am Morgen deckt 20% des Tagesziels ohne Zeitaufwand und unterstützt die Cortisol-Kurve nach dem Aufwachen.",
+            "time_cost_min": 0
+          },
+          {
+            "habit": "5 Minuten natürliches Tageslicht nach dem Aufwachen — Fenster öffnen oder kurz nach draußen",
+            "why_specific_to_user": "Dein Sleep Score von 60/100 mit häufigem nächtlichen Aufwachen deutet auf eine instabile Schlaf-Wach-Regulation hin. Morgendliches Licht setzt den circadianen Takt zurück und verbessert abendliche Melatonin-Ausschüttung — direkt relevant für deine Schlaf-Kontinuität.",
+            "time_cost_min": 5
+          },
+          {
+            "habit": "Erstes Frühstück innerhalb von 60 Minuten nach dem Aufstehen, mit mindestens 25–30g Protein",
+            "why_specific_to_user": "Du hast das Ziel Körperfett reduzieren und Muskeln aufbauen — ein proteinreiches Frühstück innerhalb der ersten Stunde stabilisiert die Cortisol-Kurve am Morgen und reduziert abendliche Cravings, die du als Painpoint (cravings_evening) angibst.",
+            "time_cost_min": 5
+          }
+        ],
+        "work_day": [
+          {
+            "habit": "Sitzpause alle 45 Minuten: 2–3 Minuten aufstehen und tatsächlich gehen (nicht nur aufstehen)",
+            "why_specific_to_user": "Deine Sitzzeit von 9h/Tag liegt im kritischen Bereich — AHA Science Advisory klassifiziert das als unabhängigen CVD-Risikofaktor. Diese Unterbrechung kostet 2–3 Minuten und ist der einzige Hebel, der das Sitzzeit-Risiko direkt adressiert.",
+            "time_cost_min": 3
+          },
+          {
+            "habit": "Nach dem letzten Arbeitstermin des Tages: 10 Minuten Box-Breathing (4 Sekunden ein, 4 halten, 4 aus, 4 halten) — BEVOR du in den Familien-Modus wechselst",
+            "why_specific_to_user": "Du gibst Job und Familie als Hauptstressoren an. Dieser Übergangs-Ritual zwischen beiden Kontexten senkt Cortisol messbar (Psychoneuroendocrinology Meta-Analyse 2024) und verhindert, dass Arbeitsstress sich in den Abend zieht und deinen Schlaf (6.5h, Sleep Score 60/100) weiter fragmentiert.",
+            "time_cost_min": 10
+          },
+          {
+            "habit": "Koffein-Cutoff um 14:00 Uhr",
+            "why_specific_to_user": "Häufiges nächtliches Aufwachen ist eines deiner Schlaf-Probleme. Koffein hat eine Halbwertszeit von 5–7 Stunden — Koffein nach 14:00 Uhr ist bei einem Schlafzeitpunkt vor 23:00 Uhr noch aktiv im System und erhöht die Schlaffragmentierung direkt.",
+            "time_cost_min": 0
+          }
+        ],
+        "evening": [
+          {
+            "habit": "60 Minuten vor dem Schlafen: Bildschirm-Cutoff (Smartphone, Laptop, TV) oder Blaulicht-Filter aktivieren",
+            "why_specific_to_user": "Dein Sleep Score von 60/100 mit häufigem Aufwachen und einem Erholungsgefühl von 5/10 morgens braucht als erstes eine Verbesserung der Einschlaf-Qualität. Blaulicht hemmt Melatonin-Ausschüttung — dieser Cutoff ist der günstigste Einzel-Hebel für Schlafkontinuität.",
+            "time_cost_min": 0
+          },
+          {
+            "habit": "Schlafzimmer-Temperatur auf 16–19°C einstellen vor dem Schlafengehen",
+            "why_specific_to_user": "Dein gemessener Recovery-Score von 38/100 (Sleep Multiplier ×0.82) braucht tiefere N3-Schlafphasen. Die thermoregulatorische Absenkung ist ein direkter Trigger für tieferen Schlaf — kostet null Minuten und verbessert die Schlafarchitektur ohne Verhaltensänderung.",
+            "time_cost_min": 0
+          },
+          {
+            "habit": "Abendessen mit mindestens 30g Protein, 2–3 Stunden vor dem Schlafen beenden",
+            "why_specific_to_user": "Du gibst cravings_evening als Ernährungs-Painpoint an. Protein ist der stärkste Sättigungs-Makronährstoff — 30g Protein beim Abendessen stabilisiert den Blutzucker über die Nacht und reduziert abendliche Heißhunger-Episoden messbar.",
+            "time_cost_min": 0
+          }
+        ],
+        "nutrition_micro": [
+          {
+            "habit": "5-Minuten-Prep-Routine an einem fixen Tag pro Woche: 3 Portionen Protein-Quellen vorkochen (Eier, Hühnchenbrust, Hüttenkäse, Linsen)",
+            "why_specific_to_user": "Du gibst no_time als Ernährungs-Painpoint an und hast ein Ziel Körperkomposition. Protein-Quellen verfügbar zu haben reduziert die Friction, die verhindert, dass du 25–30g pro Mahlzeit erreichst — ohne tägliche Planung.",
+            "time_cost_min": 5
+          },
+          {
+            "habit": "Glas Wasser vor jeder Mahlzeit (3× täglich = +600 ml Tageshydration)",
+            "why_specific_to_user": "Du gibst 1.75 L Wasser täglich an — das Ziel für dein Körpergewicht und dein Aktivitätslevel wären 2.5 L. Dieser Trigger kostet keine Zeit, ist an eine bestehende Gewohnheit (Mahlzeiten) gebunden und schließt den Hydrations-Gap ohne zusätzliche Entscheidungsenergie.",
+            "time_cost_min": 0
+          }
+        ],
+        "total_time_min_per_day": 28
+      },
+      "disclaimer": "Alle Angaben sind modellbasierte Performance-Insights auf Basis selbstberichteter Daten. Kein Ersatz für medizinische Diagnostik. VO2max ist eine algorithmische Schätzung — keine Labormessung.",
+      "executive_findings": [
+        {
+          "type": "weakness",
+          "headline": "Bewegungsmangel sabotiert dein Körperkompositions-Ziel",
+          "body": "Mit \"0 days/wk\" strukturierter Aktivität und \"9h sitting\" täglich fehlt dir die Grundlage für Muskelaufbau. Dein Activity-Score von 43 zeigt, dass alltägliche Bewegung nicht ausreicht. Nutze dein Lieblings-Recovery-Ritual Sport gezielt ein.",
+          "related_dimension": "activity"
+        },
+        {
+          "type": "strength",
+          "headline": "Stress-Management schafft Basis für Erfolg",
+          "body": "Dein Stress-Score von 30 ist relativ niedrig trotz Job- und Familiendruck (7/10). Das zeigt Widerstandskraft. Diese Stabilität kannst du nutzen, um konsequent an deinem Body-Composition-Plan zu arbeiten.",
+          "related_dimension": "stress"
+        },
+        {
+          "type": "connection",
+          "headline": "Schlafqualität und Abendcravings sind verbunden",
+          "body": "Du schläfst nur 6.5h mit \"wakeups oft\" und schlechter Qualität (mittel). Das destabilisiert deinen Appetithaushalt und verschärft deine \"cravings_evening\". Ein konsistenterer Schlaf-Rhythmus mit Screen-Cutoff würde beides verbessern.",
+          "related_dimension": "sleep"
+        }
+      ],
+      "cross_insights": [
+        {
+          "dimension_a": "sleep",
+          "dimension_b": "stress",
+          "headline": "Dein Schlaf wird durch Job und Familie belastet",
+          "body": "Mit \"7/10\" Stress und nur \"6.5h\" Schlaf pro Nacht verschärfst du einen Teufelskreis. Deine \"oft\" Wakeups deuten auf stressbedingte Schlaffragmentierung hin. Priorisiere einen Screen-Cutoff 90min vor dem Schlafengehen, um Cortisol zu senken und deine Erholung von \"5/10\" zu verbessern."
+        },
+        {
+          "dimension_a": "activity",
+          "dimension_b": "metabolic",
+          "headline": "Deine Sitzdauer sabotiert dein Körperkompositions-Ziel",
+          "body": "\"0 Tage/Woche\" strukturierte Aktivität plus \"9h Sitzen\" täglich bremsen deinen Metabolismus (57). Dein Body-Comp-Goal erfordert mindestens 3x/Woche moderate Bewegung. Nutze dein Lieblings-Recovery-Ritual (Sport) als Ankerpunkt—statt \"0 steps/day\" könnten regelmäßige Sessions deinen VO2max (50) deutlich heben."
+        },
+        {
+          "dimension_a": "nutrition",
+          "dimension_b": "stress",
+          "headline": "Deine Abend-Cravings werden durch Zeit und Stress getriggert",
+          "body": "Bei \"7/10\" Stress und \"no_time\" als Ernährungs-Pain-Point greifen deine \"cravings_evening\" um Cortisol zu regulieren. Mit nur \"1.75L Wasser\" und \"eher selten\" Obst/Gemüse fehldir Nährstoffdichte. Präpariere 2x/Woche Snack-Boxen (Nüsse, Obst) als stressresistente Alternative."
+        }
+      ]
+    },
+    "analysisExtraction": null
+  },
+  "plans": {
+    "activity": {
+      "title": "ACTIVITY-PLAN",
+      "subtitle": "Individueller Plan zur Verbesserung deiner Aktivitätswerte",
+      "source": "Basiert auf: WHO Global Action Plan 2018–2030, ACSM Exercise Guidelines, IPAQ Short Form, AHA Circulation 2022, AMA Longevity Study 2024",
+      "locale": "de",
+      "blocks": [
+        {
+          "heading": "Deine Ausgangslage",
+          "items": [
+            "Du trainierst aktuell 2× pro Woche und erreichst 813 MET-min (Maß für deinen Trainingsumfang — Stunden mal Intensität)/Woche — das liegt über dem WHO-Minimum von 600, aber dein Ausdauer-Niveau) zeigt dass die Trainings-Qualität oder -Konsistenz Luft nach oben hat.",
+            "Deine VO2max (deine maximale Sauerstoffaufnahme — zeigt wie fit dein Herz-Kreislauf-System ist) liegt bei 36.1 ml/kg/min (Fair-Bereich) — dein Herz-Kreislauf-System ist funktional, aber gezieltes Training kann hier 5–15% Gewinn bringen.",
+            "Dein Schlaf-Score (60/100) und vor allem dein Stress-Niveau, hoch) deuten darauf hin dass Erholung und mentale Last dein Training begrenzen — Training allein wird nicht reichen.",
+            "Dein BMI (26.3, übergewichtig) und Metabolik-Niveau) zeigen dass Body-Composition-Ziele ohne Ernährungs-Anpassung stagnieren werden."
+          ]
+        },
+        {
+          "heading": "VO2max — Was es bedeutet und wie es trainierbar ist",
+          "items": [
+            "VO2max (deine maximale Sauerstoffaufnahme — zeigt wie fit dein Herz-Kreislauf-System ist) wird in ml/kg/min gemessen: wie viel Sauerstoff dein Körper pro Minute pro kg Körpergewicht nutzen kann. Höher = bessere aerobe Fitness.",
+            "Dein Wert (36.1) ist Fair für dein Alter/Geschlecht — nicht niedrig, aber nicht im Top-Quartil. Trainierbar bedeutet: mit gezieltem hochintensivem Training (HIT) und Z2-Volumen (Zone 2 — Tempo bei dem du noch sprechen kannst) kannst du in 8–12 Wochen 5–15% Steigerung realistisch erreichen.",
+            "Der Mechanismus: HIT-Training triggert mitochondriale Anpassungen (mehr Energie-Kraftwerke in deinen Muskeln), erhöht dein kardiales Output (Herzleistung) und vermehrt oxidative Enzyme — alles zusammen = höhere VO2max.",
+            "Realistische Erwartung: Bei 2× Training/Woche + moderatem Zeitbudget erreichst du eher 5–8% in 12 Wochen als 15%. Das ist solide und messbar."
+          ]
+        },
+        {
+          "heading": "Polarisiertes Training — 80/20-Modell",
+          "items": [
+            "Polarisiertes Training (Seiler/Tønnessen-Forschung) bedeutet: 80% deines Volumens in Zone 2 (Tempo bei dem du noch sprechen kannst), 20% in Zone 5 (maximaler Bereich, all-out, du kannst nicht mehr sprechen). Zone 3 (moderates Tempo, du kannst nur noch kurze Sätze sagen)/4 (moderates Tempo, du kannst nur noch kurze Sätze sagen) vermeidest du — das ist zu hart für Erholung, zu leicht für Adaptation.",
+            "Zone-Konzept: Z1 = Spaziergang (RPE 1-2, wie anstrengend es sich anfühlt auf einer Skala 1-10); Z2 (Zone 2 — Tempo bei dem du noch sprechen kannst) = lockerer Ausdauer-Lauf (RPE 3-4); Z3 (Zone 3 — moderates Tempo, du kannst nur noch kurze Sätze sagen) = moderates Tempo (RPE 5-6); Z4 = hart (RPE 7-8); Z5 (Zone 5 — maximaler Bereich, all-out, du kannst nicht mehr sprechen) = all-out (RPE 9-10). Du navigierst mit Atemtest: Z2 = du kannst Sätze sprechen, Z3 = nur kurze Sätze, Z5 = kein Sprechen möglich.",
+            "Warum polarisiert > Threshold-Training: Threshold (Zone 3/4) ist metabolisch teuer, fördert aber weniger VO2max-Gewinn als HIT + Z2-Volumen. Polarisiert trainiert dein Körper auf zwei Systeme: Ausdauer (Z2) + maximale Leistung (Z5), nicht auf die mittlere Grauzone.",
+            "Bei 2× Training/Woche: 1× Z2-Session (30–45 Min), 1× Z5-Session (HIT, 20–30 Min inkl. Warm-up). Das ist dein Grundgerüst."
+          ]
+        },
+        {
+          "heading": "Methoden-Bibliothek für dich",
+          "items": [
+            "Z2-Lauf (Zone 2 — Tempo bei dem du noch sprechen kannst): 30–45 Min lockeres Lauftempo, RPE (wie anstrengend es sich anfühlt auf einer Skala 1-10) 3-4 (wie anstrengend es sich anfühlt auf einer Skala 1-10). Du solltest noch Sätze sprechen können. Wann: 1× pro Woche, z.B. Samstag oder Sonntag. Mechanismus: Mitochondriale Dichte, Fettoxidation, aerobe Basis.",
+            "Norwegian 4×4 Protocol (4× schnell laufen für 4 Min, dann 3 Min Pause, das ganze 4 mal): 4 Minuten bei 85-90% HRmax (so schnell dass du kaum noch reden kannst), dann 3 Min Pause (Z2-Tempo), 4 Wiederholungen. Gesamtdauer ~30 Min inkl. 10 Min Warm-up. Wann: 1× pro Woche, z.B. Mittwoch oder Donnerstag. Mechanismus: VO2max-Stimulus, kardiales Output, Laktat-Clearance.",
+            "Bodyweight-Kraft (5×5-Schema): 5 Sätze à 5 Wiederholungen einer Grundübung (z.B. Push-ups, Squats, Dips, Rows). 2–3 Min Pause zwischen Sätzen. Gesamtdauer ~20 Min. Wann: 1× pro Woche, z.B. Montag oder Dienstag. Mechanismus: Muskelaufbau, Kraft-Basis für Body-Comp, Stoffwechsel-Boost.",
+            "Wenn du Radfahren bevorzugst statt Laufen: Z2-Fahrt (30–45 Min, RPE 3-4) + Sweet-Spot-Intervalle (5× 5 Min bei 88-93% HRmax (so schnell dass du kaum noch reden kannst), 2 Min Pause)."
+          ]
+        },
+        {
+          "heading": "NEAT (Non-Exercise Activity Thermogenesis) — der unterschätzte Hebel",
+          "items": [
+            "NEAT (Alltagsbewegung außerhalb vom Training — Treppen, Laufen, Stehen) kann 300–800 kcal/Tag ausmachen — das ist 20–30% deines täglichen Energieverbrauchs. Bei deinem Body-Comp-Ziel ist NEAT (Alltagsbewegung außerhalb vom Training — Treppen, Laufen, Stehen) additiv zu strukturiertem Training ein großer Hebel, weil es Kalorien-Deficit ohne Hunger-Stress aufbaut.",
+            "NEAT wirkt synergistisch mit Training: Während deine 2× Trainings-Sessions (z.B. 60 Min/Woche) gezielt VO2max + Kraft aufbauen, schafft NEAT das tägliche Kaloriendeficit das Body-Comp ermöglicht. Konkrete NEAT-Strategien (z.B. Treppen statt Aufzug, Stehen statt Sitzen) gehören in deinen Master-Wochenplan, nicht hier — aber merke: NEAT ist dein zweites Trainings-System."
+          ]
+        },
+        {
+          "heading": "Trainings-Belastungs-Management — wann Gas, wann Bremse",
+          "items": [
+            "RPE-basierte Steuerung (wie anstrengend es sich anfühlt auf einer Skala 1-10): Deine Z2-Sessions sollten RPE 3-4 sein (du kannst entspannt sprechen), deine HIT-Sessions RPE 8-9 (du kannst kaum sprechen). Wenn du merkst dass du RPE 9-10 nicht mehr erreichst obwohl du es versuchst, ist das ein Übertraining-Signal — Volumen reduzieren.",
+            "Übertraining-Marker: HRV-Drop (Herzfrequenzvariabilität — Anzeichen wie erholt dein Körper ist, wenn du trackst), Schlaf-Verschlechterung (z.B. von 7h auf 5-6h), anhaltende Müdigkeit trotz Schlaf, Leistungs-Plateau über 2+ Wochen. Wenn 2+ dieser Marker auftauchen: 1 Woche Volumen um 30-40% reduzieren (z.B. nur 1 Session statt 2).",
+            "Volumen-Progression: Woche 1-2 = Habit-Aufbau (2× pro Woche, moderate Dauer). Woche 3-4 = Dauer +10-15% (z.B. Z2-Lauf von 30 auf 35 Min). Woche 5+ = nur wenn Übertraining-Marker nicht auftauchen. Dein Zeitbudget (moderate) und Stress-Niveau, hoch) bedeuten: konservativ progressieren, nicht aggressiv."
+          ]
+        },
+        {
+          "heading": "Progress-Tracking",
+          "items": [
+            "VO2max-Re-Test nach 4 Wochen: Nutze denselben Test wie deine Baseline (z.B. Cooper-Test: 12 Min maximal schnell laufen, Distanz messen → VO2max-Formel). Oder: Standardisierte 1-km-Lauf-Zeit tracken (schneller = höhere VO2max). Ziel: 2-3% Verbesserung in 4 Wochen ist realistisch.",
+            "Trainings-Konsistenz: Tracke Sessions/Woche (Ziel: 2×) und MET-min/Woche (Ziel: 813+, dein aktueller Wert). Wenn du unter 2× fällst oder MET-min sinken, ist das ein Adhärenz-Problem — nicht ein Trainings-Problem.",
+            "Re-Analyse nach 4 Wochen: Neue Messung (VO2max, Schlaf-Score, Stress-Score, Gewicht). Wenn VO2max +2-3%, Schlaf stabil/besser, Stress gleich/besser = Plan funktioniert, weitermachen. Wenn VO2max stagniert = Intensität erhöhen oder Volumen reduzieren (Übertraining-Check). Wenn Schlaf/Stress verschlechtern = Training reduzieren, Stress-Interventionen priorisieren."
+          ]
+        }
+      ]
+    },
+    "metabolic": {
+      "title": "METABOLIC-PLAN",
+      "subtitle": "Individueller Plan zur Optimierung deiner metabolischen Performance",
+      "source": "Basiert auf: WHO BMI-Klassifikation, EFSA Nährwertempfehlungen, ISSN Position Stand, JAMA Network Open Meal Timing 2024, Covassin et al. RCT 2022",
+      "locale": "de",
+      "blocks": [
+        {
+          "heading": "Deine Ausgangslage",
+          "items": [
+            "Metabolik-Niveau (moderat) — dein Stoffwechsel hat Optimierungspotential, aber keine kritischen Defizite. Schlüssel: konsistente Ernährung + regelmäßige Bewegung.",
+            "BMI 26,3 kg/m² (Übergewicht nach WHO) — liegt über dem Normalbereich 18,5–24,9. Body-Composition-Ziel: Fettmasse reduzieren, Muskelmasse halten/aufbauen.",
+            "Dein Schlaf (60/100), Stress (30/100 — hoch) und Aktivität (43/100) beeinflussen deinen Metabolik-Niveau direkt. Diese werden in Recovery-Plan, Stress-Plan und Activity-Plan konkret adressiert."
+          ]
+        },
+        {
+          "heading": "Metabolische Wissenschaft",
+          "items": [
+            "Metabolik-Niveau misst: BMI + Aktivitäts-Puffer (wie viel du dich bewegst) + Schlaf-Qualität. Mittlere Werte wie deine signalisieren, dass Ernährungs- + Bewegungs-Optimierung direkt messbar wirkt — nicht dass etwas 'kaputt' ist.",
+            "BMI hat Grenzen bei hoher Muskelmasse — wenn du später intensiv trainierst, wird dein BMI steigen (Muskel wiegt mehr als Fett), aber deine Body-Composition besser. Bessere Langzeit-Marker: Bauchumfang, Spiegelbild, wie deine Kleidung sitzt.",
+            "Metabolische Flexibilität (wie gut dein Körper zwischen Fett- und Glukose-Verbrennung wechselt) ist dein Performance-Marker. Trainierte Mitochondrien (Zellkraftwerke) können beide Substrate effizient nutzen — das reduziert Heißhunger, stabilisiert Energie und verbessert Fettverlust. Aufgebaut durch konsistente aerobe Belastung über Wochen.",
+            "Insulinsensitivität + Grundumsatz (BMR): dein Körper braucht täglich Kalorien nur zum Atmen/Denken/Verdauen (BMR ~1600–1800 kcal geschätzt). Dazu kommt Aktivität (TDEE). Individueller Bedarf hängt von Alter, Muskelmasse, Hormonprofil ab — deshalb tracken wir deine Energie-Skala, nicht nur Zahlen."
+          ]
+        },
+        {
+          "heading": "Protein-Prinzipien",
+          "items": [
+            "Tagesbedarf bei Training: 1,6–2,2 g pro kg Körpergewicht. Bei ~80 kg (geschätzt aus BMI) = 128–176 g Protein/Tag. Ziel: 150 g/Tag als Startpunkt — verteilt auf 4–5 Mahlzeiten, nicht 2 Mega-Portionen.",
+            "Leucin-Schwelle (~2,5 g pro Mahlzeit) triggert Muskelproteinsynthese (Muskelaufbau-Signal). Das bedeutet: jede Mahlzeit sollte 25–30 g hochwertiges Protein haben (Eier, Quark, Fisch, Huhn, Linsen). Kleine Snacks mit 10 g Protein zählen nicht — sie triggern die Schwelle nicht.",
+            "Protein-Timing über 24h: nicht nur direkt nach dem Training wichtig. Pre-Workout 20–30 g Protein 1–2h vorher (stabilisiert Blutzucker während Training). Post-Workout Ratio 1:2 Protein:Kohlenhydrate (z.B. 30 g Protein + 60 g Carbs) für schnelle Glykogen-Resynthese (Energiespeicher auffüllen)."
+          ]
+        },
+        {
+          "heading": "Mahlzeit-Templates",
+          "items": [
+            "Frühstücks-Template: 3 Eier (Rührei/Spiegelei) + 80 g Haferflocken (roh gemessen) + 1 EL Erdnussbutter + 1 Banane. Nährwerte: ~30 g Protein + ~70 g komplexe Kohlenhydrate + ~15 g gesunde Fette. Mechanismus: Eier liefern komplettes Aminosäure-Profil + Leucin-Schwelle, Haferflocken stabilisieren Blutzucker durch Beta-Glucan (löslicher Ballaststoff), Fette verzögern Magenentleerung → Sättigung 3–4h, Banane liefert Kalium + schnelle Carbs für Energie.",
+            "Post-Workout-Template: 150 g Magerquark + 50 g Beeren (frisch oder TK) + 40 g Haferflocken + 1 EL Honig. Nährwerte: ~30 g Protein + ~50 g Kohlenhydrate (Ratio 1:2). Mechanismus: Quark = Casein + Whey (zwei Proteine mit unterschiedlicher Absorptionsgeschwindigkeit — schnelle + langsame Aminosäure-Versorgung), Honig liefert schnelle Glukose für sofortige Glykogen-Resynthese (Energiespeicher), Beeren = Polyphenole (Pflanzenstoffe) gegen Trainings-Inflammation.",
+            "Protein-Snack-Template: 200 g griechischer Joghurt + 30 g Mandeln + Prise Zimt. Nährwerte: ~20 g Protein + 8 g Ballaststoffe + ~15 g Fette. Mechanismus: Joghurt hochwertiges Protein für Leucin-Schwelle, Mandeln + Ballaststoffe verlängern Sättigung 2–3h, Zimt unterstützt Insulinsensitivität (wie gut dein Körper Zucker verarbeitet)."
+          ]
+        },
+        {
+          "heading": "Hydration + Body-Composition",
+          "items": [
+            "Wasser-Bedarf: 35–40 ml pro kg Körpergewicht täglich (bei 80 kg = 2,8–3,2 Liter) + 500–1000 ml pro Trainings-Stunde. Mechanismus: Plasma-Volumen (Blutflüssigkeit) für Nährstoff-Transport, Temperatur-Regulierung, Konzentration, Performance.",
+            "Elektrolyte: Natrium 1–2 g/Tag (mehr bei starkem Schwitzen oder intensiven Phasen), Kalium 3–4 g/Tag, Magnesium 400 mg/Tag. Wann supplementieren: intensive Trainings-Phasen, Hitze, oder wenn du merkst dass deine Beine nachts zucken (Magnesium-Zeichen). Quelle: Salz in Mahlzeiten, Bananen (Kalium), Nüsse/Samen (Magnesium).",
+            "Body-Composition vs Waage: die Waage allein ist irreführend. Glykogen-Wasser-Schwankungen = 1–3 kg/Woche normal (Kohlenhydrate speichern Wasser). Muskel-Fett-Tausch sieht auf der Waage gleich aus, aber im Spiegel anders. Bessere Tracking-Methoden: wöchentlicher Spiegel-Check (wie sitzt die Kleidung?), monatlicher Bauchumfang (Maßstab), Trainings-Performance (schaffst du mehr Wiederholungen?), Schlaf-Qualität. Professionell: DXA-Scan oder Caliper-Messung alle 3–6 Monate."
+          ]
+        },
+        {
+          "heading": "Progress-Tracking",
+          "items": [
+            "Realistische Erwartungen: Fettverlust 0,5–1% Körpergewicht/Woche im Kaloriendefizit (bei 80 kg = 0,4–0,8 kg/Woche). Muskelaufbau als Trainierter 0,25–0,5 kg/Monat. Beides gleichzeitig ist möglich, aber langsamer als nur Fett oder nur Muskel.",
+            "Was wirklich tracken außer Gewicht: Energie-Skala 1–10 (wie fit fühlst du dich tagsüber?), Hunger-Skala (1–10, wie hungrig bist du vor Mahlzeiten?), Trainings-Performance (mehr Wiederholungen? schneller? weniger Pausen?), Schlaf-Qualität (wie erholsam war die Nacht?).",
+            "Plateau-Handling: nach 2–3 Wochen Stillstand auf der Waage → 1 Refeed-Tag/Woche (Kohlenhydrate hoch, z.B. +100 g Carbs), Kalorien um 100–200 anpassen, Schlaf + Stress prüfen (Cortisol — Stresshormon — kann Fettverlust blockieren). Oft ist das Plateau psychologisch, nicht physiologisch.",
+            "Re-Analyse nach 4 Wochen: Stress (30/100 — hoch) + Schlaf (60/100 — moderat) + Aktivität (43/100) beeinflussen deinen Metabolik-Niveau direkt, nicht nur Ernährung. Wenn Metabolik-Niveau nicht steigt, prüfe zuerst: schläfst du besser? Ist dein Stress gesunken? Trainierst du konsistenter? Dann erst Ernährung anpassen."
+          ]
+        }
+      ]
+    },
+    "recovery": {
+      "title": "RECOVERY-PLAN",
+      "subtitle": "Individueller Plan zur Verbesserung deiner Regeneration",
+      "source": "Basiert auf: NSF/AASM Sleep Guidelines, PSQI-Skala, ACSM Recovery Protocols, Kaczmarek et al. MDPI 2025, PMC OTS Review 2025",
+      "locale": "de",
+      "blocks": [
+        {
+          "heading": "Deine Ausgangslage",
+          "items": [
+            "Sleep Score 60/100 — du schläfst zu kurz (unter 7h) und verlierst dadurch überproportional REM-Phasen, die für emotionale Verarbeitung und Gedächtnis-Konsolidierung zuständig sind.",
+            "Stress-Niveau (hoch) — Job und Familie drücken dein Nervensystem chronisch in den Sympathikus, das senkt nächtliche HRV (Herzfrequenzvariabilität — Anzeichen wie erholt dein Körper ist) messbar und fragmentiert deinen Schlaf weiter.",
+            "Cross-Plan-Verweis: konkrete Uhrzeiten, Wochentage und Trigger-Mapping (z.B. wann genau Sauna, wann Cold Therapy) stehen im Master-Wochenplan; Akut-Atemtools (4-7-8, Box Breathing) und Effort-Recovery Detachment im Stress-Plan; Mahlzeiten-Timing im Metabolic-Plan."
+          ]
+        },
+        {
+          "heading": "Schlafphasen",
+          "items": [
+            "NREM-Phase (Stadium 3, Tiefschlaf): passiert in den ersten 1–2 Schlafzyklen, Funktion ist Muskel-Reparatur und Wachstumshormon-Peak (bis 10× über Tageswert) — dein Körper baut sich nachts auf.",
+            "REM-Phase: dominiert die letzten 2–3 Zyklen, Funktion ist Gedächtnis-Konsolidierung, emotionale Verarbeitung und kreatives Problem-Lösen — bei dir wahrscheinlich zu kurz.",
+            "Schlafzyklen-Verteilung: 4–5 Zyklen à ~90 Min sind biologisch optimal. Dein aktueller Schlaf (vermutlich 6–6,5h) heißt nicht '25% weniger Schlaf', sondern 'fast die Hälfte REM weg' — das erklärt warum du emotional erschöpfter bist als die Stundenzahl vermuten lässt.",
+            "Alkohol und THC unterdrücken REM um 20–50% — selbst wenn du 8h 'schläfst', sinkt dein Erholungs-Wert messbar. Relevant für dich: abends Alkohol als Stress-Bewältigung reduziert den Recovery-Effekt des Schlafs."
+          ]
+        },
+        {
+          "heading": "Circadian-Rhythmus + Adenosin",
+          "items": [
+            "Biologische Licht-Mechanik: morgens helles Licht (>10.000 Lux idealerweise im Freien) triggert Cortisol-Awakening-Response und setzt deine circadiane Uhr; abends gedämpft (<100 Lux) erlaubt Melatonin-Ausschüttung — z.B. 10 Min Spaziergang direkt nach dem Aufwachen, abends Handy-Blaulicht-Filter oder Brille.",
+            "7–9h Schlaf sind biologisch optimal (NSF/AASM-Konsens): das sind 4–5 vollständige Schlafzyklen à 90 Min für ausreichend REM-Quote. Dein Chronotyp (Frühaufsteher vs Nachteule) ist biologisch unterschiedlich, kein Disziplin-Thema — wenn du natürlicherweise später einschläfst, erzwinge nicht künstlich 22 Uhr.",
+            "Adenosin-System: Adenosin akkumuliert über den Tag, bindet an Rezeptoren im Hirn und baut Schlaf-Druck auf. Koffein blockiert diese Rezeptoren (Halbwertszeit 5–6h) — Müdigkeit wird nicht eliminiert, nur aufgeschoben. Konsequenz: Koffein 8–10h vor Schlaf hat Wirkung auf Tiefschlaf-Architektur — z.B. Kaffee vor 14 Uhr wenn du um 22 Uhr ins Bett gehst.",
+            "Body-Temperature-Drop: Kerntemperatur fällt 1–2°C beim Einschlafen und triggert NREM-Eintritt. Erklärt biologisch warum kühles Schlafzimmer (16–19°C) Tiefschlaf-Qualität steigert — z.B. Fenster 30 Min vor dem Schlafengehen öffnen oder Temperatur-Regler runterdrehen."
+          ]
+        },
+        {
+          "heading": "HRV als Recovery-Marker",
+          "items": [
+            "HRV (Herzfrequenzvariabilität — Variation der Zeit zwischen Herzschlägen in Millisekunden) ist dein objektiver Recovery-Marker. Höhere HRV = besserer Parasympathikus-Tonus = bessere Erholung — das ist messbar, nicht subjektiv.",
+            "RMSSD (Root Mean Square of Successive Differences) ist parasympathisch-sensitiv und der eigentliche Recovery-Marker. SDNN ist Gesamt-Variabilität (incl. sympathischer Anteile). Wearables wie Oura, Whoop, Polar tracken RMSSD. Altersabhängige Range: typisch 25–50 ms für gesunde Erwachsene.",
+            "Coherent Breathing 5–6 BPM (nicht Akut-Stress-Tool — die liegen im Stress-Plan): 5–6 Atemzüge pro Min synchronisiert Herzschlag mit Atmung (Resonanz-Phänomen) → maximale HRV in Echtzeit. Praktisch: 5 Min/Tag oder vor dem Schlafen — z.B. Smartphone-Timer auf 5 Min, einatmen 5 Sek, ausatmen 5 Sek, 30 Wiederholungen.",
+            "Chronischer Familien-/Beziehungs-Stress senkt nächtliche HRV messbar (erhöhter Sympathikus-Tonus über Stunden hinweg). Wenn HRV-Trend über mehrere Wochen fällt trotz Recovery-Tools, ist Stressquellen-Bearbeitung im Stress-Plan vermutlich der Hebel — nicht mehr Sauna, sondern Repair Attempts oder Co-Regulation Practice."
+          ]
+        },
+        {
+          "heading": "Passive Recovery-Methoden",
+          "items": [
+            "NSDR / Yoga Nidra (Nidra = Schlaf): 10–20 Min in liegender Position mit geführter Aufmerksamkeit — z.B. YouTube 'Yoga Nidra 15 Min' nach dem Mittagessen oder vor dem Schlafengehen. Mechanismus: Theta-Wellen-Dominanz wie in tiefer Meditation, senkt Cortisol (Stresshormon — morgens am höchsten, abends sollte es niedrig sein) nachweislich (Dopamin +65%).",
+            "Sauna: 15–20 Min bei 80–90°C, 2–3× pro Woche. Mechanismus: Heat-Shock-Proteins (HSP-70) sind cross-protective — schützen nicht nur vor Hitze, sondern gegen oxidativen Stress, Inflammation, virale/bakterielle Infektionen. Finnische Kohorten-Studien zeigen: 4–7×/Woche Sauna senkt All-Cause-Mortality um 40%.",
+            "Cold Therapy: 1–3 Min bei 10–15°C (kalte Dusche oder Eisbad) — z.B. nach dem Aufwachen oder nach leichtem Training. Mechanismus: Norepinephrin-Surge (+200–500%, hält 1–2h), Anti-Inflammation, mentale Klarheit. NICHT direkt nach Krafttraining (blockt Hypertrophie-Signaling).",
+            "Contrast Shower: alternierend 30–60s warm / 30–60s kalt, 3–5 Wechsel — z.B. 2 Min warm, 1 Min kalt, 2 Min warm, 1 Min kalt, 2 Min warm. Mechanismus: wiederholte Vasodilation/-konstriktion trainiert das autonome Nervensystem auf Parasympathikus-Reaktivierung; mildere Variante von Cold Therapy mit ähnlichem HRV-Effekt.",
+            "Epsom-Salt-Bad: 20 Min in warmem Wasser mit 300–500g Magnesiumsulfat — z.B. 1–2× pro Woche abends. Mechanismus: transdermale Magnesium-Aufnahme unterstützt Muskel-Entspannung und GABA-Aktivität; Wärme triggert anschließenden Body-Temperature-Drop → Schlaf-Vorbereitung.",
+            "Bewusstes Kochen als passiver Recovery-Anker: aktiviert das Default Mode Network (Selbst-Bezugs-System des Gehirns) — wirkt wie NSDR ohne Liegen. Praktisch: 20–30 Min Mahlzeit-Zubereitung ohne Handy, Musik oder Podcast, nur Fokus auf Bewegung und Gerüche — z.B. Gemüse schneiden, Sauce rühren."
+          ]
+        },
+        {
+          "heading": "Aktive Recovery-Methoden",
+          "items": [
+            "Mobility-Mechanismus: Faszien-Mobilisation + Range of Motion (Sarkomere-Länge, Mechanoreceptor-Stimulation). Praktisch: 10–15 Min täglich — z.B. Hüftöffner (Pigeon Pose 1 Min pro Seite), Schulter-Pendel (30 Wiederholungen), Wirbelsäulen-Rotation (10 pro Seite).",
+            "DOMS (Delayed Onset Muscle Soreness): peakt 24–72h nach ungewohnter Belastung. Behandlung: leichte Bewegung beschleunigt Heilung, vollständige Ruhe verlängert — z.B. am Tag nach hartem Training 20 Min lockeres Gehen statt Couch.",
+            "Foam Rolling / Self-Myofascial Release: 30–60s pro Muskelgruppe, moderater Druck — z.B. Oberschenkel, Waden, Rücken. Mechanismus: mechanische Druck-Stimulation der Faszien-Mechanorezeptoren reduziert akuten Muskeltonus und subjektives DOMS-Empfinden. Nach Training oder an Off-Tagen.",
+            "Legs-up-the-Wall (Viparita Karani): 10–15 Min Rücken am Boden, Beine senkrecht hochgelegt — z.B. nach langen Steh-/Sitz-Tagen oder abends vor dem Schlafengehen. Mechanismus: venöser Rückfluss + Aktivierung des Baroreflexes → Parasympathikus-Shift, leichte Cortisol-Senkung.",
+            "Zone 2 (Tempo bei dem du noch sprechen kannst) als Active Recovery: 20–40 Min lockeres Gehen / Easy Cycling — z.B. Spaziergang im Park oder langsames Radfahren. Beschleunigt Glykogen-Resynthese 2–3× vs passive Ruhe (Durchblutung + Laktat-Clearance), kein neuer Recovery-Schuld-Aufbau.",
+            "Natur-Spaziergang als aktive Recovery-Variante: 20 Min Natur-Exposition senkt Cortisol um −21% vs Stadt-Kontrolle — z.B. Park statt Straße, Wald statt Einkaufszone. Kombiniert Zone 2-Mechanik mit visuellem/akustischem Stress-Buffer."
+          ]
+        },
+        {
+          "heading": "Progress-Tracking",
+          "items": [
+            "HRV tracken: morgens nach dem Aufwachen 2–3 Min ruhig liegen, dann messen (Wearable / Polar / Smartphone-Apps). Trends über 7–14 Tage wichtiger als Tageswerte (Schwankungen ±10–20% normal) — z.B. Wochentrend aufschreiben: 'Woche 1: Ø 32 ms, Woche 2: Ø 35 ms'.",
+            "Schlaf-Qualität subjektiv (1–10) UND objektiv: Einschlaf-Latenz (<20 Min normal), nächtliches Aufwachen, Energie morgens. Wearable-Schlafphasen-Daten sind grobe Annäherung, kein Goldstandard — z.B. Tagebuch: 'Eingeschlafen 22:45, aufgewacht 6:15, 1× nachts wach, morgens Energie 6/10'.",
+            "Energie-Skala morgens + abends: morgens niedrig + abends hoch → Cortisol-Inversion (Indiz für chronischen Stress, Verweis auf Stress-Plan). Praktisch: täglich 1–10 Skala notieren, Wochenmittel berechnen.",
+            "Re-Analyse nach 4 Wochen: HRV-Trend stabil oder steigend → weiter so; HRV-Trend fallend trotz Recovery-Tools → Volumen runter, Schlaf priorisieren, ggf. Cortisol checken lassen. Sleep-Duration: Ziel 7–8h, Messung via Wearable oder Handy-App.",
+            "Trennlinie zu anderen Plänen: konkrete Wochentage/Uhrzeiten/Trigger-Mapping (z.B. wann genau Sauna, wann Cold, wann NSDR) → Master-Wochenplan. Mahlzeiten-Timing und Mengen → Metabolic-Plan. Trainings-Volumen und Methoden → Activity-Plan. Akute Stress-Tools (4–7–8, Box Breathing) → Stress-Plan. Recovery-Plan fokussiert auf Mechanismen und Tracking, nicht auf Wochen-Termine."
+          ]
+        }
+      ]
+    },
+    "stress": {
+      "title": "STRESS & LIFESTYLE-PLAN",
+      "subtitle": "Individueller Plan zur Optimierung von Stress und Lifestyle",
+      "source": "Basiert auf: WHO Mental Health Guidelines, Psychoneuroendocrinology Meta-Analysis 2024, MBSR (Kabat-Zinn), Frontiers Sedentary & CVD 2022",
+      "locale": "de",
+      "blocks": [
+        {
+          "heading": "Deine Ausgangslage",
+          "items": [
+            "Stress-Niveau = high: dein Sympathikus läuft chronisch erhöht, nicht akut-episodisch. Das ist Dauer-Tonus, kein Spike.",
+            "Zwei Stressoren überlagern sich: Job + Familie. Job triggert Karrieren-Sympathikus (Leistungs-Druck, Kontrollverlust), Familie triggert emotionale Dysregulation (Konflikte, Reparatur-Defizit). Zusammen = diffuser Dauer-Stress ohne klare Pausen.",
+            "Dein Sleep-Score 60 und Activity-Score 43 sind Folgen, nicht Ursachen — chronischer Stress supprimiert Schlaf-Qualität und Trainings-Motivation. Recovery-Plan adressiert Schlaf-Architektur + Cortisol-Tagesverlauf, Activity-Plan das Trainings-Volumen. Dieser Plan fokussiert Stress-Physiologie + Stressor-Management."
+          ]
+        },
+        {
+          "heading": "Stress-Physiologie: warum 'einfach entspannen' nicht funktioniert",
+          "items": [
+            "HPA-Achse (Hypothalamus → Hypophyse → Nebennierenrinde) bei chronischem Stress: Cortisol (Stresshormon — morgens am höchsten, abends sollte es niedrig sein) bleibt erhöht, die Awakening-Response (Cortisol-Spike morgens) kann invertiert sein oder flach. Dein Körper hat gelernt, dass Stress normal ist — die Achse re-kalibriert sich nicht von selbst.",
+            "Polyvagal-Theorie (Porges): dein ventraler Vagus (Social-Engagement + Regenerations-Modus) ist bei Dauer-Stress unteraktiv. Stattdessen sitzt du zwischen dorsalem Vagus (Shutdown-Modus bei Überforderung) und Sympathikus (Kampf-Flucht). Das erklärt, warum du abends erschöpft bist, aber nicht schlafen kannst — weder echte Aktivation noch echte Ruhe.",
+            "Allostatic Load (kumulative Stressbelastung über Zeit): Stress ist wie ein Akku-Verbraucher. Akut (Präsentation, Konflikt) = Performance-Boost, OK. Chronisch (Job + Familie täglich) = toxisch. Folgen: Insulinresistenz, Immun-Suppression, Gedächtnis-Abbau. Dein Metabolic-Score 57 und Sleep-Score 60 sind Marker dafür.",
+            "Invertierte Cortisol-Awakening-Response ist ein Zeichen chronischer Überbelastung — morgens flach statt Spike. Das ist ein Tracking-Marker für den Recovery-Plan, nicht für diesen Plan."
+          ]
+        },
+        {
+          "heading": "Akut-Tools: 60-90 Sekunden bis 5 Minuten",
+          "items": [
+            "Physiological Sigh (Balban/Huberman 2023): Doppel-Einatmung Nase + lange Ausatmung Mund, 1–3 Wiederholungen, Wirkung in 60–90 Sekunden. Schnellste klinisch belegte Akut-Down-Regulation. Anwendung: vor Meetings, nach Konflikten mit Familie — z.B. 2 schnelle Atemzüge Nase, dann 6–8 Sekunden Mund-Ausatmung, 3× wiederholen.",
+            "Box Breathing 4-4-4-4: 4 Sekunden einatmen, 4 halten, 4 ausatmen, 4 halten, 3–5 Minuten. CO2-Toleranz + Vagus-Aktivierung. Navy-SEAL-Standard. Anwendung: Pre-Performance vor schwierigen Gesprächen, akute Anspannung — z.B. nach einem Streit mit Partner, bevor du antwortest.",
+            "4-7-8-Atmung: 4 Sekunden Nase ein, 7 Sekunden halten, 8 Sekunden Mund aus. Verlängerte Ausatmung dominiert Parasympathikus, senkt Herzfrequenz + Blutdruck in Minuten. Anwendung: abends wenn Gedanken-Spirale startet — z.B. 5 Runden vor dem Einschlafen.",
+            "Mammalian Dive Reflex: 30 Sekunden Gesicht in kaltes Wasser (10–15°C, NICHT ganzer Körper). Triggert Bradykardie + Vagus-Spike via Trigeminus-Nerv. Schnellster Off-Switch bei Panik-Spike oder akuter Über-Erregung. Anwendung: Notfall-Tool wenn Sympathikus hochfährt — z.B. kaltes Wasser ins Gesicht nach Konflikt-Eskalation."
+          ]
+        },
+        {
+          "heading": "Mental Performance: Gedanken-Umstrukturierung",
+          "items": [
+            "Cognitive Reframing (Crum et al. 2013, Stress-Mindset): Stress als Performance-Signal umdeuten, nicht als Bedrohung. Konkret: 'Mein Körper macht mich bereit' statt 'Ich bin überfordert'. Effekt: gemessene Performance-Steigerung + Cortisol-Reaktivität sinkt. Anwendung: vor Job-Meetings oder Familie-Gesprächen — z.B. 30 Sekunden: 'Diese Anspannung ist Energie, nicht Angst.'",
+            "Cognitive Defusion (Hayes, ACT): 'Ich habe den Gedanken, dass ich versage' statt 'Ich versage'. Löst die Gedanken-Fusion selbst auf, nicht nur den Inhalt. Tiefer als Reframing. Anwendung: wenn Grübel-Spirale startet — z.B. 'Das ist ein Gedanke, den mein Gehirn produziert, nicht die Realität.'",
+            "Attention-Management + Identity-Habits (Clear, Atomic Habits): Single-Tasking-Blöcke (1 Aufgabe, kein Multitasking), Phone-Distance (sichtbares Handy = −20% kognitive Leistung). 1 Identity-Statement formulieren: 'Ich bin jemand, der nach jedem Meeting tief ausatmet' oder 'Ich bin jemand, der Konflikte repariert, nicht vermeidet.' Identity > Outcome > Behavior. Anwendung: morgens 1 Satz sprechen, täglich — z.B. vor dem Spiegel."
+          ]
+        },
+        {
+          "heading": "Lifestyle-Architektur: Stress-Puffer bauen",
+          "items": [
+            "Decision Fatigue Reduction (Vohs et al.): wiederkehrende Mini-Entscheidungen automatisieren (Kleider-Set, Standard-Frühstück, fixe Routinen-Slots). Präfrontaler Cortex hat begrenzte Glucose-Reserve pro Tag — automatisierte Routinen schonen das Budget. Anwendung: z.B. Montag–Freitag gleiche Arbeits-Kleidung, Frühstück immer Oatmeal + Ei, Meetings immer 9–12 Uhr.",
+            "Information Diet / News-Fasting (Kalogeropoulos 2020): Doomscrolling-Reduktion durch 1× täglich gebatchten News-Konsum statt permanentem Strom. Reduziert Cortisol-Spikes durch unkontrollierte Threat-Reize. Anwendung: z.B. 15 Min News nach dem Mittagessen, nicht beim Aufwachen oder vor dem Schlaf.",
+            "Touch-based Stress Regulation: 20-Sekunden-Umarmung, Hand-on-Heart, Selbst-Berührung. Aktiviert Oxytocin-System + ventralen Vagus. Pet-Touch zählt auch. Anwendung: z.B. nach Konflikt mit Familie 20 Sekunden umarmen statt auseinandergehen, oder Hand auf Herz wenn Angst-Gedanke kommt.",
+            "Music & Heart Rate Entrainment: 60–80 BPM-Musik 10–15 Minuten. Vagalstützend, senkt Sympathikus-Tonus. Anwendung: z.B. während Mittagspause oder abends beim Essen mit Familie — z.B. Spotify-Playlist 'Calm Piano' oder 'Lo-Fi Beats'."
+          ]
+        },
+        {
+          "heading": "Job-Stress: Detachment + Mastery-Hobby",
+          "items": [
+            "Effort-Recovery Detachment (Meijman/Mulder, Sonnentag): psychologisches Detachment vom Job ist wichtiger als Zeit-Reduktion. Du kannst 8 Stunden arbeiten und abends noch 'am Job sein' (Gedanken-Spirale). Stattdessen: Übergangs-Ritual Job → Privat etablieren. Schwellen-Cue: Schlüssel-Haken, 5-Min-Spaziergang, Outfit-Wechsel. Mechanismus: Ritual signalisiert dem Gehirn 'Job-Modus aus'. Anwendung: z.B. nach Arbeit Jacke ausziehen, 5 Min um den Block gehen, dann erst Familie begrüßen.",
+            "Mastery-Hobby (Recovery Experience Questionnaire): Skill-Entwicklung außerhalb Job aktiviert dopaminerges System job-unabhängig. Nicht 'Entspannung' (passiv), sondern aktive Skill-Progression in etwas das du kontrollierst. Anwendung: z.B. Gitarre lernen, Klettern, Kochen, Handwerk — 2–3× pro Woche 30–60 Min. Effekt: Cortisol sinkt, Dopamin steigt, Job-Stress verliert Gewicht.",
+            "Strategic Underperformance (Cal Newport): 'Maybe-No-Default' — nicht jede Anfrage ist eine Verpflichtung. Email-Response 24h statt 2h. Reduziert Karrieren-Sympathikus ohne Karriere-Schaden (Studien zeigen: Über-Responsiveness wird nicht belohnt, nur erwartet). Anwendung: z.B. 1× täglich Emails checken (z.B. 14:00 Uhr), nicht ständig. Slack-Benachrichtigungen aus. Sag zu neuen Projekten erst 'Ich überleg mir das' statt sofort 'Ja'."
+          ]
+        },
+        {
+          "heading": "Familie-Stress: Repair Attempts + Co-Regulation",
+          "items": [
+            "Repair Attempts (Gottman): nicht Streit-Vermeidung sagt Beziehungs-Erfolg voraus, sondern schnelle Repair-Versuche nach Konflikten. Familieneigener Repair-Code etablieren: Geste (z.B. Hand ausstrecken), Wort (z.B. 'Ich mag dich'), Inside-Joke (z.B. gemeinsames Lachen). Mechanismus: Repair signalisiert 'Konflikt ist nicht existenziell, wir sind noch verbunden'. Anwendung: z.B. nach Streit mit Partner/Kind: Hand ausstrecken + 'Lass mich das anders sagen' oder gemeinsamer Witz. Nicht warten bis Stille eintritt.",
+            "Co-Regulation Practice (Polyvagal-Anwendung): 5-Min-Sync-Momente gemeinsam essen ohne Handy, Augenkontakt, parallele Atmung. Aktiviert ventralen Vagus. Mechanismus: Synchronisierung mit anderen Menschen ist stärkster Vagus-Aktivator. Anwendung: z.B. täglich 1 Mahlzeit zusammen ohne Handy, Blickkontakt halten, langsam essen. Oder 5 Min vor dem Schlaf: Hand halten, zusammen atmen.",
+            "Bedtime Disclosure (Algoe 2012): 1 Dankbarkeit + 1 Sorge teilen vor dem Schlaf. Erhöht Oxytocin, senkt Cortisol. Mechanismus: Vulnerability + Dankbarkeit aktivieren Bindungs-System. Anwendung: z.B. vor dem Schlaf mit Partner: 'Ich bin dankbar für [konkret], und ich mache mir Sorgen um [konkret].' Nicht Vorwürfe, nicht Lösungs-Druck — nur Teilen."
+          ]
+        },
+        {
+          "heading": "Progress-Tracking: Stress-Marker über 4 Wochen",
+          "items": [
+            "HRV (RMSSD in ms) als objektiver Stress-Marker — Trend über 7–14 Tage wichtiger als Tageswerte. Sinkender Trend = Sympathikus-Stuck-On → Volumen runter, Recovery-Tools rauf. Detail-Tracking-Methodik liegt im Recovery-Plan. Anwendung: z.B. morgens 1 Min nach dem Aufwachen HRV (Herzfrequenzvariabilität — Anzeichen wie erholt dein Körper ist) messen (Apple Watch, Oura Ring, oder App), Wochenmittel notieren.",
+            "Subjektive 1–10-Stress-Skala morgens (30 Sekunden, baut Interozeption auf). Trend wichtiger als Einzelwert. Anwendung: z.B. morgens nach dem Aufwachen: 'Wie angespannt fühle ich mich heute?' 1–10 aufschreiben, Wochenmittel bilden.",
+            "Wochen-Review-Frage (wöchentlich): 'Welche 1–2 Down-Regulation-Momente hatten diese Woche WIRKUNG?' — verstärkt was funktioniert. Anwendung: z.B. Sonntag-Abend 5 Min: Physiological Sigh? Box Breathing? Mastery-Hobby? Repair-Versuch? Was hat geholfen, was nicht?",
+            "Re-Analyse nach 4 Wochen: welche Akut-Tools behalten, welche tauschen. Welche Stressor-Tools (Job-Detachment, Mastery-Hobby, Repair Attempts) haben Stress-Score gesenkt? Dann Stress-Plan Phase 2 starten mit Fokus auf die Top-3-Tools."
+          ]
+        }
+      ]
+    }
+  },
+  "masterPlan": {
+    "plan": {
+      "title": "MASTER-WOCHENPLAN",
+      "subtitle": "Personalisiert für dich, zugeschnitten auf deine Ziele",
+      "color": "#E63222",
+      "score": 50,
+      "intro": "Dein Plan kombiniert Körperkomposition (Muskelaufbau & Fettabbau) mit deinem aktuellen Stresslevel aus Job und Familie. Wegen des hohen Stresses bleiben wir bei maximal 3 Trainingstagen und halten die Intensität bewusst niedrig — das schützt Cortisol (Stresshormon) und fördert trotzdem Körperzusammensetzung. Ernährung und Recovery sind diese Woche genauso wichtig wie das Training selbst.",
+      "rows": [
+        {
+          "day": "mon",
+          "training": [
+            "Bodyweight-Kraft: 3×10 Kniebeugen + 3×8 Push-ups + 3×10 Ausfallschritte · RPE 5 (Belastung 5/10, moderat) · 30 Min"
+          ],
+          "nutrition": [
+            "Abend-Craving-Stopper: 20g Whey-Protein + 1 EL Erdnussbutter direkt nach dem Training — Protein sättigt und reduziert Insulin-Schwankungen"
+          ],
+          "recovery": [
+            "Legs-Up-the-Wall: 5 Min Beine an der Wand — aktiviert parasympathisches Nervensystem, senkt Herzfrequenz"
+          ],
+          "stress_anchor": [
+            "Physiological Sigh: 2× kurz einatmen, 1× lang ausatmen, 4 Wdh. — senkt akuten Stress in unter 90 Sek (Huberman Lab)"
+          ]
+        },
+        {
+          "day": "tue",
+          "training": [
+            "PAUSE"
+          ],
+          "nutrition": [
+            "Schnelles Mittag: 150g Hähnchen + 200g Süßkartoffel + Brokkoli vorgekocht (32g Protein) — Meal-Prep spart Zeit und verhindert Abend-Cravings"
+          ],
+          "recovery": [
+            "Cold-Face-Splash: 30 Sek kaltes Wasser ins Gesicht — Mammalian Dive Reflex, senkt Herzfrequenz schnell"
+          ],
+          "stress_anchor": [
+            "NSDR-Audio (Non-Sleep Deep Rest — kommt der Schlaf-Erholung am nächsten): 15 Min Pause, z.B. Reveri-App"
+          ]
+        },
+        {
+          "day": "wed",
+          "training": [
+            "Cardio-Walking Z2 (Zone 2 — Tempo bei dem du noch sprechen kannst): 40 Min flottes Gehen · RPE 4 (Belastung 4/10, locker)"
+          ],
+          "nutrition": [
+            "Protein-First-Regel: Jede Mahlzeit startet mit der Proteinquelle (Ei, Quark, Fleisch) — reduziert Gesamt-Kalorienaufnahme ohne Zählen"
+          ],
+          "recovery": [
+            "Contrast Shower: 3× wechseln zwischen 1 Min warm und 30 Sek kalt — verbessert HRV (Herzfrequenzvariabilität — Anzeichen wie erholt dein Körper ist)"
+          ],
+          "stress_anchor": [
+            "5-4-3-2-1 Grounding: 5 Dinge sehen, 4 hören, 3 fühlen — unterbricht Cortisol (Stresshormon)-Spirale nach Arbeitstag"
+          ]
+        },
+        {
+          "day": "thu",
+          "training": [
+            "PAUSE"
+          ],
+          "nutrition": [
+            "Abend-Craving-Protokoll: 200g griechischer Joghurt (0%) + Beeren + 1 TL Honig — hohe Sättigung, niedrige Kaloriendichte, stabilisiert Blutzucker"
+          ],
+          "recovery": [
+            "Progressive Muskelentspannung nach Jacobson: 10 Min — Muskeln anspannen und loslassen von Fuß bis Kopf, senkt Cortisol (Stresshormon) messbar"
+          ],
+          "stress_anchor": [
+            "Coffee Nap: Espresso trinken, dann 20 Min Nap — Adenosin-Clearance maximiert Erholungseffekt"
+          ]
+        },
+        {
+          "day": "fri",
+          "training": [
+            "Bodyweight-Kraft: 3×12 Dips (Stuhl) + 3×10 Rudern (Tisch) + 3×15 Glute Bridges · RPE 5 (Belastung 5/10, moderat) · 30 Min"
+          ],
+          "nutrition": [
+            "Pre-Workout: 1 Banane + 20g Whey 30 Min vorher — schnelle Kohlenhydrate + Protein für Muskelproteinsynthese ohne Magen-Stress"
+          ],
+          "recovery": [
+            "Foam Rolling: 5 Min Oberschenkel + Waden — mechanische Kompression erhöht lokale Durchblutung und reduziert Muskelkater"
+          ],
+          "stress_anchor": [
+            "Physiological Sigh: 2× kurz einatmen, 1× lang ausatmen, 4 Wdh. — senkt akuten Stress in unter 90 Sek (Huberman Lab)"
+          ]
+        },
+        {
+          "day": "sat",
+          "training": [
+            "PAUSE"
+          ],
+          "nutrition": [
+            "Wochenend-Meal-Prep: 500g Hühnerbrust + Reis + Gemüse für 3 Tage vorkochen — NEAT (Alltagsbewegung außerhalb vom Training) durch Küchenstehen erhöht Kalorienverbrauch"
+          ],
+          "recovery": [
+            "NSDR-Audio (Non-Sleep Deep Rest — kommt der Schlaf-Erholung am nächsten): 20 Min am Nachmittag — regeneriert Dopamin-Baseline"
+          ],
+          "stress_anchor": [
+            "Soziale Erholung: 30 Min bewusste Zeit mit Familie ohne Bildschirm — Oxytocin-Ausschüttung senkt Allostatic Load (kumulative Stressbelastung über Zeit)"
+          ]
+        },
+        {
+          "day": "sun",
+          "training": [
+            "PAUSE"
+          ],
+          "nutrition": [
+            "Deficit (Kalorien-Minus unter deinem Tagesbedarf) an Ruhetagen: Mahlzeiten um ~200 kcal reduzieren durch kleinere Kohlenhydrat-Portion — unterstützt Fettabbau ohne Muskelverlust"
+          ],
+          "recovery": [
+            "Legs-Up-the-Wall: 5 Min + bewusstes Scannen des Körpers von Kopf bis Fuß — parasympathische Aktivierung für die Woche danach"
+          ],
+          "stress_anchor": [
+            "Wochenplanung: 10 Min Sonntag-Abend die 3 wichtigsten Aufgaben für Montag notieren — reduziert antizipatorisches Cortisol (Stresshormon) am Morgen"
+          ]
+        }
+      ]
+    },
+    "pdfBase64": "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",
+    "quality_warnings": [
+      "sleep_cutoff_violation_mon_18",
+      "sleep_cutoff_violation_wed_18",
+      "sleep_cutoff_violation_fri_18",
+      "goal_not_mentioned_dropdown_body_comp",
+      "goal_not_mentioned_dropdown_body_comp"
+    ]
+  },
+  "interpretations": {
+    "sleep": {
+      "interpretation": "Deine Schlafdauer von 6,5 h und die häufigen Aufwacher drücken deinen Schlaf-Score auf 60/100. Bei einem ohnehin niedrigen Stress-Score von 30/100 deutet das auf eine erhöhte Erholungsbelastung hin. Die morgendliche Erholung von 5/10 spiegelt sich direkt in deinem schwachen Aktivitäts-Score von 43/100 wider."
+    },
+    "activity": {
+      "interpretation": "Mit 9 Stunden Sitzen täglich und 0 erfassten Schritten fällt dein Aktivitätsscore auf 43/100. Trotz moderater MET-Minuten (813/Woche) verstärkt das hohe Sitzen deinen Stresswert von nur 30/100 zusätzlich. Die Diskrepanz zeigt, dass sporadische Belastung langes Sitzen nicht ausgleicht."
+    },
+    "vo2max": {
+      "interpretation": "Dein VO2max liegt bei 36,1 ml/kg/min – das entspricht einem „Fair\"-Niveau und deutet auf eine begrenzte aerobe Kapazität hin. Kombiniert mit deinem niedrigen Aktivitätsscore von 43/100 zeigt sich, dass dein Körper aktuell wenig kardiovaskuläre Reize bekommt. Der hohe Stresswert (30/100) könnte die Erholung zusätzlich belasten."
+    },
+    "metabolic": {
+      "interpretation": "Dein BMI liegt mit 26,3 kg/m² im übergewichtigen Bereich, begleitet von nur 1,75 L Wasseraufnahme täglich. In Kombination mit deinem niedrigen Aktivitätsscore (43/100) verstärkt sich der metabolische Druck spürbar. Der hohe Stresswert (30/100) dürfte die Stoffwechselregulation zusätzlich belasten."
+    },
+    "stress": {
+      "interpretation": "Dein Stresswert liegt bei nur 30/100, und du berichtest subjektiv 7 von 10 Stresslevel – ein deutliches Warnsignal. Kombiniert mit einem Schlafwert von 60/100 deutet das auf eine erhöhte Gesamtbelastung hin. Beide Puffer liegen bei 0, was zeigt, dass aktuell keine Reserve vorhanden ist."
+    }
+  }
+}

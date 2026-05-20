@@ -177,19 +177,34 @@ Rules:
 - NO diagnoses, NO recommendations, NO generic phrases
 - Use only values given above
 
-Respond ONLY as JSON: {"interpretation": "..."}`;
+Respond with ONLY the interpretation text itself — no JSON, no quotes around it, no labels, no preamble.`;
 
-    const message = await callAnthropicWithRetry(getAnthropic(), {
-      model: "claude-sonnet-4-6",
-      max_tokens: 256,
-      messages: [{ role: "user", content: prompt }],
-    });
-
-    const raw = message.content[0].type === "text" ? message.content[0].text : "";
-    const cleaned = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
-    const parsed = JSON.parse(cleaned) as { interpretation: string };
-    const interpretation = parsed.interpretation;
-    if (!interpretation || typeof interpretation !== "string") {
+    // Plain-text contract: a JSON wrapper broke whenever the prose contained
+    // an unescaped quote. We now take the model's text directly, stripping
+    // only code fences / surrounding quotes the model may still add. One
+    // re-call covers a rare empty response before 502.
+    let interpretation: string | undefined;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const message = await callAnthropicWithRetry(getAnthropic(), {
+        model: "claude-sonnet-4-6",
+        max_tokens: 256,
+        messages: [{ role: "user", content: prompt }],
+      });
+      const raw = message.content[0].type === "text" ? message.content[0].text : "";
+      const cleaned = raw
+        .trim()
+        .replace(/^```(?:\w+)?/i, "")
+        .replace(/```$/i, "")
+        .trim()
+        .replace(/^["“]|["”]$/g, "")
+        .trim();
+      if (cleaned) {
+        interpretation = cleaned;
+        break;
+      }
+      console.warn(`[reports/interpret-block] empty interpretation, attempt ${attempt}`);
+    }
+    if (!interpretation) {
       throw new Error("Empty interpretation in AI response");
     }
 

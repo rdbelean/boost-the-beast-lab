@@ -92,6 +92,10 @@ function tx(s: string | undefined | null): string {
     .replace(/[—–]/g, "-")
     .replace(/[‘’]/g, "'")
     .replace(/[“”]/g, '"')
+    .replace(/→/g, "->")
+    .replace(/←/g, "<-")
+    .replace(/↑/g, "^")
+    .replace(/↓/g, "v")
     .replace(/ /g, " ");
   return normalized;
 }
