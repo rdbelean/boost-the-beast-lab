@@ -381,60 +381,61 @@
         {
           "heading": "Deine Ausgangslage",
           "items": [
-            "Du trainierst aktuell 2× pro Woche und erreichst 813 MET-min (Maß für deinen Trainingsumfang — Stunden mal Intensität)/Woche — das liegt über dem WHO-Minimum von 600, aber dein Ausdauer-Niveau) zeigt dass die Trainings-Qualität oder -Konsistenz Luft nach oben hat.",
-            "Deine VO2max (deine maximale Sauerstoffaufnahme — zeigt wie fit dein Herz-Kreislauf-System ist) liegt bei 36.1 ml/kg/min (Fair-Bereich) — dein Herz-Kreislauf-System ist funktional, aber gezieltes Training kann hier 5–15% Gewinn bringen.",
-            "Dein Schlaf-Score (60/100) und vor allem dein Stress-Niveau, hoch) deuten darauf hin dass Erholung und mentale Last dein Training begrenzen — Training allein wird nicht reichen.",
-            "Dein BMI (26.3, übergewichtig) und Metabolik-Niveau) zeigen dass Body-Composition-Ziele ohne Ernährungs-Anpassung stagnieren werden."
+            "Du trainierst 2× pro Woche und erreichst 813 MET-min (Maß für deinen Trainingsumfang — Stunden mal Intensität)/Woche — das liegt über dem WHO-Minimum von 600, aber unter dem Optimum für Körperkomposition-Ziele (1200–1500 MET-min/Woche). Dein Trainingsvolumen ist deine erste Stellschraube.",
+            "Deine VO2max (deine maximale Sauerstoffaufnahme — zeigt wie fit dein Herz-Kreislauf-System ist) liegt bei 36.1 ml/kg/min — das ist Fair für dein Alter/Geschlecht. Das bedeutet: dein kardiovaskuläres System hat klares Steigerungs-Potenzial.",
+            "Dein Schlaf-Score (60/100) und Stress-Niveau sind deine echten Bremsen. Trainings-Adaptation passiert im Schlaf und unter niedrigem Stress — ohne diese Basis bringt mehr Training wenig. Schlaf und Stress-Management müssen parallel laufen.",
+            "Dein BMI (26.3, overweight) + Metabolik-Niveau signalisieren: Körperkomposition-Ziele brauchen Training + Ernährung zusammen. Training allein reicht nicht."
           ]
         },
         {
-          "heading": "VO2max — Was es bedeutet und wie es trainierbar ist",
+          "heading": "VO2max-Wissenschaft",
           "items": [
-            "VO2max (deine maximale Sauerstoffaufnahme — zeigt wie fit dein Herz-Kreislauf-System ist) wird in ml/kg/min gemessen: wie viel Sauerstoff dein Körper pro Minute pro kg Körpergewicht nutzen kann. Höher = bessere aerobe Fitness.",
-            "Dein Wert (36.1) ist Fair für dein Alter/Geschlecht — nicht niedrig, aber nicht im Top-Quartil. Trainierbar bedeutet: mit gezieltem hochintensivem Training (HIT) und Z2-Volumen (Zone 2 — Tempo bei dem du noch sprechen kannst) kannst du in 8–12 Wochen 5–15% Steigerung realistisch erreichen.",
-            "Der Mechanismus: HIT-Training triggert mitochondriale Anpassungen (mehr Energie-Kraftwerke in deinen Muskeln), erhöht dein kardiales Output (Herzleistung) und vermehrt oxidative Enzyme — alles zusammen = höhere VO2max.",
-            "Realistische Erwartung: Bei 2× Training/Woche + moderatem Zeitbudget erreichst du eher 5–8% in 12 Wochen als 15%. Das ist solide und messbar."
+            "VO2max (deine maximale Sauerstoffaufnahme — zeigt wie fit dein Herz-Kreislauf-System ist) wird in ml/kg/min gemessen — wie viel Sauerstoff dein Körper pro Minute pro kg Körpergewicht nutzen kann. Dein Wert 36.1 ist Fair, nicht schwach, aber nicht optimal für Ausdauer oder Körperkomposition.",
+            "Deine VO2max ist trainierbar: Mit gezieltem hochintensivem Training (HIT) und Zone-2-Volumen (Tempo bei dem du noch sprechen kannst) kannst du in 8–12 Wochen 5–15% Steigerung erreichen — das wären +1.8–5.4 ml/kg/min. Realistisch: +2–3 ml/kg/min in 10 Wochen mit konsistentem Training.",
+            "Der Mechanismus: Hochintensives Training triggert mitochondriale Anpassung (mehr Kraft-Kraftwerke in deinen Muskeln), verbessert dein kardiales Output (wie viel Blut dein Herz pro Schlag pumpt) und erhöht oxidative Enzyme (Enzyme die Sauerstoff nutzen). Zone-2-Training baut aerobe Basis und Fettverbrennung auf.",
+            "Für Körperkomposition ist VO2max ein Nebeneffekt, nicht das Ziel — aber höhere VO2max = bessere Fettverbrennung + höhere Trainings-Kapazität = mehr Volumen möglich = bessere Komposition."
           ]
         },
         {
-          "heading": "Polarisiertes Training — 80/20-Modell",
+          "heading": "Polarisiertes Training",
           "items": [
-            "Polarisiertes Training (Seiler/Tønnessen-Forschung) bedeutet: 80% deines Volumens in Zone 2 (Tempo bei dem du noch sprechen kannst), 20% in Zone 5 (maximaler Bereich, all-out, du kannst nicht mehr sprechen). Zone 3 (moderates Tempo, du kannst nur noch kurze Sätze sagen)/4 (moderates Tempo, du kannst nur noch kurze Sätze sagen) vermeidest du — das ist zu hart für Erholung, zu leicht für Adaptation.",
-            "Zone-Konzept: Z1 = Spaziergang (RPE 1-2, wie anstrengend es sich anfühlt auf einer Skala 1-10); Z2 (Zone 2 — Tempo bei dem du noch sprechen kannst) = lockerer Ausdauer-Lauf (RPE 3-4); Z3 (Zone 3 — moderates Tempo, du kannst nur noch kurze Sätze sagen) = moderates Tempo (RPE 5-6); Z4 = hart (RPE 7-8); Z5 (Zone 5 — maximaler Bereich, all-out, du kannst nicht mehr sprechen) = all-out (RPE 9-10). Du navigierst mit Atemtest: Z2 = du kannst Sätze sprechen, Z3 = nur kurze Sätze, Z5 = kein Sprechen möglich.",
-            "Warum polarisiert > Threshold-Training: Threshold (Zone 3/4) ist metabolisch teuer, fördert aber weniger VO2max-Gewinn als HIT + Z2-Volumen. Polarisiert trainiert dein Körper auf zwei Systeme: Ausdauer (Z2) + maximale Leistung (Z5), nicht auf die mittlere Grauzone.",
-            "Bei 2× Training/Woche: 1× Z2-Session (30–45 Min), 1× Z5-Session (HIT, 20–30 Min inkl. Warm-up). Das ist dein Grundgerüst."
+            "Polarisiertes Training bedeutet: 80% deines Trainings in Zone 2 (Tempo bei dem du noch sprechen kannst — lockerer Lauf, gemütliches Radfahren), 20% in Zone 4 (hartes Tempo, du kannst nur einzelne Wörter sagen)–5 (hartes Tempo, du kannst nur einzelne Wörter sagen — Sprints, Intervalle). Dazwischen: Zone 3 (moderates Tempo, du kannst nur noch kurze Sätze sagen) vermeiden — das ist die Falle.",
+            "Warum polarisiert? Zone-2-Training baut aerobe Basis und Fettverbrennung auf, ohne Übertraining. Zone-4/5-Intervalle triggern VO2max-Adaptation und Kraft-Ausdauer. Zone 3 (moderates Tempo, du kannst nur noch kurze Sätze sagen) ist zu hart für Erholung, zu leicht für Adaptation — Zeitverschwendung.",
+            "RPE-Skala (wie anstrengend es sich anfühlt auf einer Skala 1-10): Zone 2 = RPE (wie anstrengend es sich anfühlt auf einer Skala 1-10) 3–4 (du könntest noch lange so weitermachen), Zone 3 = RPE 5–6 (unangenehm aber machbar), Zone 4 = RPE 7–8 (hart, du kannst nur einzelne Wörter sagen), Zone 5 (maximaler Bereich, all-out, du kannst nicht mehr sprechen) = RPE 9–10 (all-out, du kannst nicht mehr sprechen). Nutze RPE als Kompass wenn du keine Pulsuhr hast.",
+            "Polarisiert > Threshold-Training (ständig Zone 3) weil: Polarisiert triggert zwei unterschiedliche Adaptationen (aerobe Basis + VO2max-Sprung), während Threshold-Training nur mittelmäßige Reize setzt. Studien (Seiler/Tønnessen) zeigen: Polarisiert bringt 10–15% mehr VO2max-Gewinn in 8–12 Wochen."
           ]
         },
         {
-          "heading": "Methoden-Bibliothek für dich",
+          "heading": "Methoden-Bibliothek",
           "items": [
-            "Z2-Lauf (Zone 2 — Tempo bei dem du noch sprechen kannst): 30–45 Min lockeres Lauftempo, RPE (wie anstrengend es sich anfühlt auf einer Skala 1-10) 3-4 (wie anstrengend es sich anfühlt auf einer Skala 1-10). Du solltest noch Sätze sprechen können. Wann: 1× pro Woche, z.B. Samstag oder Sonntag. Mechanismus: Mitochondriale Dichte, Fettoxidation, aerobe Basis.",
-            "Norwegian 4×4 Protocol (4× schnell laufen für 4 Min, dann 3 Min Pause, das ganze 4 mal): 4 Minuten bei 85-90% HRmax (so schnell dass du kaum noch reden kannst), dann 3 Min Pause (Z2-Tempo), 4 Wiederholungen. Gesamtdauer ~30 Min inkl. 10 Min Warm-up. Wann: 1× pro Woche, z.B. Mittwoch oder Donnerstag. Mechanismus: VO2max-Stimulus, kardiales Output, Laktat-Clearance.",
-            "Bodyweight-Kraft (5×5-Schema): 5 Sätze à 5 Wiederholungen einer Grundübung (z.B. Push-ups, Squats, Dips, Rows). 2–3 Min Pause zwischen Sätzen. Gesamtdauer ~20 Min. Wann: 1× pro Woche, z.B. Montag oder Dienstag. Mechanismus: Muskelaufbau, Kraft-Basis für Body-Comp, Stoffwechsel-Boost.",
-            "Wenn du Radfahren bevorzugst statt Laufen: Z2-Fahrt (30–45 Min, RPE 3-4) + Sweet-Spot-Intervalle (5× 5 Min bei 88-93% HRmax (so schnell dass du kaum noch reden kannst), 2 Min Pause)."
+            "Zone-2-Ausdauer (Z2-Lauf, Z2-Radfahren, Z2-Schwimmen): 30–60 Min bei RPE 3–4 (du kannst noch sprechen). Mechanismus: Mitochondriale Dichte, Fettverbrennung, aerobe Basis. Anleitung: 1–2× pro Woche, z.B. 45 Min lockerer Lauf am Samstag oder 60 Min gemütliches Radfahren. Wann: Basis-Aufbau, Erholung zwischen Hochintensiv-Sessions.",
+            "Hochintensiv-Intervalle (Norwegian 4×4 Protocol — 4× schnell laufen für 4 Min, dann 3 Min Pause, das ganze 4 mal, oder ähnlich): 4 Sätze à 4 Min bei RPE 8–9 (du kannst nur einzelne Wörter sagen), 3 Min Pause (RPE 3–4) dazwischen. Mechanismus: VO2max-Spike, kardiales Output, Kraft-Ausdauer. Anleitung: 1× pro Woche, z.B. Dienstag oder Mittwoch. Wann: VO2max-Steigerung, Körperkomposition (hoher Nachbrenn-Effekt).",
+            "Tempo-Lauf (schnelles aber kontrolliertes Lauftempo — du kannst nur noch wenige Wörter sagen): 20–30 Min bei RPE 6–7 (Zone 3–4 Grenze). Mechanismus: Lactate-Threshold-Verbesserung, Ausdauer-Kraft. Anleitung: 1× pro Woche, z.B. Donnerstag. Wann: Wenn du VO2max + Ausdauer-Kraft kombinieren willst (Mittelweg zwischen Z2 und HIT).",
+            "Krafttraining (5×5-Schema oder Bodyweight-Progression): 5 Sätze à 5 Wiederholungen schwer, oder 3 Sätze à 8–12 Wiederholungen moderat + 2 Sätze Accessory. Mechanismus: Muskelaufbau, Kraft, Metabolic-Boost (NEAT-Hebel). Anleitung: 1–2× pro Woche, z.B. Montag + Freitag, 30–45 Min. Wann: Körperkomposition-Ziel (Muskel + Fettabbau), Kraft-Ausdauer-Basis."
           ]
         },
         {
-          "heading": "NEAT (Non-Exercise Activity Thermogenesis) — der unterschätzte Hebel",
+          "heading": "NEAT (Non-Exercise Activity Thermogenesis)",
           "items": [
-            "NEAT (Alltagsbewegung außerhalb vom Training — Treppen, Laufen, Stehen) kann 300–800 kcal/Tag ausmachen — das ist 20–30% deines täglichen Energieverbrauchs. Bei deinem Body-Comp-Ziel ist NEAT (Alltagsbewegung außerhalb vom Training — Treppen, Laufen, Stehen) additiv zu strukturiertem Training ein großer Hebel, weil es Kalorien-Deficit ohne Hunger-Stress aufbaut.",
-            "NEAT wirkt synergistisch mit Training: Während deine 2× Trainings-Sessions (z.B. 60 Min/Woche) gezielt VO2max + Kraft aufbauen, schafft NEAT das tägliche Kaloriendeficit das Body-Comp ermöglicht. Konkrete NEAT-Strategien (z.B. Treppen statt Aufzug, Stehen statt Sitzen) gehören in deinen Master-Wochenplan, nicht hier — aber merke: NEAT ist dein zweites Trainings-System."
+            "NEAT (Alltagsbewegung außerhalb vom Training — Treppen, Laufen, Stehen) ist der unterschätzte Hebel: 300–800 kcal/Tag möglich je nach Job + Lebensstil. Das ist 2100–5600 kcal/Woche — mehr als eine zusätzliche Trainings-Session. NEAT ist additiv zu deinen 2 strukturierten Trainings-Tagen und wird oft ignoriert.",
+            "NEAT wirkt auf Körperkomposition weil: Es erhöht deinen täglichen Energieverbrauch ohne Übertraining-Risiko, verbessert Insulinsensitivität (wie gut dein Körper Zucker verarbeitet) und ist nachhaltig (du machst es jeden Tag, nicht nur 2× pro Woche). Für dein Ziel Körperkomposition ist NEAT oft der Unterschied zwischen -2 kg und -5 kg in 8 Wochen."
           ]
         },
         {
-          "heading": "Trainings-Belastungs-Management — wann Gas, wann Bremse",
+          "heading": "Trainings-Belastungs-Management",
           "items": [
-            "RPE-basierte Steuerung (wie anstrengend es sich anfühlt auf einer Skala 1-10): Deine Z2-Sessions sollten RPE 3-4 sein (du kannst entspannt sprechen), deine HIT-Sessions RPE 8-9 (du kannst kaum sprechen). Wenn du merkst dass du RPE 9-10 nicht mehr erreichst obwohl du es versuchst, ist das ein Übertraining-Signal — Volumen reduzieren.",
-            "Übertraining-Marker: HRV-Drop (Herzfrequenzvariabilität — Anzeichen wie erholt dein Körper ist, wenn du trackst), Schlaf-Verschlechterung (z.B. von 7h auf 5-6h), anhaltende Müdigkeit trotz Schlaf, Leistungs-Plateau über 2+ Wochen. Wenn 2+ dieser Marker auftauchen: 1 Woche Volumen um 30-40% reduzieren (z.B. nur 1 Session statt 2).",
-            "Volumen-Progression: Woche 1-2 = Habit-Aufbau (2× pro Woche, moderate Dauer). Woche 3-4 = Dauer +10-15% (z.B. Z2-Lauf von 30 auf 35 Min). Woche 5+ = nur wenn Übertraining-Marker nicht auftauchen. Dein Zeitbudget (moderate) und Stress-Niveau, hoch) bedeuten: konservativ progressieren, nicht aggressiv."
+            "RPE-basierte Steuerung (wie anstrengend es sich anfühlt auf einer Skala 1-10): Wenn du 2× pro Woche trainierst, sollte dein durchschnittliches RPE bei ~5–6 liegen (eine Z2-Session RPE 3–4, eine HIT-Session RPE 8–9). Wenn dein durchschnittliches RPE über 6–7 klettert, reduziere Volumen — das ist Übertraining-Signal.",
+            "Übertraining-Marker: HRV-Drop (Herzfrequenzvariabilität — Anzeichen wie erholt dein Körper ist, wenn du eine Uhr hast), Schlaf-Verschlechterung (unter 6h oder schlechte Qualität), anhaltende Müdigkeit trotz Schlaf, Leistungs-Plateau trotz Training. Wenn 2+ dieser Marker auftauchen: 1 Woche Volumen um 30–40% reduzieren, dann wieder hochfahren.",
+            "Volumen-Progression: Starte mit 2× pro Woche (dein aktueller Status). Nach 4 Wochen, wenn Schlaf + Stress stabil sind: auf 3× pro Woche erhöhen (z.B. 1× Z2, 1× HIT, 1× Kraft). Nicht schneller — dein Stress-Niveau ist deine Bremse."
           ]
         },
         {
           "heading": "Progress-Tracking",
           "items": [
-            "VO2max-Re-Test nach 4 Wochen: Nutze denselben Test wie deine Baseline (z.B. Cooper-Test: 12 Min maximal schnell laufen, Distanz messen → VO2max-Formel). Oder: Standardisierte 1-km-Lauf-Zeit tracken (schneller = höhere VO2max). Ziel: 2-3% Verbesserung in 4 Wochen ist realistisch.",
-            "Trainings-Konsistenz: Tracke Sessions/Woche (Ziel: 2×) und MET-min/Woche (Ziel: 813+, dein aktueller Wert). Wenn du unter 2× fällst oder MET-min sinken, ist das ein Adhärenz-Problem — nicht ein Trainings-Problem.",
-            "Re-Analyse nach 4 Wochen: Neue Messung (VO2max, Schlaf-Score, Stress-Score, Gewicht). Wenn VO2max +2-3%, Schlaf stabil/besser, Stress gleich/besser = Plan funktioniert, weitermachen. Wenn VO2max stagniert = Intensität erhöhen oder Volumen reduzieren (Übertraining-Check). Wenn Schlaf/Stress verschlechtern = Training reduzieren, Stress-Interventionen priorisieren."
+            "VO2max-Re-Test nach 4 Wochen: Nutze den Cooper-Test (12 Min all-out laufen, Distanz messen) oder eine Smartwatch-Schätzung unter gleichen Bedingungen (gleiche Tageszeit, gleiche Wärmung). Ziel: +1–2 ml/kg/min in 4 Wochen ist realistisch wenn du 80/20 polarisiert trainierst.",
+            "Trainings-Konsistenz tracken: Sessions/Woche (Ziel: 2× konsistent, dann 3×), MET-min/Woche (Ziel: 1000–1200 in Woche 4). Nutze deine Trainings-App oder ein einfaches Notizbuch — Konsistenz schlägt Perfektion.",
+            "Re-Analyse nach 4 Wochen: Lass dich neu analysieren wenn: VO2max um +2 ml/kg/min gestiegen ist, Trainings-Konsistenz 90%+ war, Schlaf-Score um +10 Punkte gestiegen ist. Dann: Volumen auf 3× pro Woche erhöhen, neue Methoden-Mischung (z.B. Tempo-Lauf statt reiner Z2).",
+            "Was du NICHT trackst: Gewicht (gehört in Metabolic-Plan), Stress-Scores (gehört in Stress-Plan), Ruhepuls (Nebeneffekt von VO2max-Training, nicht primär). Fokus: VO2max, Trainings-Volumen, Konsistenz."
           ]
         }
       ]
@@ -448,51 +449,69 @@
         {
           "heading": "Deine Ausgangslage",
           "items": [
-            "Metabolik-Niveau (moderat) — dein Stoffwechsel hat Optimierungspotential, aber keine kritischen Defizite. Schlüssel: konsistente Ernährung + regelmäßige Bewegung.",
-            "BMI 26,3 kg/m² (Übergewicht nach WHO) — liegt über dem Normalbereich 18,5–24,9. Body-Composition-Ziel: Fettmasse reduzieren, Muskelmasse halten/aufbauen.",
-            "Dein Schlaf (60/100), Stress (30/100 — hoch) und Aktivität (43/100) beeinflussen deinen Metabolik-Niveau direkt. Diese werden in Recovery-Plan, Stress-Plan und Activity-Plan konkret adressiert."
+            "Metabolik-Niveau (moderat) — dein Stoffwechsel hat Optimierungspotential, besonders bei Aktivität und Schlafqualität.",
+            "BMI 26,3 kg/m² (Übergewicht nach WHO) — Body-Composition-Fokus macht Sinn, aber BMI allein sagt nichts über Muskelmasse aus; Bauchumfang + Spiegel-Check sind aussagekräftiger.",
+            "Dein Schlaf (60/100) und Stress (30/100, hoch) beeinflussen deinen Stoffwechsel direkt — diese werden in Recovery- und Stress-Plan adressiert, Ernährung ist hier der Hebel."
           ]
         },
         {
           "heading": "Metabolische Wissenschaft",
           "items": [
-            "Metabolik-Niveau misst: BMI + Aktivitäts-Puffer (wie viel du dich bewegst) + Schlaf-Qualität. Mittlere Werte wie deine signalisieren, dass Ernährungs- + Bewegungs-Optimierung direkt messbar wirkt — nicht dass etwas 'kaputt' ist.",
-            "BMI hat Grenzen bei hoher Muskelmasse — wenn du später intensiv trainierst, wird dein BMI steigen (Muskel wiegt mehr als Fett), aber deine Body-Composition besser. Bessere Langzeit-Marker: Bauchumfang, Spiegelbild, wie deine Kleidung sitzt.",
-            "Metabolische Flexibilität (wie gut dein Körper zwischen Fett- und Glukose-Verbrennung wechselt) ist dein Performance-Marker. Trainierte Mitochondrien (Zellkraftwerke) können beide Substrate effizient nutzen — das reduziert Heißhunger, stabilisiert Energie und verbessert Fettverlust. Aufgebaut durch konsistente aerobe Belastung über Wochen.",
-            "Insulinsensitivität + Grundumsatz (BMR): dein Körper braucht täglich Kalorien nur zum Atmen/Denken/Verdauen (BMR ~1600–1800 kcal geschätzt). Dazu kommt Aktivität (TDEE). Individueller Bedarf hängt von Alter, Muskelmasse, Hormonprofil ab — deshalb tracken wir deine Energie-Skala, nicht nur Zahlen."
+            "Metabolik-Niveau misst BMI + Aktivitäts-Puffer + Schlaf-Qualität — mittlere Werte wie deine sind nicht 'schlecht', sondern zeigen wo Anpassungen den größten ROI bringen.",
+            "BMI hat Grenzen: bei hoher Muskelmasse kann BMI >25 völlig normal sein; Body-Fat-Prozentsatz (mit Caliper oder DXA) wäre präziser, aber Bauchumfang + wöchentlicher Spiegel-Check reichen für dein Ziel.",
+            "Metabolische Flexibilität (wie gut dein Körper zwischen Fett- und Glucose-Verbrennung wechselt) ist der echte Performance-Marker — das verbessert sich durch konsistente aerobe Belastung über Wochen, nicht durch einzelne Trainings-Sessions.",
+            "Insulinsensitivität + Grundumsatz (BMR): dein Körper verbraucht im Ruhezustand ~1600–1800 kcal/Tag (grobe Schätzung für 80–90 kg, 30–40 Jahre); dazu kommen ~800 MET-min (Maß für deinen Trainingsumfang — Stunden mal Intensität)/Woche Aktivität (~200–250 kcal) — dein TDEE liegt bei ~1900–2100 kcal/Tag, individuell stark variabel je Schlaf + Stress."
           ]
         },
         {
           "heading": "Protein-Prinzipien",
           "items": [
-            "Tagesbedarf bei Training: 1,6–2,2 g pro kg Körpergewicht. Bei ~80 kg (geschätzt aus BMI) = 128–176 g Protein/Tag. Ziel: 150 g/Tag als Startpunkt — verteilt auf 4–5 Mahlzeiten, nicht 2 Mega-Portionen.",
-            "Leucin-Schwelle (~2,5 g pro Mahlzeit) triggert Muskelproteinsynthese (Muskelaufbau-Signal). Das bedeutet: jede Mahlzeit sollte 25–30 g hochwertiges Protein haben (Eier, Quark, Fisch, Huhn, Linsen). Kleine Snacks mit 10 g Protein zählen nicht — sie triggern die Schwelle nicht.",
-            "Protein-Timing über 24h: nicht nur direkt nach dem Training wichtig. Pre-Workout 20–30 g Protein 1–2h vorher (stabilisiert Blutzucker während Training). Post-Workout Ratio 1:2 Protein:Kohlenhydrate (z.B. 30 g Protein + 60 g Carbs) für schnelle Glykogen-Resynthese (Energiespeicher auffüllen)."
+            "Tagesbedarf bei Training: 1,6–2,2 g/kg Körpergewicht — bei ~85 kg sind das 136–187 g Protein/Tag; starte mit 150 g/Tag und passe nach 2 Wochen an (Hunger, Energie, Performance).",
+            "Leucin-Schwelle (~2,5 g pro Mahlzeit, ≈ 25–30 g hochwertiges Protein) triggert Muskelproteinsynthese — verteile Protein auf 4–5 Mahlzeiten statt 2 Mega-Mahlzeiten; das optimiert Muskelaufbau über den ganzen Tag.",
+            "Protein-Timing: 24h-Anabolic-Window (nicht nur direkt nach Training), Pre-Workout ~20–30 g Protein 1–2 h vorher, Post-Workout 1:2-Ratio Protein:Carbs (z.B. 30 g Protein + 60 g Carbs)."
           ]
         },
         {
           "heading": "Mahlzeit-Templates",
           "items": [
-            "Frühstücks-Template: 3 Eier (Rührei/Spiegelei) + 80 g Haferflocken (roh gemessen) + 1 EL Erdnussbutter + 1 Banane. Nährwerte: ~30 g Protein + ~70 g komplexe Kohlenhydrate + ~15 g gesunde Fette. Mechanismus: Eier liefern komplettes Aminosäure-Profil + Leucin-Schwelle, Haferflocken stabilisieren Blutzucker durch Beta-Glucan (löslicher Ballaststoff), Fette verzögern Magenentleerung → Sättigung 3–4h, Banane liefert Kalium + schnelle Carbs für Energie.",
-            "Post-Workout-Template: 150 g Magerquark + 50 g Beeren (frisch oder TK) + 40 g Haferflocken + 1 EL Honig. Nährwerte: ~30 g Protein + ~50 g Kohlenhydrate (Ratio 1:2). Mechanismus: Quark = Casein + Whey (zwei Proteine mit unterschiedlicher Absorptionsgeschwindigkeit — schnelle + langsame Aminosäure-Versorgung), Honig liefert schnelle Glukose für sofortige Glykogen-Resynthese (Energiespeicher), Beeren = Polyphenole (Pflanzenstoffe) gegen Trainings-Inflammation.",
-            "Protein-Snack-Template: 200 g griechischer Joghurt + 30 g Mandeln + Prise Zimt. Nährwerte: ~20 g Protein + 8 g Ballaststoffe + ~15 g Fette. Mechanismus: Joghurt hochwertiges Protein für Leucin-Schwelle, Mandeln + Ballaststoffe verlängern Sättigung 2–3h, Zimt unterstützt Insulinsensitivität (wie gut dein Körper Zucker verarbeitet)."
+            "Frühstücks-Template: 3 Eier + 80 g Haferflocken (roh) + 1 EL Erdnussbutter + 1 Banane → ~30 g Protein + ~70 g komplexe Carbs + ~15 g gesunde Fette. Mechanismus: Eier liefern komplettes Aminosäure-Profil + Leucin-Schwelle, Haferflocken stabilisieren Blutzucker durch Beta-Glucan (löslicher Ballaststoff), Fette verzögern Magenentleerung → Sättigung 3–4 h.",
+            "Post-Workout-Template: 150 g Magerquark + 50 g Beeren + 40 g Haferflocken + 1 EL Honig → ~30 g Protein + ~50 g Carbs (Ratio 1:2). Mechanismus: Quark = Casein + Whey (zwei-phasiger Aminosäure-Release über Zeit), Honig liefert schnelle Glukose für sofortige Glykogen-Resynthese (Muskel-Energiespeicher auffüllen), Beeren = Polyphenole gegen Trainings-Entzündung.",
+            "Protein-Snack-Template: 200 g griechischer Joghurt + 30 g Mandeln + Zimt → ~20 g Protein + 8 g Ballaststoffe + ~15 g Fette. Mechanismus: Joghurt hochwertiges Protein für Leucin-Schwelle, Mandeln + Ballaststoffe verlängern Sättigung 2–3 h, Zimt unterstützt Insulinsensitivität (wie gut dein Körper Zucker verarbeitet)."
+          ]
+        },
+        {
+          "heading": "Heißhunger abends — Blutzucker-Stabilisierung",
+          "items": [
+            "Dein Heißhunger abends ist oft Blutzucker-Crash + Cortisol-Anstieg (Stress-Hormon) — 30 g Protein beim Abendessen stabilisiert Blutzucker für 3–4 h, z.B. 150 g Hähnchen + 200 g Brokkoli + 1 EL Olivenöl.",
+            "Timing: Protein-Snack 2–3 h vor Schlaf, z.B. 200 g griechischer Joghurt + 30 g Mandeln (siehe Template oben) — das verhindert nächtliche Blutzucker-Schwankungen, die Cravings triggern.",
+            "Abendessen-Struktur: immer Protein + Gemüse + gesunde Fette, KEINE isolierten Carbs (Brot, Pasta allein) — z.B. 180 g Lachs + 300 g Süßkartoffel + Salat mit Olivenöl; das Protein + Fett bremst Glukose-Spike.",
+            "Wenn Heißhunger trotzdem kommt (nach 20 Uhr): Wasser trinken (oft Durst statt Hunger), 5 Min Spaziergang, oder 1 Handvoll Nüsse + Tee — nicht komplett verbieten, aber bewusst wählen statt reflexhaft naschen."
+          ]
+        },
+        {
+          "heading": "Keine Zeit — Meal-Prep-Friction reduzieren",
+          "items": [
+            "Sonntags 30-Min-Prep: 2–3 Protein-Quellen vorkochen — z.B. 800 g Hähnchen-Brust (Ofen 180°C, 25 Min) + 1 kg Kartoffeln (Topf, 20 Min) + 500 g Brokkoli (Dampf, 10 Min). In Behältern lagern, 4–5 Tage haltbar.",
+            "Frühstück-Hack: Overnight Oats vorbereitend — 80 g Haferflocken + 250 ml Milch + 30 g Proteinpulver + 1 EL Erdnussbutter in Behälter, über Nacht im Kühlschrank; morgens 2 Min rühren, essen. Spart 10 Min täglich.",
+            "Snack-Vorrat: 5–6 Behälter à 200 g griechischer Joghurt + 30 g Mandeln am Sonntag portionieren — greif morgens einen mit, kein Denken nötig.",
+            "Einkaufs-Liste fix halten: immer die gleichen 8–10 Zutaten (Eier, Haferflocken, Hähnchen, Quark, Joghurt, Mandeln, Brokkoli, Kartoffeln, Öl, Honig) — keine Entscheidungs-Fatigue, schneller einkaufen."
           ]
         },
         {
           "heading": "Hydration + Body-Composition",
           "items": [
-            "Wasser-Bedarf: 35–40 ml pro kg Körpergewicht täglich (bei 80 kg = 2,8–3,2 Liter) + 500–1000 ml pro Trainings-Stunde. Mechanismus: Plasma-Volumen (Blutflüssigkeit) für Nährstoff-Transport, Temperatur-Regulierung, Konzentration, Performance.",
-            "Elektrolyte: Natrium 1–2 g/Tag (mehr bei starkem Schwitzen oder intensiven Phasen), Kalium 3–4 g/Tag, Magnesium 400 mg/Tag. Wann supplementieren: intensive Trainings-Phasen, Hitze, oder wenn du merkst dass deine Beine nachts zucken (Magnesium-Zeichen). Quelle: Salz in Mahlzeiten, Bananen (Kalium), Nüsse/Samen (Magnesium).",
-            "Body-Composition vs Waage: die Waage allein ist irreführend. Glykogen-Wasser-Schwankungen = 1–3 kg/Woche normal (Kohlenhydrate speichern Wasser). Muskel-Fett-Tausch sieht auf der Waage gleich aus, aber im Spiegel anders. Bessere Tracking-Methoden: wöchentlicher Spiegel-Check (wie sitzt die Kleidung?), monatlicher Bauchumfang (Maßstab), Trainings-Performance (schaffst du mehr Wiederholungen?), Schlaf-Qualität. Professionell: DXA-Scan oder Caliper-Messung alle 3–6 Monate."
+            "Wasser-Bedarf: 35–40 ml/kg Körpergewicht baseline (bei 85 kg: ~3–3,4 L/Tag) + 500–1000 ml pro Trainings-Stunde. Mechanismus: Plasma-Volumen (Blut-Flüssigkeit), Performance, Konzentration, Appetit-Kontrolle.",
+            "Elektrolyte: Natrium 1–2 g/Tag (mehr bei starkem Schwitzen oder intensiven Phasen), Kalium 3–4 g/Tag, Magnesium 400 mg/Tag — in Hitze oder nach 60+ Min Training: 1 Prise Salz ins Wasser oder 1 Elektrolyt-Tablet.",
+            "Body-Composition vs Waage: Waage allein ist irreführend — Glykogen-Wasser-Schwankungen sind 1–3 kg/Woche normal, Muskel-Fett-Tausch sieht auf der Waage gleich aus. Bessere Tracking-Methoden: wöchentlicher Spiegel-Check (Fotos), monatlicher Bauchumfang (Maßstab, 2 cm über Nabel), Performance-Marker (wie viel Gewicht du hebst), eventuell DXA/Caliper alle 3–6 Monate."
           ]
         },
         {
           "heading": "Progress-Tracking",
           "items": [
-            "Realistische Erwartungen: Fettverlust 0,5–1% Körpergewicht/Woche im Kaloriendefizit (bei 80 kg = 0,4–0,8 kg/Woche). Muskelaufbau als Trainierter 0,25–0,5 kg/Monat. Beides gleichzeitig ist möglich, aber langsamer als nur Fett oder nur Muskel.",
-            "Was wirklich tracken außer Gewicht: Energie-Skala 1–10 (wie fit fühlst du dich tagsüber?), Hunger-Skala (1–10, wie hungrig bist du vor Mahlzeiten?), Trainings-Performance (mehr Wiederholungen? schneller? weniger Pausen?), Schlaf-Qualität (wie erholsam war die Nacht?).",
-            "Plateau-Handling: nach 2–3 Wochen Stillstand auf der Waage → 1 Refeed-Tag/Woche (Kohlenhydrate hoch, z.B. +100 g Carbs), Kalorien um 100–200 anpassen, Schlaf + Stress prüfen (Cortisol — Stresshormon — kann Fettverlust blockieren). Oft ist das Plateau psychologisch, nicht physiologisch.",
-            "Re-Analyse nach 4 Wochen: Stress (30/100 — hoch) + Schlaf (60/100 — moderat) + Aktivität (43/100) beeinflussen deinen Metabolik-Niveau direkt, nicht nur Ernährung. Wenn Metabolik-Niveau nicht steigt, prüfe zuerst: schläfst du besser? Ist dein Stress gesunken? Trainierst du konsistenter? Dann erst Ernährung anpassen."
+            "Realistische Erwartungen: Fettverlust 0,5–1% Körpergewicht/Woche im Defizit (bei 85 kg: 0,4–0,85 kg/Woche); Muskelaufbau 0,25–0,5 kg/Monat als Trainierter — beides gleichzeitig ist möglich, aber langsamer als nur Fett oder nur Muskel.",
+            "Was wirklich tracken außer Gewicht: Energie-Skala 1–10 (morgens + abends), Hunger-Skala, Trainings-Performance (wie viel Gewicht, wie viele Reps), Schlaf-Qualität — diese Marker zeigen ob dein Plan funktioniert, bevor die Waage reagiert.",
+            "Plateau-Handling: nach 2–3 Wochen Stillstand → 1 Refeed-Tag/Woche (Carbs hoch, z.B. +50 g Carbs, Protein + Fett gleich), Kalorien um 100–200 anpassen, Schlaf + Stress prüfen (Cortisol-Plateau: hoher Stress blockiert Fettverlust).",
+            "Re-Analyse nach 4 Wochen — Stress + Schlaf + Aktivitäts-Marker beeinflussen Metabolik-Niveau, nicht nur Ernährung; wenn Stress/Schlaf nicht besser werden, stagniert auch Körperkomposition trotz perfekter Ernährung."
           ]
         }
       ]
@@ -506,68 +525,68 @@
         {
           "heading": "Deine Ausgangslage",
           "items": [
-            "Sleep Score 60/100 — du schläfst zu kurz (unter 7h) und verlierst dadurch überproportional REM-Phasen, die für emotionale Verarbeitung und Gedächtnis-Konsolidierung zuständig sind.",
-            "Stress-Niveau (hoch) — Job und Familie drücken dein Nervensystem chronisch in den Sympathikus, das senkt nächtliche HRV (Herzfrequenzvariabilität — Anzeichen wie erholt dein Körper ist) messbar und fragmentiert deinen Schlaf weiter.",
-            "Cross-Plan-Verweis: konkrete Uhrzeiten, Wochentage und Trigger-Mapping (z.B. wann genau Sauna, wann Cold Therapy) stehen im Master-Wochenplan; Akut-Atemtools (4-7-8, Box Breathing) und Effort-Recovery Detachment im Stress-Plan; Mahlzeiten-Timing im Metabolic-Plan."
+            "Schlaf 60/100 — du schläfst zu kurz (NSF empfiehlt 7–9h, du landest unter 7h). Das klaut dir überproportional REM-Phasen, dein Gehirn kann Stress nicht richtig verarbeiten.",
+            "Stress 30/100 (hoch) — Job + Familie drücken zusammen auf dein Nervensystem. Chronischer Stress senkt nachts deine HRV (Herzfrequenzvariabilität), selbst wenn du 'genug' schläfst, erholst du dich nicht.",
+            "Cross-Plan-Verweis: Konkrete Stress-Tools (Atemtechniken, Detachment-Rituale, Repair-Versuche in der Familie) stehen im Stress-Plan. Trainings-Volumen-Anpassung im Activity-Plan. Hier fokussieren wir auf Schlaf-Architektur, HRV-Tracking und passive/aktive Recovery-Methoden."
           ]
         },
         {
-          "heading": "Schlafphasen",
+          "heading": "Schlafphasen — warum deine Kürze teuer ist",
           "items": [
-            "NREM-Phase (Stadium 3, Tiefschlaf): passiert in den ersten 1–2 Schlafzyklen, Funktion ist Muskel-Reparatur und Wachstumshormon-Peak (bis 10× über Tageswert) — dein Körper baut sich nachts auf.",
-            "REM-Phase: dominiert die letzten 2–3 Zyklen, Funktion ist Gedächtnis-Konsolidierung, emotionale Verarbeitung und kreatives Problem-Lösen — bei dir wahrscheinlich zu kurz.",
-            "Schlafzyklen-Verteilung: 4–5 Zyklen à ~90 Min sind biologisch optimal. Dein aktueller Schlaf (vermutlich 6–6,5h) heißt nicht '25% weniger Schlaf', sondern 'fast die Hälfte REM weg' — das erklärt warum du emotional erschöpfter bist als die Stundenzahl vermuten lässt.",
-            "Alkohol und THC unterdrücken REM um 20–50% — selbst wenn du 8h 'schläfst', sinkt dein Erholungs-Wert messbar. Relevant für dich: abends Alkohol als Stress-Bewältigung reduziert den Recovery-Effekt des Schlafs."
+            "NREM-Phase (Tiefschlaf, Stadium 3): passiert in den ersten 1–2 Schlafzyklen. Dort repariert dein Körper Muskeln, Wachstumshormon schießt bis 10× über Tageswert. Zu wenig Schlaf = Tiefschlaf bleibt, aber REM wird geopfert.",
+            "REM-Phase: passiert in den letzten 2–3 Zyklen (nach ~4,5–6h). Dort konsolidiert dein Gehirn Erinnerungen, verarbeitet Emotionen, löst kreative Probleme. Chronischer Stress + Kurz-Schlaf = REM-Schuld wächst über Tage.",
+            "Schlafzyklen-Verteilung: ein Zyklus dauert ~90 Min. 7–9h Schlaf = 4–5 komplette Zyklen. 6h Schlaf = nur 4 Zyklen, davon die letzte REM-Phase gekürzt oder ganz weg. Das ist nicht '25% weniger Schlaf', sondern oft '40–50% weniger REM'.",
+            "Alkohol/THC unterdrückt REM um 20–50% — selbst wenn du 8h 'schläfst', ist der Erholungs-Wert deutlich niedriger. Relevant wenn du abends trinkst oder Cannabis nutzt."
           ]
         },
         {
-          "heading": "Circadian-Rhythmus + Adenosin",
+          "heading": "Circadian-Rhythmus + Adenosin — die biologischen Hebel",
           "items": [
-            "Biologische Licht-Mechanik: morgens helles Licht (>10.000 Lux idealerweise im Freien) triggert Cortisol-Awakening-Response und setzt deine circadiane Uhr; abends gedämpft (<100 Lux) erlaubt Melatonin-Ausschüttung — z.B. 10 Min Spaziergang direkt nach dem Aufwachen, abends Handy-Blaulicht-Filter oder Brille.",
-            "7–9h Schlaf sind biologisch optimal (NSF/AASM-Konsens): das sind 4–5 vollständige Schlafzyklen à 90 Min für ausreichend REM-Quote. Dein Chronotyp (Frühaufsteher vs Nachteule) ist biologisch unterschiedlich, kein Disziplin-Thema — wenn du natürlicherweise später einschläfst, erzwinge nicht künstlich 22 Uhr.",
-            "Adenosin-System: Adenosin akkumuliert über den Tag, bindet an Rezeptoren im Hirn und baut Schlaf-Druck auf. Koffein blockiert diese Rezeptoren (Halbwertszeit 5–6h) — Müdigkeit wird nicht eliminiert, nur aufgeschoben. Konsequenz: Koffein 8–10h vor Schlaf hat Wirkung auf Tiefschlaf-Architektur — z.B. Kaffee vor 14 Uhr wenn du um 22 Uhr ins Bett gehst.",
-            "Body-Temperature-Drop: Kerntemperatur fällt 1–2°C beim Einschlafen und triggert NREM-Eintritt. Erklärt biologisch warum kühles Schlafzimmer (16–19°C) Tiefschlaf-Qualität steigert — z.B. Fenster 30 Min vor dem Schlafengehen öffnen oder Temperatur-Regler runterdrehen."
+            "Morgens helles Licht (>10.000 Lux, idealerweise draußen): triggert Cortisol-Awakening-Response + setzt deine innere Uhr neu. Abends gedämpftes Licht (<100 Lux): erlaubt Melatonin-Ausschüttung. Deine Schlaf-Qualität hängt davon ab, ob du diesen Rhythmus respektierst — nicht von Disziplin.",
+            "7–9h biologisch optimal (NSF/AASM-Standard): 4–5 vollständige Zyklen à 90 Min für ausreichend REM. Chronotyp respektieren (Frühaufsteher vs Nachteule sind biologisch unterschiedlich) — erzwinge nicht gegen deine Natur.",
+            "Adenosin-System: über den Tag akkumuliert Adenosin in deinem Gehirn, bindet an Rezeptoren → baut Schlaf-Druck auf. Koffein blockiert diese Rezeptoren (Halbwertszeit 5–6h) — Müdigkeit wird nicht eliminiert, nur aufgeschoben. Koffein 8–10h vor Schlaf hat messbare Wirkung auf Tiefschlaf-Architektur.",
+            "Body-Temperature-Drop: deine Kerntemperatur fällt 1–2°C beim Einschlafen → triggert NREM-Eintritt. Erklärt biologisch warum kühles Schlafzimmer (16–19°C) Tiefschlaf-Qualität steigert. Wärme vor dem Schlaf (Sauna, warmes Bad) triggert anschließend einen stärkeren Drop."
           ]
         },
         {
-          "heading": "HRV als Recovery-Marker",
+          "heading": "HRV als dein objektiver Recovery-Marker",
           "items": [
-            "HRV (Herzfrequenzvariabilität — Variation der Zeit zwischen Herzschlägen in Millisekunden) ist dein objektiver Recovery-Marker. Höhere HRV = besserer Parasympathikus-Tonus = bessere Erholung — das ist messbar, nicht subjektiv.",
-            "RMSSD (Root Mean Square of Successive Differences) ist parasympathisch-sensitiv und der eigentliche Recovery-Marker. SDNN ist Gesamt-Variabilität (incl. sympathischer Anteile). Wearables wie Oura, Whoop, Polar tracken RMSSD. Altersabhängige Range: typisch 25–50 ms für gesunde Erwachsene.",
-            "Coherent Breathing 5–6 BPM (nicht Akut-Stress-Tool — die liegen im Stress-Plan): 5–6 Atemzüge pro Min synchronisiert Herzschlag mit Atmung (Resonanz-Phänomen) → maximale HRV in Echtzeit. Praktisch: 5 Min/Tag oder vor dem Schlafen — z.B. Smartphone-Timer auf 5 Min, einatmen 5 Sek, ausatmen 5 Sek, 30 Wiederholungen.",
-            "Chronischer Familien-/Beziehungs-Stress senkt nächtliche HRV messbar (erhöhter Sympathikus-Tonus über Stunden hinweg). Wenn HRV-Trend über mehrere Wochen fällt trotz Recovery-Tools, ist Stressquellen-Bearbeitung im Stress-Plan vermutlich der Hebel — nicht mehr Sauna, sondern Repair Attempts oder Co-Regulation Practice."
+            "HRV (Herzfrequenzvariabilität — Variation der Zeit zwischen Herzschlägen in Millisekunden): höhere HRV = besserer Parasympathikus-Tonus = bessere Erholung. Das ist nicht Ruhepuls, sondern die Variabilität selbst.",
+            "RMSSD (Root Mean Square of Successive Differences) ist parasympathisch-sensitiv — der eigentliche Recovery-Marker. SDNN ist Gesamt-Variabilität (incl. sympathischer Anteile). Wearables wie Oura, Whoop, Polar tracken RMSSD. Altersabhängige Range: typisch 25–50 ms für gesunde Erwachsene, sinkt mit Alter.",
+            "Coherent Breathing 5–6 BPM (NICHT Akut-Stress-Tool — die liegen im Stress-Plan): 5–6 Atemzüge pro Min synchronisiert Herzschlag mit Atmung → maximale HRV in Echtzeit. Wirkung: trainiert Baroreflex-Sensitivität, verbessert Recovery-Kapazität über Wochen. Praktisch: 5 Min/Tag oder vor dem Schlafen — z.B. sitzen, Augen zu, 5 Sek einatmen, 5 Sek ausatmen, 10 Wiederholungen.",
+            "Chronischer Familien-/Beziehungs-Stress senkt nächtliche HRV messbar (erhöhter Sympathikus-Tonus über Stunden). Wenn HRV-Trend über mehrere Wochen fällt trotz Recovery-Tools, ist Stressquellen-Bearbeitung im Stress-Plan vermutlich der Hebel — nicht mehr Sauna."
           ]
         },
         {
           "heading": "Passive Recovery-Methoden",
           "items": [
-            "NSDR / Yoga Nidra (Nidra = Schlaf): 10–20 Min in liegender Position mit geführter Aufmerksamkeit — z.B. YouTube 'Yoga Nidra 15 Min' nach dem Mittagessen oder vor dem Schlafengehen. Mechanismus: Theta-Wellen-Dominanz wie in tiefer Meditation, senkt Cortisol (Stresshormon — morgens am höchsten, abends sollte es niedrig sein) nachweislich (Dopamin +65%).",
-            "Sauna: 15–20 Min bei 80–90°C, 2–3× pro Woche. Mechanismus: Heat-Shock-Proteins (HSP-70) sind cross-protective — schützen nicht nur vor Hitze, sondern gegen oxidativen Stress, Inflammation, virale/bakterielle Infektionen. Finnische Kohorten-Studien zeigen: 4–7×/Woche Sauna senkt All-Cause-Mortality um 40%.",
-            "Cold Therapy: 1–3 Min bei 10–15°C (kalte Dusche oder Eisbad) — z.B. nach dem Aufwachen oder nach leichtem Training. Mechanismus: Norepinephrin-Surge (+200–500%, hält 1–2h), Anti-Inflammation, mentale Klarheit. NICHT direkt nach Krafttraining (blockt Hypertrophie-Signaling).",
-            "Contrast Shower: alternierend 30–60s warm / 30–60s kalt, 3–5 Wechsel — z.B. 2 Min warm, 1 Min kalt, 2 Min warm, 1 Min kalt, 2 Min warm. Mechanismus: wiederholte Vasodilation/-konstriktion trainiert das autonome Nervensystem auf Parasympathikus-Reaktivierung; mildere Variante von Cold Therapy mit ähnlichem HRV-Effekt.",
-            "Epsom-Salt-Bad: 20 Min in warmem Wasser mit 300–500g Magnesiumsulfat — z.B. 1–2× pro Woche abends. Mechanismus: transdermale Magnesium-Aufnahme unterstützt Muskel-Entspannung und GABA-Aktivität; Wärme triggert anschließenden Body-Temperature-Drop → Schlaf-Vorbereitung.",
-            "Bewusstes Kochen als passiver Recovery-Anker: aktiviert das Default Mode Network (Selbst-Bezugs-System des Gehirns) — wirkt wie NSDR ohne Liegen. Praktisch: 20–30 Min Mahlzeit-Zubereitung ohne Handy, Musik oder Podcast, nur Fokus auf Bewegung und Gerüche — z.B. Gemüse schneiden, Sauce rühren."
+            "NSDR / Yoga Nidra (Nicht-Schlaf-Tiefenentspannung): 10–20 Min in liegender Position mit geführter Aufmerksamkeit — z.B. kostenlose YouTube-Videos oder Apps wie Insight Timer. Mechanismus: Theta-Wellen-Dominanz wie in tiefer Meditation, senkt Cortisol (Stresshormon — morgens am höchsten, abends sollte es niedrig sein) nachweislich. Praktisch: abends nach Arbeit oder nach hartem Training.",
+            "Sauna: 15–20 Min bei 80–90°C, 2–3× pro Woche. Mechanismus: Heat-Shock-Proteins (HSP-70) schützen nicht nur vor Hitze, sondern gegen oxidativen Stress, Inflammation, virale/bakterielle Infektionen, Neurodegeneration. Finnische Kohorten-Studien zeigen: 4–7×/Woche Sauna senkt All-Cause-Mortality um 40%. Nicht direkt nach Krafttraining (blockt Hypertrophie-Signaling).",
+            "Cold Therapy: 1–3 Min bei 10–15°C (Dusche oder Eisbad) — z.B. nach Ausdauer-Session oder an Recovery-Tagen. Mechanismus: Norepinephrin-Surge (+200–500%, hält 1–2h), Anti-Inflammation, mentale Klarheit. Nicht direkt nach Krafttraining (blockt Muskelaufbau-Signale).",
+            "Contrast Shower: alternierend 30–60s warm / 30–60s kalt, 3–5 Wechsel. Mechanismus: wiederholte Vasodilation/Konstriktion trainiert das autonome Nervensystem auf Parasympathikus-Reaktivierung — mildere Variante von Cold Therapy mit ähnlichem HRV-Effekt. Praktisch: morgens oder abends, 10 Min total.",
+            "Epsom-Salt-Bad: 20 Min in warmem Wasser mit 300–500g Magnesiumsulfat, 1–2× pro Woche abends. Mechanismus: transdermale Magnesium-Aufnahme unterstützt Muskel-Entspannung und GABA-Aktivität; Wärme triggert anschließenden Body-Temperature-Drop → Schlaf-Vorbereitung.",
+            "Bewusstes Kochen als passiver Recovery-Anker: aktiviert das Default Mode Network (Selbst-Bezugs-System des Gehirns) — wirkt wie NSDR ohne Liegen. Praktisch: 20–30 Min ohne Handy, Musik oder Podcast, nur du und die Zutaten — z.B. Gemüse schneiden, Sauce rühren, Geschmack testen."
           ]
         },
         {
           "heading": "Aktive Recovery-Methoden",
           "items": [
-            "Mobility-Mechanismus: Faszien-Mobilisation + Range of Motion (Sarkomere-Länge, Mechanoreceptor-Stimulation). Praktisch: 10–15 Min täglich — z.B. Hüftöffner (Pigeon Pose 1 Min pro Seite), Schulter-Pendel (30 Wiederholungen), Wirbelsäulen-Rotation (10 pro Seite).",
-            "DOMS (Delayed Onset Muscle Soreness): peakt 24–72h nach ungewohnter Belastung. Behandlung: leichte Bewegung beschleunigt Heilung, vollständige Ruhe verlängert — z.B. am Tag nach hartem Training 20 Min lockeres Gehen statt Couch.",
-            "Foam Rolling / Self-Myofascial Release: 30–60s pro Muskelgruppe, moderater Druck — z.B. Oberschenkel, Waden, Rücken. Mechanismus: mechanische Druck-Stimulation der Faszien-Mechanorezeptoren reduziert akuten Muskeltonus und subjektives DOMS-Empfinden. Nach Training oder an Off-Tagen.",
-            "Legs-up-the-Wall (Viparita Karani): 10–15 Min Rücken am Boden, Beine senkrecht hochgelegt — z.B. nach langen Steh-/Sitz-Tagen oder abends vor dem Schlafengehen. Mechanismus: venöser Rückfluss + Aktivierung des Baroreflexes → Parasympathikus-Shift, leichte Cortisol-Senkung.",
-            "Zone 2 (Tempo bei dem du noch sprechen kannst) als Active Recovery: 20–40 Min lockeres Gehen / Easy Cycling — z.B. Spaziergang im Park oder langsames Radfahren. Beschleunigt Glykogen-Resynthese 2–3× vs passive Ruhe (Durchblutung + Laktat-Clearance), kein neuer Recovery-Schuld-Aufbau.",
-            "Natur-Spaziergang als aktive Recovery-Variante: 20 Min Natur-Exposition senkt Cortisol um −21% vs Stadt-Kontrolle — z.B. Park statt Straße, Wald statt Einkaufszone. Kombiniert Zone 2-Mechanik mit visuellem/akustischem Stress-Buffer."
+            "Mobility-Mechanismus: Faszien-Mobilisation + Range of Motion (Sarkomere-Länge, Mechanoreceptor-Stimulation). Praktisch: 10–15 Min nach Training oder an Off-Tagen — z.B. Hüftöffner (Pigeon Pose, 1 Min pro Seite), Schulter-Pendel (30s), Wirbelsäulen-Rotation (30s pro Seite).",
+            "DOMS (Delayed Onset Muscle Soreness — Muskelkater): peakt 24–72h nach ungewohnter Belastung. Behandlung: leichte Bewegung beschleunigt Heilung, vollständige Ruhe verlängert. Praktisch: am nächsten Tag lockeres Gehen oder leichte Dehnung statt Couch.",
+            "Foam Rolling / Self-Myofascial Release: 30–60s pro Muskelgruppe, moderater Druck — z.B. Oberschenkel, Waden, Rücken. Mechanismus: mechanische Druck-Stimulation der Faszien-Mechanorezeptoren reduziert akuten Muskeltonus und subjektives DOMS-Empfinden. Nach Training oder an Off-Tagen, 10 Min total.",
+            "Legs-up-the-Wall (Viparita Karani): 10–15 Min Rücken am Boden, Beine senkrecht hochgelegt — z.B. vor dem Fernseher oder vor dem Schlaf. Mechanismus: venöser Rückfluss + Aktivierung des Baroreflexes → Parasympathikus-Shift, leichte Cortisol-Senkung. Niedrigschwellig, kein Equipment.",
+            "Zone 2 (Tempo bei dem du noch sprechen kannst) als Active Recovery: 20–40 Min lockeres Gehen / Easy Cycling — z.B. Spaziergang im Park oder leichte Radtour. Beschleunigt Glykogen-Resynthese 2–3× vs passive Ruhe (Durchblutung + Laktat-Clearance), kein neuer Recovery-Schuld-Aufbau.",
+            "Natur-Spaziergang als aktive Recovery-Variante: Park et al. 2010 zeigt −21% Cortisol nach 20 Min Natur-Exposition vs Stadt-Kontrolle. Praktisch: Zone 2-Spaziergang im Grünen statt auf der Straße — z.B. lokaler Park, Wald, See. Doppelter Effekt: Bewegung + visueller/akustischer Stress-Buffer."
           ]
         },
         {
           "heading": "Progress-Tracking",
           "items": [
-            "HRV tracken: morgens nach dem Aufwachen 2–3 Min ruhig liegen, dann messen (Wearable / Polar / Smartphone-Apps). Trends über 7–14 Tage wichtiger als Tageswerte (Schwankungen ±10–20% normal) — z.B. Wochentrend aufschreiben: 'Woche 1: Ø 32 ms, Woche 2: Ø 35 ms'.",
-            "Schlaf-Qualität subjektiv (1–10) UND objektiv: Einschlaf-Latenz (<20 Min normal), nächtliches Aufwachen, Energie morgens. Wearable-Schlafphasen-Daten sind grobe Annäherung, kein Goldstandard — z.B. Tagebuch: 'Eingeschlafen 22:45, aufgewacht 6:15, 1× nachts wach, morgens Energie 6/10'.",
-            "Energie-Skala morgens + abends: morgens niedrig + abends hoch → Cortisol-Inversion (Indiz für chronischen Stress, Verweis auf Stress-Plan). Praktisch: täglich 1–10 Skala notieren, Wochenmittel berechnen.",
-            "Re-Analyse nach 4 Wochen: HRV-Trend stabil oder steigend → weiter so; HRV-Trend fallend trotz Recovery-Tools → Volumen runter, Schlaf priorisieren, ggf. Cortisol checken lassen. Sleep-Duration: Ziel 7–8h, Messung via Wearable oder Handy-App.",
-            "Trennlinie zu anderen Plänen: konkrete Wochentage/Uhrzeiten/Trigger-Mapping (z.B. wann genau Sauna, wann Cold, wann NSDR) → Master-Wochenplan. Mahlzeiten-Timing und Mengen → Metabolic-Plan. Trainings-Volumen und Methoden → Activity-Plan. Akute Stress-Tools (4–7–8, Box Breathing) → Stress-Plan. Recovery-Plan fokussiert auf Mechanismen und Tracking, nicht auf Wochen-Termine."
+            "HRV tracken: morgens nach dem Aufwachen 2–3 Min ruhig liegen, dann messen (Wearable / Polar / Smartphone-Apps). Trends über 7–14 Tage wichtiger als Tageswerte (Schwankungen ±10–20% normal). Ziel: HRV-Trend stabil oder steigend über 4 Wochen.",
+            "Schlaf-Qualität subjektiv (1–10 Skala) UND objektiv: Einschlaf-Latenz (<20 Min normal), nächtliches Aufwachen, Energie morgens. Wearable-Schlafphasen-Daten sind grobe Annäherung, kein Goldstandard — dein Gefühl zählt.",
+            "Energie-Skala morgens + abends (1–10): morgens niedrig + abends hoch = Cortisol-Inversion (Indiz für chronischen Stress). Verweis: konkrete Stress-Tools im Stress-Plan.",
+            "Re-Analyse nach 4 Wochen: HRV-Trend stabil oder steigend → weiter so; HRV-Trend fallend trotz Recovery-Tools → Volumen runter, Schlaf priorisieren, ggf. Cortisol checken lassen.",
+            "Konkrete Wochentage/Uhrzeiten/Trigger-Mapping (wann genau Sauna, wann Cold, wann NSDR, wann Coherent Breathing) → Master-Wochenplan. Mahlzeiten-Timing und Mengen → Metabolic-Plan. Trainings-Volumen und Methoden → Activity-Plan. Akute Stress-Tools (4–7–8, Box Breathing) → Stress-Plan. Recovery-Plan fokussiert auf Mechanismen und Tracking, nicht auf Wochen-Termine."
           ]
         }
       ]
@@ -581,69 +600,69 @@
         {
           "heading": "Deine Ausgangslage",
           "items": [
-            "Stress-Niveau = high: dein Sympathikus läuft chronisch erhöht, nicht akut-episodisch. Das ist Dauer-Tonus, kein Spike.",
-            "Zwei Stressoren überlagern sich: Job + Familie. Job triggert Karrieren-Sympathikus (Leistungs-Druck, Kontrollverlust), Familie triggert emotionale Dysregulation (Konflikte, Reparatur-Defizit). Zusammen = diffuser Dauer-Stress ohne klare Pausen.",
-            "Dein Sleep-Score 60 und Activity-Score 43 sind Folgen, nicht Ursachen — chronischer Stress supprimiert Schlaf-Qualität und Trainings-Motivation. Recovery-Plan adressiert Schlaf-Architektur + Cortisol-Tagesverlauf, Activity-Plan das Trainings-Volumen. Dieser Plan fokussiert Stress-Physiologie + Stressor-Management."
+            "Stress-Niveau signalisiert chronisch erhöhten Sympathikus-Tonus — dein Körper läuft im Dauer-Alarm-Modus, nicht in akuten Spitzen.",
+            "Job + Familie als Stressor-Kombination: Karrieren-Sympathikus (Leistungsdruck, Entscheidungen) überlagert sich mit Beziehungs-Sympathikus (Konflikte, Koordination) — diffuser Dauer-Tonus ohne klare Pausen.",
+            "Sleep Score 60/100 + Ausdauer-Niveau deuten auf Schlaf-Qualitäts-Defizit und zu wenig Bewegung hin — beides verschärft Stress-Akkumulation. Dein Körper hat keine Entlastungs-Ventile."
           ]
         },
         {
-          "heading": "Stress-Physiologie: warum 'einfach entspannen' nicht funktioniert",
+          "heading": "Stress-Physiologie: Warum 'einfach entspannen' nicht funktioniert",
           "items": [
-            "HPA-Achse (Hypothalamus → Hypophyse → Nebennierenrinde) bei chronischem Stress: Cortisol (Stresshormon — morgens am höchsten, abends sollte es niedrig sein) bleibt erhöht, die Awakening-Response (Cortisol-Spike morgens) kann invertiert sein oder flach. Dein Körper hat gelernt, dass Stress normal ist — die Achse re-kalibriert sich nicht von selbst.",
-            "Polyvagal-Theorie (Porges): dein ventraler Vagus (Social-Engagement + Regenerations-Modus) ist bei Dauer-Stress unteraktiv. Stattdessen sitzt du zwischen dorsalem Vagus (Shutdown-Modus bei Überforderung) und Sympathikus (Kampf-Flucht). Das erklärt, warum du abends erschöpft bist, aber nicht schlafen kannst — weder echte Aktivation noch echte Ruhe.",
-            "Allostatic Load (kumulative Stressbelastung über Zeit): Stress ist wie ein Akku-Verbraucher. Akut (Präsentation, Konflikt) = Performance-Boost, OK. Chronisch (Job + Familie täglich) = toxisch. Folgen: Insulinresistenz, Immun-Suppression, Gedächtnis-Abbau. Dein Metabolic-Score 57 und Sleep-Score 60 sind Marker dafür.",
-            "Invertierte Cortisol-Awakening-Response ist ein Zeichen chronischer Überbelastung — morgens flach statt Spike. Das ist ein Tracking-Marker für den Recovery-Plan, nicht für diesen Plan."
+            "HPA-Achse (Hypothalamus → Hypophyse → Nebennierenrinde) bei chronischem Stress: Cortisol-Awakening-Response ist dysreguliert — du wachst nicht mit natürlichem Cortisol-Anstieg auf, sondern mit Restspannung aus der Nacht.",
+            "Allostatic Load (kumulative Stressbelastung): Stress ist wie ein Akku-Verbraucher — akut OK (Performance-Boost), chronisch toxisch (Insulinresistenz, Immun-Suppression, Gedächtnis-Probleme).",
+            "Polyvagal-Theorie (Porges): dein ventraler Vagus (Social-Engagement / Regenerations-Modus) ist durch chronischen Stress unterdrückt. Ohne aktive Vagus-Aktivierung rutschst du in dorsalen Vagus (Shutdown / Lähmung) — nicht echte Erholung.",
+            "Chronisch erhöhter Stress kann die Cortisol-Awakening-Response invertieren — du wachst flach auf, Cortisol (Stresshormon — morgens am höchsten, abends sollte es niedrig sein) bleibt niedrig, Energie-Mangel den ganzen Tag. Detailliertes Tracking liegt im Recovery-Plan."
           ]
         },
         {
-          "heading": "Akut-Tools: 60-90 Sekunden bis 5 Minuten",
+          "heading": "Akut-Tools: Schnelle Sympathikus-Runter-Regulation",
           "items": [
-            "Physiological Sigh (Balban/Huberman 2023): Doppel-Einatmung Nase + lange Ausatmung Mund, 1–3 Wiederholungen, Wirkung in 60–90 Sekunden. Schnellste klinisch belegte Akut-Down-Regulation. Anwendung: vor Meetings, nach Konflikten mit Familie — z.B. 2 schnelle Atemzüge Nase, dann 6–8 Sekunden Mund-Ausatmung, 3× wiederholen.",
-            "Box Breathing 4-4-4-4: 4 Sekunden einatmen, 4 halten, 4 ausatmen, 4 halten, 3–5 Minuten. CO2-Toleranz + Vagus-Aktivierung. Navy-SEAL-Standard. Anwendung: Pre-Performance vor schwierigen Gesprächen, akute Anspannung — z.B. nach einem Streit mit Partner, bevor du antwortest.",
-            "4-7-8-Atmung: 4 Sekunden Nase ein, 7 Sekunden halten, 8 Sekunden Mund aus. Verlängerte Ausatmung dominiert Parasympathikus, senkt Herzfrequenz + Blutdruck in Minuten. Anwendung: abends wenn Gedanken-Spirale startet — z.B. 5 Runden vor dem Einschlafen.",
-            "Mammalian Dive Reflex: 30 Sekunden Gesicht in kaltes Wasser (10–15°C, NICHT ganzer Körper). Triggert Bradykardie + Vagus-Spike via Trigeminus-Nerv. Schnellster Off-Switch bei Panik-Spike oder akuter Über-Erregung. Anwendung: Notfall-Tool wenn Sympathikus hochfährt — z.B. kaltes Wasser ins Gesicht nach Konflikt-Eskalation."
+            "Physiological Sigh (Doppel-Einatmung Nase + lange Ausatmung Mund): 1–3 Wiederholungen, Wirkung in 60–90 Sekunden. Schnellste klinisch belegte Akut-Down-Regulation. Anwendung: vor wichtigen Meetings, nach Konflikten mit Familie — z.B. 2 Min vor dem Gespräch mit dem Chef oder nach einem Streit mit Partner.",
+            "Box Breathing 4-4-4-4 (4 Sek einatmen, 4 Sek halten, 4 Sek ausatmen, 4 Sek halten): 3–5 Min, CO2-Toleranz (dein Körper wird weniger Atem-Panik-anfällig) + Vagus-Aktivierung. Navy-SEAL- und Anästhesie-Standard. Anwendung: Pre-Performance vor Meetings, akute Anspannung — z.B. 5 Min vor einer schwierigen Familienkonversation.",
+            "4-7-8-Atmung (4 Sek einatmen, 7 Sek halten, 8 Sek ausatmen): verlängerte Ausatmung dominiert Parasympathikus, senkt Herzfrequenz + Blutdruck binnen Minuten. Anwendung: nach Arbeitstag, vor Schlaf — z.B. 3 Runden nach dem letzten Meeting.",
+            "Mammalian Dive Reflex (30 Sekunden Gesicht in kaltes Wasser 10–15°C, NICHT ganzer Körper): triggert Bradykardie + Vagus-Spike via Trigeminus-Nerv. Schnellster Off-Switch bei Panik-Spike oder akuter Über-Erregung. Anwendung: nach intensivem Konflikt oder Stress-Peak — z.B. Gesicht 30 Sek in kaltes Wasser im Badezimmer."
           ]
         },
         {
-          "heading": "Mental Performance: Gedanken-Umstrukturierung",
+          "heading": "Mental Performance: Gedanken-Umdeuten statt Gedanken-Unterdrückung",
           "items": [
-            "Cognitive Reframing (Crum et al. 2013, Stress-Mindset): Stress als Performance-Signal umdeuten, nicht als Bedrohung. Konkret: 'Mein Körper macht mich bereit' statt 'Ich bin überfordert'. Effekt: gemessene Performance-Steigerung + Cortisol-Reaktivität sinkt. Anwendung: vor Job-Meetings oder Familie-Gesprächen — z.B. 30 Sekunden: 'Diese Anspannung ist Energie, nicht Angst.'",
-            "Cognitive Defusion (Hayes, ACT): 'Ich habe den Gedanken, dass ich versage' statt 'Ich versage'. Löst die Gedanken-Fusion selbst auf, nicht nur den Inhalt. Tiefer als Reframing. Anwendung: wenn Grübel-Spirale startet — z.B. 'Das ist ein Gedanke, den mein Gehirn produziert, nicht die Realität.'",
-            "Attention-Management + Identity-Habits (Clear, Atomic Habits): Single-Tasking-Blöcke (1 Aufgabe, kein Multitasking), Phone-Distance (sichtbares Handy = −20% kognitive Leistung). 1 Identity-Statement formulieren: 'Ich bin jemand, der nach jedem Meeting tief ausatmet' oder 'Ich bin jemand, der Konflikte repariert, nicht vermeidet.' Identity > Outcome > Behavior. Anwendung: morgens 1 Satz sprechen, täglich — z.B. vor dem Spiegel."
+            "Cognitive Reframing (Stress-Mindset-Forschung): Stress als Performance-Signal umdeuten. Konkret: 'Mein Körper macht mich bereit' statt 'Ich bin überfordert'. Effekt: gemessene Performance-Steigerung + Cortisol-Reaktivität sinkt. Anwendung: vor Meetings oder Familienkonversationen — z.B. 'Diese Anspannung ist Energie für klare Kommunikation'.",
+            "Cognitive Defusion (ACT — Acceptance & Commitment Therapy): 'Ich habe den Gedanken, dass ich versagen könnte' statt 'Ich werde versagen'. Tiefer als Reframing — löst die Gedanken-Fusion selbst auf, nicht nur den Inhalt. Anwendung: bei Grübel-Schleifen — z.B. 'Ich bemerke, dass mein Gehirn gerade Katastrophen-Szenarien spinnt, aber das ist nur ein Gedanke'.",
+            "Attention-Management + Identity-Habits (Clear, Atomic Habits): Single-Tasking-Blöcke (1 Aufgabe, kein Multitasking) + Phone-Distance (sichtbares Phone = −20% kognitive Leistung). 1 konkretes Identity-Statement formulieren: 'Ich bin jemand, der nach jedem Meeting tief ausatmet und den Kopf freimacht' — Identity > Outcome > Behavior. Anwendung: nach jedem Meeting 2 Min Phone-weg, 1 Physiological Sigh."
           ]
         },
         {
-          "heading": "Lifestyle-Architektur: Stress-Puffer bauen",
+          "heading": "Lifestyle-Architektur: Automatisierung statt Willenskraft",
           "items": [
-            "Decision Fatigue Reduction (Vohs et al.): wiederkehrende Mini-Entscheidungen automatisieren (Kleider-Set, Standard-Frühstück, fixe Routinen-Slots). Präfrontaler Cortex hat begrenzte Glucose-Reserve pro Tag — automatisierte Routinen schonen das Budget. Anwendung: z.B. Montag–Freitag gleiche Arbeits-Kleidung, Frühstück immer Oatmeal + Ei, Meetings immer 9–12 Uhr.",
-            "Information Diet / News-Fasting (Kalogeropoulos 2020): Doomscrolling-Reduktion durch 1× täglich gebatchten News-Konsum statt permanentem Strom. Reduziert Cortisol-Spikes durch unkontrollierte Threat-Reize. Anwendung: z.B. 15 Min News nach dem Mittagessen, nicht beim Aufwachen oder vor dem Schlaf.",
-            "Touch-based Stress Regulation: 20-Sekunden-Umarmung, Hand-on-Heart, Selbst-Berührung. Aktiviert Oxytocin-System + ventralen Vagus. Pet-Touch zählt auch. Anwendung: z.B. nach Konflikt mit Familie 20 Sekunden umarmen statt auseinandergehen, oder Hand auf Herz wenn Angst-Gedanke kommt.",
-            "Music & Heart Rate Entrainment: 60–80 BPM-Musik 10–15 Minuten. Vagalstützend, senkt Sympathikus-Tonus. Anwendung: z.B. während Mittagspause oder abends beim Essen mit Familie — z.B. Spotify-Playlist 'Calm Piano' oder 'Lo-Fi Beats'."
+            "Decision Fatigue Reduction: wiederkehrende Mini-Entscheidungen automatisieren (Kleider-Set, Standard-Frühstück, fixe Routinen-Slots). Mechanismus: präfrontaler Cortex hat begrenzte Glucose-Reserve pro Tag — automatisierte Routinen schonen das Budget. Anwendung: z.B. 3 Standard-Outfits für Arbeit, 1 Standard-Frühstück (Oatmeal + Banane + Nüsse), fixe Trainings-Slots statt 'wann passt es'.",
+            "Information Diet / News-Fasting: Doomscrolling-Reduktion durch 1× täglich gebatchten News-Konsum statt permanentem Strom. Reduziert Cortisol-Spikes durch unkontrollierte Threat-Reize. Anwendung: z.B. 15 Min News nach dem Mittagessen, Rest des Tages Phone-Notifications aus.",
+            "Touch-based Stress Regulation: 20-Sekunden-Umarmung, Hand-on-Heart (Hand auf Brust, tiefe Atmung), Selbst-Berührung. Mechanismus: aktiviert Oxytocin-System + ventralen Vagus. Pet-Touch zählt auch. Anwendung: z.B. 20 Sek Umarmung mit Partner nach Arbeitstag, oder Hand-on-Heart vor schwierigen Gesprächen.",
+            "Music & Heart Rate Entrainment (optional): 60–80 BPM-Musik 10–15 Min — vagalstützend, senkt Herzfrequenz passiv. Anwendung: z.B. während Mittagspause oder nach Arbeitstag — z.B. Spotify-Playlist 'Calm Piano' oder 'Lo-Fi Beats'."
           ]
         },
         {
           "heading": "Job-Stress: Detachment + Mastery-Hobby",
           "items": [
-            "Effort-Recovery Detachment (Meijman/Mulder, Sonnentag): psychologisches Detachment vom Job ist wichtiger als Zeit-Reduktion. Du kannst 8 Stunden arbeiten und abends noch 'am Job sein' (Gedanken-Spirale). Stattdessen: Übergangs-Ritual Job → Privat etablieren. Schwellen-Cue: Schlüssel-Haken, 5-Min-Spaziergang, Outfit-Wechsel. Mechanismus: Ritual signalisiert dem Gehirn 'Job-Modus aus'. Anwendung: z.B. nach Arbeit Jacke ausziehen, 5 Min um den Block gehen, dann erst Familie begrüßen.",
-            "Mastery-Hobby (Recovery Experience Questionnaire): Skill-Entwicklung außerhalb Job aktiviert dopaminerges System job-unabhängig. Nicht 'Entspannung' (passiv), sondern aktive Skill-Progression in etwas das du kontrollierst. Anwendung: z.B. Gitarre lernen, Klettern, Kochen, Handwerk — 2–3× pro Woche 30–60 Min. Effekt: Cortisol sinkt, Dopamin steigt, Job-Stress verliert Gewicht.",
-            "Strategic Underperformance (Cal Newport): 'Maybe-No-Default' — nicht jede Anfrage ist eine Verpflichtung. Email-Response 24h statt 2h. Reduziert Karrieren-Sympathikus ohne Karriere-Schaden (Studien zeigen: Über-Responsiveness wird nicht belohnt, nur erwartet). Anwendung: z.B. 1× täglich Emails checken (z.B. 14:00 Uhr), nicht ständig. Slack-Benachrichtigungen aus. Sag zu neuen Projekten erst 'Ich überleg mir das' statt sofort 'Ja'."
+            "Effort-Recovery Detachment (Meijman/Mulder + Sonnentag): psychologisches Detachment vom Job ist wichtiger als Zeit-Reduktion. Etabliere ein Übergangs-Ritual Job → Privat mit klarem Schwellen-Cue: z.B. Schlüssel-Haken (Ritual: Schlüssel ablegen = Arbeit ablegen), 10-Min-Spaziergang (Ortswechsel triggert Gehirn-Reset), oder Outfit-Wechsel (Arbeitskleidung aus, Privat-Kleidung an). Mechanismus: Ritual signalisiert Gehirn 'jetzt ist Erholung', nicht nur Uhrzeit. Anwendung: täglich nach Arbeit, 5–10 Min, nicht verhandelbar.",
+            "Mastery-Hobby (Recovery Experience Questionnaire): Skill-Entwicklung außerhalb Job aktiviert dopaminerges System job-unabhängig. Nicht 'Hobby = Ablenkung', sondern 'Hobby = Kompetenz-Aufbau in anderem Bereich'. Anwendung: z.B. Gitarre lernen, Kochen-Skill, Handwerk, Sprache, Sport mit Progression. 1–2× pro Woche 30–45 Min, nicht als Stress-Abbau sondern als Skill-Aufbau — z.B. 'Ich lerne diese Woche 1 neues Lied' statt 'Ich spiele um abzuschalten'.",
+            "Strategic Underperformance (Cal Newport): 'Maybe-No-Default' — nicht jede Email sofort beantworten. Email-Response 24h statt 2h, Meetings selektiv ablehnen ('Danke, aber ich kann nicht'), Slack-Notifications aus. Reduziert Karriere-Sympathikus ohne Karriere-Schaden — Studien zeigen: Respons-Zeit hat KEINE Korrelation mit Karriere-Erfolg, aber Erholung hat. Anwendung: z.B. Email-Check 2× täglich (10:00 + 15:00), nicht kontinuierlich."
           ]
         },
         {
           "heading": "Familie-Stress: Repair Attempts + Co-Regulation",
           "items": [
-            "Repair Attempts (Gottman): nicht Streit-Vermeidung sagt Beziehungs-Erfolg voraus, sondern schnelle Repair-Versuche nach Konflikten. Familieneigener Repair-Code etablieren: Geste (z.B. Hand ausstrecken), Wort (z.B. 'Ich mag dich'), Inside-Joke (z.B. gemeinsames Lachen). Mechanismus: Repair signalisiert 'Konflikt ist nicht existenziell, wir sind noch verbunden'. Anwendung: z.B. nach Streit mit Partner/Kind: Hand ausstrecken + 'Lass mich das anders sagen' oder gemeinsamer Witz. Nicht warten bis Stille eintritt.",
-            "Co-Regulation Practice (Polyvagal-Anwendung): 5-Min-Sync-Momente gemeinsam essen ohne Handy, Augenkontakt, parallele Atmung. Aktiviert ventralen Vagus. Mechanismus: Synchronisierung mit anderen Menschen ist stärkster Vagus-Aktivator. Anwendung: z.B. täglich 1 Mahlzeit zusammen ohne Handy, Blickkontakt halten, langsam essen. Oder 5 Min vor dem Schlaf: Hand halten, zusammen atmen.",
-            "Bedtime Disclosure (Algoe 2012): 1 Dankbarkeit + 1 Sorge teilen vor dem Schlaf. Erhöht Oxytocin, senkt Cortisol. Mechanismus: Vulnerability + Dankbarkeit aktivieren Bindungs-System. Anwendung: z.B. vor dem Schlaf mit Partner: 'Ich bin dankbar für [konkret], und ich mache mir Sorgen um [konkret].' Nicht Vorwürfe, nicht Lösungs-Druck — nur Teilen."
+            "Repair Attempts (Gottman): nicht Streit-Vermeidung sagt Beziehungs-Erfolg voraus, sondern schnelle Repair-Versuche nach Konflikten. Etabliere einen familieneigenen Repair-Code — eine Geste, ein Wort oder Inside-Joke, der signalisiert 'ich bin wieder bei dir'. Mechanismus: Repair-Versuch senkt Cortisol schneller als Streit-Vermeidung. Anwendung: z.B. Hand-Squeeze nach Konflikt, oder Wort wie 'Neustart?', oder gemeinsames Lachen über Inside-Joke. Timing: innerhalb 1–2 Stunden nach Konflikt, nicht Tage später.",
+            "Co-Regulation Practice (Polyvagal-Anwendung): 5-Min-Sync-Momente gemeinsam essen ohne Handy, Augenkontakt, parallele Atmung (beide atmen im gleichen Rhythmus). Aktiviert ventralen Vagus, senkt beider Cortisol. Mechanismus: Nervensystem-Synchronisation ist stärker als individuelle Entspannung. Anwendung: z.B. täglich 1 Mahlzeit ohne Handy mit Partner/Familie, oder 5 Min vor Schlaf Hand-in-Hand sitzen + gemeinsam atmen.",
+            "Bedtime Disclosure (Algoe 2012): 1 Dankbarkeit + 1 Sorge teilen vor dem Schlaf — mit Partner oder Familie. Erhöht Oxytocin, senkt Cortisol, verbessert Schlaf-Qualität. Anwendung: z.B. vor Schlaf: 'Ich bin dankbar für [konkret], und ich mache mir Sorgen um [konkret]' — nicht Lösungs-Druck, nur Teilen. 2–3 Min, täglich oder 3–4× pro Woche."
           ]
         },
         {
-          "heading": "Progress-Tracking: Stress-Marker über 4 Wochen",
+          "heading": "Progress-Tracking: Objektiv + Subjektiv",
           "items": [
-            "HRV (RMSSD in ms) als objektiver Stress-Marker — Trend über 7–14 Tage wichtiger als Tageswerte. Sinkender Trend = Sympathikus-Stuck-On → Volumen runter, Recovery-Tools rauf. Detail-Tracking-Methodik liegt im Recovery-Plan. Anwendung: z.B. morgens 1 Min nach dem Aufwachen HRV (Herzfrequenzvariabilität — Anzeichen wie erholt dein Körper ist) messen (Apple Watch, Oura Ring, oder App), Wochenmittel notieren.",
-            "Subjektive 1–10-Stress-Skala morgens (30 Sekunden, baut Interozeption auf). Trend wichtiger als Einzelwert. Anwendung: z.B. morgens nach dem Aufwachen: 'Wie angespannt fühle ich mich heute?' 1–10 aufschreiben, Wochenmittel bilden.",
-            "Wochen-Review-Frage (wöchentlich): 'Welche 1–2 Down-Regulation-Momente hatten diese Woche WIRKUNG?' — verstärkt was funktioniert. Anwendung: z.B. Sonntag-Abend 5 Min: Physiological Sigh? Box Breathing? Mastery-Hobby? Repair-Versuch? Was hat geholfen, was nicht?",
-            "Re-Analyse nach 4 Wochen: welche Akut-Tools behalten, welche tauschen. Welche Stressor-Tools (Job-Detachment, Mastery-Hobby, Repair Attempts) haben Stress-Score gesenkt? Dann Stress-Plan Phase 2 starten mit Fokus auf die Top-3-Tools."
+            "HRV (RMSSD in Millisekunden) als objektiver Stress-Marker — Trend über 7–14 Tage wichtiger als Tageswerte. Sinkender Trend = Sympathikus-Stuck-On → Volumen runter, Recovery-Tools rauf. Detailliertes Tracking-Methodik liegt im Recovery-Plan. Anwendung: 1× täglich morgens messen (z.B. mit Apple Watch, Oura Ring, oder kostenlos mit HRV4Training-App), Trend-Richtung beobachten.",
+            "Subjektive 1-10-Stress-Skala morgens (30 Sekunden): 'Wie gestresst fühle ich mich jetzt?' — baut Interozeption auf (Körper-Wahrnehmung). Trend wichtiger als Einzelwert. Anwendung: täglich morgens nach dem Aufwachen, 1 Zahl aufschreiben.",
+            "Wochen-Review-Frage (wöchentlich): 'Welche 1–2 Down-Regulation-Momente hatten diese Woche WIRKUNG?' — verstärkt was funktioniert. Nicht 'was habe ich falsch gemacht', sondern 'was hat geholfen'. Anwendung: z.B. Sonntag-Abend 5 Min, aufschreiben welche Akut-Tools (Physiological Sigh, Box Breathing, Repair Attempt, Mastery-Hobby) tatsächlich Stress gesenkt haben.",
+            "Re-Analyse nach 4 Wochen: welche Akut-Tools behalten, welche tauschen. Stress-Score sollte um 5–10 Punkte sinken wenn Tools konsistent angewendet werden. Wenn nicht: Sleep-Plan + Activity-Plan überprüfen (Schlaf + Bewegung sind Stress-Multiplier)."
           ]
         }
       ]
