@@ -2227,23 +2227,27 @@
   grid-template-columns: minmax(280px, 0.9fr) 1.1fr;
   gap: 56px;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 80px;
 }
 @media (max-width: 960px) {
-  .sampleShowcaseGrid { grid-template-columns: 1fr; gap: 40px; }
+  .sampleShowcaseGrid { grid-template-columns: 1fr; gap: 40px; margin-bottom: 64px; }
 }
 
-/* ── 3D PDF-stack mockup ── */
+/* ── 3D PDF-stack mockup ──
+   The container reserves vertical space below for the fanned-out cards
+   (translate-Y positive values on Stress/Recovery/Master) so they don't
+   overlap the View-Online CTA underneath. */
 .sampleStackMockup {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 5;
   max-width: 380px;
   margin: 0 auto;
+  padding-bottom: 40px;
 }
 .sampleStackCard {
   position: absolute;
-  inset: 0;
+  inset: 0 0 40px 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -2251,22 +2255,22 @@
   overflow: hidden;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.sampleStackCardStress    { transform: rotate(-12deg) translate(-44px, 26px); }
-.sampleStackCardRecovery  { transform: rotate(-7deg)  translate(-28px, 14px); }
-.sampleStackCardMetabolic { transform: rotate(-3deg)  translate(-14px, 6px); }
-.sampleStackCardActivity  { transform: rotate(3deg)   translate(14px, 4px); }
-.sampleStackCardMaster    { transform: rotate(8deg)   translate(30px, 18px); }
+.sampleStackCardStress    { transform: rotate(-12deg) translate(-44px, 12px); }
+.sampleStackCardRecovery  { transform: rotate(-7deg)  translate(-28px, 6px); }
+.sampleStackCardMetabolic { transform: rotate(-3deg)  translate(-14px, 2px); }
+.sampleStackCardActivity  { transform: rotate(3deg)   translate(14px, 2px); }
+.sampleStackCardMaster    { transform: rotate(8deg)   translate(30px, 8px); }
 .sampleStackCardMain {
   transform: rotate(0deg) translate(0, -12px);
   border: 1px solid rgba(230, 50, 34, 0.45);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(230, 50, 34, 0.08);
   z-index: 6;
 }
-.sampleStackMockup:hover .sampleStackCardStress    { transform: rotate(-15deg) translate(-58px, 32px); }
-.sampleStackMockup:hover .sampleStackCardRecovery  { transform: rotate(-9deg)  translate(-38px, 18px); }
-.sampleStackMockup:hover .sampleStackCardMetabolic { transform: rotate(-4deg)  translate(-20px, 8px); }
-.sampleStackMockup:hover .sampleStackCardActivity  { transform: rotate(4deg)   translate(20px, 6px); }
-.sampleStackMockup:hover .sampleStackCardMaster    { transform: rotate(10deg)  translate(38px, 22px); }
+.sampleStackMockup:hover .sampleStackCardStress    { transform: rotate(-15deg) translate(-58px, 16px); }
+.sampleStackMockup:hover .sampleStackCardRecovery  { transform: rotate(-9deg)  translate(-38px, 8px); }
+.sampleStackMockup:hover .sampleStackCardMetabolic { transform: rotate(-4deg)  translate(-20px, 4px); }
+.sampleStackMockup:hover .sampleStackCardActivity  { transform: rotate(4deg)   translate(20px, 2px); }
+.sampleStackMockup:hover .sampleStackCardMaster    { transform: rotate(10deg)  translate(38px, 12px); }
 
 .sampleStackCardInner {
   padding: 24px 22px;
@@ -2321,11 +2325,11 @@
 
 @media (max-width: 540px) {
   .sampleStackMockup { aspect-ratio: 5 / 5; max-width: 320px; }
-  .sampleStackCardStress    { transform: rotate(-9deg)  translate(-30px, 18px); }
-  .sampleStackCardRecovery  { transform: rotate(-5deg)  translate(-18px, 10px); }
-  .sampleStackCardMetabolic { transform: rotate(-2deg)  translate(-8px, 4px); }
-  .sampleStackCardActivity  { transform: rotate(2deg)   translate(8px, 2px); }
-  .sampleStackCardMaster    { transform: rotate(5deg)   translate(20px, 12px); }
+  .sampleStackCardStress    { transform: rotate(-9deg)  translate(-30px, 8px); }
+  .sampleStackCardRecovery  { transform: rotate(-5deg)  translate(-18px, 4px); }
+  .sampleStackCardMetabolic { transform: rotate(-2deg)  translate(-8px, 2px); }
+  .sampleStackCardActivity  { transform: rotate(2deg)   translate(8px, 0); }
+  .sampleStackCardMaster    { transform: rotate(5deg)   translate(20px, 6px); }
   .sampleStackCardMain      { transform: rotate(0deg)   translate(0, -8px); }
 }
 
@@ -2388,8 +2392,10 @@
 
 /* ── Secondary text link ── */
 .sampleViewOnlineCta {
+  position: relative;
+  z-index: 2;
   display: inline-block;
-  margin-top: 8px;
+  margin-top: 16px;
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 12px;
   letter-spacing: 0.14em;
