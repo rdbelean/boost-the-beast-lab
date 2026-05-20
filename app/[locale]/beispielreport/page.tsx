@@ -365,9 +365,18 @@ export default function BeispielreportPage() {
             </div>
           </section>
 
-          {/* ─── INDIVIDUELLE PLÄNE ──────────────────────── */}
+          {/* ─── MASTER-WOCHENPLAN + INDIVIDUELLE PLÄNE ──── */}
           <section className={styles.plansSection}>
-            <h2 className={styles.plansSectionHeading}>{t("plans.heading")}</h2>
+            <Link href="/beispielreport/master" className={styles.masterPlanCard}>
+              <div className={styles.masterPlanAccent} />
+              <div className={styles.masterPlanBody}>
+                <div className={styles.masterPlanLabel}>{t("plans.master.label")}</div>
+                <div className={styles.masterPlanSubtitle}>{t("plans.master.desc")}</div>
+              </div>
+              <div className={styles.masterPlanArrow}>→</div>
+            </Link>
+
+            <h2 className={styles.individualPlansHeading}>{t("plans.individual_heading")}</h2>
             <p className={styles.plansSubtitle}>{t("plans.subtitle")}</p>
             <div className={styles.plansGrid}>
               {[

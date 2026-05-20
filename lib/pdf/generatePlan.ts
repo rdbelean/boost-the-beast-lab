@@ -22,6 +22,7 @@ export interface PlanPdfInput {
   blocks: PlanBlock[];
   locale?: string;     // "de" | "en" | "it" — defaults to "de"
   isSample?: boolean;  // Adds diagonal BEISPIEL watermark on every page
+  censor?: boolean;    // Redacts items 3+ per block (teaser). Independent of isSample.
 }
 
 // ── Page dimensions ────────────────────────────────────────────────────────
@@ -103,8 +104,10 @@ const PLAN_LABELS: Record<string, {
 let currentPlanLocale: Locale = "de";
 
 // When true, items 3+ per block (except block 0) are replaced with grey
-// redaction bars + censor hint text. Set by generatePlanPDF.
-let isSamplePlan = false;
+// redaction bars + censor hint text. Decoupled from the BEISPIEL watermark
+// (gated on isSample) so a sample plan can show full content while
+// watermarked. Set by generatePlanPDF.
+let censorPlan = false;
 
 // Urgency label derived from score (matches web urgencyLabel() helper)
 function urgencyInfo(score: number, locale = "de"): { text: string; color: Color } {
@@ -374,7 +377,7 @@ function blockHeight(block: PlanBlock, f: F, blockIndex = 0): number {
   const innerW = CW - 32;
   const headingH = 44;
 
-  const censorBlock = isSamplePlan && blockIndex > 0;
+  const censorBlock = censorPlan && blockIndex > 0;
   const visibleItems = censorBlock ? block.items.slice(0, 2) : block.items;
   const censoredCount = censorBlock ? Math.max(0, block.items.length - 2) : 0;
 
@@ -406,7 +409,7 @@ function drawBlock(
 
   const innerW = CW - 32;
   const bh = blockHeight(block, f, blockIndex) - 20;
-  const censorBlock = isSamplePlan && blockIndex > 0;
+  const censorBlock = censorPlan && blockIndex > 0;
   const PL = PLAN_LABELS[locale] ?? PLAN_LABELS["de"];
 
   page.drawRectangle({ x: MX, y: startY - bh, width: CW, height: bh, color: BG_CARD });
@@ -629,7 +632,7 @@ export async function generatePlanPDF(plan: PlanPdfInput): Promise<Uint8Array> {
   // the locale for THIS request, even if dev-mode handles requests
   // concurrently on the same Node.js process.
   currentPlanLocale = planLocale;
-  isSamplePlan = plan.isSample === true;
+  censorPlan = plan.censor === true;
 
   doc.setTitle(`BTB ${tx(plan.title)}`);
   doc.setAuthor("BOOST THE BEAST LAB");

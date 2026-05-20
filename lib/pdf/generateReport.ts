@@ -14,8 +14,10 @@ let currentLocale: Locale = "de";
 
 // When true, interpretive texts are censored: first N sentences shown,
 // the rest replaced with a hint. Action-plan milestones 3-4 are redacted.
+// Decoupled from the BEISPIEL watermark (gated on `isSample`) so a sample
+// report can show full content while still being watermarked.
 // Set by generatePDF — safe for serverless single-invocation semantics.
-let isSampleReport = false;
+let censorReport = false;
 
 // Localized labels used by the PDF generator. Claude-generated narrative
 // is already in the target language when the caller provides `locale`;
@@ -718,7 +720,7 @@ function drawCensored(
   visibleSentences: number,
   f: F,
 ): number {
-  if (!isSampleReport) return drawW(page, text, x, y, maxW, font, size, color, lhMul);
+  if (!censorReport) return drawW(page, text, x, y, maxW, font, size, color, lhMul);
   const { visible, hiddenCount } = censorText(text, visibleSentences);
   y = drawW(page, visible, x, y, maxW, font, size, color, lhMul);
   if (hiddenCount > 0 && y > CB) {
@@ -1258,7 +1260,7 @@ function buildExecutiveFindings(
     // Body — censored to 1 sentence in sample mode
     const headlineLines = wrapLines(tx(f2.headline), f.bold, 11, CW - 32);
     const bodyStartY = y - 32 - headlineLines.length * 11 * 1.4 - 6;
-    const bodyText = isSampleReport ? censorText(tx(f2.body), 1).visible : tx(f2.body);
+    const bodyText = censorReport ? censorText(tx(f2.body), 1).visible : tx(f2.body);
     drawW(page, bodyText, MX + 14, Math.max(y - boxH + 14, bodyStartY), CW - 32, f.reg, 9.5, TXT_MUTED, 1.6);
 
     y -= boxH + 10;
@@ -1291,7 +1293,7 @@ function buildCrossInsightsPage(
     page.drawRectangle({ x: MX, y: y - boxH, width: 4, height: boxH, color: BLUE_INFO });
 
     page.drawText(tx(ins.headline).toUpperCase(), { x: MX + 14, y: y - 16, size: 9, font: f.bold, color: BLUE_INFO });
-    const insBody = isSampleReport ? censorText(tx(ins.body), 1).visible : tx(ins.body);
+    const insBody = censorReport ? censorText(tx(ins.body), 1).visible : tx(ins.body);
     drawW(page, insBody, MX + 14, y - 34, CW - 32, f.reg, 10, TXT_WHITE, 1.65);
 
     y -= boxH + 10;
@@ -1380,7 +1382,7 @@ function buildActionPlanPage(
         // this guard rarely fires; it stays as a defensive backstop.
         if (my < y - boxH + 14) break;
 
-        if (isSampleReport && mi >= 2) {
+        if (censorReport && mi >= 2) {
           // Grey redaction bar for milestones 3-4 (single row, unchanged).
           const barW = CW - 32;
           page.drawRectangle({ x: MX + 14, y: my - 10, width: barW, height: 13, color: BG_INSET });
@@ -1555,17 +1557,17 @@ function buildModule(
   // ── Info boxes ────────────────────────────────────────────────────────
   const systemic = mod.systemic_connection ?? mod.systemic_impact ?? "";
   if (systemic && tx(systemic).trim()) {
-    const systemicText = isSampleReport ? censorText(systemic, 1).visible : systemic;
+    const systemicText = censorReport ? censorText(systemic, 1).visible : systemic;
     y = infoBox(page, PL.systemischeVerbindung, systemicText, f, MX, y, CW, BLUE_INFO,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
   if (mod.limitation && tx(mod.limitation).trim()) {
-    const limitText = isSampleReport ? censorText(mod.limitation, 1).visible : mod.limitation;
+    const limitText = censorReport ? censorText(mod.limitation, 1).visible : mod.limitation;
     y = infoBox(page, PL.limitierung, limitText, f, MX, y, CW, ACCENT,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
   if (mod.recommendation && tx(mod.recommendation).trim()) {
-    const recText = isSampleReport ? censorText(mod.recommendation, 1).visible : mod.recommendation;
+    const recText = censorReport ? censorText(mod.recommendation, 1).visible : mod.recommendation;
     y = infoBox(page, PL.naechsterSchritt, recText, f, MX, y, CW, SC_GREEN,
       L.boxSize, L.lhBox, L.boxOverhead, L.boxGap, L.bodyOffset);
   }
@@ -1666,9 +1668,10 @@ export async function generatePDF(
   wearableRows?: PdfWearableRows,
   heroData?: PdfHeroData,
   isSample = false,
+  censor = false,
 ): Promise<Uint8Array> {
   currentLocale = locale;
-  isSampleReport = isSample;
+  censorReport = censor;
   const L = PDF_LABELS[locale];
   const today = new Date().toLocaleDateString(L.dateLocale, {
     year: "numeric",
