@@ -3,14 +3,15 @@ import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import styles from "@/app/landing.module.css";
 
-// 7 most common objections, native <details>/<summary> accordion (no
+// 6 most common objections, native <details>/<summary> accordion (no
 // npm dependency). Chevron rotation animated via CSS. Each item is
 // independent — multiple can be open at once, which is what we want
 // for a scannable Q-and-A section.
-// Note: item 8 ("money-back guarantee" question) is intentionally not in
-// the list on main. Lives only on the prompt-experiment-v1 preview branch
-// until the refund process is operationalised.
-const ITEMS = ["1", "2", "3", "4", "5", "6", "7"] as const;
+// Note: the money-back guarantee question is intentionally not in the
+// list on main — it lives only on the prompt-experiment-v1 preview
+// branch until the refund process is operationalised. The "Do I get
+// updates?" question was also removed (V2 timeline not committed yet).
+const ITEMS = ["1", "2", "3", "4", "5", "6"] as const;
 
 export default function FAQ() {
   const t = useTranslations("faq");
