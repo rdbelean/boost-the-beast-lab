@@ -33,6 +33,9 @@ const BG_INSET = rgb(0.133, 0.133, 0.145);
 const TXT_WHITE = rgb(0.933, 0.929, 0.922);
 const TXT_MUTED = rgb(0.54, 0.533, 0.521);
 const BORDER_C = rgb(0.267, 0.267, 0.29);
+// Fill color for soft-censor word blocks (sample teaser). Mid-gray so it
+// reads as "text is here" against the dark row backgrounds.
+const CENSOR_BLOCK = rgb(0.42, 0.42, 0.45);
 
 const ACCENT_HEX = "#E63222";
 function hexToRgb(hex: string): Color {
@@ -145,12 +148,52 @@ function drawW(
   size: number,
   color: Color,
   lhMul = 1.4,
-  opacity?: number,
 ): number {
   const lines = wrapLines(text, font, size, maxW);
   let curY = y;
   for (const ln of lines) {
-    page.drawText(ln, { x, y: curY, size, font, color, opacity });
+    page.drawText(ln, { x, y: curY, size, font, color });
+    curY -= size * lhMul;
+  }
+  return curY;
+}
+
+// Soft-censor renderer (sample teaser only). Same signature + wrapping as
+// drawW so row heights from measureTable stay valid, but each word is drawn
+// as a filled block rectangle (word width preserved) instead of legible
+// text. Bullets stay visible, word gaps stay visible → "redacted" look.
+// Note: a literal U+2593 (▓) block char is NOT used because de/en/it render
+// with Helvetica/WinAnsi, which cannot encode it.
+function drawMasked(
+  page: PDFPage,
+  text: string,
+  x: number,
+  y: number,
+  maxW: number,
+  font: PDFFont,
+  size: number,
+  color: Color,
+  lhMul = 1.4,
+): number {
+  const lines = wrapLines(text, font, size, maxW);
+  const spaceW = font.widthOfTextAtSize(" ", size);
+  let curY = y;
+  for (const ln of lines) {
+    let tokX = x;
+    for (const tok of ln.split(" ")) {
+      if (!tok) {
+        tokX += spaceW;
+        continue;
+      }
+      const w = font.widthOfTextAtSize(tok, size);
+      if (tok === "•") {
+        // Keep bullets readable so the list structure shows through.
+        page.drawText(tok, { x: tokX, y: curY, size, font, color });
+      } else {
+        page.drawRectangle({ x: tokX, y: curY - size * 0.12, width: w, height: size * 0.72, color: CENSOR_BLOCK });
+      }
+      tokX += w + spaceW;
+    }
     curY -= size * lhMul;
   }
   return curY;
@@ -357,11 +400,11 @@ function drawContentPage(
     const cellTopY = y - padY - bodySize;
     const dayText = dayLabels[row.day] ?? row.day.toUpperCase();
 
-    // Soft-censor (sample teaser): day label stays visible, content cells
-    // dimmed + dark overlay so the original text is unreadable but its
-    // contours show faintly. censorDays is empty for production → no-op.
+    // Soft-censor (sample teaser): day label stays visible; content cells
+    // are rendered as per-word block masks instead of legible text.
+    // censorDays is empty for production → drawCell === drawW → no-op.
     const censored = censorDays.includes(DAY_ORDER.indexOf(row.day as typeof DAY_ORDER[number]));
-    const cellOpacity = censored ? 0.22 : undefined;
+    const drawCell = censored ? drawMasked : drawW;
 
     // Day cell
     page.drawText(tx(dayText), { x: cx + padX, y: cellTopY, size: 8, font: f.bold, color: accent });
@@ -370,38 +413,28 @@ function drawContentPage(
     // Training cell
     let cellY = cellTopY;
     for (const item of row.training) {
-      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.training - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul, cellOpacity);
+      cellY = drawCell(page, `• ${tx(item)}`, cx + padX, cellY, colW.training - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul);
     }
     cx += colW.training;
 
     // Nutrition cell
     cellY = cellTopY;
     for (const item of row.nutrition) {
-      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.nutrition - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul, cellOpacity);
+      cellY = drawCell(page, `• ${tx(item)}`, cx + padX, cellY, colW.nutrition - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul);
     }
     cx += colW.nutrition;
 
     // Recovery cell
     cellY = cellTopY;
     for (const item of row.recovery) {
-      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.recovery - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul, cellOpacity);
+      cellY = drawCell(page, `• ${tx(item)}`, cx + padX, cellY, colW.recovery - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul);
     }
     cx += colW.recovery;
 
     // Stress cell
     cellY = cellTopY;
     for (const item of row.stress_anchor) {
-      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.stress - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul, cellOpacity);
-    }
-
-    // Censor overlay — dark translucent layer over the content columns only
-    // (day column stays clear). Drawn after content text, before separators.
-    if (censored) {
-      page.drawRectangle({
-        x: MX + colW.day, y: y - rowH,
-        width: CW - colW.day, height: rowH,
-        color: rgb(0, 0, 0), opacity: 0.5,
-      });
+      cellY = drawCell(page, `• ${tx(item)}`, cx + padX, cellY, colW.stress - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul);
     }
 
     // Column separators
