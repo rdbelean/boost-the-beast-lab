@@ -60,6 +60,29 @@ function scoreBadgeKey(score: number): BadgeKey {
   return "low";
 }
 
+/* ─── Sample teaser censor style ────────────────────────────
+   Mirrors the Mo-visible / Di-So-blurred pattern from the master-plan
+   PDF + HTML preview. Score-card headers (label, number, bar, desc) and
+   the radar chart stay readable so the user sees their score; the
+   deeper detail blocks (DataInsightBlock per dimension, derived
+   metrics, benchmark comparison, sleep detail breakdown) are blurred
+   as the "premium" teaser content. */
+const CENSORED_STYLE = {
+  filter: "blur(5px)",
+  userSelect: "none" as const,
+  pointerEvents: "none" as const,
+  opacity: 0.82,
+};
+const UNLOCK_HINT_STYLE = {
+  marginTop: 14,
+  fontSize: 12,
+  lineHeight: 1.5,
+  color: "rgba(255,255,255,0.5)",
+  fontStyle: "italic" as const,
+  textAlign: "center" as const,
+  fontFamily: "var(--font-inter), sans-serif",
+};
+
 /* ─── Radar Chart (SVG) ─────────────────────────────────────── */
 interface RadarScores { metabolic: number; sleep: number; activity: number; stress: number; vo2max: number }
 function RadarChart({ scores }: { scores: RadarScores }) {
@@ -144,6 +167,7 @@ export default function BeispielreportPage() {
   }
 
   const ts = useTranslations("sample_report");
+  const tSample = useTranslations("sample");
 
   return (
     <>
@@ -231,11 +255,13 @@ export default function BeispielreportPage() {
                     </div>
                     <div className={styles.scoreCardDesc}>{entry.desc}</div>
                     {rows.length > 0 && (
-                      <DataInsightBlock
-                        dimension={entry.key as "sleep" | "activity" | "vo2max" | "metabolic" | "stress"}
-                        rows={rows}
-                        interpretation={interpretation}
-                      />
+                      <div style={CENSORED_STYLE} aria-hidden>
+                        <DataInsightBlock
+                          dimension={entry.key as "sleep" | "activity" | "vo2max" | "metabolic" | "stress"}
+                          rows={rows}
+                          interpretation={interpretation}
+                        />
+                      </div>
                     )}
                   </div>
                 );
@@ -246,7 +272,7 @@ export default function BeispielreportPage() {
           {/* ─── DERIVED METRICS ──────────────────────────── */}
           <section className={styles.scoresSection}>
             <div className={styles.sectionLabel}>{t("derived_metrics_label")}</div>
-            <div className={styles.scoresGrid}>
+            <div className={styles.scoresGrid} style={CENSORED_STYLE} aria-hidden>
               <div className={styles.scoreCard} style={{ animationDelay: "0.1s" }}>
                 <div className={styles.scoreCardTop}>
                   <div>
@@ -292,6 +318,7 @@ export default function BeispielreportPage() {
                 <div className={styles.scoreCardDesc}>{t("met_card.desc")}</div>
               </div>
             </div>
+            <p style={UNLOCK_HINT_STYLE}>🔒 {tSample("unlock_hint")}</p>
           </section>
 
           {/* ─── RADAR CHART ─────────────────────────────── */}
@@ -314,31 +341,34 @@ export default function BeispielreportPage() {
           {/* ─── BENCHMARK COMPARISON ────────────────────── */}
           <section className={styles.benchmarkSection}>
             <div className={styles.sectionLabel}>{t("benchmark_label")}</div>
-            {scoreEntries.map((entry, i) => (
-              <div key={entry.key} className={styles.benchmarkRow} style={{ animationDelay: `${i * 0.1}s` }}>
-                <div className={styles.benchmarkLabel}>{entry.label}</div>
-                <div className={styles.benchmarkBars}>
-                  <div className={styles.benchmarkBarWrap}>
-                    <div className={styles.benchmarkBarFill} style={{ width: `${entry.score}%`, background: entry.color, animationDelay: `${0.3 + i * 0.1}s` }} />
-                    <span className={styles.benchmarkBarLabel}>{entry.score}</span>
-                  </div>
-                  <div className={styles.benchmarkBarRef}>
-                    <div className={styles.benchmarkBarRefFill} style={{ width: `${benchmarks[entry.key]}%` }} />
-                    <span className={styles.benchmarkBarRefLabel}>⌀ {benchmarks[entry.key]}</span>
+            <div style={CENSORED_STYLE} aria-hidden>
+              {scoreEntries.map((entry, i) => (
+                <div key={entry.key} className={styles.benchmarkRow} style={{ animationDelay: `${i * 0.1}s` }}>
+                  <div className={styles.benchmarkLabel}>{entry.label}</div>
+                  <div className={styles.benchmarkBars}>
+                    <div className={styles.benchmarkBarWrap}>
+                      <div className={styles.benchmarkBarFill} style={{ width: `${entry.score}%`, background: entry.color, animationDelay: `${0.3 + i * 0.1}s` }} />
+                      <span className={styles.benchmarkBarLabel}>{entry.score}</span>
+                    </div>
+                    <div className={styles.benchmarkBarRef}>
+                      <div className={styles.benchmarkBarRefFill} style={{ width: `${benchmarks[entry.key]}%` }} />
+                      <span className={styles.benchmarkBarRefLabel}>⌀ {benchmarks[entry.key]}</span>
+                    </div>
                   </div>
                 </div>
+              ))}
+              <div className={styles.benchmarkLegend}>
+                <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "var(--accent)" }} />{t("benchmark_legend.your_score")}</div>
+                <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "rgba(255,255,255,0.15)" }} />{t("benchmark_legend.average")}</div>
               </div>
-            ))}
-            <div className={styles.benchmarkLegend}>
-              <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "var(--accent)" }} />{t("benchmark_legend.your_score")}</div>
-              <div className={styles.legendItem}><div className={styles.legendDot} style={{ background: "rgba(255,255,255,0.15)" }} />{t("benchmark_legend.average")}</div>
             </div>
+            <p style={UNLOCK_HINT_STYLE}>🔒 {tSample("unlock_hint")}</p>
           </section>
 
           {/* ─── SLEEP DETAIL ────────────────────────────── */}
           <section className={styles.scoresSection}>
             <div className={styles.sectionLabel}>{t("sleep_detail_label")}</div>
-            <div className={styles.scoresGrid}>
+            <div className={styles.scoresGrid} style={CENSORED_STYLE} aria-hidden>
               {[
                 { key: "duration", label: t("sleep_detail.duration.label"), score: scores.sleep.sleep_duration_score, desc: t("sleep_detail.duration.desc", { band: scores.sleep.sleep_duration_band }) },
                 { key: "quality",  label: t("sleep_detail.quality.label"),  score: scores.sleep.sleep_quality_score,  desc: t("sleep_detail.quality.desc") },
@@ -363,6 +393,7 @@ export default function BeispielreportPage() {
                 );
               })}
             </div>
+            <p style={UNLOCK_HINT_STYLE}>🔒 {tSample("unlock_hint")}</p>
           </section>
 
           {/* ─── MASTER-WOCHENPLAN + INDIVIDUELLE PLÄNE ──── */}
