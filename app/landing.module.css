@@ -2397,7 +2397,8 @@
   display: inline-block;
   margin-top: 16px;
   font-family: var(--font-jetbrains-mono), monospace;
-  font-size: 12px;
+  font-size: 18px;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-secondary);
