@@ -11,7 +11,8 @@ export async function GET(req: Request) {
   const locale = (searchParams.get("locale") ?? "de") as Locale;
 
   const plan = getSampleMasterPlan(locale);
-  const { bytes } = await generateMasterPlanPDF({ plan, locale, isSample: true });
+  // Teaser: Mo (index 0) stays readable; Di–So (1–6) soft-censored.
+  const { bytes } = await generateMasterPlanPDF({ plan, locale, isSample: true, censorDays: [1, 2, 3, 4, 5, 6] });
 
   return new NextResponse(Buffer.from(bytes), {
     status: 200,

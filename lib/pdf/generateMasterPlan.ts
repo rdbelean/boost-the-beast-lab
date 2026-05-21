@@ -12,6 +12,9 @@ export interface MasterPlanPdfInput {
   /** Adds diagonal "BEISPIEL"/"SAMPLE" watermark on every page. Used by
    *  the sample-report download API; production users never get this. */
   isSample?: boolean;
+  /** 0-indexed weekday rows to soft-censor (Mon=0 … Sun=6). Sample-teaser
+   *  only; production omits this → empty → no censoring. */
+  censorDays?: number[];
 }
 
 export interface MasterPlanPdfResult {
@@ -90,6 +93,9 @@ const DAY_LABELS: Record<string, Record<string, string>> = {
   tr: { mon: "Pzt", tue: "Sal", wed: "Çar", thu: "Per", fri: "Cum", sat: "Cmt", sun: "Paz" },
 };
 
+// Canonical weekday order for 0-indexed censorDays mapping (Mon=0 … Sun=6).
+const DAY_ORDER = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+
 function tx(s: string | undefined | null): string {
   const normalized = String(s ?? "")
     .replace(/[—–]/g, "-")
@@ -139,11 +145,12 @@ function drawW(
   size: number,
   color: Color,
   lhMul = 1.4,
+  opacity?: number,
 ): number {
   const lines = wrapLines(text, font, size, maxW);
   let curY = y;
   for (const ln of lines) {
-    page.drawText(ln, { x, y: curY, size, font, color });
+    page.drawText(ln, { x, y: curY, size, font, color, opacity });
     curY -= size * lhMul;
   }
   return curY;
@@ -275,6 +282,7 @@ function drawContentPage(
   f: Fonts,
   accent: Color,
   locale: string,
+  censorDays: number[],
 ): boolean {
   page.drawRectangle({ x: 0, y: 0, width: PW, height: PH, color: BG_PAGE });
 
@@ -349,6 +357,12 @@ function drawContentPage(
     const cellTopY = y - padY - bodySize;
     const dayText = dayLabels[row.day] ?? row.day.toUpperCase();
 
+    // Soft-censor (sample teaser): day label stays visible, content cells
+    // dimmed + dark overlay so the original text is unreadable but its
+    // contours show faintly. censorDays is empty for production → no-op.
+    const censored = censorDays.includes(DAY_ORDER.indexOf(row.day as typeof DAY_ORDER[number]));
+    const cellOpacity = censored ? 0.22 : undefined;
+
     // Day cell
     page.drawText(tx(dayText), { x: cx + padX, y: cellTopY, size: 8, font: f.bold, color: accent });
     cx += colW.day;
@@ -356,28 +370,38 @@ function drawContentPage(
     // Training cell
     let cellY = cellTopY;
     for (const item of row.training) {
-      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.training - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul);
+      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.training - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul, cellOpacity);
     }
     cx += colW.training;
 
     // Nutrition cell
     cellY = cellTopY;
     for (const item of row.nutrition) {
-      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.nutrition - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul);
+      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.nutrition - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul, cellOpacity);
     }
     cx += colW.nutrition;
 
     // Recovery cell
     cellY = cellTopY;
     for (const item of row.recovery) {
-      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.recovery - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul);
+      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.recovery - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul, cellOpacity);
     }
     cx += colW.recovery;
 
     // Stress cell
     cellY = cellTopY;
     for (const item of row.stress_anchor) {
-      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.stress - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul);
+      cellY = drawW(page, `• ${tx(item)}`, cx + padX, cellY, colW.stress - padX * 2, f.reg, bodySize, TXT_WHITE, lhMul, cellOpacity);
+    }
+
+    // Censor overlay — dark translucent layer over the content columns only
+    // (day column stays clear). Drawn after content text, before separators.
+    if (censored) {
+      page.drawRectangle({
+        x: MX + colW.day, y: y - rowH,
+        width: CW - colW.day, height: rowH,
+        color: rgb(0, 0, 0), opacity: 0.5,
+      });
     }
 
     // Column separators
@@ -417,7 +441,7 @@ export async function generateMasterPlanPDF(input: MasterPlanPdfInput): Promise<
 
   // Page 2: Intro + table (HARD: no page 3 ever)
   const contentPage = doc.addPage([PW, PH]);
-  const overflowed = drawContentPage(contentPage, input.plan, f, accent, locale);
+  const overflowed = drawContentPage(contentPage, input.plan, f, accent, locale, input.censorDays ?? []);
 
   // Sample watermark — diagonal "BEISPIEL" on every page, very low
   // opacity so it doesn't interfere with the actual content. Mirrors the
