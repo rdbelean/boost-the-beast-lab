@@ -10,8 +10,22 @@ import styles from "@/app/[locale]/plans/master/master.module.css";
 // table layout (same CSS module) but renders directly from the committed
 // sample data — no sessionStorage, no /api/master-plan/generate, no auth,
 // no PDF download.
+//
+// Teaser censor: Monday (index 0) renders fully visible. Tuesday–Sunday
+// (1–6) have their 4 content cells CSS-blurred so the reader gets a feel
+// for the structure without seeing the actual prescriptions. Matches the
+// PDF teaser pattern from /api/sample-report/master-pdf (censorDays =
+// [1,2,3,4,5,6] in generateMasterPlanPDF).
+const CENSORED_CELL_STYLE = {
+  filter: "blur(5px)",
+  userSelect: "none" as const,
+  pointerEvents: "none" as const,
+  opacity: 0.82,
+};
+
 export default function SampleMasterPlanPage() {
   const t = useTranslations("results.master_plan");
+  const tSample = useTranslations("sample");
   const { locale } = useParams() as { locale: string };
   const plan = getSampleMasterPlan(locale);
 
@@ -44,41 +58,59 @@ export default function SampleMasterPlanPage() {
               </tr>
             </thead>
             <tbody>
-              {plan.rows.map((row) => (
-                <tr key={row.day}>
-                  <td className={styles.dayCell}>{t(`day_${row.day}`)}</td>
-                  <td>
-                    <ul className={styles.cellList}>
-                      {row.training.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td>
-                    <ul className={styles.cellList}>
-                      {row.nutrition.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td>
-                    <ul className={styles.cellList}>
-                      {row.recovery.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td>
-                    <ul className={styles.cellList}>
-                      {row.stress_anchor.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </td>
-                </tr>
-              ))}
+              {plan.rows.map((row, rowIdx) => {
+                const cellStyle = rowIdx === 0 ? undefined : CENSORED_CELL_STYLE;
+                const ariaHidden = rowIdx === 0 ? undefined : true;
+                return (
+                  <tr key={row.day}>
+                    <td className={styles.dayCell}>{t(`day_${row.day}`)}</td>
+                    <td style={cellStyle} aria-hidden={ariaHidden}>
+                      <ul className={styles.cellList}>
+                        {row.training.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td style={cellStyle} aria-hidden={ariaHidden}>
+                      <ul className={styles.cellList}>
+                        {row.nutrition.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td style={cellStyle} aria-hidden={ariaHidden}>
+                      <ul className={styles.cellList}>
+                        {row.recovery.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td style={cellStyle} aria-hidden={ariaHidden}>
+                      <ul className={styles.cellList}>
+                        {row.stress_anchor.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+
+          <p
+            style={{
+              marginTop: 18,
+              fontSize: 13,
+              lineHeight: 1.5,
+              color: "rgba(255,255,255,0.55)",
+              fontStyle: "italic",
+              textAlign: "center",
+              fontFamily: "var(--font-inter), sans-serif",
+            }}
+          >
+            🔒 {tSample("unlock_hint")}
+          </p>
         </section>
       </main>
     </>
