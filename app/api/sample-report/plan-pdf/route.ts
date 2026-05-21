@@ -16,7 +16,9 @@ export async function GET(req: Request) {
   }
 
   const plan = getSamplePlan(locale, type);
-  const bytes = await generatePlanPDF({ ...plan, locale, isSample: true });
+  // Teaser: block-mask every box after "Deine Ausgangslage". Activity only
+  // for now — other plan types stay uncensored.
+  const bytes = await generatePlanPDF({ ...plan, locale, isSample: true, censor: type === "activity" });
 
   return new NextResponse(Buffer.from(bytes), {
     status: 200,

@@ -22,7 +22,7 @@ export interface PlanPdfInput {
   blocks: PlanBlock[];
   locale?: string;     // "de" | "en" | "it" — defaults to "de"
   isSample?: boolean;  // Adds diagonal BEISPIEL watermark on every page
-  censor?: boolean;    // Redacts items 3+ per block (teaser). Independent of isSample.
+  censor?: boolean;    // Block-masks content of every block after the first (teaser). Independent of isSample.
 }
 
 // ── Page dimensions ────────────────────────────────────────────────────────
@@ -41,6 +41,10 @@ const ACCENT    = rgb(0.902, 0.196, 0.133);
 const TXT_WHITE = rgb(0.933, 0.929, 0.922);
 const TXT_MUTED = rgb(0.540, 0.533, 0.521);
 const BORDER_C  = rgb(0.267, 0.267, 0.290);
+// Fill color for soft-censor word blocks (sample teaser). Mid-grey so it
+// reads as "text is here" against the dark card backgrounds. Mirrors the
+// master-plan generator's CENSOR_BLOCK.
+const CENSOR_BLOCK = rgb(0.420, 0.420, 0.450);
 
 function hexToRgb(hex: string): Color {
   const h = hex.replace("#", "");
@@ -103,10 +107,10 @@ const PLAN_LABELS: Record<string, {
 // everything else → Helvetica WinAnsi only).
 let currentPlanLocale: Locale = "de";
 
-// When true, items 3+ per block (except block 0) are replaced with grey
-// redaction bars + censor hint text. Decoupled from the BEISPIEL watermark
-// (gated on isSample) so a sample plan can show full content while
-// watermarked. Set by generatePlanPDF.
+// When true, the content (items + rationale) of every block AFTER the first
+// is block-masked (per-word grey rectangles); the first block and all
+// headings stay fully visible. Teaser only. Decoupled from the BEISPIEL
+// watermark (gated on isSample). Set by generatePlanPDF.
 let censorPlan = false;
 
 // Urgency label derived from score (matches web urgencyLabel() helper)
@@ -253,6 +257,44 @@ function drawW(
   return y;
 }
 
+// Soft-censor renderer (sample teaser only). Same wrapping + lhMul as drawW
+// so block heights from blockHeight()/textH() stay valid, but each word is
+// drawn as a filled CENSOR_BLOCK rectangle instead of legible text. Word
+// gaps are preserved → "redacted" look. Mirrors generateMasterPlan's
+// drawMasked. (A literal U+2593 block char is not used: de/en/it render with
+// Helvetica/WinAnsi, which cannot encode it.)
+function drawMasked(
+  page: PDFPage,
+  text: string,
+  x: number,
+  y: number,
+  maxW: number,
+  font: PDFFont,
+  size: number,
+  _color: Color,
+  lhMul = 1.6,
+): number {
+  if (!text || !tx(text).trim()) return y;
+  const lh = size * lhMul;
+  const spaceW = font.widthOfTextAtSize(" ", size);
+  const lines = wrapLines(text, font, size, maxW);
+  for (const ln of lines) {
+    if (y < 80) break;  // respect footer zone (matches drawW)
+    let tokX = x;
+    for (const tok of ln.split(" ")) {
+      if (!tok) {
+        tokX += spaceW;
+        continue;
+      }
+      const w = font.widthOfTextAtSize(tok, size);
+      page.drawRectangle({ x: tokX, y: y - size * 0.12, width: w, height: size * 0.72, color: CENSOR_BLOCK });
+      tokX += w + spaceW;
+    }
+    y -= lh;
+  }
+  return y;
+}
+
 function textH(text: string, font: PDFFont, size: number, maxW: number, lhMul = 1.6): number {
   if (!text || !tx(text).trim()) return 0;
   return wrapLines(text, font, size, maxW).length * size * lhMul;
@@ -364,10 +406,6 @@ function buildPlanCover(doc: PDFDocument, plan: PlanPdfInput, accentColor: Color
 // ── Block rendering ────────────────────────────────────────────────────────
 // Returns new y after the block + gap.
 
-// Height of a single censored item bar (matching drawBlock rendering).
-const CENSOR_BAR_H = 14;
-const CENSOR_BAR_GAP = 6;
-
 function blockHeight(block: PlanBlock, f: F, blockIndex = 0): number {
   // Defensive guard: a stale/cached AI output could still ship a non-legacy
   // shape (e.g. the deprecated weekly_table). Treat unknown blocks as empty
@@ -377,22 +415,19 @@ function blockHeight(block: PlanBlock, f: F, blockIndex = 0): number {
   const innerW = CW - 32;
   const headingH = 44;
 
-  const censorBlock = censorPlan && blockIndex > 0;
-  const visibleItems = censorBlock ? block.items.slice(0, 2) : block.items;
-  const censoredCount = censorBlock ? Math.max(0, block.items.length - 2) : 0;
-
-  const itemsH = visibleItems.reduce(
+  // Block-masking renders all items + the full rationale with identical
+  // wrapping/line-height, so a censored block is exactly as tall as the
+  // full version — no censor-specific height branch needed.
+  const itemsH = block.items.reduce(
     (acc, item) => acc + textH(item, f.reg, 9.5, innerW - 14, 1.55) + 4,
     0,
   );
-  const censoredH = censoredCount > 0 ? censoredCount * (CENSOR_BAR_H + CENSOR_BAR_GAP) + 10 : 0;
 
-  // Rationale: full for block 0, one small bar for censored blocks.
   const rationaleH = block.rationale
-    ? (censorBlock ? CENSOR_BAR_H + 20 : 36 + textH(block.rationale, f.reg, 8.5, innerW - 8, 1.5))
+    ? 36 + textH(block.rationale, f.reg, 8.5, innerW - 8, 1.5)
     : 0;
 
-  return Math.max(70, headingH + itemsH + censoredH + rationaleH + 20) + 20;
+  return Math.max(70, headingH + itemsH + rationaleH + 20) + 20;
 }
 
 function drawBlock(
@@ -425,63 +460,34 @@ function drawBlock(
     thickness: 0.5, color: BORDER_C,
   });
 
-  let itemY = headY - 22;
-  const visibleItems = censorBlock ? block.items.slice(0, 2) : block.items;
-  const censoredCount = censorBlock ? Math.max(0, block.items.length - 2) : 0;
+  // Block-mask the content (items + rationale) of every block after the
+  // first; headings and list markers stay visible. drawItem shares drawW's
+  // signature so heights stay consistent.
+  const drawItem = censorBlock ? drawMasked : drawW;
 
-  for (const item of visibleItems) {
+  let itemY = headY - 22;
+  for (const item of block.items) {
     if (itemY < 80) break;
     page.drawText("-", { x: MX + 16, y: itemY, size: 8, font: f.bold, color: accentColor });
-    itemY = drawW(page, item, MX + 28, itemY, innerW - 14, f.reg, 9.5, TXT_WHITE, 1.55);
+    itemY = drawItem(page, item, MX + 28, itemY, innerW - 14, f.reg, 9.5, TXT_WHITE, 1.55);
     itemY -= 4;
   }
 
-  // Censored items: grey redaction bar + hint text
-  if (censoredCount > 0 && itemY > 80) {
-    itemY -= 4;
-    for (let ci = 0; ci < censoredCount; ci++) {
-      if (itemY - CENSOR_BAR_H < 80) break;
-      const barW = innerW - 14;
-      page.drawRectangle({ x: MX + 28, y: itemY - CENSOR_BAR_H, width: barW, height: CENSOR_BAR_H, color: BG_INSET });
-      const hint = PL.censorHint;
-      const hintW = f.reg.widthOfTextAtSize(hint, 5.5);
-      page.drawText(hint, {
-        x: MX + 28 + barW / 2 - hintW / 2,
-        y: itemY - CENSOR_BAR_H + 4,
-        size: 5.5, font: f.bold, color: TXT_MUTED,
-      });
-      itemY -= CENSOR_BAR_H + CENSOR_BAR_GAP;
-    }
-  }
-
-  // Rationale section
+  // Rationale section — label + divider always visible, body block-masked
+  // for censored blocks.
   if (block.rationale && itemY > 90) {
-    if (censorBlock) {
-      // Single redaction bar for the rationale block
-      itemY -= 8;
-      const barW = innerW - 8;
-      page.drawRectangle({ x: MX + 16, y: itemY - CENSOR_BAR_H, width: barW, height: CENSOR_BAR_H, color: BG_INSET });
-      const hint = PL.censorHint;
-      const hintW = f.reg.widthOfTextAtSize(hint, 5.5);
-      page.drawText(hint, {
-        x: MX + 16 + barW / 2 - hintW / 2,
-        y: itemY - CENSOR_BAR_H + 4,
-        size: 5.5, font: f.bold, color: TXT_MUTED,
-      });
-    } else {
-      itemY -= 12;
-      page.drawLine({
-        start: { x: MX + 16, y: itemY },
-        end: { x: MX + CW - 16, y: itemY },
-        thickness: 0.5, color: BORDER_C,
-      });
-      itemY -= 12;
-      page.drawText(PL.scientificBasis, {
-        x: MX + 16, y: itemY, size: 6, font: f.bold, color: TXT_MUTED,
-      });
-      itemY -= 12;
-      drawW(page, block.rationale, MX + 16, itemY, innerW - 8, f.reg, 8.5, TXT_MUTED, 1.5);
-    }
+    itemY -= 12;
+    page.drawLine({
+      start: { x: MX + 16, y: itemY },
+      end: { x: MX + CW - 16, y: itemY },
+      thickness: 0.5, color: BORDER_C,
+    });
+    itemY -= 12;
+    page.drawText(PL.scientificBasis, {
+      x: MX + 16, y: itemY, size: 6, font: f.bold, color: TXT_MUTED,
+    });
+    itemY -= 12;
+    drawItem(page, block.rationale, MX + 16, itemY, innerW - 8, f.reg, 8.5, TXT_MUTED, 1.5);
   }
 
   return startY - bh - 20;
