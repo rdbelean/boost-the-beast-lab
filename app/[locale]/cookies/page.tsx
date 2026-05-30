@@ -24,10 +24,14 @@ export default function CookiesPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Übersicht</h2>
           <p className={styles.text}>
-            Diese Website verwendet ausschließlich technisch notwendige Cookies. Es werden keine
-            Tracking-, Analyse- oder Werbe-Cookies eingesetzt. Eine Einwilligung ist nach Art. 6
-            Abs. 1 lit. f DSGVO in Verbindung mit § 25 Abs. 2 TTDSG nicht erforderlich, da die
-            nachfolgend beschriebenen Cookies zum Betrieb der Website technisch notwendig sind.
+            Diese Website verwendet technisch notwendige Cookies sowie – nur mit deiner
+            ausdrücklichen Einwilligung – Analyse-Cookies des Dienstes Microsoft Clarity.{"\n\n"}
+            Die technisch notwendigen Cookies sind zum Betrieb der Website erforderlich; ihre
+            Verwendung ist nach Art. 6 Abs. 1 lit. f DSGVO in Verbindung mit § 25 Abs. 2 TTDSG
+            ohne Einwilligung zulässig. Die Analyse-Cookies werden erst gesetzt, nachdem du im
+            Cookie-Banner auf „Akzeptieren" geklickt hast (Art. 6 Abs. 1 lit. a DSGVO, § 25
+            Abs. 1 TTDSG). Du kannst diese Einwilligung jederzeit mit Wirkung für die Zukunft
+            widerrufen – siehe Abschnitt „Microsoft Clarity (Analyse)".
           </p>
         </section>
 
@@ -67,6 +71,41 @@ export default function CookiesPage() {
                 <td>1 Jahr / 30 Minuten</td>
                 <td><span className={styles.badge}>NOTWENDIG</span></td>
               </tr>
+              <tr>
+                <td><code>_clck</code></td>
+                <td>Microsoft Clarity</td>
+                <td>
+                  Speichert eine anonyme Clarity-Nutzer-ID, damit Aktivitäten bei
+                  weiteren Besuchen demselben Nutzer zugeordnet werden können. Wird
+                  nur mit Einwilligung gesetzt.
+                </td>
+                <td>1 Jahr</td>
+                <td><span className={`${styles.badge} ${styles.badgeAnalytics}`}>ANALYSE</span></td>
+              </tr>
+              <tr>
+                <td><code>_clsk</code></td>
+                <td>Microsoft Clarity</td>
+                <td>
+                  Verbindet mehrere Seitenaufrufe einer Sitzung zu einer einzelnen
+                  Aufzeichnung. Wird nur mit Einwilligung gesetzt.
+                </td>
+                <td>1 Tag</td>
+                <td><span className={`${styles.badge} ${styles.badgeAnalytics}`}>ANALYSE</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <code>CLID</code><br /><code>MUID</code><br />
+                  <code>ANONCHK</code><br /><code>SM</code>
+                </td>
+                <td>Microsoft (clarity.ms)</td>
+                <td>
+                  Von Microsoft gesetzte Cookies zur Wiedererkennung des Browsers
+                  und zur Synchronisierung über Microsoft-Dienste hinweg. Werden
+                  nur mit Einwilligung gesetzt.
+                </td>
+                <td>bis zu 13 Monate</td>
+                <td><span className={`${styles.badge} ${styles.badgeAnalytics}`}>ANALYSE</span></td>
+              </tr>
             </tbody>
           </table>
         </section>
@@ -83,11 +122,32 @@ export default function CookiesPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Kein Tracking, keine Analyse</h2>
+          <h2 className={styles.sectionTitle}>Microsoft Clarity (Analyse)</h2>
           <p className={styles.text}>
-            Es sind weder Google Analytics, Facebook Pixel, Hotjar, noch andere
-            Tracking- oder Analyse-Dienste in diese Website eingebunden. Es werden
-            keine personenbezogenen Daten zu Marketing- oder Werbezwecken verarbeitet.
+            Mit deiner Einwilligung nutzen wir Microsoft Clarity, einen Webanalyse-Dienst
+            der Microsoft Corporation (One Microsoft Way, Redmond, WA 98052, USA) bzw.
+            Microsoft Ireland Operations Ltd. Clarity hilft uns zu verstehen, wie Besucher
+            unsere Website nutzen (z. B. Heatmaps und anonymisierte Sitzungsaufzeichnungen),
+            damit wir die Seite verbessern können.{"\n\n"}
+            Clarity erfasst dabei Interaktionsdaten wie Mausbewegungen, Klicks und
+            Scrollverhalten sowie Geräte- und Browserinformationen. Eingaben in Formularfelder
+            werden von Clarity standardmäßig maskiert. Die Datenverarbeitung kann auf Servern
+            von Microsoft, auch in den USA, stattfinden. Microsoft ist unter dem EU-U.S. Data
+            Privacy Framework zertifiziert; ergänzend bestehen EU-Standardvertragsklauseln.
+            Details findest du in der{" "}
+            <a
+              href="https://privacy.microsoft.com/de-de/privacystatement"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#fff", textDecoration: "underline" }}
+            >
+              Datenschutzerklärung von Microsoft
+            </a>.{"\n\n"}
+            Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1
+            TTDSG). Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft
+            widerrufen, indem du die Website-Daten (Cookies und lokalen Speicher) für diese
+            Seite in deinem Browser löschst – beim nächsten Besuch erscheint der Cookie-Banner
+            erneut und du kannst neu wählen.
           </p>
         </section>
 

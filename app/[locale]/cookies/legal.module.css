@@ -143,6 +143,12 @@
   color: #E63222;
 }
 
+.badgeAnalytics {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #F59E0B;
+}
+
 @media (max-width: 480px) {
   .page {
     padding: 56px 16px 80px;
