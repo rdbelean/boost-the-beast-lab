@@ -225,8 +225,8 @@
         "a": "Perché abbiamo trasformato il coaching 1:1 in un sistema software. Marco non può seguire 1.000 atleti contemporaneamente — ma il suo sistema sì. Scalare invece di vendere ore."
       },
       "4": {
-        "q": "In cosa siete diversi da app come WHOOP o Oura?",
-        "a": "WHOOP e Oura misurano. Noi interpretiamo e ti diamo un piano concreto. I wearable forniscono dati senza strategia. Noi diamo strategia — con o senza i tuoi dati wearable."
+        "q": "In cosa siete diversi dai wearable e dalle app di tracking?",
+        "a": "I wearable e le app di tracking misurano. Noi interpretiamo e ti diamo un piano concreto. I tracker forniscono dati senza strategia. Noi diamo strategia — con o senza i tuoi dati wearable."
       },
       "5": {
         "q": "Quanto può essere davvero diverso il report da persona a persona?",
@@ -1089,9 +1089,10 @@
   },
   "cookie_banner": {
     "aria_label": "Avviso Cookie",
-    "text": "Questo sito utilizza esclusivamente cookie tecnici necessari per il login e l'elaborazione dei pagamenti. Nessun tracciamento, nessuna pubblicità.",
+    "text": "Utilizziamo cookie tecnici necessari (login e pagamento) e – solo con il tuo consenso – cookie di analisi (Microsoft Clarity) per capire l'utilizzo e migliorare il sito.",
     "policy_link": "Cookie Policy",
-    "dismiss": "Capito"
+    "accept": "Accetta",
+    "decline": "Solo necessari"
   },
   "sample_showcase": {
     "eyebrow": "REPORT DI ESEMPIO — SCARICA SUBITO",

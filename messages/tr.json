@@ -225,8 +225,8 @@
         "a": "Çünkü 1:1 koçluğu bir yazılım sistemine dönüştürdük. Marco aynı anda 1.000 sporcuyu çalıştıramaz — ama sistemi yapabilir. Saat satmak yerine ölçeklendirme."
       },
       "4": {
-        "q": "WHOOP veya Oura gibi uygulamalardan farkınız ne?",
-        "a": "WHOOP ve Oura ölçer. Biz yorumlarız ve sana somut bir plan veririz. Wearable'lar strateji olmadan veri sağlar. Biz strateji sağlarız — wearable verilerin olsun veya olmasın."
+        "q": "Wearable'lardan ve takip uygulamalarından farkınız ne?",
+        "a": "Wearable'lar ve takip uygulamaları ölçer. Biz yorumlarız ve sana somut bir plan veririz. Takip cihazları strateji olmadan veri sağlar. Biz strateji sağlarız — wearable verilerin olsun veya olmasın."
       },
       "5": {
         "q": "Rapor kişiden kişiye gerçekten ne kadar farklı olabilir?",
@@ -1094,9 +1094,10 @@
   },
   "cookie_banner": {
     "aria_label": "Çerez bildirimi",
-    "text": "Bu site yalnızca giriş ve ödeme için teknik olarak gerekli çerezleri kullanır. İzleme yok, reklam yok.",
+    "text": "Teknik olarak gerekli çerezleri (giriş ve ödeme) ve – yalnızca onayınızla – kullanımı anlamak ve siteyi iyileştirmek için analiz çerezlerini (Microsoft Clarity) kullanırız.",
     "policy_link": "Çerez politikası",
-    "dismiss": "Anladım"
+    "accept": "Kabul et",
+    "decline": "Yalnızca gerekli"
   },
   "sample_showcase": {
     "eyebrow": "ÖRNEK RAPOR — ANINDA İNDİR",

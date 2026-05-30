@@ -2,25 +2,42 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-
-const STORAGE_KEY = "btb_cookie_notice";
+import { CONSENT_KEY, CONSENT_EVENT } from "@/lib/consent";
 
 export default function CookieBanner() {
   const t = useTranslations("cookie_banner");
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && !localStorage.getItem(STORAGE_KEY)) {
+    // Show the banner until the user has made an explicit analytics choice.
+    if (typeof window !== "undefined" && !localStorage.getItem(CONSENT_KEY)) {
       setVisible(true);
     }
   }, []);
 
-  function dismiss() {
-    localStorage.setItem(STORAGE_KEY, "1");
+  function decide(value: "granted" | "denied") {
+    localStorage.setItem(CONSENT_KEY, value);
+    // Notify listeners (e.g. ClarityAnalytics) without a page reload.
+    window.dispatchEvent(new Event(CONSENT_EVENT));
     setVisible(false);
   }
 
   if (!visible) return null;
+
+  const secondaryButton = {
+    flexShrink: 0,
+    background: "transparent",
+    color: "rgba(255,255,255,0.75)",
+    border: "1px solid rgba(255,255,255,0.3)",
+    borderRadius: 2,
+    padding: "9px 22px",
+    fontFamily: "var(--font-oswald), sans-serif",
+    fontSize: 12,
+    fontWeight: 600,
+    letterSpacing: "0.12em",
+    cursor: "pointer",
+    textTransform: "uppercase" as const,
+  };
 
   return (
     <div
@@ -62,25 +79,30 @@ export default function CookieBanner() {
         </Link>
       </p>
 
-      <button
-        onClick={dismiss}
-        style={{
-          flexShrink: 0,
-          background: "#E63222",
-          color: "#fff",
-          border: "none",
-          borderRadius: 2,
-          padding: "9px 22px",
-          fontFamily: "var(--font-oswald), sans-serif",
-          fontSize: 12,
-          fontWeight: 600,
-          letterSpacing: "0.12em",
-          cursor: "pointer",
-          textTransform: "uppercase",
-        }}
-      >
-        {t("dismiss")}
-      </button>
+      <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+        <button onClick={() => decide("denied")} style={secondaryButton}>
+          {t("decline")}
+        </button>
+        <button
+          onClick={() => decide("granted")}
+          style={{
+            flexShrink: 0,
+            background: "#E63222",
+            color: "#fff",
+            border: "none",
+            borderRadius: 2,
+            padding: "9px 22px",
+            fontFamily: "var(--font-oswald), sans-serif",
+            fontSize: 12,
+            fontWeight: 600,
+            letterSpacing: "0.12em",
+            cursor: "pointer",
+            textTransform: "uppercase",
+          }}
+        >
+          {t("accept")}
+        </button>
+      </div>
     </div>
   );
 }

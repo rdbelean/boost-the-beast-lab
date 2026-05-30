@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Oswald, Inter, JetBrains_Mono } from "next/font/google";
 import "../globals.css";
 import CookieBanner from "@/components/CookieBanner";
+import ClarityAnalytics from "@/components/ClarityAnalytics";
 import { routing } from "@/i18n/routing";
 
 const SITE_URL = "https://boostthebeast-lab.com";
@@ -93,6 +94,7 @@ export default async function LocaleLayout({
           {children}
           <CookieBanner />
         </NextIntlClientProvider>
+        <ClarityAnalytics />
       </body>
     </html>
   );

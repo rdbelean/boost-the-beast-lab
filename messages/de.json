@@ -225,8 +225,8 @@
         "a": "Weil wir aus 1:1 Coaching ein Software-System gemacht haben. Marco kann nicht 1000 Athleten gleichzeitig coachen — aber sein System schon. Skalierung statt Stunden-Verkauf."
       },
       "4": {
-        "q": "Was unterscheidet euch von Apps wie WHOOP oder Oura?",
-        "a": "WHOOP und Oura messen. Wir interpretieren und geben dir einen konkreten Plan. Wearables liefern Daten ohne Strategie. Wir liefern Strategie — mit oder ohne deinen Wearable-Daten."
+        "q": "Was unterscheidet euch von Wearables und Tracking-Apps?",
+        "a": "Wearables und Tracking-Apps messen. Wir interpretieren und geben dir einen konkreten Plan. Tracker liefern Daten ohne Strategie. Wir liefern Strategie — mit oder ohne deine Wearable-Daten."
       },
       "5": {
         "q": "Wie unterschiedlich kann der Report wirklich pro Person sein?",
@@ -1094,9 +1094,10 @@
   },
   "cookie_banner": {
     "aria_label": "Cookie-Hinweis",
-    "text": "Diese Website verwendet ausschließlich technisch notwendige Cookies für Login und Zahlungsabwicklung. Kein Tracking, keine Werbung.",
+    "text": "Wir verwenden technisch notwendige Cookies (Login & Zahlung) und – nur mit deiner Einwilligung – Analyse-Cookies (Microsoft Clarity), um die Nutzung zu verstehen und die Seite zu verbessern.",
     "policy_link": "Cookie-Richtlinie",
-    "dismiss": "Verstanden"
+    "accept": "Akzeptieren",
+    "decline": "Nur notwendige"
   },
   "sample_showcase": {
     "eyebrow": "BEISPIELREPORT — SOFORT ZUM RUNTERLADEN",
